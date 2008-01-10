@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Texture and Color</TITLE>
+<META NAME="description" CONTENT="Texture and Color">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="previous" HREF="node18.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node20.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html372"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html366"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html362"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html368"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html370"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html373"
+  HREF="node20.html">Index</A>
+<B> Up:</B> <A NAME="tex2html367"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html363"
+  HREF="node18.html">Objects</A>
+ &nbsp <B>  <A NAME="tex2html369"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html371"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html374"
+  HREF="node19.html#SECTION00058100000000000000">Simple Texture Characteristics</A>
+<LI><A NAME="tex2html375"
+  HREF="node19.html#SECTION00058200000000000000">Texture Declaration and Aliasing</A>
+<LI><A NAME="tex2html376"
+  HREF="node19.html#SECTION00058300000000000000">Image Maps and Procedural Textures</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A NAME="SECTION00058000000000000000">
+Texture and Color</A>
+</H2>
+
+<H3><A NAME="SECTION00058100000000000000">
+Simple Texture Characteristics</A>
+</H3>
+  The surface textures applied to an object drastically alter its overall
+appearance, making textures and color one of the most important topics in
+this manual.  As with many other renderers, textures can be declared and
+associated with a name so that they may be used over and over again in 
+a scene definition with less typing.  If a texture is only need once, or it
+is unique to a particular object in the scene, then it may be declared along
+with the object it is applied to, and does not need a name. 
+
+<P>
+The simplest texture definition is a solid color with no image mapping 
+or procedural texture mapping.  A solid color texture is defined by the
+<B>AMBIENT</B>, <B>DIFFUSE</B>, <B>SPECULAR</B>, <B>OPACITY</B> and <B>COLOR</B>  
+parameters.  The <B>AMBIENT</B> parameter defines the ambient lighting
+coefficient to be used when shading the object.  Similarly, the <B>DIFFUSE</B>
+parameter is the relative contribution of the diffuse shading to the surface
+appearance.  The <B>SPECULAR</B> parameter is the contribution from perfectly
+reflected rays, as if on a mirrored surface.  <B>OPACITY</B> defines how
+transparent a surface is.  An <B>OPACITY</B> value of 0.0 renders the object
+completely invisible.  An <B>OPACITY</B> value of 1.0 makes the object
+completely solid, and non-transmissive.  In general, the values for the
+ambient, diffuse, and specular parameters should add up to 1.0, if they don't
+then pixels may be over or underexposed quite easily.  These parameters
+function in a manner similar to that of other ray tracers.  The <B>COLOR</B> 
+parameter is an RGB triple with each value ranging from 0.0 to 1.0 inclusive. 
+If the RGB values stray from 0.0 to 1.0, results are undefined.
+In the case of solid textures, a final parameter, <B>TEXFUNC</B> is set to
+zero (integer).
+
+<P>
+
+<H3><A NAME="SECTION00058200000000000000">
+Texture Declaration and Aliasing</A>
+</H3>
+  To define a simple texture for use on several objects in a scene, the 
+<B>TEXDEF</B> keyword is used.  The <B>TEXDEF</B> keyword is followed by
+a case sensitive texture name, which will subsequently be used while 
+defining objects.  If many objects in a scene use the same texture through
+texture definition, a significant amount of memory may be saved since only
+one copy of the texture is present in memory, and its shared by all
+of the objects.  Here is an example of a solid texture definition:
+<PRE>
+ TEXDEF MyNewRedTexture   
+    AMBIENT 0.1 DIFFUSE 0.9 SPECULAR 0.0 OPACITY 1.0 
+    COLOR 1.0 0.0 0.0  TEXFUNC 0
+</PRE>
+When this texture is used in an object definition, it is referenced only by
+name.  Be careful not to use one of the other keywords as a defined texture,
+this will probably cause the parser to explode, as I don't check for use
+of keywords as texture names. 
+
+<P>
+When a texture is declared within an object definition, it appears in 
+an identical format to the <B>TEXDEF</B> declaration, but the <B>TEXTURE</B> 
+keyword is used instead of <B>TEXDEF</B>.  If it is useful to have several
+names for the same texture (when you are too lazy to actually finish defining
+different variations of a wood texture for example, and just want to be 
+approximately correct for example) aliases can be constructed using the 
+<B>TEXALIAS</B> keyword, along with the alias name, and the original name.
+An example of a texture alias is:
+<PRE>
+  TEXALIAS MyNewestRedTexture  MyNewRedTexture
+</PRE>
+This line would alias MyNewestRedTexture to be the same thing as the 
+previously declared MyNewRedTexture.  Note that the source texture must
+be declared before any aliases that use it.
+
+<P>
+
+<H3><A NAME="SECTION00058300000000000000">
+Image Maps and Procedural Textures</A>
+</H3>
+  Image maps and procedural textures very useful in making realistic looking
+scenes.  A good image map can do as much for the realism of a wooden table
+as any amount of sophisticated geometry or lighting.  Image maps are made by
+wrapping an image on to an object in one of three ways, a spherical map, a
+cylindrical map, and a planar map.  Procedural textures are used in a way
+similar to the image maps, but they are on the fly and do not use much memory
+compared to the image maps.  The main disadvantage of the procedural maps
+is that they must be hard-coded into Tachyon when it is compiled.
+
+<P>
+The syntax used for all texture maps is fairly simple to learn.  The biggest
+problem with the way that the parser is written now is that the different
+mappings are selected by an integer, which is not very user friendly.  I 
+expect to rewrite this section of the parser sometime in the near future to
+alleviate this problem.  When I rewrite the parser, I may also end up altering
+the parameters that are used to describe a texture map, and some of them may
+become optional rather than required.  
+
+<P>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="CENTER" COLSPAN=2>Texture Mapping Functions</TD>
+</TR>
+<TR><TD ALIGN="CENTER">Value for TEXFUNC</TD>
+<TD ALIGN="CENTER">Mapping and Texture Description</TD>
+</TR>
+<TR><TD ALIGN="CENTER">0</TD>
+<TD ALIGN="CENTER">No special texture, plain shading</TD>
+</TR>
+<TR><TD ALIGN="CENTER">1</TD>
+<TD ALIGN="CENTER">3D checkerboard function, like a rubik's cube</TD>
+</TR>
+<TR><TD ALIGN="CENTER">2</TD>
+<TD ALIGN="CENTER">Grit Texture, randomized surface color</TD>
+</TR>
+<TR><TD ALIGN="CENTER">3</TD>
+<TD ALIGN="CENTER">3D marble texture, uses object's base color</TD>
+</TR>
+<TR><TD ALIGN="CENTER">4</TD>
+<TD ALIGN="CENTER">3D wood texture, light and dark brown, not very good yet</TD>
+</TR>
+<TR><TD ALIGN="CENTER">5</TD>
+<TD ALIGN="CENTER">3D gradient noise function (can't remember what it look like</TD>
+</TR>
+<TR><TD ALIGN="CENTER">6</TD>
+<TD ALIGN="CENTER">Don't remember</TD>
+</TR>
+<TR><TD ALIGN="CENTER">7</TD>
+<TD ALIGN="CENTER">Cylindrical Image Map, requires ppm filename</TD>
+</TR>
+<TR><TD ALIGN="CENTER">8</TD>
+<TD ALIGN="CENTER">Spherical Image Map, requires ppm filename</TD>
+</TR>
+<TR><TD ALIGN="CENTER">9</TD>
+<TD ALIGN="CENTER">Planar Image Map, requires ppm filename</TD>
+</TR>
+</TABLE>
+</DIV>
+
+<P>
+Here's an example of a sphere, with a spherical image map applied to its
+surface:
+<PRE>
+SPHERE
+  CENTER 2.0  0.0 5.0   
+  RAD 2.0 
+  TEXTURE 
+    AMBIENT  0.4 DIFFUSE  0.8 SPECULAR 0.0  OPACITY 1.0 
+    COLOR 1.0 1.0 1.0  
+    TEXFUNC 7 /cfs/johns/imaps/fire644.ppm  
+      CENTER 2.0 0.0 5.0
+      ROTATE 0.0 0.0 0.0 
+      SCALE  2.0 -2.0 1.0
+</PRE>
+
+<P>
+Basically, the image maps require the center, rotate and scale parameters so
+that you can position the image map on the object properly
+
+<P>
+
+<A NAME="index:label"></A>
+
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html372"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html366"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html362"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html368"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html370"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html373"
+  HREF="node20.html">Index</A>
+<B> Up:</B> <A NAME="tex2html367"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html363"
+  HREF="node18.html">Objects</A>
+ &nbsp <B>  <A NAME="tex2html369"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html371"
+  HREF="node20.html">Index</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

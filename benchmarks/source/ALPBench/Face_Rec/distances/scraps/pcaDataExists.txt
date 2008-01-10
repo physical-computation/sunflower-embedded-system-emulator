@@ -1,0 +1,1 @@
+Indicator file used by the scripts to know whether the data in this directory is valid

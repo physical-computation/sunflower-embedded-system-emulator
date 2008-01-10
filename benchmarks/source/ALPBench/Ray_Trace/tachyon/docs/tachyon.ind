@@ -1,0 +1,49 @@
+\begin{theindex}
+
+  \item camera, 6
+    \subitem antialiasing, 7
+    \subitem aspect ratio, 7
+    \subitem maximum ray depth, 7
+    \subitem orientation, 7
+    \subitem zoom, 6
+  \item command line parameters, 5
+  \item compiling on unix systems, 3
+
+  \indexspace
+
+  \item include files, 8
+
+  \indexspace
+
+  \item lightin
+    \subitem point sources, 8
+  \item lighting, 8
+    \subitem attenuation, 9
+    \subitem spotlights, 8
+
+  \indexspace
+
+  \item objects, 9
+    \subitem arbitrary quadrics, 13
+    \subitem axis-aligned boxes, 12
+    \subitem finite cylinders, 12
+    \subitem fractal landscapes, 13
+    \subitem grids of scalar voxels, 13
+    \subitem infinite cylinders, 12
+    \subitem planes, 11
+    \subitem rings, 11
+    \subitem smoothed triangles, 10
+    \subitem spheres, 9
+    \subitem triangles, 10
+
+  \indexspace
+
+  \item running, 5
+  \item running with MPI, 5
+
+  \indexspace
+
+  \item scene description files, 5
+  \item scene file comments, 8
+
+\end{theindex}

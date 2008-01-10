@@ -1,0 +1,96 @@
+These are the benchmarks downloaded, Monday May 8 2006, from 
+http://rsim.cs.uiuc.edu/alp/alpbench/download.html, constituting
+the ALPBench suite version 1.0
+
+Changes:
+	Face_Rec/Makefile
+		Added flags to link in sfpthread, use our gcc, etc.
+		Added rules for init.o
+		added init.o to all OBJECT_
+		added rule to convert binary to .sr
+		added  -lc -lm -lgcc -l$(LIBOS)-$(TARGET) to LINKER lines
+		added OBJCOPY and OBJDUMP to link target lines
+
+	Face_Rec/src/csuCommonFile.c
+		lines 549, 556: changed HUGE to HUGE_VAL
+
+	Face_Rec/src/csuBayesianProject.c
+		line 459, 460: change HUGE -> HUGE_VAL
+
+	Face_Rec/src/csuAnalyzePermute.c
+		line 82: comment out include libgen.h
+		added a copy of strlcpy and basename from openbsd source tree
+		line 1177: call to included basename
+
+		Added:
+			bin/sunflowersim directory created during build
+
+
+
+	MPGdec/makefile
+		Added flags to link in sfpthread, use our gcc, etc.
+		Changed original references to TARGET to MPEGTARGET
+			to remove name conflict with our use of TARGET
+
+		Added init.o target (semi-broken: messily overrides default $OBJS rule)
+	
+		Changed -DNUM_THREADS=1 to -DNUM_THREADS=4
+
+		... the above change breaks things and we need to go in and
+		fix it to compile again using sfpthread
+
+		... uses pthread_join which sfpthread currently doesnt have a
+		full implementation of...
+
+
+		... change -DNUM_THREADS=1 and it will compile (tested it), but
+		for a single thread on single processor
+
+		
+
+	MPGenc/makefile
+		Added flags to link in sfpthread, use our gcc, etc.
+		Changed original references to TARGET to MPEGTARGET
+			to remove name conflict with our use of TARGET
+
+		Added init.o target (semi-broken: messily overrides default $OBJS rule)
+		
+
+
+
+
+
+	Sphinx3: I don't like the fact that I added #include <pthread.h>
+		to many files to clean up the messy double includes that
+		were in there.
+
+	Sphinx3/makefile
+		Added flags to link in sfpthread, use our gcc, etc.
+		Changed original references to TARGET to MPEGTARGET
+			to remove name conflict with our use of TARGET
+		
+	Sphinx3/src/unlimit.c
+		unlimit() is meaningless in a simulation environment
+		where we are proxying for the OS; Rather than add
+		similar cases for the ifdeff as for win32/HPUX, which
+		would make unlimit() a no-op, just commented out body of it.
+
+		src/barrier.h and its includers:
+			removed a include of pthread.h from barrier.h, 
+			and instead have includers
+			of barrier.h explicitly include pthreads.h
+
+
+
+
+	Ray_Trace/tachyon/unix/Make-arch
+		Added an arch "sunflower-spthr" and added necessary
+		Makefile variables (LFLAGS, CFLAGS, etc).
+		changed Makefile to use $(LD) for linking instead of $(CC)
+		- other archs must not define LD as GCC to un-break things
+		- also took out CFALGS and DEMOINC from link args
+		- changed ${LIBS} to ${LFAGS} which makes more sense
+		- added EXTRALIBS and rearranged link arguments to make more sense
+	src/parallel.c: added case for hostname (SUPERH)
+
+- phillip stanley-marbell

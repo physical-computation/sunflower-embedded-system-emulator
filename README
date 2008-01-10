@@ -1,0 +1,10 @@
+(1)	Read manual.pdf if you can.
+
+(2)	Edit conf/setup.conf and set SUNFLOWERROOT, and HOST appropriately.
+
+(3)	cd to sim/ and type 'make'. The build should work automatically on
+	MacOS, Linux, and Solaris.  This builds the console version of
+	the simulator.
+
+(4)	To build the cross-compiler, type 'make cross' from the root of
+	the installation (the directory containing this README file).

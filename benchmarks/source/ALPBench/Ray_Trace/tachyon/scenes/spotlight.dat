@@ -1,0 +1,55 @@
+BEGIN_SCENE
+  Resolution 1024 1024
+
+Camera
+  Zoom  1.0
+  Aspectratio 1.0
+  Antialiasing 0
+  Raydepth  12 
+  Center    0.0 3.0 0.0
+  Viewdir   0.0 -0.3 0.7
+  Updir     0.0 1.0 0.0
+End_Camera
+
+SpotLight 
+  Center  0.0 3.0  17.0 
+  Rad     0.2
+  Direction 0.0 -1.0 0.0
+    Falloff_Start 20.0
+    Falloff_End   45.0
+  Color   1.0 0.0  0.0
+
+SpotLight 
+  Center -5.0 3.0  27.0 
+  Rad     0.2
+  Direction 0.0 -1.0 0.0
+    Falloff_Start 20.0
+    Falloff_End   45.0
+  Color   0.0 1.0  0.0
+
+SpotLight 
+  Center  5.0 3.0  27.0 
+  Rad     0.2
+  Direction 0.0 -1.0 0.0
+    Falloff_Start 20.0
+    Falloff_End   45.0
+  Color   0.0 0.0  1.0
+
+Sphere
+  Center 0.0 -10.0 23.0
+  Rad    4.0
+  Texture
+    Ambient  0.0 Diffuse  0.7 Specular 0.0  Opacity 1.0
+    Phong Plastic 0.8  Phong_Size 24.0
+    Color  1.0 1.0 1.0
+    Texfunc 0
+
+Plane
+  Center 0.0 -14.0 0.0 
+  Normal 0.0  1.0 0.0  
+  Texture 
+    Ambient  0.0  Diffuse 1.0  Specular 0.0  Opacity 1.0 
+    Color  1.0 1.0 1.0 
+    Texfunc 0 
+	
+END_SCENE

@@ -1,0 +1,2 @@
+#define	MOVL	MOV.L
+

@@ -1,0 +1,51 @@
+BEGIN_SCENE
+  RESOLUTION 1024 1024
+
+CAMERA
+  ZOOM  1.0
+  ASPECTRATIO 1.0
+  ANTIALIASING 0
+  RAYDEPTH 2
+
+  CENTER   -21.922 3.689 0.011
+  VIEWDIR 0.916 -0.058 0.396
+  UPDIR    0.083 0.996 -0.045
+
+END_CAMERA
+
+LIGHT 
+  CENTER  12.0 15.5 -20.0 
+  RAD     1.0
+  COLOR   1.0 1.0 1.0
+
+
+PLANE 
+  CENTER 0.0  0.0 0.0 
+  NORMAL 0.0  1.0 0.0  
+  TEXTURE 
+    AMBIENT  0.0 DIFFUSE  0.6 SPECULAR 0.4  OPACITY 1.0
+    COLOR  0.1 0.1 0.6 
+    TEXFUNC  0
+
+sphere
+  center 0.0 0.0 0.0
+  rad 0.00001
+  texture 
+    ambient 1.0 diffuse 0.0 specular 0.0 opacity 1.0
+    color 1.0 1.0 1.0
+    texfunc 7 imaps/space3.ppm
+      center 0.0 0.0 0.0
+      rotate 0.0 -0.3 0.0
+      scale  3.0 3.0 3.0
+
+SCAPE
+  RES    160  160
+  SCALE  40.0 40.0 
+  CENTER  0.0  -1.5  0.0
+  TEXTURE
+    AMBIENT 0.1 DIFFUSE 0.9 SPECULAR 0.0 OPACITY 1.0
+    COLOR 0.8 0.4 0.3
+    TEXFUNC 0   
+
+END_SCENE
+

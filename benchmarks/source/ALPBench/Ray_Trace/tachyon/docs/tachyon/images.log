@@ -1,0 +1,117 @@
+This is TeX, Version 3.14159 (Web2C 7.3.1) (format=latex 1999.8.20)  4 AUG 2003 00:56
+**./images.tex
+(./images.tex
+LaTeX2e <1998/12/01> patch level 1
+Babel <v3.6x> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+
+(/Common/shared/teTeX/share/texmf/tex/latex/base/article.cls
+Document Class: article 1999/01/07 v1.4a Standard LaTeX document class
+(/Common/shared/teTeX/share/texmf/tex/latex/base/size11.clo
+File: size11.clo 1999/01/07 v1.4a Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (/Common/shared/teTeX/share/texmf/tex/latex/base/ifthen.sty
+Package: ifthen 1999/01/07 v1.1a Standard LaTeX ifthen package (DPC)
+) (/Common/shared/teTeX/share/texmf/tex/latex/base/makeidx.sty
+Package: makeidx 1998/08/17 v1.0k Standard LaTeX package
+)
+\@indexfile=\write3
+\openout3 = `images.idx'.
+
+Writing index file images.idx
+(/Common/shared/teTeX/share/texmf/tex/latex/graphics/color.sty
+Package: color 1999/02/16 v1.0i Standard LaTeX Color (DPC)
+(/Common/shared/teTeX/share/texmf/tex/latex/config/color.cfg)
+Package color Info: Driver file: dvips.def on input line 125.
+(/Common/shared/teTeX/share/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+) (/Common/shared/teTeX/share/texmf/tex/latex/graphics/dvipsnam.def
+File: dvipsnam.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+)) (/Common/shared/teTeX/share/texmf/tex/latex/base/inputenc.sty beta test vers
+ion
+Package: inputenc 1998/03/05 v0.97 Input encoding file (test version: still lia
+ble to change)
+)
+\sizebox=\box26
+\lthtmlwrite=\write4
+(images.aux)
+\openout1 = `images.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 124.
+LaTeX Font Info:    ... okay on input line 124.
+
+latex2htmlLength hsize=349.0pt
+
+latex2htmlLength vsize=629.40024pt
+
+latex2htmlLength hoffset=0.0pt
+
+latex2htmlLength voffset=0.0pt
+
+latex2htmlLength topmargin=0.0pt
+
+latex2htmlLength topskip=0.00003pt
+
+latex2htmlLength headheight=0.0pt
+
+latex2htmlLength headsep=0.0pt
+
+latex2htmlLength parskip=0.0pt plus 1.0pt
+
+latex2htmlLength oddsidemargin=54.0pt
+
+latex2htmlLength evensidemargin=54.0pt
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 165.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 165.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 165.
+l2hSize :tex2html_wrap_inline315:8.10416pt::8.10416pt::9.67255pt.
+[1
+
+
+
+]
+l2hSize :tex2html_wrap_inline321:8.10416pt::8.10416pt::27.92258pt.
+[2
+
+
+]
+l2hSize :displaymath442:26.1736pt::0.0pt::349.0pt.
+[3
+
+
+] (images.aux) ) 
+Here is how much of TeX's memory you used:
+ 606 strings out of 10901
+ 7572 string characters out of 72057
+ 48553 words of memory out of 263001
+ 3589 multiletter control sequences out of 10000+0
+ 6379 words of font info for 23 fonts, out of 400000 for 1000
+ 14 hyphenation exceptions out of 1000
+ 21i,5n,19p,162b,217s stack positions out of 300i,100n,500p,50000b,4000s
+
+Output written on images.dvi (3 pages, 976 bytes).

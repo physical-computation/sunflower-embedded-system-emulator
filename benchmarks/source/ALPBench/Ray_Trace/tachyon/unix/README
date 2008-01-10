@@ -1,0 +1,155 @@
+
+Notes on the Unix builds of Tachyon:
+------------------------------------
+  General suggestions on configuration:
+  -------------------------------------
+    When choosing which way to build Tachyon for a given platform,
+  there are a few general suggestions which will give you good results.
+  When running on a small shared memory machine, you'll probably get the 
+  best performance from the multithreaded builds of Tachyon.  If you're 
+  running on a large SMP system with 30 or more processors, you may
+  get equivalent or possibly better performance by using MPI, depending 
+  on the efficiency of a vendor's threads implementation.  
+
+  If you're going to run Tachyon on a distributed memory cluster, then 
+  you'll want to use one of the MPI or LAM builds options.  In my experience,
+  LAM gives far better performance when running on a cluster connected by
+  ethernet than MPICH running on the same hardware.  So, if you're not using
+  a vendor-provided MPI tuned for a custom interconnect, I highly recommend
+  using LAM as your first-best option.
+
+  Configuration:
+  --------------
+    You may wish to enable support for various special features such
+  as interactive spaceball fly-throughs, JPEG and PNG image format
+  support, and other configurable features.  These are all controlled
+  in the file Make-config.  Similarly, other options which affect
+  operation of the ray tracer, such as floating point precision, 
+  mailbox data structures, etc, are enabled or disabled by editing
+  this file.  Make-config also includes paths for include and linkage
+  paths for libraries like MPI, OpenGL, and other libraries.
+
+  Compiling:
+  ----------
+    Simply type 'make' to see a list of build configurations, choose a 
+  configuration and type "make xxxx-xxx-xxx" as appropriate.  The resulting 
+  binaries will be built and linked in the associated 
+  "../compile/xxxx-xxx-xxx" directory.
+
+  Running Multithreaded Builds:
+  -----------------------------
+    Running the multithreaded builds of Tachyon is trivial, it is
+  just like running any other program.  No special flags are required
+  unless you want to limit the number of threads (and thus CPUs) used
+  during the rendering process.  By default, Tachyon will attempt to 
+  spawn a number of computation threads equal to the number of CPUs
+  installed in the machine, as determined by operating-system-specific 
+  code built into Tachyon.
+   
+    Autodetect number of threads/CPUs:
+    ----------------------------------
+    % cd ../compile/solaris-thr
+    % tachyon ../../scenes/balls.dat
+
+    Specify number of threads/CPUs (42 in this example):
+    ----------------------------------
+    % cd ../compile/solaris-thr
+    % tachyon ../../scenes/balls.dat -numthreads 42
+
+ 
+  Running MPI Builds:
+  -------------------
+    Since the details of using 'mpirun' and similar commands vary 
+  substantially from one platform to another, and sometimes even between
+  different site-specific installations here is a short list of typical
+  commands to execute the parallel versions of Tachyon.
+  Each of the examples below illustrate how to run Tachyon on the
+  "balls.dat" or "tetra.dat" scene files included with the distribution.  
+  The default output image is "outfile.tga" and will be written in the working
+  directory unless you override this default with the 
+  "-o /somedir/somefile.tga" flags to Tachyon.
+
+    Cray T3E
+    --------
+      % cd ../compile/cray-t3e-mpi
+      % mpprun -n 12 tachyon ../../scenes/balls.dat
+
+    MPICH
+    -----
+      % cd ../compile/solaris-mpi
+      % mpirun -np 16 tachyon ../../scenes/balls.dat
+
+    Scyld (MPICH)
+    ----- 
+      Need to copy scene files to a globally accessible file area, which
+      may be an issue for some Scyld installations.  I'm working on making
+      the root node re-distribute geometry to the rest of the nodes so that
+      file I/O ability is needed only on the root node. 
+      % cd ../compile/solaris-mpi
+      % mpirun -np 16 tachyon ../../scenes/balls.dat
+
+    LAM-MPI
+    -------
+      In order to run the regular LAM builds follow these steps
+      % cd ../compile/linux-lam
+      % lamboot 
+      % mpirun -c2c -np 16 tachyon -- ../../scenes/balls.dat
+      % wipe
+
+      In order to run the OpenGL-enabled LAM builds, the DISPLAY 
+      environment variable must be propagated to the running job, thus
+      some extra parameters must be passed to LAM's mpirun which will make
+      it inherit your existing DISPLAY environment variable:
+      % cd ../compile/linux-lam
+      % lamboot 
+      % mpirun -c2c -x DISPLAY -np 16 tachyon -- ../../scenes/balls.dat
+      % wipe
+
+    Sun ClusterTools 4.0 MPI
+    ------------------------
+      % cd ../compile/solaris-hpc
+      % mprun -np 0 ./tachyon ../../scenes/balls.dat
+
+    Compaq Alphserver SC at PSC
+    ---------------------------
+      % rinfo
+      % qsub -I -l rmsnodes=2:8
+      % prun -N 2 -n 8 ./tachyon ../../scenes/balls.dat
+      % ^D
+
+    Intel iPSC/860
+    --------------
+      % cd ../compile/ipsc860-mpi
+      % getcube -t16
+      % load "tachyon ../../scenes/tetra.dat"  
+      % relcube
+ 
+    Intel Paragon XP/S
+    ------------------
+      % cd ../compile/paragon-mpi 
+      % pexec "tachyon ../../scenes/tetra.dat" -sz 16
+
+    Mercury RACE Multicomputers (ppc, i860, SHARC)
+    ----------------------------------------------
+      % cd ../compile/mercury-ppc-mpi
+      % ln -s tachyon tachyon.ppc
+      % mpirun -np 16 -h 0x800000 tachyon ../../scenes/tetra.dat
+   
+      Note: the -h flags explicitly set the heap size for the
+            process.  Some scenes will require more heap size than
+            others, so this flag may or may not be needed in order to
+            increase the default heap size provided to Tachyon.
+
+      For non-MPI builds on the Mercury machines, use the following
+      sequence to initialize and load the code on a node, where XXX
+      is the node you desire to run on:
+        % sysmc -v -ce XXX init &
+        % sleep 3
+        % runmc -v -h 0x800000 -ce XXX tachyon.860 ../../scenes/tetra.dat
+
+    CSPI Multicomputers (ppc)
+    -------------------------
+      % cd ../compile/cspi-ppc-mpi
+      % mpirun -np 16 tachyon ../../scenes/tetra.dat
+
+Last updated July 29, 2003

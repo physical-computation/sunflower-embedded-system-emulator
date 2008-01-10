@@ -1,0 +1,20 @@
+To compile:
+
+In this directory first give
+> setenv S3ROOT $cwd
+
+
+For cleanliness
+> make clean
+
+
+Thereafter, you can run any of the following commands to make the
+corresponding binaries (in bin/$(MACHINE)/* or bindbg/$(MACHINE)/*)
+
+> make s3decode
+> make s3decode-dbg
+> make s3decode-anytopo
+> make s3decode-anytopodbg
+> make s3align
+> make s3allphone
+

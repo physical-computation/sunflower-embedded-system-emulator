@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Compiling Tachyon From Source Code</TITLE>
+<META NAME="description" CONTENT="Compiling Tachyon From Source Code">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node5.html">
+<LINK REL="previous" HREF="node2.html">
+<LINK REL="up" HREF="tachyon.html">
+<LINK REL="next" HREF="node5.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html120"
+  HREF="node5.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html114"
+  HREF="tachyon.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html108"
+  HREF="node3.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html116"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html118"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html121"
+  HREF="node5.html">Running Tachyon</A>
+<B> Up:</B> <A NAME="tex2html115"
+  HREF="tachyon.html">Tachyon Docs</A>
+<B> Previous:</B> <A NAME="tex2html109"
+  HREF="node3.html">Tachyon Feature List</A>
+ &nbsp <B>  <A NAME="tex2html117"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html119"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00030000000000000000"></A>
+<A NAME="66"></A>
+<BR>
+Compiling Tachyon From Source Code
+</H1>
+  In order to use Tachyon you may need to compile it from source 
+code, since it is normally distributed in source code form.
+Building Tachyon binaries is a fairly straightforward process.  
+Download the Tachyon distribution from the web/ftp server.  Once you 
+have downloaded the distribution, unpack the distribution using 
+gunzip and tar.  Once the distribution is unpacked, cd into the 
+'tachyon' directory, and then into the 'unix' directory.  
+Once in the 'unix' directory, type 'make' to see the list of 
+configurations that are currently supported.  
+
+<P>
+<PRE>
+johns:/disk5/users/johns/graphics % gunzip tachyon.tar.gz
+johns:/disk5/users/johns/graphics % tar -xvf tachyon.tar.gz
+johns:/disk5/users/johns/graphics % cd tachyon
+johns:/disk5/users/johns/graphics/tachyon % cd unix
+johns:/disk5/users/johns/graphics/tachyon/unix % make
+  Choose one of the architectures specified below.
+-----------------------------------------------------------
+              Parallel Versions        
+ 
+paragon-thr-mpi - Intel Paragon    (MPI + Threads + Thread I/O) 
+ paragon-mp-mpi - Intel Paragon    (MPI + Threads + Reg I/O)    
+    paragon-mpi - Intel Paragon    (MPI)           
+    ipsc860-mpi - Intel iPSC/860   (MPI)           
+        sp2-mpi - IBM SP2          (MPI)           
+    solaris-mpi - Sun Solaris 2.x  (MPI)           
+      irix5-mpi - SGI Irix 5.x     (MPI)           
+    solaris-thr - Sun Solaris 2.x  Threads       
+ solaris-c4-thr - Sun Solaris 2.x  Threads (Sun C 4.x)     
+-----------------------------------------------------------
+              Sequential Versions        
+ 
+   solaris-v9 - Sun Solaris 2.5      (Sun C 4.x)     
+   solaris-c4 - Sun Solaris 2.[345]  (Sun C 4.x)     
+   solaris-c3 - Sun Solaris 2.[345]  (Sun C 3.x)     
+       sunos4 - SunOS 4.1.x                    
+        irix5 - SGI Irix 5.x (32 bit, R4000)   
+        irix6 - SGI Irix 6.x (64 bit, R8000)   
+          aix - IBM AIX 3.x  (Generic RS/6000) 
+      aix-ppc - IBM AIX 3.x  (PPC 601)         
+         hpux - HP/UX 9.x and 10.x             
+        linux - Linux (on a little endian machine 
+          bsd - BSD   (on a little endian machine 
+ 
+        clean - Remove .o .a and executables
+---------------------------------------------------------------
+Type: 'make arch' to build for an architecture listed above.
+
+johns:/disk5/users/johns/graphics/ray/unix % make solaris-thr
+
+[lots of make output ommitted]
+</PRE>
+
+<P>
+Hopefully once you've run 'make' to build the ray tracer for your machine,
+everything went well and you now have a binary to run.  If you are building
+an MPI version, you may need to edit the make-config file to edit the 
+locations of libraries and header files as they are listed there.
+If you have trouble, for now the best way to go is to send me email, at
+<EM>johns@megapixel.com</EM>  As I have time I'll improve this document and give
+more detailed instructions on building.  
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html120"
+  HREF="node5.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html114"
+  HREF="tachyon.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html108"
+  HREF="node3.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html116"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html118"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html121"
+  HREF="node5.html">Running Tachyon</A>
+<B> Up:</B> <A NAME="tex2html115"
+  HREF="tachyon.html">Tachyon Docs</A>
+<B> Previous:</B> <A NAME="tex2html109"
+  HREF="node3.html">Tachyon Feature List</A>
+ &nbsp <B>  <A NAME="tex2html117"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html119"
+  HREF="node20.html">Index</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

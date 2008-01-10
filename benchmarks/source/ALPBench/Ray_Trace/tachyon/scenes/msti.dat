@@ -1,0 +1,247 @@
+begin_scene
+  resolution 768 768
+
+camera
+  zoom  0.9
+  aspectratio 1.0
+  antialiasing 0
+  raydepth  4 
+  center    0.01 14.0 -29.0
+  viewdir   0.0 -0.25 1.75
+  updir     0.0 1.0 0.0
+end_camera
+
+texdef teapot
+  ambient 0.9  diffuse 0.0 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.4
+  texfunc 9 imaps/msti_logo.ppm
+    center 0.0 0.0 0.0
+    rotate 0.30 0.4 0.0
+    scale  0.080 0.1 0.10
+    uaxis  0.0 0.0 -1.0
+    vaxis  0.0 -1.0 0.0
+    
+texdef umrlogo
+  ambient 0.9  diffuse 0.0 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.4
+  texfunc 9 imaps/nt_box.ppm
+    center 2.0 11.0 0.0
+    rotate 0.0    0.0   0.0
+    scale  0.071  0.071 0.1
+    uaxis  1.0    0.0   0.0
+    vaxis  0.0    -1.0   0.0
+
+texdef islandpic
+  ambient 0.9  diffuse 0.0 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.4
+  texfunc 9 imaps/techhenge.ppm
+    center -16.0  11.0   24.5
+    rotate 0.0    0.0  0.0
+    scale  0.071  0.071 0.1
+    uaxis  1.0    0.0  0.0
+    vaxis  0.0    -1.0  0.0
+
+texdef space
+  ambient 0.9  diffuse 0.0 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.4
+  texfunc 9 imaps/islandpic.tga
+    center -20.0 14.0   4.0
+    rotate 0.0    0.0    0.0
+    scale  0.083   0.1   0.10
+    uaxis  0.0    0.0    1.0
+    vaxis  0.0   1.0    0.0
+
+texdef tabletop
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.2
+  texfunc 0  
+
+texdef tableside
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  color 1.0 0.6 0.2
+  texfunc 0  
+
+texdef tablelegs
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 40.8
+  color 1.0 1.0 1.0
+  texfunc 0
+
+texdef redsphere 
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  phong plastic 0.8 phong_size 40.8
+  color 1.0 0.0 0.0
+  texfunc 0
+
+texdef greensphere
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  phong plastic 0.8 phong_size 40.8
+  color 0.0 1.0 0.0
+  texfunc 0
+
+texdef bluesphere
+  ambient 0.2  diffuse 0.8 specular 0.0 opacity 1.0
+  phong plastic 0.8 phong_size 40.8
+  color 0.0 0.0 1.0
+  texfunc 0
+
+texdef mirsphere
+  ambient 0.1 diffuse 0.1 specular 0.6 opacity 1.0
+  phong plastic 0.2 phong_size 40.8
+  color 1.0 1.0 1.0
+  texfunc 0
+
+texdef cdrom
+  ambient 0.2 diffuse 0.1 specular 0.7 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 0
+
+texdef wall
+  ambient 0.2 diffuse 0.8 specular 0.0 opacity 1.0
+  color 0.9 0.9 0.9
+  texfunc 0
+ 
+texdef ceiling
+  ambient 0.4 diffuse 0.8 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 9 imaps/whtceil.ppm
+    center 0.0 0.0 0.0
+    rotate 0.0 0.0 0.0
+    scale  0.1 0.1 0.1
+    uaxis  1.0 0.0 0.0
+    vaxis  0.0 0.0 1.0
+ 
+texdef floor
+  ambient 0.4  diffuse 0.9 specular 0.0 opacity 1.0
+  color 0.7 0.7 0.7
+  texfunc 9  imaps/parquet.ppm
+    center 0.0 0.0 0.0 
+    rotate 0.0 0.0 0.0
+    scale  0.1 0.1 0.1
+    uaxis  1.0 0.0 0.0
+    vaxis  0.0 0.0 1.0
+
+light
+  center  0.0 22.0 -25.0
+  rad     1.0
+  color   0.9 0.9  0.9
+
+plane 
+  center 0.0 30.0 0.0
+  normal 0.0 -1.0 0.0
+  ceiling
+
+plane
+  center 0.0 0.0 0.0
+  normal 0.0 1.0 0.0
+  floor
+
+plane
+  center 0.0 0.0 25.0
+  normal 0.0 0.0 -1.0
+  wall
+ 
+plane
+  center 0.0 0.0 -35.0
+  normal 0.0 0.0 1.0
+  wall
+ 
+plane
+  center 20.0 0.0 0.0
+  normal -1.0 0.0 0.0
+  wall
+ 
+plane
+  center -20.0 0.0 0.0
+  normal  1.0  0.0 0.0
+  wall
+
+box
+  min 19.75 14.0   4.0
+  max 20.0 24.0   16.0
+  teapot 
+
+box
+  min -20.0 14.0   4.0
+  max -19.75 24.0  16.0
+  space
+
+box 
+  min  2.0  11.0   24.5
+  max  16.0  25.0   25.0
+  umrlogo
+
+box 
+  min -16.0  11.0   24.5
+  max  -2.0  25.0   25.0
+  islandpic 
+
+ring 
+  center 0.0 9.0 0.0
+  normal 0.0 1.0 0.0
+  inner 0.0
+  outer 8.0
+  tabletop
+  
+ring 
+  center 0.0 8.0 0.0
+  normal 0.0 -1.0 0.0
+  inner 0.0
+  outer 8.0
+  tabletop
+
+fcylinder
+  base 0.0 8.0 0.0
+  apex 0.0 9.0 0.0 
+  rad  8.0
+  tableside
+
+polycylinder
+  points 2
+    0.0 0.5 0.0
+    0.0 8.5 0.0
+  rad 0.5
+  tablelegs 
+
+polycylinder
+  points 2
+    -4.5 0.5 -4.5
+     4.5 0.5  4.5
+  rad 0.5
+  tablelegs 
+
+polycylinder
+  points 2
+     4.5 0.5 -4.5
+    -4.5 0.5  4.5
+  rad 0.5
+  tablelegs 
+
+sphere
+  center -2.0 9.5 -4.0
+  rad 0.5
+  redsphere
+
+sphere
+  center  0.0 9.5 -4.0
+  rad 0.5
+  greensphere  
+
+sphere
+  center  2.0 9.5 -4.0
+  rad 0.5
+  bluesphere
+
+ring
+  center 0.0 9.1 -6.0
+  normal 0.0 1.0 0.0
+  inner 0.25
+  outer 1.5
+  cdrom
+
+sphere
+  center 0.0 11.0 -1.0 
+  rad 2.0
+  mirsphere  
+	
+END_SCENE

@@ -1,0 +1,104 @@
+#
+#	This mkfile is for when using source to build devsunflower in Inferno
+#
+<../mkconfig
+
+LIB=libsunflower.a
+
+OFILES=\
+	decode-ti-msp430.$O\
+	dev430x1xx.$O\
+	machine-ti-msp430.$O\
+	op-ti-msp430.$O\
+	pipeline-ti-msp430.$O\
+	arch-Inferno.$O\
+	batt.$O\
+	bit-utils.$O\
+	decode-hitachi-sh.$O\
+	dev7708.$O\
+	devsim7708.$O\
+	fault.$O\
+	fdr.$O\
+	machine-hitachi-sh.$O\
+	main.$O\
+	merror.$O\
+	mmalloc.$O\
+	mmu-hitachi-sh.$O\
+	network-hitachi-sh.$O\
+	op-hitachi-sh.$O\
+	pau.$O\
+	physics.$O\
+	pic.$O\
+	pipeline-hitachi-sh.$O\
+	power.$O\
+	sf.$O\
+	syscalls-Inferno.$O\
+	tokenhandling.$O\
+
+
+HFILES=\
+	batt.h\
+	big-endian-hitachi-sh.h\
+	cache-hitachi-sh.h\
+	decode-hitachi-sh.h\
+	decode-ti-msp430.h\
+	dev7708.h\
+	devsim7708.h\
+	endian-hitachi-sh.h\
+	fault.h\
+	help.h\
+	instr-hitachi-sh.h\
+	little-endian-hitachi-sh.h\
+	machine-hitachi-sh.h\
+	machine-ti-msp430.h\
+	main.h\
+	mextern.h\
+	mfns.h\
+	mmu-hitachi-sh.h\
+	mversion.h\
+	network-hitachi-sh.h\
+	op-ti-msp430.h\
+	opstr-hitachi-sh.h\
+	pau.h\
+	physics.h\
+	pic.h\
+	pipeline-hitachi-sh.h\
+	power.h\
+	regs-hitachi-sh.h\
+	regs-ti-msp430.h\
+	sf.h\
+	syscalls.h\
+
+<$ROOT/mkfiles/mksyslib-$SHELLTYPE
+
+CFLAGS = $CFLAGS $PLATFORM_CFLAGS -I. -c -DSF_B_ENDIAN -DNULL=nil -DLIBSF
+
+sim: $OFILES
+	$CC -I. -DNULL=nil $OFILES -o sf
+
+sf.$O: sf.tab.c $HFILES
+	$CC $CFLAGS sf.tab.c -o sf.o
+
+sf.tab.c: sf.y lex.c main.h
+	bison sf.y
+
+syscalls-Inferno.$O: syscalls-Inferno.c $HFILES
+	$CC $CFLAGS -DLIB9 syscalls-Inferno.c
+
+arch-Inferno.$O: arch-Inferno.c $HFILES
+	$CC $CFLAGS -DLIB9 arch-Inferno.c
+
+opstr-hitachi-sh.c: decode-hitachi-sh.h
+	$SHELLNAME mkopstr decode-hitachi-sh.h > opstr-hitachi-sh.c
+
+mversion.h: Makefile
+	echo 'char const MVERSION[] = "1.0-beta (build '`date '+%m-%d-%Y-%H:%M:%S'`-`whoami`@`hostname`-`uname`\)\"\; > mversion.h
+
+opstr-hitachi-sh.h: decode-hitachi-sh.h
+	$SHELLNAME mkopstr-hitachi-sh > opstr-hitachi-sh.h
+
+opstr-ti-msp430.h: decode-ti-msp430.h
+	$SHELLNAME mkopstr-ti-msp430 > opstr-ti-msp430.h
+
+help.h: lex.c
+	$SHELLNAME mkhelp > help.h

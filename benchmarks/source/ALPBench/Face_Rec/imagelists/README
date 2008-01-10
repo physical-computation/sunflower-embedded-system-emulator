@@ -1,0 +1,85 @@
+*********************** PREPROCESSING ***********************
+
+coords.3368:  This file contains image names and eyecoordintates for many 
+    frontal images in the FERET database. It includes five images that 
+    were added to the list later. There use to be more images with eye 
+    coordinates. Many of these images were computer generated alterations 
+    of other database images. For example, the images scaled to a different 
+    size, or the color of the shirts were inverted.  For this reason the 
+    images are not acceptable for general experiments on face recogntion 
+    algorithms.  To reduce confusion the artifically genereated images 
+    were elimanated.  If an image is not within this set its validity 
+    should be questioned.
+
+*********************** TRAINING ***********************
+The following files are used for the training phase of the algorithms.
+
+feret_training.srt: standard file used for training PCA, LDA, and BIC.
+
+feret_training_x2.srt: This file contains a subset of the previous file 
+    that has two images per subject
+
+ebgm70.srt: This file contains the names of seventy images and corresponding
+    landmark location files that are used to create the bunch graph for the 
+    EBGM algorithm.
+
+trainingcd.srt This is an alternative training file. This file contains 
+    images from the FERET database that were contained on the training 
+    CD.  All these images are fair game for training for the FERET test.
+
+*********************** TESTING ***********************
+all.srt: This list contians all of the images with eye coordinates.  
+    Durring typical operation, each algorithm generates a distance 
+    matrix for every image in this set.  Individual tests can run on 
+    the distance matrix to determine the performance on other tests 
+    such as fb, fc, dup1, dup2, or permute.
+
+all.hi.srt all.lo.srt: This is the all.srt file split into two parts.  
+    It is used on duel processor machines by processing half of the 
+    full image list at one time.
+
+*********************** EXPERIMENTS ***********************
+The following files are the four probesets and the gallery(fa) used in 
+the FERET Test.  These files are used to create rank curves.
+dup1.srt
+dup2.srt
+fafb.srt
+fafc.srt
+feret_gallery.srt
+
+list640.srt: This file is used for the permutaion test. This list is 
+    of 160 subjects with four images each.
+
+imagecovariates.cov: This contains many differnt statistics for the 
+    pixel values in the FERET images. 
+
+facecovariates.cov: This file contains the covariate data about a 
+    subset of the feret database, such as, gender, race, glasses, etc.
+
+facecovariates.srt: This is a file containing all of the images in the 
+    face covaritates file.
+
+
+
+*********************** MISC ***********************
+
+ebgm150.srt: This file is a list of all images that have manually selected 
+    landmark points. ebgm70.srt is a randomly selected subset of this list. 
+    
+feret_all.srt
+largetrain.srt
+list1024.srt
+list1024_all_subset.srt
+list1024_subset.srt
+list2144.srt
+
+*********************** SCRAPS ***********************
+The following files are used with the CSU scrap shot database.  The database 
+is a small set of images taken from pre 1925 CSU year books.  These images 
+are of low quality and should not be used for any experments.  
+
+coords.scraps
+scrap_all.srt
+scrap_all_x4.srt
+scrap_gallery.srt
+scrap_probe.srt

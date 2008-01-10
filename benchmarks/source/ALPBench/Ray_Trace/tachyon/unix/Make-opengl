@@ -1,0 +1,67 @@
+# Makefile configuration for the Tachyon ray tracing library.
+# Copyright 1994-2004 John E. Stone
+# All Rights Reserved
+#
+# $Id: Make-opengl,v 1.5 2004/02/03 06:13:28 johns Exp $
+#
+
+
+#
+# Generic Mesa OpenGL / GLX include and link specs, for most platforms
+#
+MESA_GLX_INCS = -I/usr/local/include
+MESA_GLX_LIBS = -L/usr/local/lib -lMesaGL -lMesaGLU
+
+
+#
+# IBM AIX OpenGL / GLX include and link specs
+#
+AIX_GLX_INCS = 
+AIX_GLX_LIBS = -lGL -lGLU -lX11 
+
+
+#
+# BSD OpenGL / GLX include and link specs
+#
+BSD_GLX_INCS = $(MESA_GLX_INCS) -I/usr/X11R6/include 
+BSD_GLX_LIBS = $(MESA_GLX_LIBS) -L/usr/X11R6/lib -lX11 -lXext
+
+
+#
+# HP OpenGL / GLX include and link specs
+#
+HP_GLX_INCS = -I/opt/graphics/OpenGL/include
+HP_GLX_LIBS = -L/usr/lib/X11R6 -L/opt/graphics/OpenGL/lib -lGL -lGLU -lX11 -lXext
+
+
+#
+# Linux OpenGL / GLX include and link specs
+#
+LINUX_GLX_INCS = -I/usr/X11R6/include
+LINUX_GLX_LIBS = -L/usr/X11R6/lib -lGL -lGLU -lX11
+
+
+#
+# SGI OpenGL / GLX include and link specs
+#
+IRIX_GLX_INCS = 
+IRIX_GLX_LIBS = -lGL -lGLU -lX11
+
+
+#
+# Sun OpenGL / GLX include and link specs
+#
+SOLARIS_GLX_INCS = -I/usr/openwin/include
+SOLARIS_GLX_LIBS = -L/usr/openwin/lib -lGL -lGLU -lX11
+# 64-bit includes and libraries
+SOLARIS_64_GLX_INCS = -I/usr/openwin/include
+SOLARIS_64_GLX_LIBS = -L/usr/openwin/lib/sparcv9 -lGL -lGLU -lX11
+
+
+#
+# Tru64 OpenGL / GLX include and link specs
+#
+TRU64_GLX_INCS = 
+TRU64_GLX_LIBS = -L/usr/shlib -lGL -lGLU -lX11
+
+

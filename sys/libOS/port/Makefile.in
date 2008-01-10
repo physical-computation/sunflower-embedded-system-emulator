@@ -1,0 +1,53 @@
+print.o: ../port/print.c
+	$(CC) $(CCFLAGS) ../port/print.c
+
+read.o: ../port/read.c
+	$(CC) $(CCFLAGS) ../port/read.c
+
+peek.o: ../port/peek.c
+	$(CC) $(CCFLAGS) ../port/peek.c
+
+strcpy.o: ../port/strcpy.c
+	$(CC) $(CCFLAGS) ../port/strcpy.c
+
+strncpy.o: ../port/strncpy.c
+	$(CC) $(CCFLAGS) ../port/strncpy.c
+
+strcat.o: ../port/strcat.c
+	$(CC) $(CCFLAGS) ../port/strcat.c
+
+strncat.o: ../port/strncat.c
+	$(CC) $(CCFLAGS) ../port/strncat.c
+
+strcmp.o: ../port/strcmp.c
+	$(CC) $(CCFLAGS) ../port/strcmp.c
+
+strncmp.o: ../port/strncmp.c
+	$(CC) $(CCFLAGS) ../port/strncmp.c
+
+strlen.o: ../port/strlen.c
+	$(CC) $(CCFLAGS) ../port/strlen.c
+
+strtok.o: ../port/strtok.c
+	$(CC) $(CCFLAGS) ../port/strtok.c
+
+memcpy.o: ../port/memcpy.c
+	$(CC) $(CCFLAGS) ../port/memcpy.c
+
+memmove.o: ../port/memmove.c
+	$(CC) $(CCFLAGS) ../port/memmove.c
+
+lock.o: ../port/lock.c
+	$(CC) $(CCFLAGS) ../port/lock.c
+
+rand.o: ../port/rand.c
+	$(CC) $(CCFLAGS) ../port/rand.c
+
+crypto.o: ../port/crypto.c
+	$(CC) $(CCFLAGS) ../port/crypto.c
+
+twofish.o: ../port/twofish.c
+	$(CC) $(CCFLAGS) ../port/twofish.c
+
+blowfish.o: ../port/blowfish.c
+	$(CC) $(CCFLAGS) ../port/blowfish.c

@@ -1,0 +1,459 @@
+/*										*/
+/*		Copyright (C) 1999-2006 Phillip Stanley-Marbell.		*/
+/*										*/
+/*	You may redistribute and/or copy the source and binary			*/
+/*	versions of this software provided:					*/
+/*										*/
+/*	1.	The source retains the copyright notice above, 			*/
+/*		this list of conditions, and the following 			*/
+/*		disclaimer.							*/
+/*										*/
+/*	2.	Redistributed binaries must reproduce the above			*/
+/*		copyright notice, this list of conditions, and			*/
+/*		the following disclaimer.					*/
+/*										*/
+/*	3.	The source and binaries are used for non-commercial 		*/
+/*		purposes only.							*/
+/*										*/
+/*	4.	Permission is granted to all others, to redistribute		*/
+/*		or make copies of the source or binaries, either		*/
+/*		as it was received or with modifications, provided		*/
+/*		the above three conditions are enforced and 			*/
+/*		preserved, and that permission is granted for 			*/
+/*		further redistribution, under the conditions of this		*/
+/*		document.							*/
+/*										*/
+/*	The source is provided "as is", and no warranty is either		*/
+/*	implied or explicitly granted. The authors will not be liable 		*/
+/*	for any damages arising in any way out of the use or misuse 		*/
+/*	of this software, even if advised of the possibility of such 		*/
+/*	damage.									*/
+/*										*/
+/*	Contact: phillip Stanley-Marbell <pstanley@ece.cmu.edu>			*/
+/*										*/	
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include "sf.h"
+#include "mmalloc.h"
+#include "mextern.h"
+
+
+
+
+
+
+
+	/*								*/
+	/*	!!!!!! NOTE:  This implementation is out of sync 	*/
+	/*	with changes made over the last few years to the	*/
+	/*	simulator.						*/
+	/*								*/
+
+
+
+
+
+
+
+
+void
+pau_init(State *S, int nentries)
+{
+	if (S->superH->PAUs != NULL)
+	{
+		mfree(S->superH->PAUs, "S->superH->PAUs");
+	}
+
+	S->superH->PAUs = (PAUentry *)mcalloc(nentries, sizeof(PAUentry),
+		"(PAUentry *)S->superH->PAUs");
+	if (S->superH->PAUs == NULL)
+	{
+		sfatal(S, "Could not allocate memory for PAUentry *X");
+	}
+
+	S->superH->PAUvalids = (int *)mcalloc(nentries, sizeof(int),
+		"(int *)S->superH->PAUvalids");
+	if (S->superH->PAUvalids == NULL)
+	{
+		sfatal(S, "Could not allocate memory for PAUvalids array");
+	}
+
+	S->superH->npau = nentries;
+	S->superH->controlling_pau = -1;
+	S->superH->numpauvalids	= 0;
+	S->superH->influenced = 0;
+	S->superH->pauaddrmask = (ulong)pow(2, ceil(log10(S->superH->npau)/log10(2))) - 1;
+
+	mprint(S, nodeinfo, "\nPAU size to [%d] entries\n\n", S->superH->npau);
+
+
+	return;
+}
+
+void
+pau_clk(State *S)
+{
+	int	n, i;
+
+
+	/*									*/
+	/*	All memory accesses (and hence PC values) are word aligned,	*/
+	/*	so LSB of address is always 0, so odd entries can be skipt.	*/
+	/*									*/
+	for (n = 0; n < S->superH->numpauvalids; n++)
+	{
+		i = S->superH->PAUvalids[n];
+
+		/*	All valid states increment NCLKS	*/
+		S->superH->PAUs[i].nclks++;
+
+		if (S->superH->PAUs[i].active || S->superH->PAUs[i].transient)
+		{
+			if (S->superH->PAUs[i].stride == 0)
+			{
+				mprint(S, nodeinfo, "time between two stalls (stride) can only be ");
+				mprint(S, nodeinfo, "> MEMSTALLCYCLES !!!\n");
+				mprint(S, nodeinfo, "stride = " UVLONGFMT "\nQ=%d\ntrigger PC = 0x" UHLONGFMT "\n",
+					S->superH->PAUs[i].stride, S->superH->PAUs[i].Q, S->superH->PAUs[i].trigger_pc);
+
+				sfatal(S, "active/transient, and stride == 0");
+			}
+
+			/*								*/
+			/*	Withering - if we go for _more than_ one 'period', 	*/
+			/*	and have not been reset by an 'event', then maybe 	*/
+			/*	events have stopped happening. Decrement Q ('wither' 	*/
+			/*	this entry)						*/
+			/*								*/
+			if (S->superH->PAUs[i].nclks > S->superH->PAUs[i].stride)
+			{
+		/*	
+			mprint(NULL, siminfo,
+			"Withering pau entry [%d] (stride=%ld trigger PC=0x" UHLONGFMT ") CLK = %E...\n",
+			i, S->superH->PAUs[i].stride, S->superH->PAUs[i].trigger_pc, S->CLK);
+		*/
+
+				S->superH->PAUs[i].stride = S->superH->PAUs[i].nclks;
+				S->superH->PAUs[i].Q--;
+			}
+
+			if ((S->superH->PAUs[i].active) && (S->superH->PAUs[i].Q <= PAU_Q_LOW_H2O))
+			{
+		/*		
+				mprint(NULL, siminfo, "PAU entry [%d] active->transient...\n", i);
+		*/
+				S->superH->PAUs[i].active = 0;
+				S->superH->PAUs[i].transient = 1;
+
+				/*	Were we the current 'influencer' ?	*/
+				if (S->superH->controlling_pau == i)
+				{
+			mprint(S, nodeinfo, 
+			"PAU entry [%d] ending influence (influencer PC = 0x" UHLONGFMT ", CLK = " UVLONGFMT ")...\n",
+			i, S->superH->PAUs[i].trigger_pc, S->CLK);
+
+					/*	Rfg. penalty = PAU_RFG_CYCLES*(NOP Energy)     */
+					S->E.CPUEtot +=\
+						S->scaledcurrents[OP_NOP]*\
+						S->VDD*\
+						S->CYCLETIME*\
+						PAU_RFG_CYCLES;
+
+					S->TIME += PAU_RFG_CYCLES*S->CYCLETIME;
+
+					S->superH->influenced = 0;
+					S->superH->controlling_pau = -1;
+					S->VDD = S->SVDD;
+					power_scaledelay(S, S->VDD);
+				}
+			}
+
+			/*	Delete dying entries w/ Q == 0	*/
+			if (S->superH->PAUs[i].Q == 0)
+			{
+		/*
+			mprint(NULL, siminfo,
+				"PAU entry [%d] transient->invalid (trigger PC=0x" UHLONGFMT ")...\n",
+				i, S->superH->PAUs[i].trigger_pc);
+		*/
+
+					memset(&S->superH->PAUs[i], 0, sizeof(PAUentry));
+
+					S->superH->PAUvalids[n] = 
+						S->superH->PAUvalids[S->superH->numpauvalids-1];
+					S->superH->numpauvalids--;
+			}
+		}
+		else if ((S->superH->PAUs[i].init) && (S->superH->PAUs[i].nclks == PAU_STRIDE_MAX))
+		{
+		/*
+			mprint(NULL, siminfo, "discarding dormant INIT entry\n");
+		*/
+			memset(&S->superH->PAUs[i], 0, sizeof(PAUentry));
+
+			S->superH->PAUvalids[n] = S->superH->PAUvalids[S->superH->numpauvalids-1];
+			S->superH->numpauvalids--;
+		}
+	}
+
+	return;
+}
+
+void
+pau_lvdd(State *S, int pauentry)
+{
+	int		i;
+	float		mf, cf, delta, calc_vdd;
+
+
+	/*	Rcfg. penalty = PAU_RFG_CYCLES*(NOP Energy cost)	*/
+	S->E.CPUEtot +=\
+		S->scaledcurrents[OP_NOP]*\
+		S->VDD*\
+		S->CYCLETIME*\
+		PAU_RFG_CYCLES;
+
+	S->TIME += PAU_RFG_CYCLES*S->CYCLETIME;
+
+	mprint(S, nodeinfo, "stride=[" UVLONGFMT "], instrs=[" UVLONGFMT "]\n",
+		S->superH->PAUs[pauentry].stride,
+		S->superH->PAUs[pauentry].instrs);
+	mf = ((float)(S->superH->PAUs[pauentry].stride - S->superH->PAUs[pauentry].instrs))/
+		((float)S->superH->PAUs[pauentry].stride);
+	cf = ((float)S->superH->PAUs[pauentry].instrs)/((float)S->superH->PAUs[pauentry].stride);
+	delta = ((0.01)*(mf+cf) + cf)/cf;
+	if (delta < 1.0)
+	{
+		delta = 1.0;
+	}
+	calc_vdd = S->VDD/delta;
+	mprint(S, nodeinfo, "mf=[%.4f], cf=[%.4f], delta=[%.4f], calc_vdd=[%.4f]\n",
+		mf, cf, delta, calc_vdd);
+
+	S->SVDD = S->VDD;
+	S->VDD = calc_vdd;
+	power_scaledelay(S, S->VDD);
+
+	for (i = OP_ADD; i <= OP_XTRCT; i++)
+	{
+		double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
+
+		/*							*/
+		/*	Scaled current, I2 = (I1*V2*t1)/(V1*t2);	*/
+		/*							*/
+		S->scaledcurrents[i] =
+			((reading*S->VDD*SUPERH_ORIG_CYCLE)/(SUPERH_READINGS_VDD*S->CYCLETIME))*1E-3;
+	}
+
+
+	return;
+}
+
+void
+pau_feed(State *S, int feed_type, ulong addr)
+{
+	if (S->superH->PAUs == NULL)
+	{
+		return;
+	}
+
+	switch (feed_type)
+	{
+		/*	  Entry Use : We consider stalls due to IF	*/
+		case MEM_READ_BYTE:
+		case MEM_READ_WORD:
+		case MEM_READ_LONG:
+		case MEM_WRITE_BYTE:
+		case MEM_WRITE_WORD:
+		case MEM_WRITE_LONG:
+		{
+			ulong	i = (S->superH->P.EX.fetchedpc & S->superH->pauaddrmask);
+
+
+			if (!S->superH->PAUs[i].valid)
+			{
+				return;
+			}
+
+			/*							*/
+			/*	! We dont need to store whole trigger_pc, 	*/
+			/*	! just the upper 32-PAU_MASK_BITS bits. 	*/
+			/*			Hit in PAU			*/
+			/*							*/
+			if ((S->superH->PAUs[i].active) && (S->superH->PAUs[i].trigger_pc == S->superH->P.EX.fetchedpc))
+			{
+				/*	  If !(influenced), can influence	*/
+				if (!S->superH->influenced && (S->superH->PAUs[i].stride > PAU_STRIDE_MIN))
+				{
+					/*	Lower VDD, calc rfg penalty	*/
+					mprint(S, nodeinfo, "Lowering vdd (influencer PC = 0x" UHLONGFMT ", CLK = " UVLONGFMT ", STRIDE=" UVLONGFMT ")\n",\
+						S->superH->PAUs[i].trigger_pc, S->CLK, S->superH->PAUs[i].stride);
+					pau_lvdd(S, i);
+					S->superH->influenced = 1;
+					S->superH->controlling_pau = i;
+				}
+			}
+
+			return;
+		}
+
+
+		/*	Entry Update : Only use stalls due to EX	*/
+		case MEM_READ_STALL:
+		case MEM_WRITE_STALL:
+		{
+			int	i = (S->superH->P.EX.fetchedpc & S->superH->pauaddrmask);
+
+			if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
+			{
+				return;
+			}
+
+			if (!S->superH->PAUs[i].valid)
+			{
+			/*
+				mprint(NULL, siminfo,
+				"Allocating new PAU entry, CLK = " UVLONGFMT "\n", S->CLK);
+			*/
+
+				/*					*/
+				/*	Initialise the new entry	*/
+				/*	It doesnt become 'transient'	*/
+				/*	till first stall and record	*/
+				/*	stride.				*/
+				/*					*/
+				memset(&S->superH->PAUs[i], 0, sizeof(PAUentry));
+				S->superH->PAUs[i].valid = 1;
+				S->superH->PAUs[i].init = 1;
+				S->superH->PAUs[i].trigger_pc = S->superH->P.EX.fetchedpc;
+
+				S->superH->PAUvalids[S->superH->numpauvalids] = i;
+				S->superH->numpauvalids++;
+
+				return;
+			}
+
+			/*	Hit in PAU	*/
+			if ((S->superH->PAUs[i].trigger_pc == S->superH->P.EX.fetchedpc))
+			{
+			/*
+				mprint(NULL, siminfo, "Hit in PAU, CLK = " UVLONGFMT "\n", S->CLK);
+			*/
+
+				/*					*/
+				/*	As soon as nclks > stride, it 	*/
+				/*	will get reset by pau_clk, so	*/
+				/*	we could use the infromation	*/
+				/*	as to whether stride has dec'd	*/
+				/*	however, we do not.		*/
+				/*					*/
+				S->superH->PAUs[i].stride = S->superH->PAUs[i].nclks;
+				S->superH->PAUs[i].nclks = 0;
+				S->superH->PAUs[i].instrs = S->dyncnt - S->superH->PAUs[i].dyntmp;
+				S->superH->PAUs[i].dyntmp = S->dyncnt;
+
+				/*	Saturating Q	*/
+				if (S->superH->PAUs[i].Q < PAU_Q_HIGH_H2O)
+				{
+					S->superH->PAUs[i].Q++;
+
+				/*
+					mprint(NULL, siminfo, "trigger PC 0x" UHLONGFMT ", Q=%ld\n",
+						S->superH->PAUs[i].trigger_pc,
+						S->superH->PAUs[i].Q);
+				*/
+				}
+
+				/*					*/
+				/*	If first time hit, we now	*/
+				/*	have a valid stride. become 	*/
+				/*	transient			*/
+				/*					*/
+				if (S->superH->PAUs[i].init)
+				{
+			/*
+				mprint(NULL, siminfo,
+					"init->transient for PAU entry for trigger PC 0x" UHLONGFMT ",
+					CLK=%E, stride=%ld\n",
+					S->superH->PAUs[i].trigger_pc,
+					S->CLK, S->superH->PAUs[i].stride);
+			*/
+
+					S->superH->PAUs[i].transient = 1;
+					S->superH->PAUs[i].init = 0;
+				}
+				else if ((S->superH->PAUs[i].transient) &&
+						(S->superH->PAUs[i].Q == PAU_Q_HIGH_H2O))
+				{
+			/*
+				mprint(NULL, siminfo,
+				"transient->active  for trigger PC 0x" UHLONGFMT ", Q=%ld, stride=%ld\n",
+				S->superH->PAUs[i].trigger_pc, 	S->superH->PAUs[i].Q, 
+				S->superH->PAUs[i].stride);
+			*/
+
+					S->superH->PAUs[i].active = 1;
+					S->superH->PAUs[i].transient = 0;
+				}
+			}
+
+			return;
+		}
+
+		default:
+		{	
+			sfatal(S, "invalid food for PAU :(");
+			return; //ha ha!
+		}
+	}
+
+	return;
+}
+
+
+void
+pau_printstats(State *S)
+{
+	int	i;
+
+
+	if (S->machinetype != MACHINE_SUPERH)
+	{
+		merror("This machine does not know how to \"pauinfo\".");
+		return;
+	}
+
+	mprint(S, nodeinfo, "\n");
+	for (i = 0; i < S->superH->npau; i++)
+	{
+		if (!S->superH->PAUs[i].valid)
+		{
+			continue;
+		}
+		
+		mprint(S, nodeinfo,
+			"PAU[%d].trigger_pc=0x" UHLONGFMT ", stride=" UVLONGFMT ", nclks=" UVLONGFMT ", instrs=" UVLONGFMT ", Q=%d,I=%d,T=%d,A=%d\n",
+			i,
+			S->superH->PAUs[i].trigger_pc,
+			S->superH->PAUs[i].stride,
+			S->superH->PAUs[i].nclks,
+			S->superH->PAUs[i].instrs,
+			S->superH->PAUs[i].Q,
+			S->superH->PAUs[i].init,
+			S->superH->PAUs[i].transient,
+			S->superH->PAUs[i].active);
+	}
+	
+	mprint(S, nodeinfo, "Number of active PAU entries = [%d]: ",
+					S->superH->numpauvalids);
+				
+	for (i = 0; i < S->superH->numpauvalids; i++)
+	{
+		mprint(S, nodeinfo, "%d, ", S->superH->PAUvalids[i]);
+	}		
+	mprint(S, nodeinfo, "\n\n");
+			
+
+	return;
+}

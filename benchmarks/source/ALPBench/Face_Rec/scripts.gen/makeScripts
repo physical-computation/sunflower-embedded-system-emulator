@@ -1,0 +1,30 @@
+#!/bin/sh
+
+########## PREAMBLE #########
+
+if [ ! -f scripts.gen/csuCommon.sh ]; then
+    echo "Please run this command from the csuEvalFaceRec directory"
+    exit 1
+fi
+
+. scripts.gen/csuCommon.sh
+
+###### End of PREAMBLE ######
+
+scripts.gen/runPCA -s feret
+scripts.gen/runLDA -s feret
+scripts.gen/runBayesian -s feret
+scripts.gen/makeRankCurves -s feret
+
+scripts.gen/runPCA -s scraps
+scripts.gen/runLDA -s scraps
+scripts.gen/runBayesian -s scraps
+
+scripts.gen/runPCA -s feretTiny
+scripts.gen/runLDA -s feretTiny
+scripts.gen/runBayesian -s feretTiny
+scripts.gen/makeRankCurves -s feretTiny
+
+scripts.gen/runBayesianPostprocessing -s feretTiny
+
+scripts.gen/makeRankCurves.cvpr -s feretTiny

@@ -1,0 +1,60 @@
+#!/bin/sh
+
+########## PREAMBLE #########
+
+if [ ! -f scripts.gen/csuCommon.sh ]; then
+    echo "Please run this command from the csuEvalFaceRec directory"
+    exit 1
+fi
+
+. scripts.gen/csuCommon.sh
+
+###### End of PREAMBLE ######
+
+function subspaceTrain {
+
+    msg "Creating directory for training data."
+
+    run mkdir -p train/${DATASET_NAME}
+
+    msg "Running standard feret PCA training."
+
+    run csuSubspaceTrain -imDir $IMAGE_DIRECTORY $TRAINING_SRT train/${DATASET_NAME}/feretPCA.train
+}
+
+function runPCAClassifier {
+
+    MEASURES="Euclidean MahCosine"
+
+    DIRS=""
+    OPTS=""
+    for m in $MEASURES
+    do
+	DIRS="$DIRS distances/${DATASET_NAME}/PCA_$m"
+	OPTS="$OPTS distances/${DATASET_NAME}/PCA_$m $m"
+    done
+
+    msg "Clearing out old distances and/or creating new distances directory"
+
+    run2 rm -rf $DIRS
+    run mkdir -p $DIRS
+
+    msg "Projecting face images onto PCA basis and computing distances"
+    run csuSubspaceProject -imDir $IMAGE_DIRECTORY train/${DATASET_NAME}/feretPCA.train $TESTING_LST $OPTS
+
+    run "echo 'Indicator file used by the scripts to know whether the data in this directory is valid' > distances/${DATASET_NAME}/pcaDataExists.txt"
+}
+
+###### START OF SCRIPT ######
+
+loadDataSetConfig runTests.config.d $*
+
+msg "Using normalized raster images from directory <$IMAGE_DIRECTORY>"
+
+if ifFileExistsThenPrompt train/${DATASET_NAME}/feretPCA.train "It appears as if training data already exists. Retrain? [n]"; then
+    subspaceTrain
+fi
+
+if ifFileExistsThenPrompt distances/${DATASET_NAME}/pcaDataExists.txt "It appears as if results for this experiment already exist. Rerun the experiment? [n]"; then
+    runPCAClassifier
+fi

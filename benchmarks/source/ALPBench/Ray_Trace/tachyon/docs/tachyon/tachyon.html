@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Tachyon Docs</TITLE>
+<META NAME="description" CONTENT="Tachyon Docs">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node1.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html7"
+  HREF="node1.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html1"
+  HREF="http://www.megapixel.com/">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.gif"> 
+<A NAME="tex2html3"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html5"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html8"
+  HREF="node1.html">Contents</A>
+<B> Up:</B> <A NAME="tex2html2"
+  HREF="http://www.megapixel.com/">Megapixel.com, home of Tachyon</A>
+ &nbsp <B>  <A NAME="tex2html4"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html6"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<H1 ALIGN="CENTER">Tachyon User's Guide 
+<BR>
+UNDER DEVELOPMENT </H1>
+<P ALIGN="CENTER"><STRONG>John E. Stone 
+<BR>
+E-Mail johns@megapixel.com</STRONG></P>
+
+<H3>Abstract:</H3>
+<DIV>
+
+<P>
+This document contains information on using Tachyon to create ray traced 
+images, and animations.  Information on the parallel raytracing engine and its 
+use as an external rendering library is contained in other documents.  
+Corrections and suggestions should be mailed to the author at <EM>johns@megapixel.com</EM> 
+</DIV>
+<P>
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"></A>
+
+<UL>
+<LI><A NAME="tex2html9"
+  HREF="node1.html">Contents</A>
+<LI><A NAME="tex2html10"
+  HREF="node2.html">Introduction</A>
+<UL>
+<LI><A NAME="tex2html11"
+  HREF="node3.html">Tachyon Feature List</A>
+</UL>
+<LI><A NAME="tex2html12"
+  HREF="node4.html">Compiling Tachyon From Source Code</A>
+<LI><A NAME="tex2html13"
+  HREF="node5.html">Running Tachyon</A>
+<UL>
+<LI><A NAME="tex2html14"
+  HREF="node6.html">General command line options</A>
+<LI><A NAME="tex2html15"
+  HREF="node7.html">Command line shading controls</A>
+<LI><A NAME="tex2html16"
+  HREF="node8.html">Command line image format options</A>
+<LI><A NAME="tex2html17"
+  HREF="node9.html">Tips for running MPI versions</A>
+<LI><A NAME="tex2html18"
+  HREF="node10.html">Interactive ray tracing</A>
+</UL>
+<LI><A NAME="tex2html19"
+  HREF="node11.html">Scene Description Files</A>
+<UL>
+<LI><A NAME="tex2html20"
+  HREF="node12.html">Basic Scene Requirements</A>
+<LI><A NAME="tex2html21"
+  HREF="node13.html">Camera and viewing parameters</A>
+<UL>
+<LI><A NAME="tex2html22"
+  HREF="node13.html#SECTION00052100000000000000">Camera projection modes</A>
+<LI><A NAME="tex2html23"
+  HREF="node13.html#SECTION00052200000000000000">Common camera parameters</A>
+<LI><A NAME="tex2html24"
+  HREF="node13.html#SECTION00052300000000000000">Viewing frustum</A>
+</UL>
+<LI><A NAME="tex2html25"
+  HREF="node14.html">Including Files</A>
+<LI><A NAME="tex2html26"
+  HREF="node15.html">Scene File Comments</A>
+<LI><A NAME="tex2html27"
+  HREF="node16.html">Lights</A>
+<LI><A NAME="tex2html28"
+  HREF="node17.html">Atmospheric effects</A>
+<UL>
+<LI><A NAME="tex2html29"
+  HREF="node17.html#SECTION00056100000000000000">Fog</A>
+</UL>
+<LI><A NAME="tex2html30"
+  HREF="node18.html">Objects</A>
+<UL>
+<LI><A NAME="tex2html31"
+  HREF="node18.html#SECTION00057100000000000000">Spheres</A>
+<LI><A NAME="tex2html32"
+  HREF="node18.html#SECTION00057200000000000000">Triangles</A>
+<LI><A NAME="tex2html33"
+  HREF="node18.html#SECTION00057300000000000000">Smoothed Triangles</A>
+<LI><A NAME="tex2html34"
+  HREF="node18.html#SECTION00057400000000000000">Infinite Planes</A>
+<LI><A NAME="tex2html35"
+  HREF="node18.html#SECTION00057500000000000000">Rings</A>
+<LI><A NAME="tex2html36"
+  HREF="node18.html#SECTION00057600000000000000">Infinite Cylinders</A>
+<LI><A NAME="tex2html37"
+  HREF="node18.html#SECTION00057700000000000000">Finite Cylinders</A>
+<LI><A NAME="tex2html38"
+  HREF="node18.html#SECTION00057800000000000000">Axis Aligned Boxes</A>
+<LI><A NAME="tex2html39"
+  HREF="node18.html#SECTION00057900000000000000">Fractal Landscapes</A>
+<LI><A NAME="tex2html40"
+  HREF="node18.html#SECTION000571000000000000000">Arbitrary Quadric Surfaces</A>
+<LI><A NAME="tex2html41"
+  HREF="node18.html#SECTION000571100000000000000">Volume Rendered Scalar Voxels</A>
+</UL>
+<LI><A NAME="tex2html42"
+  HREF="node19.html">Texture and Color</A>
+<UL>
+<LI><A NAME="tex2html43"
+  HREF="node19.html#SECTION00058100000000000000">Simple Texture Characteristics</A>
+<LI><A NAME="tex2html44"
+  HREF="node19.html#SECTION00058200000000000000">Texture Declaration and Aliasing</A>
+<LI><A NAME="tex2html45"
+  HREF="node19.html#SECTION00058300000000000000">Image Maps and Procedural Textures</A>
+</UL>
+</UL>
+<LI><A NAME="tex2html46"
+  HREF="node20.html">Index</A>
+<LI><A NAME="tex2html47"
+  HREF="node21.html">About this document ...</A>
+</UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

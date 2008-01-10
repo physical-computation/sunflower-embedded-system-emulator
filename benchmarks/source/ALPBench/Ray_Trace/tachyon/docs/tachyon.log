@@ -1,0 +1,110 @@
+This is pdfTeX, Version 3.14159-13d (Web2C 7.3.1) (format=pdflatex 1999.8.20)  3 AUG 2003 21:19
+**tachyon
+(tachyon.tex[/Common/shared/teTeX/share/texmf/pdftex/config/pdftex.cfg]
+LaTeX2e <1998/12/01> patch level 1
+Babel <v3.6x> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+(/Common/shared/teTeX/share/texmf/tex/latex/base/article.cls
+Document Class: article 1999/01/07 v1.4a Standard LaTeX document class
+(/Common/shared/teTeX/share/texmf/tex/latex/base/size11.clo
+File: size11.clo 1999/01/07 v1.4a Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/Common/shared/teTeX/share/texmf/tex/latex/base/makeidx.sty
+Package: makeidx 1998/08/17 v1.0k Standard LaTeX package
+)
+\@indexfile=\write3
+\openout3 = `tachyon.idx'.
+
+
+Writing index file tachyon.idx
+(macros.tex) (tachyon.aux)
+\openout1 = `tachyon.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 21.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 21.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 21.
+ [1
+
+[/Common/shared/teTeX/share/texmf/dvips/config/pdftex.map][/Common/shared/teTeX
+/share/texmf.local/pdftex/config/ttfonts-mdw.map]] (tachyon.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 2.
+)
+\tf@toc=\write4
+\openout4 = `tachyon.toc'.
+
+ [2] (intro.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 23.
+
+(/Common/shared/teTeX/share/texmf/tex/latex/base/omscmr.fd
+File: omscmr.fd 1998/03/27 v2.5g Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 23.
+
+Overfull \hbox (0.80177pt too wide) in paragraph at lines 24--26
+[]\OT1/cmr/m/n/10.95 Parallel ex-e-cu-tion us-ing POSIX or Unix-International t
+hreads li-braries. 
+ []
+
+) (compiling.tex [3]
+Overfull \hbox (2.16733pt too wide) in paragraph at lines 55--55
+[]\OT1/cmtt/m/n/10.95 paragon-thr-mpi - Intel Paragon    (MPI + Threads + Threa
+d I/O)[] 
+ []
+
+
+Overfull \hbox (2.16733pt too wide) in paragraph at lines 55--55
+[]\OT1/cmtt/m/n/10.95 ---------------------------------------------------------
+------[] 
+ []
+
+[4]) (running.tex) (scene.tex [5] (camera.tex [6] [7]) (lights.tex [8])
+(objects.tex [9]
+Overfull \hbox (30.91077pt too wide) in paragraph at lines 22--22
+[]        \OT1/cmtt/m/n/10.95 Texture  Ambient 0.2  Diffuse 0.8  Specular 0.0  
+Opacity 1.0[] 
+ []
+
+[10] [11] [12] [13])) [14] (tachyon.ind [15
+
+
+]) (tachyon.aux) ) 
+Here is how much of TeX's memory you used:
+ 288 strings out of 10631
+ 3013 string characters out of 68042
+ 48246 words of memory out of 263001
+ 3290 multiletter control sequences out of 10000+0
+ 9979 words of font info for 35 fonts, out of 400000 for 1000
+ 14 hyphenation exceptions out of 1000
+ 23i,6n,19p,138b,300s stack positions out of 300i,100n,500p,50000b,4000s
+<cmr8.pfb><cmmi8.pfb><cmmi10.pfb><cmtt10.pfb><cmsy10.pfb><cmb
+x12.pfb><cmti10.pfb><cmr10.pfb><cmbx10.pfb><cmr12.pfb><cmr17.pfb>
+Output written on tachyon.pdf (15 pages, 128958 bytes).

@@ -1,0 +1,123 @@
+\subsection{Camera and viewing parameters}
+\index{camera}
+  One of the most important parts of any scene, is the camera position and
+orientation.  Having a good angle on a scene can make the difference between
+an average looking scene and a strikingly interesting one.  There may be
+multiple camera definitions in a scene file, but the last camera definition
+overrides all previous definitions.
+There are several parameters that control the camera in \RAY, 
+{\bf PROJECTION}, {\bf ZOOM}, {\bf ASPECTRATIO}, {\bf ANTIALIASING},
+ {\bf CENTER}, {\bf RAYDEPTH}, {\bf VIEWDIR}, and {\bf UPDIR}.  
+
+The first and last keywords required in the definition of a camera are the 
+{\bf CAMERA} and {\bf END\_CAMERA} keywords.  The {\bf PROJECTION} keyword 
+is optional, the remaining camera keywords are required, and must be 
+written in the sequence they are listed in the examples in this section.
+
+\subsubsection{Camera projection modes}
+\index{camera!projection}
+  The {\bf PROJECTION} keyword must be followed by one of the supported
+camera projection mode identifiers {\bf PERSPECTIVE}, {\bf PERSPECTIVE_DOF}, 
+{\bf ORTHOGRAPHIC}, or {\bf FISHEYE}.  The {\bf FISHEYE} projection mode 
+requires two extra parameters {\bf FOCALLENGTH} and {\bf APERTURE} 
+which precede the regular camera options.
+
+\begin{verbatim}
+Camera
+  projection perspective_dof
+  focallength 0.75
+  aperture 0.02
+  Zoom 0.666667
+  Aspectratio 1.000000
+  Antialiasing 128
+  Raydepth 30
+  Center  0.000000 0.000000 -2.000000
+  Viewdir -0.000000 -0.000000 2.000000
+  Updir   0.000000 1.000000 -0.000000
+End_Camera
+\end{verbatim}
+
+\subsubsection{Common camera parameters}
+\index{camera!zoom}
+  The {\bf ZOOM} parameter controls the camera in a way similar to a 
+telephoto lens on a 35mm camera.  A zoom value of 1.0 is standard, 
+with a 90 degree field of view.  By changing the zoom factor to 2.0, 
+the relative size of any feature in the frame is twice as big, while 
+the field of view is decreased slightly.  The zoom effect is 
+implemented as a scaling factor on the height and width of the image 
+plane relative to the world.
+
+\index{camera!aspect ratio}
+  The {\bf ASPECRATIO} parameter controls the aspect ratio of the resulting
+image.  By using the aspect ratio parameter, one can produce images which
+look correct on any screen.  Aspect ratio alters the relative width of the
+image plane, while keeping the height of the image plane constant.  In 
+general, most workstation displays have an aspect ratio of 1.0.  To see
+what aspect ratio your display has, you can render a simple sphere, at 
+a resolution of 512x512 and measure the ratio of its width to its height. 
+
+\index{camera!antialiasing}
+The {\bf ANTIALIASING} parameter controls the maximum level of supersampling
+used to obtain higher image quality.  The parameter given sets the number of
+additional rays to trace per-pixel to attain higher image quality.
+
+\index{camera!maximum ray depth}
+  The {\bf RAYDEPTH} parameter tells \RAY\ what the maximum
+level of reflections, refraction, or in general the maximum recursion
+depth to trace rays to.  A value between 4 and 12 is usually good.  A
+value of 1 will disable rendering of reflective or transmissive 
+objects (they'll be black). 
+
+\index{camera!orientation}
+  The remaining three camera parameters are the most important, because
+they define the coordinate system of the camera, and its position in the
+scene.  The {\bf CENTER} parameter is an X, Y, Z coordinate defining the 
+center of the camera {\em (also known as the Center of Projection)}.
+Once you have determined where the camera will be placed in the scene, you
+need to tell \RAY\ what the camera should be looking at.  The
+{\bf VIEWDIR} parameter is a vector indicating the direction the camera
+is facing.  It may be useful for me to add a "Look At" type keyword in
+the future to make camera aiming easier.  If people want or need the
+"Look At" style camera, let me know.  The last parameter needed to completely
+define a camera is the "up" direction.  The {\bf UPDIR} parameter is a vector
+which points in the direction of the "sky".  I wrote the camera so that
+{\bf VIEWDIR} and {\bf UPDIR} don't have to be perpendicular, and there
+shouldn't be a need for a "right" vector although some other ray tracers 
+require it.  Here's a snippet of a camera definition:
+\begin{verbatim}
+CAMERA
+  ZOOM 1.0
+  ASPECTRATIO 1.0
+  ANTIALIASING 0
+  RAYDEPTH 12
+  CENTER 0.0 0.0 2.0
+  VIEWDIR 0 0 -1 
+  UPDIR 0 1 0
+END_CAMERA 
+\end{verbatim}
+
+
+\subsubsection{Viewing frustum}
+\index{camera!viewing frustum}
+An optional {\bf FRUSTUM} parameter provides a means for rendering sub-images
+in a larger frame, and correct stereoscopic images.  The {\bf FRUSTUM}
+keyword must be followed by four floating parameters, which indicate
+the top, bottom, left and right coordinates of the image plane in 
+eye coordinates.   When the projection mode is set to {\bf FISHEYE},
+the frustum parameters correspond to spherical coordinates specified
+in radians.
+
+\begin{verbatim}
+CAMERA
+  ZOOM  1.0
+  ASPECTRATIO 1.0
+  ANTIALIASING 0
+  RAYDEPTH  4
+  CENTER    0.0 0.0 -6.0
+  VIEWDIR   0.0 0.0 1.0
+  UPDIR     0.0 1.0 0.0
+  FRUSTUM   -0.5 0.5 -0.5 0.5
+END_CAMERA
+\end{verbatim}
+
+

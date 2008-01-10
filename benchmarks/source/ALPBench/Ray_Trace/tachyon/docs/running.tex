@@ -1,0 +1,102 @@
+\section{Running \RAY}
+\index{running}
+  Since \RAY\ runs on a wide variety of platforms, the exact commands
+required to run it vary substantially.  The easiest way to get started
+using \RAY\ is to try running one of the non-parallel, uniprocessor
+versions first.  \RAY\ includes a built-in help page describing all
+available command line options with very brief text, this help page is
+displayed when \RAY\ is run with the {\tt -help} option.
+
+\index{command line parameters}
+
+\subsection{General command line options}
+Several command line options are available to tune 
+\RAY\ performance, display built-in help text, and 
+set output verbosity.
+\begin{itemize}
+\item{{\tt -nobounding}}: disable automatic generation of hierarchical
+      grid-based acceleration data structures
+\item{{\tt -boundthresh {\it object\_count}}}: override default threshold for 
+      subdividing grid cells with a new grid
+\item{{\tt -numthreads {\it thread\_count}}}: command line override for the number of 
+      threads to spawn during the ray tracing process.  When this
+      options is not specified, \RAY\ determines the number of threads
+      to spawn based on the number of CPUs available on a given node.
+\item{{\tt +V}}: enable verbose status messages, including reporting of
+      overall node and processor count.
+\item{{\tt -nosave}}: disable saving of output images to disk files.  This 
+      feature is normally only used when benchmarking, or when using one of
+      the OpenGL-enabled \RAY\ configurations which provide runtime display
+      of rendered images.
+\item{{\tt -camfile {\it filename}}}: run a fly-through animation from 
+      the named camera file. 
+\end{itemize}
+
+\subsection{Command line shading controls}
+\RAY\ supports a number of command line parameters which affect the
+quality and algorithms used to render scene files.  The parameters 
+select one of several quality levels, which implement various 
+compromises between rendering speed and quality.  Along with the
+overall shading quality controls, several specific options provide 
+control over individual rendering algorithms within \RAY.
+
+\begin{itemize}
+\item{{\tt -lowestshade}}: solid colors only
+\item{{\tt -lowshade}}: minmalistic shading, using texture colors only
+\item{{\tt -mediumshade}}: disables computation of shadows
+\item{{\tt -fullshade}}: enables the highest quality rendering mode
+\item{{\tt -aasamples {\it sample_count}}: command line override for the number of 
+      antialiasing supersamples computed for each pixel.  A value of
+      zero disables antialiasing.  If this option is not used, the number
+      of antialiasing samples is determined by the contents of the scen file.
+\item{{\tt -shade\_phong}}: use traditional phong shading for specular
+      highlights.
+\item{{\tt -shade\_blinn}}: use Blinn's equation for specular highlights.
+\item{{\tt -shade\_blinn\_fast}}: use a fast approximation to Blinn-style
+      specular highlights.
+\item{{\tt -shade\_nullphong}}: entirely disables computation of
+      specular highlights by registering a no-op function pointer.
+\item{{\tt -trans\_orig}}: use original \RAY\ transparency mode.
+\item{{\tt -trans\_vmd}}: a special transparency mode designed for
+      use with VMD.  The resulting color is multiplied by opacity, 
+      giving results similar to what one would see with screen-door
+      transparency in OpenGL.
+\end{itemize}
+
+
+\subsection{Command line image format options}
+\RAY\ optionally supports several image file formats for output.
+The output format is specified by the {\tt -format {\it formatname}} 
+command line parameter.  Several of these formats are only available if
+\RAY\ has been compiled with optional features enabled.
+
+\begin{itemize}
+\item{{\tt TARGA}}: uncompressed 24-bit Targa file
+\item{{\tt BMP}}: uncompressed 24-bit Windows bitmap 
+\item{{\tt PPM}}: uncompressed 24-bit NetPBM portable pixmap (PPM) file
+\item{{\tt RGB}}: uncompressed 24-bit Silicon Graphics RGB file
+\item{{\tt JPEG}}: compressed 24-bit JPEG file
+\item{{\tt PNG}}: uncompressed 24-bit PNG file
+\end{itemize}
+
+
+\subsection{Tips for running MPI versions}
+\index{running with MPI}
+\RAY\ support the use of MPI for distributed memory rendering
+of complex scenes.  Most commercial supercomputers and cluster
+vendors provide their own custom-tuned implementations of MPI
+which perform optimally on their hardware.  Homegrown clusters
+typically use either the LAM or MPICH implementation of MPI.
+While \RAY\ will work with any comformant implementation of MPI,
+some implementations perform much better than others.  In the
+author's experience, the LAM implementation of MPI gives the
+best performance when used with \RAY.
+
+\subsection{Interactive ray tracing}
+\index{interactive ray tracing}
+\RAY\ is fast enough to support ray tracing at interactive rates
+when run on a large enough parallel computer, or with a simple enough
+scene.  To this end, \RAY\ can be optionally compiled with support for
+the Spaceball 6DOF motion control device.  Using the Spaceball, one
+can fly around in an otherwise static scene.  This is accomplished
+with the {\tt -spaceball {\it serial_port_device}} command line parameters.

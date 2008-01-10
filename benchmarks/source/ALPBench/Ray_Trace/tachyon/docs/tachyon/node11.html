@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Scene Description Files</TITLE>
+<META NAME="description" CONTENT="Scene Description Files">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node20.html">
+<LINK REL="previous" HREF="node5.html">
+<LINK REL="up" HREF="tachyon.html">
+<LINK REL="next" HREF="node12.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html221"
+  HREF="node12.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html215"
+  HREF="tachyon.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html209"
+  HREF="node10.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html217"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html219"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html222"
+  HREF="node12.html">Basic Scene Requirements</A>
+<B> Up:</B> <A NAME="tex2html216"
+  HREF="tachyon.html">Tachyon Docs</A>
+<B> Previous:</B> <A NAME="tex2html210"
+  HREF="node10.html">Interactive ray tracing</A>
+ &nbsp <B>  <A NAME="tex2html218"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html220"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00050000000000000000"></A>
+<A NAME="228"></A>
+<BR>
+Scene Description Files
+</H1>
+  At the present time, scene description files are very simple.  
+The parser can't handle multiple file scene descriptions, although they
+may be added in the future.  Most of the objects and their scene description
+are closely related to the Tachyon API 
+<EM>(See the API docs for additional info.)</EM>
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html223"
+  HREF="node12.html">Basic Scene Requirements</A>
+<LI><A NAME="tex2html224"
+  HREF="node13.html">Camera and viewing parameters</A>
+<UL>
+<LI><A NAME="tex2html225"
+  HREF="node13.html#SECTION00052100000000000000">Camera projection modes</A>
+<LI><A NAME="tex2html226"
+  HREF="node13.html#SECTION00052200000000000000">Common camera parameters</A>
+<LI><A NAME="tex2html227"
+  HREF="node13.html#SECTION00052300000000000000">Viewing frustum</A>
+</UL>
+<LI><A NAME="tex2html228"
+  HREF="node14.html">Including Files</A>
+<LI><A NAME="tex2html229"
+  HREF="node15.html">Scene File Comments</A>
+<LI><A NAME="tex2html230"
+  HREF="node16.html">Lights</A>
+<LI><A NAME="tex2html231"
+  HREF="node17.html">Atmospheric effects</A>
+<UL>
+<LI><A NAME="tex2html232"
+  HREF="node17.html#SECTION00056100000000000000">Fog</A>
+</UL>
+<LI><A NAME="tex2html233"
+  HREF="node18.html">Objects</A>
+<UL>
+<LI><A NAME="tex2html234"
+  HREF="node18.html#SECTION00057100000000000000">Spheres</A>
+<LI><A NAME="tex2html235"
+  HREF="node18.html#SECTION00057200000000000000">Triangles</A>
+<LI><A NAME="tex2html236"
+  HREF="node18.html#SECTION00057300000000000000">Smoothed Triangles</A>
+<LI><A NAME="tex2html237"
+  HREF="node18.html#SECTION00057400000000000000">Infinite Planes</A>
+<LI><A NAME="tex2html238"
+  HREF="node18.html#SECTION00057500000000000000">Rings</A>
+<LI><A NAME="tex2html239"
+  HREF="node18.html#SECTION00057600000000000000">Infinite Cylinders</A>
+<LI><A NAME="tex2html240"
+  HREF="node18.html#SECTION00057700000000000000">Finite Cylinders</A>
+<LI><A NAME="tex2html241"
+  HREF="node18.html#SECTION00057800000000000000">Axis Aligned Boxes</A>
+<LI><A NAME="tex2html242"
+  HREF="node18.html#SECTION00057900000000000000">Fractal Landscapes</A>
+<LI><A NAME="tex2html243"
+  HREF="node18.html#SECTION000571000000000000000">Arbitrary Quadric Surfaces</A>
+<LI><A NAME="tex2html244"
+  HREF="node18.html#SECTION000571100000000000000">Volume Rendered Scalar Voxels</A>
+</UL>
+<LI><A NAME="tex2html245"
+  HREF="node19.html">Texture and Color</A>
+<UL>
+<LI><A NAME="tex2html246"
+  HREF="node19.html#SECTION00058100000000000000">Simple Texture Characteristics</A>
+<LI><A NAME="tex2html247"
+  HREF="node19.html#SECTION00058200000000000000">Texture Declaration and Aliasing</A>
+<LI><A NAME="tex2html248"
+  HREF="node19.html#SECTION00058300000000000000">Image Maps and Procedural Textures</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

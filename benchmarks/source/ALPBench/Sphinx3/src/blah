@@ -1,0 +1,40 @@
+subvq.c:    vq->vqdist = (int32 **) ckd_calloc_2d (vq->n_sv, vq->vqsize, sizeof(int32));
+subvq.c:    int32 *vqdist;
+subvq.c:    vqdist = vq->vqdist[0];	/* Since map is linearized for efficiency, must also
+subvq.c:				   look at vqdist[][] as vqdist[] */
+subvq.c:	    v = (int32) vqdist[*map];/* If we are not weighting the cep values, we need to adjust the subvqbeam */
+subvq.c:	    v = vqdist[*(map++)];
+subvq.c:	      v += 2 * vqdist[*map]; /* RAH Count delta twice, we can keep the same subvqbeam as vq_eval = 3 if we double the delta*/
+subvq.c:	      v = vqdist[*(map++)];/* Standard way */
+subvq.c:	      v += vqdist[*(map++)]; /*  */
+subvq.c:	      v += vqdist[*(map++)]; /*  */
+subvq.c:	    v = vqdist[*(map++)];
+subvq.c:	    v += vqdist[*(map++)];
+subvq.c:	v = vqdist[*(map++)];
+subvq.c:    vector_gautbl_eval_logs3(&(vq->gautbl[s]), 0, vq->vqsize, vq->subvec, vq->vqdist[s]);
+subvq.c:	vector_gautbl_eval_logs3(&(vq->gautbl[s]), 0, vq->vqsize, vq->subvec, vq->vqdist[s]);
+subvq.c:    if (s->vqdist) 
+subvq.c:      ckd_free_2d ((void **) s->vqdist);
+subvq.c~:    vq->vqdist = (int32 **) ckd_calloc_2d (vq->n_sv, vq->vqsize, sizeof(int32));
+subvq.c~:    int32 *vqdist;
+subvq.c~:    vqdist = vq->vqdist[0];	/* Since map is linearized for efficiency, must also
+subvq.c~:				   look at vqdist[][] as vqdist[] */
+subvq.c~:	    v = (int32) vqdist[*map];/* If we are not weighting the cep values, we need to adjust the subvqbeam */
+subvq.c~:	    v = vqdist[*(map++)];
+subvq.c~:	      v += 2 * vqdist[*map]; /* RAH Count delta twice, we can keep the same subvqbeam as vq_eval = 3 if we double the delta*/
+subvq.c~:	      v = vqdist[*(map++)];/* Standard way */
+subvq.c~:	      v += vqdist[*(map++)]; /*  */
+subvq.c~:	      v += vqdist[*(map++)]; /*  */
+subvq.c~:	    v = vqdist[*(map++)];
+subvq.c~:	    v += vqdist[*(map++)];
+subvq.c~:	v = vqdist[*(map++)];
+subvq.c~:    vector_gautbl_eval_logs3(&(vq->gautbl[s]), 0, vq->vqsize, vq->subvec, vq->vqdist[s]);
+subvq.c~:	vector_gautbl_eval_logs3(&(vq->gautbl[s]), 0, vq->vqsize, vq->subvec, vq->vqdist[s]);
+subvq.c~:    if (s->vqdist) 
+subvq.c~:      ckd_free_2d ((void **) s->vqdist);
+subvq.h:    int32 **vqdist;		/* vqdist[i][j] = score (distance) for i-th subvector compared
+subvq.h: * given subvq codebook.  Save results, as logs3 values, in vq->vqdist[][].
+subvq.h: * Save results, as logs3 values, in vq->vqdist[sv][].
+subvq.h~:    int32 **vqdist;		/* vqdist[i][j] = score (distance) for i-th subvector compared
+subvq.h~: * given subvq codebook.  Save results, as logs3 values, in vq->vqdist[][].
+subvq.h~: * Save results, as logs3 values, in vq->vqdist[sv][].

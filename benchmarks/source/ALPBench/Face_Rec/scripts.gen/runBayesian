@@ -1,0 +1,54 @@
+#!/bin/sh
+
+########## PREAMBLE #########
+
+if [ ! -f scripts.gen/csuCommon.sh ]; then
+    echo "Please run this command from the csuEvalFaceRec directory"
+    exit 1
+fi
+
+. scripts.gen/csuCommon.sh
+
+###### End of PREAMBLE ######
+
+function trainBayesianClassifier {
+    msg "Creating directory for training data"
+
+    run mkdir -p train/${DE}
+
+    msg "Training the Bayesian classifier"
+
+    run csuBayesianTrain -imDir $IMAGE_DIRECTORY $TRAINING_SRT train/${DE}/bayesian
+}
+
+function runBayesianClassifier {
+    msg "Creating directories for distances and/or cleaning out old distances"
+
+    run mkdir -p distances/${DE}_ML
+    run mkdir -p distances/${DE}_MAP
+
+    run2 rm distances/${DE}_ML/*
+    run2 rm distances/${DE}_MAP/*
+
+    msg "Running the Bayesian classifier"
+
+    run csuBayesianProject -imDir $IMAGE_DIRECTORY \
+	train/${DE}/bayesian.intra train/${DE}/bayesian.extra \
+	$TESTING_LST distances/${DE}_ML distances/${DE}_MAP
+}
+
+###### START OF SCRIPT ######
+
+loadDataSetConfig runTests.config.d $*
+
+D=${DATASET_NAME}
+E=Bayesian
+DE="${D}/${E}"
+
+if ifFileExistsThenPrompt train/bayesian.intra "It appears as if training data already exists. Retrain? [n]"; then
+    trainBayesianClassifier
+fi
+
+if ifFileExistsThenPrompt distances/${DE}/dataExists.txt "It appears as if results for this experiment already exist. Rerun the experiment? [n]"; then
+    runBayesianClassifier
+fi

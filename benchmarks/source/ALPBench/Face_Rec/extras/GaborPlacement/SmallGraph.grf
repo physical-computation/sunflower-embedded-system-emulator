@@ -1,0 +1,21 @@
+7
+LeftEyeChosen 0 0
+LeftEyeOutside 0 0
+NoseBridge 0 0
+NoseTip 0 0
+NoseSide 0 0
+MouthLeftCorner 0 0
+MouthTop 0 0
+
+9
+1 0
+0 2
+2 3
+3 4
+2 4
+3 6
+6 5
+4 0
+5 4
+
+

@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Command line shading controls</TITLE>
+<META NAME="description" CONTENT="Command line shading controls">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node8.html">
+<LINK REL="previous" HREF="node6.html">
+<LINK REL="up" HREF="node5.html">
+<LINK REL="next" HREF="node8.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html167"
+  HREF="node8.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html161"
+  HREF="node5.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html155"
+  HREF="node6.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html163"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html165"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html168"
+  HREF="node8.html">Command line image format</A>
+<B> Up:</B> <A NAME="tex2html162"
+  HREF="node5.html">Running Tachyon</A>
+<B> Previous:</B> <A NAME="tex2html156"
+  HREF="node6.html">General command line options</A>
+ &nbsp <B>  <A NAME="tex2html164"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html166"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00042000000000000000">
+Command line shading controls</A>
+</H2>
+Tachyon supports a number of command line parameters which affect the
+quality and algorithms used to render scene files.  The parameters 
+select one of several quality levels, which implement various 
+compromises between rendering speed and quality.  Along with the
+overall shading quality controls, several specific options provide 
+control over individual rendering algorithms within Tachyon.
+
+<P>
+
+<UL>
+<LI><TT>-lowestshade</TT>: solid colors only
+</LI>
+<LI><TT>-lowshade</TT>: minmalistic shading, using texture colors only
+</LI>
+<LI><TT>-mediumshade</TT>: disables computation of shadows
+</LI>
+<LI><TT>-fullshade</TT>: enables the highest quality rendering mode
+</LI>
+<LI><TT>-aasamples <I>sample_count</I></TT>: command line override for the number of 
+      antialiasing supersamples computed for each pixel.  A value of
+      zero disables antialiasing.  If this option is not used, the number
+      of antialiasing samples is determined by the contents of the scen file.
+</LI>
+<LI><TT>-shade_phong</TT>: use traditional phong shading for specular
+      highlights.
+</LI>
+<LI><TT>-shade_blinn</TT>: use Blinn's equation for specular highlights.
+</LI>
+<LI><TT>-shade_blinn_fast</TT>: use a fast approximation to Blinn-style
+      specular highlights.
+</LI>
+<LI><TT>-shade_nullphong</TT>: entirely disables computation of
+      specular highlights by registering a no-op function pointer.
+</LI>
+<LI><TT>-trans_orig</TT>: use original Tachyon transparency mode.
+</LI>
+<LI><TT>-trans_vmd</TT>: a special transparency mode designed for
+      use with VMD.  The resulting color is multiplied by opacity, 
+      giving results similar to what one would see with screen-door
+      transparency in OpenGL.
+</LI>
+</UL>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html167"
+  HREF="node8.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html161"
+  HREF="node5.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html155"
+  HREF="node6.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html163"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html165"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html168"
+  HREF="node8.html">Command line image format</A>
+<B> Up:</B> <A NAME="tex2html162"
+  HREF="node5.html">Running Tachyon</A>
+<B> Previous:</B> <A NAME="tex2html156"
+  HREF="node6.html">General command line options</A>
+ &nbsp <B>  <A NAME="tex2html164"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html166"
+  HREF="node20.html">Index</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

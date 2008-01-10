@@ -1,0 +1,11 @@
+int	devnet_xmit(uchar *dst, uchar proto, uchar *data, int nbytes, int whichifc);
+void	devnet_recv(uchar *recvbuf, int nbytes, int whichifc);
+ulong	devnet_getrxfsz(int whichifc);
+ulong	devnet_getmaxfsz(int whichifc);
+ulong	devnet_getncr(int whichifc);
+ulong	devnet_getspeed(int whichifc);
+int	devnet_ctl(int cmd, int val, int whichifc);
+void	devnet_framedelay(int nframes, int whichifc);
+ulong	devnet_getncolls(int whichifc);
+ulong	devnet_getncsense(int whichifc);
+int	devnet_getcurifc(void);

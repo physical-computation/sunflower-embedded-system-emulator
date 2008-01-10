@@ -1,0 +1,95 @@
+#!/bin/sh
+
+########## PREAMBLE #########
+
+if [ ! -f scripts.gen/csuCommon.sh ]; then
+    echo "Please run this command from the csuEvalFaceRec directory"
+    exit 1
+fi
+
+. scripts.gen/csuCommon.sh
+
+###### End of PREAMBLE ######
+
+function makeDifferenceImages {
+
+    msg "Creating directory for difference images and/or deleting old difference images"
+
+    run "mkdir -p data/diffs/${DE}"
+
+    run2 "echo > data/diffs/${DE}/foo.sfi"
+    run2 "find data/diffs/${DE} -name '*.sfi' -print | xargs rm"
+    run2 "rm -f data/diffs/${DE}/*.list"
+
+    msg "Computing extrapersonal and intrapersonal difference images"
+
+    run csuMakeDiffs $TRAINING_SRT data/diffs/${DE} data/diffs/${DE}/index.txt \
+	-imDir $IMAGE_DIRECTORY \
+	-ni $INTRAPERSONAL_N_DIFFS \
+	-ne $EXTRAPERSONAL_N_DIFFS \
+	-distances distances/${D}/PCA_Euclidean
+
+    msg "Generating image lists for training"
+
+    run2 "grep ex data/diffs/${DE}/index.txt | cut -f 1-1 > data/diffs/${DE}/extra.list"
+    run2 "grep in data/diffs/${DE}/index.txt | cut -f 1-1 > data/diffs/${DE}/intra.list"
+}
+
+function makeEigenspaces {
+
+    msg "Creating directory for training data"
+
+    run mkdir -p train/${DE}
+
+    msg "Computing eigenspace for intrapersonal images"
+
+    run csuSubspaceTrain -cutOff $INTRAPERSONAL_CUTOFF -imDir data/diffs/${DE} data/diffs/${DE}/intra.list train/${DE}/intra.train
+
+    msg "Computing eigenspace for extrapersonal images"
+    run csuSubspaceTrain -cutOff $EXTRAPERSONAL_CUTOFF -imDir data/diffs/${DE} data/diffs/${DE}/extra.list train/${DE}/extra.train
+
+    run "echo 'Indicator file used by the scripts to know whether the data in this directory is valid' > distances/${DE}/dataExists.txt"
+}
+
+function runBayesianClassifier {
+    msg "Creating directories for distances and/or cleaning out old distances"
+
+    run mkdir -p distances/${DE}_ML
+    run mkdir -p distances/${DE}_MAP
+
+    run2 rm distances/${DE}_ML/*
+    run2 rm distances/${DE}_MAP/*
+
+    msg "Running the Bayesian classifier"
+
+    run csuBayesianProject -imDir $IMAGE_DIRECTORY \
+	train/${DE}/intra.train train/${DE}/extra.train \
+	$TESTING_LST distances/${DE}_ML distances/${DE}_MAP \
+	-distances distances/${D}/PCA_Euclidean -maxRank 50
+}
+
+###### START OF SCRIPT ######
+
+loadDataSetConfig runTests.config.d $*
+
+D=${DATASET_NAME}
+E=Euclidean_PostBayesian
+DE="${D}/${E}"
+
+if ifFileExistsThenPrompt data/diffs/${DE}/intra.list "It appears as if difference images already exist. Recreate anyway? [n]"; then
+    makeDifferenceImages
+fi
+
+if ifFileExistsThenPrompt train/${DE}/intra.train "It appears as if training data already exists. Retrain? [n]"; then
+    makeEigenspaces
+fi
+
+if ifFileExistsThenPrompt distances/${DE}/dataExists.txt "It appears as if results for this experiment already exist. Rerun the experiment? [n]"; then
+    runBayesianClassifier
+fi
+
+for measure in ${E}_ML ${E}_MAP
+do
+  msg "Doing permutation tests for $measure"
+  run csuAnalyzePermute distances/${D}/$measure $PERMUTE_SRT results/${D}_${measure}_
+done

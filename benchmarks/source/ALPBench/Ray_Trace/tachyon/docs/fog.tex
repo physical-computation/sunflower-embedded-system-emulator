@@ -1,0 +1,29 @@
+
+\subsection{Atmospheric effects}
+\RAY\ currently only implements one atmospheric effect, 
+simple distance-based fog.
+
+\subsubsection{Fog}
+\index{fog}
+\RAY\ provides a simple distance-based fog effect intended to provide
+functionality similar to that found in OpenGL, for compatibility with
+software that requires an OpenGL-like fog implementation.  Much like
+OpenGL, \RAY\ provides linear, exponential, and exponential-squared fog.
+
+\begin{verbatim}
+  FOG 
+    LINEAR START 0.0  END 50.0  DENSITY 1.0  COLOR 1.0 1.0 1.0
+\end{verbatim}
+
+\begin{verbatim}
+  FOG 
+    EXP START 0.0  END 50.0  DENSITY 1.0  COLOR 1.0 1.0 1.0
+\end{verbatim}
+
+\begin{verbatim}
+  FOG 
+    EXP2 START 0.0  END 50.0  DENSITY 1.0  COLOR 1.0 1.0 1.0
+\end{verbatim}
+
+
+

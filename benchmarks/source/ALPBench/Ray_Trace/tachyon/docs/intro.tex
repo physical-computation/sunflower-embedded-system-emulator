@@ -1,0 +1,44 @@
+\section{Introduction}
+\RAY\ is designed to be a very fast renderer, based on ray tracing,
+and employing parallel processing to achieve high performance.
+
+At the present time, \RAY\ and its scene description language are fairly
+primitive, this will be remedied as time passes.  For now I'm going to 
+skip the ``intro to ray tracing'' and related things that should probably 
+go here, they are better addressed by the numerous books on the subject
+written by others.  This document is designed to serve the needs of 
+sophisticated users that are already experienced with ray tracing
+and basic graphics concepts, rather than catering to beginners.  
+If you have suggestions for improving this manual, I'll be glad 
+to address them as time permits.
+
+Until this document is finished and all-inclusive, the best way to 
+learn how \RAY\ works is to examine some of the sample scenes that 
+I've included in the \RAY\ distribution.  Although they are all very 
+simple, each of the scenes tries to show something slightly 
+different \RAY\ can do.  Since \RAY\ is rapidly changing to accommodate 
+new rendering primitives and speed optimizations, the scene 
+description language is likely to change to some degree as well. 
+
+\subsection{\RAY\ Feature List}
+  Although \RAY\ is a relatively simple renderer, it does have enough 
+features that they bear some discussion.
+
+\begin{itemize}
+\item Parallel execution using MPI.
+\item Parallel execution using POSIX or Unix-International 
+      threads libraries.
+\item Automatic grid-based spatial decomposition scheme for greatly
+      increased rendering speeds.
+\item Simple antialiasing based on psuedo-random supersampling.
+\item Linear, exponential, and exponential-squared fog.
+\item Perspective, orthographic, and depth-of-field camera projection
+      modes, with eye-space frustum controls.
+\item Positional, directional, and spot lights, with optional attenuation.
+\item Provides many useful geometric objects including 
+      Spheres, Planes, Triangles, Cylinders, Quadrics, and Rings
+\item Texture mapping, with automatic MIP-map generation
+\item Supports rendering of volumetric data sets 
+\end{itemize}
+
+

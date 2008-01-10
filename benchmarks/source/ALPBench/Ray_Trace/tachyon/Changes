@@ -1,0 +1,824 @@
+Changelog for Tachyon(tm) Ray Tracer 
+------------------------------------
+03/18/2005  o Updated the Make-arch target list shown by default, 
+              and improved the flags used for 32-bit Linux targets.
+
+
+05/30/2004  o Added first implementation of clipping groups consisting
+              of a set of clipping planes.
+
+            o Changed version number to 0.97.0 (for use by VMD builds)
+
+
+05/28/2004  o Miscellaneous code cleanup, makefile improvements, and 
+              minor performance tweaks here and there.
+
+
+03/04/2004  o Significant updates to texture allocation management code
+
+
+03/01/2004  o Fixed an incorrect string allocation in the command-line
+              argument parsing code
+
+
+02/02/2004  o Released version 0.96
+
+            o added a per-vertex colored triangle primitive intended
+              primarily for use with VMD-generated MSMS and NewRibbons
+              representations.
+
+            o subclassed textures to reduce memory consumption with large
+              per-vertex colored triangle surfaces exported from VMD.
+
+            o changed color types to use floats instead of flt to 
+              conserve memory.
+
+
+08/03/2003  o significant documentation updates, including recently 
+              added features. 
+
+07/29/2003  o added several new compilation targets for Linux running on 
+              the 64-bit AMD Opteron platform.
+
+            o Spaceball flight mode is disabled when running Tachyon on 
+              a distributed memory machine, since there isn't code to 
+              send camera parameter updates between the nodes presently.
+
+
+06/06/2003  o Released version 0.95
+
+            o added new transparency mode APIs and shader code to enable
+              a new transparency mode that more closely matches the results
+              of real-time renderers that use stipple/screen-door transparency
+              such as VMD.  Added -trans_orig and -trans_vmd command line 
+              options.
+
+05/29/2003  o added internal tracking of texture objects so they are
+              freed when the scene is deleted, absolving the user from
+              having to do this in their own code.
+
+            o main program will now render more than one scene at a time,
+              and will generate a numerical sequence of output images. 
+
+05/13/2003  o fixed swapped texture mapping constants
+
+03/07/2003  o Released version 0.94
+
+02/16/2003  o Added first implementation of fog
+
+01/27/2003  o New fisheye camera projection code
+
+01/21/2003  o New code for setting the camera view frustum
+
+07/27/2002  o Released version 0.93.6
+ 
+            o Made the shader used for specular highlights globally
+              selectable by the user.
+
+            o Made the Blinn shader and the fast approximation version
+              faster by eliminating some redundant calculations and
+              by moving normalization calculations around.
+
+            o Re-worked the MGF and AC3D scene file loaders
+
+            o Improved the Itanium2 compiler flags on HP-UX.
+
+            o Added depth of field
+
+
+07/08/2002  o Added antialiasing code for orthographic scenes
+ 
+            o Added directional lighting (non-local) primitives and 
+              made the shading system more flexible
+
+            o Large amounts of const correctness improvements.
+
+
+07/03/2002  o Added code for rendering orthographic scenes
+
+            o Added reader/writer locking code
+
+05/10/2002  o Added Make-arch flags to compile on IA-64 versions of HP-UX 
+
+03/27/2002  o tachyon.h header updates for C++ and prevent multiple
+              inclusion.
+
+03/26/2002  o Const correctness fixes
+
+03/21/2002  o Added Alphaserver SC configuration
+
+12/12/2001  o Released Tachyon version 0.93.4 
+
+            o Misc cleanup, updated readme info, prepared for release.
+              
+12/03/2001  o Updated for compilation on VMS, with updates
+              contributed by Peter Ljungberg
+
+11/29/2001  o Ported to Linux on Compaq iPaq PDA
+
+10/29/2001  o Ported to Linux on Sony Playstation 2
+
+08/19/2001  o Added spaceball code to main ray tracer control loops, for
+              doing fly throughs etc.  The old OpenGL previewer code can
+              now be rewritten more simply, eliminating all of the 
+              old special case code for the spaceball etc.
+
+            o Added Solaris and Scyld Beowulf targets for MPI and
+              OpenGL runtime display.  (larger scale parallelism, 
+              particularly useful for doing spaceball controlled 
+              fly-throughs)
+
+08/18/2001  o Reorganized main loop code to make adding spaceball 
+              fly-through code cleaner.
+
+07/27/2001  o Added a Pentium 4 target for gcc.
+
+            o Cranked rev to 0.93.4
+
+07/26/2001  o Released Tachyon version 0.93.3 
+
+            o Updated distribution for Siggraph 2001 demos.
+
+            o Improved usage message printing on MPI builds, fixed
+              some minor initialization issues in printing related
+              startup code.
+
+            o Fixed a bug that could crash Tachyon when it was trying to
+              do a clean shutdown in MPI, there was a case that could
+              crash if message buffers had not yet been allocated at
+              the time of shutdown.  New code checks buffers more carefully.
+
+07/25/2001  o Added support for Sun's ClusterTools 4.0 MPI implementation.
+
+
+04/06/2001  o New compile flags AMD Athlon chips yield 15% performance
+              improvement.  These flags are known to work with the 
+              "gcc 2.96" that comes with Redhat 7.x.  Older versions of
+              gcc don't have them yet.
+
+04/05/2001  o Added a configuration for Linux Alpha using the Quadrics
+              implementation of MPI.
+
+            o Reorganized the Linux section of Make-arch by platform 
+
+            o New multithreaded build for MacOS-X with Carbon Multiprocessing
+              detection code.
+
+            o Added missing documentation for spotlights, distance-based 
+              lighting attenuation, and made several corrections to the
+              existing text.
+
+            o Improved performance of builds on Linux for Athlon CPUs
+              by 15% through the use of better GCC flags.
+
+04/04/2001  o Updated MacOS-X build flags for new version of the system
+              released on March 24, 2001.
+
+04/03/2001  o implemented new -aasamples command line flag to more easily
+              control antialiasing settings without editing files.
+
+03/12/2001  o Released Tachyon "0.93.2"
+
+03/11/2001  o Improved handling of parser errors and debugging information
+              printed.  Added line numbers, character offset, expected token,
+              and actual string.  Added checks for self-recursive scene
+              include files.  Improved default handling of unspecified
+              animation filenames per format.
+
+            o Added HTMl docs to doc makefile, and to distribution.
+
+03/05/2001  o Redesigned parser data structures and rewrote all of the
+              parser's internal interfaces to use them.  This is the first
+              step toward more useful error messages, elimination of static
+              and global data, and making the parser itself multithreaded
+              some time down the road.
+
+            o Rewrote the texture table code using new parser interfaces, 
+              eliminated hard-coded size limits on texture names, number of
+              textures, etc.
+
+03/04/2001  o Added comments about case sensitivity of file names
+              and texture names to docs.  Also added info about the
+              behavior of lights with a radius of 0.0
+
+            o Changed glwin code to allow specification of the window
+              title so that Tachyon and its OpenGL previewer are more
+              easily differentiated from each other in all cases.
+
+03/03/2001  o Fixed some parser error handling code to print better 
+              messages when scene files or include files fail to open.
+
+03/01/2001  o Made some more changes to the Phong specular highlighting
+              code, trying out some other potential implementations etc.
+
+02/28/2001  o Added a more traditional Phong specular highlight
+              shader function.  Also clarified the code and renamed
+              the original function to make it clear which one is using
+              Blinn's halfway vector and which one is using the calculated
+              reflection vector. 
+
+            o Added new Windows-specific timer code to make use of
+              millisecond resolution timers.
+
+            o Updated the Windows project files for recent changes to
+              the code.
+
+02/26/2001  o Added PNG reading and writing support to Tachyon.
+              Currently only does 24-bit RGB files, but may add
+              support for 48-bit RGB PNG files in a later revision.
+
+            o Changed the tachyon main program and getargs so that 
+              users can select what format and what filename/frame 
+              format specifier they want to use for their animations,
+              so that users can do things as below on the command line.
+                 tachyon ....  -format PNG -o /tmp/frame.%04d.png ....
+
+02/25/2001  o Added some rudimentary orthographic camera code,
+              although it is not exposed to user callable APIs yet,
+              a basic implementation is now there.  After some more
+              camera models are tried out, I should be able to 
+              clean up the camera APIs significantly. 
+
+02/23/2001  o Released Tachyon "0.93.1"
+
+02/22/2001  o Fixed AIX multithreaded builds so that they
+              force PTHREAD_SCOPE_SYSTEM scheduling, so we get
+              to use all of the CPUs.  The AIX 4.3.x default
+              scheduling scope is unfortunately set for 
+              PTHREAD_SCOPE_PROCESS, so we override it now.
+
+02/19/2001  o Camera definitions can now be placed anywhere in 
+              a scene file, the last definition overrides all
+              previous definitions in the scene.
+
+            o Changed the OpenGL "glwin" code to acquire a 
+              Z-buffer on Unix systems, so that the
+              OpenGL-based Tachyon "simulator" code can share
+              this code instead of having to use GLUT, which 
+              eliminates GLUT as a build requirement, and avoids
+              the limitations it imposes on program structure.
+
+            o Fixed various incorrect/out-of-date information
+              in the Tachyon docs.  Updated for recent changes
+              to scene language etc.
+
+            o the wood grain procedural texture scale correctly now.
+
+            o updated test scenes to match changes to wood grain 
+              texture code.
+
+02/18/2001  o Added new Make-opengl file which contains  
+              make macros to define OpenGL include/link info
+              for all of the major platforms that are supported. 
+
+            o Updated copyright dates again.
+
+02/14/2001  o Released Tachyon version "0.93"
+
+            o Added better EOF handling into parser, and 
+              implemented "include" files.
+
+01/19/2001  o Renamed thread data structures to avoid a small
+              namespace collision with system headers on IRIX
+              in certain circumstances.
+
+01/04/2001  o Updated documentation files.
+
+            o Added a "#" comment keyword so that people can
+              have comments in scene files.
+
+12/19/2000  o Added build targets for IA-64 machines running 
+              Linux, using both GCC and the SGI Pro64 compilers.
+
+            o Added new targets for the Portland Group compilers.
+
+            o Added ability to disable the allocation and use of 
+              mailbox grid-acceleration data structures at compile
+              time with new configurable option in Make-config.
+
+            o Fixed Make-arch so it pays attention to the FLT macro,
+              it was a bug that it was not already doing so.
+
+            o Added scene handle as required parameter for 
+              the rt_texture() function.
+
+            o fixed the -nosave flag so that it disables image
+              saving for single frame renderings as well as 
+              animations.
+
+11/22/2000  o Released Tachyon version "0.92"
+
+            o Changed makefiles to be more IRIX/Tru64 friendly.
+
+            o made rt_timer_xxx() and rt_rand() publically usable.
+
+            o added Frames per second display to camfile processing
+
+            o Rewrote timer code to be more useful.
+
+            o Added MacOS-X build configuration
+
+            o Added Linux threaded OpenGL build configuration
+
+            o updated MSVC project configuration
+
+11/21/2000  o Received a bug report from Osama Youssef, the 
+              grid_intersection() code was causing tachyon to 
+              step through grid cells starting from the grid
+              boundary rather than from the ray origin in the 
+              case where rays originate inside the grid rather
+              than outside.  Fixed this problem by changing 
+              grid_bounds_intersect() to return a tnear of 0.0
+              minimum, rather than negative t values from the
+              boundary of the grid.  Rendering times for the
+              balls test scene are around 70% faster now due to
+              the large decrease in overhead.
+
+11/17/2000  o Added an build config for UltraSPARC-III 
+              machines.  The -xarch=v8plusb flag gives a good
+              10% performance boost.
+
+10/02/2000  o Got rid of unused local variables..
+
+            o Added a compile target for Alpha Linux using
+              Compaq's C compiler.
+
+09/26/2000  o Added support for Linux on the Alpha platform, 
+              and changed the statically linked Tru64 build flags
+              so that the produced binaries can run on Alpha Linux
+              as well, since Compaq C is much better than GCC still,
+              my tests showed a factor of two speed difference.
+
+09/14/2000  o Released Tachyon version "0.91"
+
+09/13/2000  o Improved camera code and sped up primary ray 
+              generation.  Minor improvements to make it easier
+              to add new camera models soon.
+
+            o Updated usage message to only list file formats
+              that are parsable by the compiled code.
+
+09/11/2000  o Several more optimizations to reduce per-pixel
+              overhead for better real-time speed.  Removed 
+              clamping code for negative color values.
+
+            o Improved camera ray generation and did some cleanup.
+
+            o Merged various shared items in tachyon.h and types.h
+              into rtcommon.h
+
+09/04/2000  o Released Tachyon version "0.90" 
+
+            o Nice per-pixel speed increase by overlapping
+              pixel clamping arithmetic and writes, and by 
+              changing ray direction normalization to multiply
+              by reciprocal rather than divide, helps speed up by
+              10% on Sparc, no effect on Alpha.
+
+08/16/2000  o Added a solaris-pthreads-gcc build that works
+              on Solaris 7 X86, used by VMD.
+
+            o Splite distribution targets into their own
+              Make-distrib file, included by Makefile.
+
+08/15/2000  o Added OpenGL-display multithreaded build targets for 
+              Solaris, IRIX, and Tru64 Unix.
+
+            o Added 24-bit Windows BMP image writing code and new
+              flags to make it one of the available output options.  
+
+            o renamed Tachyon include file to tachyon.h from 
+              api.h, update all sources/makefiles correspondingly.
+
+08/14/2000  o Renamed api.h to tachyon.h, and did lots of 
+              cleanup, updated distribution makefile and 
+              added lots of missing runtime usage message help.
+
+            o Added build targets for the OpenGL-capable run-time 
+              display version on IRIX, Solaris, and Tru64.
+
+07/31/2000  o Added single-threaded BeOS build target to the 
+              "Unix" makefiles.  Since BeOS's development 
+              environment is so tachyon-friendly, there was no 
+              need to do anything new or crazy here.
+
+07/25/2000  o Added 64-bit build targets, and new code for
+              eliminating the run-time clearing of the mailbox
+              arrays when running on a 64-bit platform, since the
+              mailbox counters will never overflow with 64-bit
+              integers.  Will be a performance win someday :)
+
+            o Added Linux PPC build target.
+
+07/13/2000  o Finally updated copyright dates etc.
+
+07/07/2000  o Updated Alpha build targets to enable speculation.
+
+05/18/2000  o Ray tracer binary is now called "tachyon" and not
+              just "ray".
+ 
+            o rearranged lots of compile targets to be more update
+              with the way newer revs of the OSs are setup or
+              are named now. (i.e. renamed osf1 targets to tru64)
+
+            o added a pthreads build for AIX 4.x, but it doesn't
+              appear to schedule threads in system scope yet.
+
+            o updated the makefiles and documentation in the
+              tree to reflect the name "Tachyon" which has stuck
+              pretty well for the last year or two.
+
+            o Changed hpux-thr build to work for POSIX threads on
+              HP-UX 11.0.
+
+            o migrated from RCS to CVS for real finally, have
+              been too lazy to get this done for a while.
+
+11/08/1999  o changed the definition of the "medium" quality
+              shader to make VMD users more happy.
+
+09/22/1999  o eliminated unused variables, misc cleanup.
+ 
+            o added user selectable output image format code
+              instead of hard-coding to Targa format output.
+
+            o improve image writers, better correctness etc.
+ 
+            o added image I/O routines for SGI RGB, PPM, JPEG 
+
+11/29/1998  o Made an important change to the grid code, the grid
+              code caches the value of the ray serial number, and
+              the pointer to the mailbox array, this helps the 
+              compiler avoid generating stupid code on some 
+              platforms, and helps avoid one level of indirection.
+
+            o Changed intersection structures within the ray struct,
+              they are no longer arrays in the general case, since
+              CSG is different anyway, it will use the new code
+              for adding intersections specially rather than making
+              the average case performance suffer.
+
+            o Intersection functions for each object now use a 
+              function pointer for "add_intersection" instead of
+              calling a specific function.  This makes things much
+              more flexible and helps performance slightly due to
+              the use of special case code for regular rays and 
+              shadow rays, instead of using one function for both.
+
+            o Improved the constants in type.h when building for
+              single precision rather than double precision.  Should
+              allow a single precision ray tracer to give good 
+              results through the use of customized EPSILON constants
+              etc, while allowing double precision builds to remain
+              maximum quality.  Single precision builds run anywhere
+              from 5-20% faster than double precision builds,
+              and they use about half as much ram for the same number
+              of objects.
+
+11/25/1998  o The code now outruns Rayshade for all of the SPD 
+              scenes, even on a single processor, even with the 
+              overhead of the multiprocessor capable builds, and
+              even with no shadow cache.  
+
+            o Further improvements to the grid traversal code 
+              which yield a 50% speed improvement for scenes that
+              end up having a single-level low-res grid, usually
+              with 20-100 objects..  Big decrease in the setup
+              overhead per ray..
+
+            o removed unused static functions from several places,
+              and got rid of unused parameters on some shader code.
+
+11/23/1998  o Several critical improvements to grid.c which 
+              yield a 30% speed increase on several of the SPD
+              test scenes. (at least on a Sun Ultra 2...)
+
+            o Added RTVI display code for MSTI's SC'98
+              show.
+
+            o Added new i860 MCOS platform support.
+
+09/09/1998  o Added OpenGL support for Windows 9x/NT..
+ 
+            o Added support for MPI on NT, using MSVC and
+              MPI Software Technologies' MPI/Pro for NT.  
+              Configurations for both TCP and VIA interconnects.
+
+            o Added support for the Cygnus Cygwin32 compilers
+              for windows in the standard Unix makefiles.
+
+08/30/1998  o Fresh build on NT with all new MSVC project files
+
+            o Various small performance enhancements
+
+08/06/1998  o New Platform Support Added:
+              DEC Alphas running Digital Unix (aka OSF1)
+
+            o new APIs for camera control.
+
+            o new APIs for querying scene resolution.
+
+            o new APIs for user interface callbacks.
+
+            o significant changes to API functions, many now
+              require the scene handle as their first parameter.
+
+            o improved parallel work decomposition code for
+              multithreaded runs on only 1 "node".  Eliminates
+              cache thrashing on CC-NUMA machines like the 
+              SGI Origin2000 machines, probably helps others too.
+              Also generally improves memory coherence properties
+              of the entire ray tracing process as a side effect.
+
+            o completely eliminated limits on the number of
+              lights in a scene.  New code is fully dynamic,
+              no fixed size tables.  Memory is the only limit.
+
+            o eliminated old unused code constructs.
+
+            o Redesign and completely new implementation of 
+              all of the top levels of the core rendering loops.
+              The new code caches a lot of setup in order to 
+              vastly reduce overhead when rendering animations.
+
+            o Complete redesign of the multithreaded parts of
+              the rendering code.  Entirely new approach, which
+              runs much better when doing animations, and when
+              doing mixed-mode threads and message passing. 
+              Worker threads are now long-lived.  They live
+              for the duration of a given scene.  Future revs
+              may increase thread lifespan even longer.  Threads
+              are created in a pool, and the pool is awakened for
+              work when a frame is rendered.  After work is complete
+              the threads sleep until they are needed again.  This
+              reduces thread creation and destruction.
+
+            o Changes to surface normal code in all objects 
+              more is done in the shader code, less in the objects.
+              Much more of the math is inlined now too.
+
+07/23/1998  o New Platform Support Added:  
+              Cray Vector Supercomputers using POSIX Threads
+              Cray T3E Supercomputers using MPI
+              CSPI Multicomputers using MPI/Pro (PowerPC)
+              Linux with POSIX Threads and/or MPI (x86)
+              Mercury Multicomputers using MPI/Pro (PowerPC)
+              Mercury Multicomputers using MPI/Pro (i860)
+              SGI IRIX 6.4 with POSIX Threads 
+
+            o Several Rendering fixes
+
+            o Complete rewrite of the distributed memory 
+              communications routines.  New code uses much
+              higher performance MPI constructs than before.
+
+            o New code no longer needs concurrent I/O in order to
+              perform well on distributed memory machines.
+
+            o Tremendous amounts of internal restructuring for
+              improved scalability on both shared memory and
+              distributed memory machines.  
+
+            o New code provides much higher performance for
+              rendering fly-through type animations. 
+
+            o Added MIP Mapping capabilities to texturing code.
+
+            o Added Spotlights.
+
+            o Added controls for lighting falloff equations.
+
+            o Automatic shader/quality determination based on
+              scene contents.
+
+            o Multiple shader support for user specified
+              rendering quality levels.
+
+            o Fixed memory leaks.
+
+            o Greatly improved antialiasing code
+
+            o Added many new command line parameters for 
+              additional control over the rendering process.
+
+03/17/1998  Fixes to distribution directories, renderering bug 
+            fixes here and there.  
+
+01/07/1998  New code uses a hierarchical grid based efficiency 
+            scheme to accelerate ray tracing.  Runs as much as
+            25 times faster for some of the SPD scenes, runs 
+            *incredibly* fast for huge scenes containing upwards
+            of 1.5 million objects.  (can render a 1.5 million
+            object SPD teapot scene in 86 seconds on a 4 processor
+            Sun ES3000)  New code has several improved APIs for
+            texturing, and global scene settings.  Future revisions
+            will include extensive changes to the external APIs
+            which will make future implementation of new features
+            much cleaner and better organized.
+            New image reader API for loading texture map images.
+            New image readers for JPEG, Targa, and PPM replace
+            old PPM-only code.  Easily extensible to support new
+            image formats.
+
+11/02/1997  A complete overhaul of many aspects of the ray tracing
+            system has been done.  Many improvements have been made
+            to its reliability.  The ray tracing API has changed
+            to enhance extensibility and improve organization.
+            Overall execution speed has been improved by 
+            approximately ten percent over previous versions, 
+            especially for simple scenes.  Internal library
+            reorganizations have reduced the code size, and 
+            improved orthogonality within the implementation.
+            Enhancements have been made to the image map 
+            code to allow reading targa files as well as ppm files.
+            A new image loading and saving API will allow 
+            support of new image formats such as JPEG for 
+            texture maps.  Extensive command line overrides
+            are now available on the ray tracer application.
+            Display enabled builds of the ray tracer should be
+            the default from now on, since run-time display
+            can be enabled and disabled on demand.
+
+10/20/1997  Now reads NFF files (ala SPD) directly.  Initial
+            implementation of AC3D model file reader.  Rewrote
+            the regular parser in entirety.  All of the old 
+            statistics which used to be kept in the parsers have
+            been removed.  In the next few distributions, the
+            geometry parsing systems will be reworked so that
+            a much greater variety of models may be loaded from
+            foreign 3D file formats.  This version is the first
+            major step in that direction.  3D Studio files are
+            next on the list for implementation.  Quite a bit
+            of code housekeeping has been done recently as well,
+            removing all warnings I'm aware of.  I'll be adding
+            support for a number of new image file formats for both
+            reading and writing, as well as the ability to load
+            files over the network from WWW servers.  The OpenGL
+            scene previewer will also be getting a makeover in the
+            near future.
+
+10/02/1997  New solaris-gcc-thr-x11 target, with some further
+            cleaning applied to the source code.  Also added
+            support for 24 bit TrueColor X visuals in the X11
+            code.  The TrueColor support code still needs a 
+            few tweaks, but does work on Suns and SGIs.  The
+            X11 code will probably reverse the Red and Blue
+            channels on x86 machines, but I'll be adding code
+            for plane masks etc soon, which will also allow
+            it to work for 16 bit TrueColor displays..
+
+10/01/1997  New solaris-gcc-thr-x11 target for building the
+            multithreaded version correctly with gcc on suns..
+            This problem was reported by Lars Rzymianowicz, and
+            should be cured now.
+            This release also includes various syntactic and 
+            semantic cleanup using lint-like compiler flags. 
+
+09/25/1997  This version includes quite a number of changes
+            to the OpenGL scene previewer.  The previewer
+            now has greatly improved shading, uses display
+            list for much faster rendering, and includes
+            support for the "SpaceOrb 360" spaceball controller 
+            for use with real-time fly-throughs of scenes.
+            Recorded fly-throughs can now be rendered by
+            the ray tracer for creating animations.  The
+            new distribution also includes a lot of new
+            experimental codes for creating OMF files, PPM 
+            files and supports several new extensions in the
+            ray tracing library.
+
+03/06/1997  98% of the basic functionality found in the raytracer
+            now exists in the OpenGL previewer.  Cylinders, 
+            spheres, triangles, smoothed triangles, infinite
+            planes, and rings are all supported.  Volume 
+            rendering is not supported, and neither is texture
+            mapping at this time.(after all, its only a previewer!)
+            The previewer can be linked with a program much like 
+            regular raytracing library can.  At the present time,
+            the previewer code does not have a way to be  
+            invoked multiple times, and can't run without a
+            display of some kind.  As I have time I'll be 
+            trying to merge the features of the ray tracer and
+            previewer so they are relatively seamless.  Eventually
+            I plan to implement a polygon rendering library that
+            will not depend on having a display.  So in the future
+            there will be a "quality level" between 0 and 100%,
+            with 0 being non-shaded polygons, 100% being fully
+            antialiased raytracing etc.. 
+            Now to write some animation code :-)
+
+03/03/1997  More functionality added to the OpenGL scene 
+            previewer.  It now writes out PPM files 
+            (in addition to rendering them) in the same way
+            that the raytracer writes TGA files.
+            The new version can be built using either
+            the AUX lib, or the GLUT library (both are
+            helper libraries for interacting with the
+            windowing system, and input devices)
+            Display performance on this version is probably
+            10 times faster than the previous version.
+
+03/02/1997  Major functionality has been added to the OpenGL
+            previewer.  It will render 70% of the objects
+            supported in the raytracer.  It has a slightly
+            simplified lighting model.  The OpenGL camera 
+            should now behave just like the ray tracer's does.
+            One minor fix was made in the fractal landscape 
+            generator code, to orient the normals correctly for
+            use with systems that only want to render the 
+            front facing polygons/triangles (OpenGL).
+            (This version requires the AUX OpenGL toolkit)
+
+02/23/1997  Fixed some prototypes/compilation warnings,
+            cleaned up the unix makefiles, trying out some
+            new compiler optimizations for UltraSPARC machines
+            with the Sun 4.x tools.  Updated all of the 
+            example models so output goes to /tmp rather
+            than /cfs/johns/... (my old work area on a parallel
+            computer :-)
+            Added a simple model file parameter to command
+            line parsing.  Hopefully this will *not* 
+            cause problems with MPI builds, since MPI likes
+            to take the first shot at parsing command line
+            parameters.  Getting ready to add more code
+            into the OpenGL scene previewer, hopefully the
+            camera model will be completely fixed shortly :-)
+            The OpenGL code should now work with Mesa as well
+            as vendor supplied OpenGL libraries.
+
+02/05/1997  Added threads and multiprocessor support for 
+            Microsoft Windows platforms.  Added a 'renderapp'
+            to the msvc directory.  Renderapp is a first hack
+            at doing a windows GUI front end for the raytracer.
+            The GUI compiles for Windows, Mac, and PowerMac,
+            but at this time its incomplete and has poor
+            event handling.  The Windows threads seem to run
+            great on multiprocessor Pentiums.  I'm assuming
+            that all of this code will also work for the 
+            DEC Alpha's running NT, and the PowerPC version
+            of NT.  Only minor minor changes would be needed,
+            mainly the byte swapping order for the big
+            endian machines (copy from Pmac and 68k configs).
+
+11/17/1996  Cleaned up all extra/unneeded variables, added
+            lots of typecasts, and added a new 'makefile.msvc'
+            for compiling with Microsoft Visual C/C++.
+            Also has Macintosh targets in the makefile.msvc 
+            for people with the cross compilers.
+
+11/10/1996  Removed 90% of globals, removed 90% of hard coded
+            limits on numbers of threads etc, now does thread
+            spawning totally dynamically.  Runs 10% faster 
+            with new intersection structures, should run much
+            much faster on SMP machines, got rid of some cases
+            of 'false data sharing' which would cause MP cache
+            thrashing unnecessarily.  All intersection info
+            is now created and destroyed within each thread,
+            and eliminates false sharing due to memory addresses
+            being too close together.
+
+04/11/1996  Updated parvol code, matches extvol at the moment.
+            Decided to write a distribution tar after fixing
+            a long standing bug in cylinder normal code.
+            Added polycylinder code to the api..
+
+04/09/1996  New extvol rendering code does much better
+            voxel shading.  Next version will have the 
+            parvol rendering code in place, and will allow
+            the use of the gridmap code and new RPC's
+
+04/01/1996  Reworked API function names, first rev of the
+            new volume rendering code (extvol).   
+            First rev of the irregular grid mapping code.
+            Updated the source for Solaris 2.5 and UltraSparcs.
+
+01/27/1996  Updated the thread code to autodetect the number
+            of available CPUs.  It will spawn as many threads
+            as there are available CPUs.  Tested on Sun
+            SparcCenter 2000 at WU.  
+
+01/21/1996  Major performance improvement on triangle related
+            objects.. Runs about 2 times as fast as it did.
+            Minor cleanup and some performance improvements
+            when rendering simple scenes.
+
+01/08/1996  New util (tgatoyuv) for converting tga's
+            to YUV files for MPEG compressed animations.
+            Extensive performance tuning of existing code.
+
+01/01/1996  Bugfixes and cleanup
+
+07/13/1995  Fully multithreaded version (Sun && Paragon)
+            Vastly improved support for shared memory 
+            machines.  Still needs threads for other platforms
+            but the foundation is complete.  Improved load
+            balancing for threads is in place.  
+            Haven't extensively tested on other platforms,
+            mainly Sun, iPSC/860, and Paragon.
+
+07/05/1995  MPI+Multithreaded version Intel Paragon XP/S only.
+
+1994-1995   Many many versions, all experimental quality only...
+            Change logs for these versions only exist in the revision
+            control system.
+

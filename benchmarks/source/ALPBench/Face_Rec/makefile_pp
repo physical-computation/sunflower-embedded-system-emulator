@@ -1,0 +1,38 @@
+HEADERS =  csuCommon csuCommonUtil csuCommonMatrix csuCommonFile \
+csuCommonSubspace csuCommonCommandLine csuCommonImage 
+
+SRC =  csuCommonUtil csuCommonMatrix csuCommonFile csuCommonSubspace \
+csuCommonCommandLine csuCommonImage csuPreprocessNormalize csuSubspaceEigen \
+csuSubspaceFisher csuSubspaceCVEigen
+
+TARGET = face_pp
+
+# Uncomment USE_THREADS if multithreading is desired. Use THREAD_NUM to specify
+# number of threads.
+
+THREAD_NUM = 2
+#USE_THREADS = -DTHRD -DNUM_THREADS=$(THREAD_NUM)
+
+USERFLAGS = $(USE_THREADS)
+USERLIBS = -lm -lpthread
+
+LIBDIR = /usr/lib
+
+LD = gcc       # Using GCC as the compiler for now
+STATLINK = -dn # Option to force static linkage
+CC = gcc
+OPTIMIZE = -g -O4 -Wall
+
+LIBS = $(USERLIBS)
+CFLAGS = $(OPTIMIZE) $(USERFLAGS)
+OBJS = $(SRC:%=obj/%.o)
+
+execs/$(TARGET).out: $(OBJS)
+	$(LD) $(STATLINK) $(USERFLAGS) -o execs/$(TARGET) $(OBJS) $(LIBS)
+
+$(OBJS): $(HEADERS:%=src/%.h) $(SRC:%=src/%.c)
+	$(CC) -o $@ $(CFLAGS) -c $(*:obj/%=src/%.c)
+
+clean:
+	rm -f obj/*.o execs/$(TARGET)
+

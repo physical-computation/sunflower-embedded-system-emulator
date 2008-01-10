@@ -1,0 +1,29 @@
+\indexentry{compiling on unix systems}{3}
+\indexentry{running}{5}
+\indexentry{command line parameters}{5}
+\indexentry{running with MPI}{5}
+\indexentry{scene description files}{5}
+\indexentry{camera}{6}
+\indexentry{camera!zoom}{6}
+\indexentry{camera!aspect ratio}{7}
+\indexentry{camera!antialiasing}{7}
+\indexentry{camera!maximum ray depth}{7}
+\indexentry{camera!orientation}{7}
+\indexentry{include files}{8}
+\indexentry{scene file comments}{8}
+\indexentry{lighting}{8}
+\indexentry{lightin!point sources}{8}
+\indexentry{lighting!spotlights}{8}
+\indexentry{lighting!attenuation}{9}
+\indexentry{objects}{9}
+\indexentry{objects!spheres}{9}
+\indexentry{objects!triangles}{10}
+\indexentry{objects!smoothed triangles}{10}
+\indexentry{objects!planes}{11}
+\indexentry{objects!rings}{11}
+\indexentry{objects!infinite cylinders}{12}
+\indexentry{objects!finite cylinders}{12}
+\indexentry{objects!axis-aligned boxes}{12}
+\indexentry{objects!fractal landscapes}{13}
+\indexentry{objects!arbitrary quadrics}{13}
+\indexentry{objects!grids of scalar voxels}{13}

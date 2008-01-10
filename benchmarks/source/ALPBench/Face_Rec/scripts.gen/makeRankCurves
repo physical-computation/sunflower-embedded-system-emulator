@@ -1,0 +1,33 @@
+#!/bin/sh
+
+########## PREAMBLE #########
+
+if [ ! -f scripts.gen/csuCommon.sh ]; then
+    echo "Please run this command from the csuEvalFaceRec directory"
+    exit 1
+fi
+
+. scripts.gen/csuCommon.sh
+
+###### End of PREAMBLE ######
+
+loadDataSetConfig runTests.config.d $*
+
+for measure in Bayesian_MAP Bayesian_ML PCA_Euclidean PCA_MahAngle LDA_ldaSoft
+do
+  msg "Calculating the rank curves for fafb"
+
+  run csuAnalyzeRankCurve -outDir results -filePrefix ${DATASET_NAME}FAFB_${measure} imagelists/fafb.srt imagelists/feret_gallery.srt distances/${DATASET_NAME}/${measure}
+
+  msg "Calculating the rank curves for fafc"
+
+  run csuAnalyzeRankCurve -outDir results -filePrefix ${DATASET_NAME}FAFC_${measure} imagelists/fafc.srt imagelists/feret_gallery.srt distances/${DATASET_NAME}/${measure}
+
+  msg "Calculating the rank curves for dup1"
+
+  run csuAnalyzeRankCurve -outDir results -filePrefix ${DATASET_NAME}DUP1_${measure} imagelists/dup1.srt imagelists/feret_gallery.srt distances/${DATASET_NAME}/${measure}
+
+  msg "Calculating the rank curves for dup2"
+
+  run csuAnalyzeRankCurve -outDir results -filePrefix ${DATASET_NAME}DUP2_${measure} imagelists/dup2.srt imagelists/feret_gallery.srt distances/${DATASET_NAME}/${measure}
+done

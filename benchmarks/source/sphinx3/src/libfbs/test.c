@@ -1,0 +1,5 @@
+int
+myfun(void)
+{
+
+}

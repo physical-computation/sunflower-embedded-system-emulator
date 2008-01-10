@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}Introduction}{3}
+\contentsline {subsection}{\numberline {1.1}Tachyon\ Feature List}{3}
+\contentsline {section}{\numberline {2}Compiling Tachyon\ From Source Code}{3}
+\contentsline {section}{\numberline {3}Running Tachyon}{5}
+\contentsline {subsection}{\numberline {3.1}Command line parameters}{5}
+\contentsline {subsection}{\numberline {3.2}Tips for running MPI versions}{5}
+\contentsline {section}{\numberline {4}Scene Description Files}{5}
+\contentsline {subsection}{\numberline {4.1}Basic Scene Requirements}{5}
+\contentsline {subsection}{\numberline {4.2}The Camera}{6}
+\contentsline {subsection}{\numberline {4.3}Including Files}{8}
+\contentsline {subsection}{\numberline {4.4}Scene File Comments}{8}
+\contentsline {subsection}{\numberline {4.5}Lights}{8}
+\contentsline {subsection}{\numberline {4.6}Objects}{9}
+\contentsline {subsubsection}{\numberline {4.6.1}Spheres}{9}
+\contentsline {subsubsection}{\numberline {4.6.2}Triangles}{10}
+\contentsline {subsubsection}{\numberline {4.6.3}Smoothed Triangles}{10}
+\contentsline {subsubsection}{\numberline {4.6.4}Infinite Planes}{11}
+\contentsline {subsubsection}{\numberline {4.6.5}Rings}{11}
+\contentsline {subsubsection}{\numberline {4.6.6}Infinite Cylinders}{12}
+\contentsline {subsubsection}{\numberline {4.6.7}Finite Cylinders}{12}
+\contentsline {subsubsection}{\numberline {4.6.8}Axis Aligned Boxes}{12}
+\contentsline {subsubsection}{\numberline {4.6.9}Fractal Landscapes}{13}
+\contentsline {subsubsection}{\numberline {4.6.10}Arbitrary Quadric Surfaces}{13}
+\contentsline {subsubsection}{\numberline {4.6.11}Volume Rendered Scalar Voxels}{13}
+\vspace {3ex}
+{\bf Index \hspace {4.1in}15}

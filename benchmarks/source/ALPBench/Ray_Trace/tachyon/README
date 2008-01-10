@@ -1,0 +1,83 @@
+
+README for Tachyon(tm) Parallel/Multiprocessor Ray Tracing Software
+-------------------------------------------------------------------
+Tachyon - 1967, from Greek "tachys", meaning "swift" or "speedy",
+          A hypothetical particle held to travel only faster than light.
+
+Author: John E. Stone - johns@megapixel.com (preferred email address) 
+                        j.stone@acm.org     (preferred email address)
+                        johns@ks.uiuc.edu   (work email address)
+
+What is Tachyon??
+-----------------
+  Tachyon is a result of my curiosities in computer graphics.  Some of 
+  it was written as part of my M.S. degree in Computer Science, other 
+  parts of it were done purely for their entertainment value.  
+  In this collection of software, you will find:  
+
+  - A portable, high performance parallel ray tracing system supporting 
+    MPI and multithreaded implementations.  Tachyon is built as a 
+    C callable library, which can be used with the included demo 
+    programs or within your own application.  The distribution 
+    also includes a simple scene file parser front-end which reads 
+    a few different formats.
+
+  - Tachyon implements all of the basic geometric primitives such as
+    triangles, planes, spheres, cylinders, etc.  Some of the goals in 
+    developing Tachyon were to make it fast and for it to parallelize 
+    well.  These are what set it apart from more full-featured programs 
+    like POV-Ray, Rayshade, and others.  Tachyon supports enough features 
+    to be an excellent alternative to slower programs for demanding animation 
+    and scientific visualization tasks.  As time goes on, Tachyon will 
+    indeed incorporate more features, but with a continued emphasis on 
+    rendering performance. 
+
+  - Example scenes for use with the ray tracer and previewer.
+    Note: some scenes require texture maps and/or volume data sets
+          which are distributed seperately due to their large size.
+
+How do I compile and run Tachyon?
+---------------------------------
+  The build process is quite simple.  On Unix, just cd into the 
+  unix directory and type "make", you'll see a long list of configurations
+  that can be built.  This will work fine for almost all Unix systems.
+  If you wish to customize your build to enable optional features,
+  you'll need to edit Make-config.  These are discussed in more
+  detail in the README file included in the unix directory. 
+
+  On Windows, the process is as simple as loading up the project files
+  in the msvc subdirectory and building them.
+
+  All of the documentation, research papers, and seperately distributed
+  components related to this project can be retrieved from:
+    http://jedi.ks.uiuc.edu/~johns/raytracer/
+ 
+  In addition to the existing documentation, feel free to send me email
+  with questions on how things work, or for help getting things compiled
+  on platforms that aren't built into the makefiles that come with the
+  distribution.
+
+How can I contribute to further development?
+--------------------------------------------
+  I continue to work on this software in my free time.  I depend
+  on other individuals or institutions to provide me access to 
+  the various kinds of parallel computers Tachyon supports in 
+  order to continue maintaining it on those platforms.  If you
+  would like to see the software ported to a new parallel platform,
+  send me a note, and I'll work with you on it.
+  I would be happy to collaborate with others on extending 
+  Tachyon for a wide variety of uses.   
+
+Copyrights etc.
+---------------
+  All work included in this distribution is copyrighted by John E. Stone,
+  except where noted within specific source files.  You may use this code
+  for any purpose you wish, as long as credit is given to its source(s). 
+
+Last updated August 3, 2003
+
+   John E. Stone
+   johns@megapixel.com
+   j.stone@acm.org
+   johns@ks.uiuc.edu
+

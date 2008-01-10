@@ -1,0 +1,3843 @@
+# Microsoft Developer Studio Generated NMAKE File, Format Version 4.20
+# ** DO NOT EDIT **
+
+# TARGTYPE "Power Macintosh Static Library" 0x0404
+# TARGTYPE "Macintosh Static Library" 0x0304
+# TARGTYPE "Win32 (x86) Static Library" 0x0104
+
+!IF "$(CFG)" == ""
+CFG=libray - Win32 Debug
+!MESSAGE No configuration specified.  Defaulting to libray - Win32 Debug.
+!ENDIF 
+
+!IF "$(CFG)" != "libray - Win32 Release" && "$(CFG)" != "libray - Win32 Debug"\
+ && "$(CFG)" != "libray - Macintosh Release" && "$(CFG)" !=\
+ "libray - Macintosh Debug" && "$(CFG)" != "libray - Power Macintosh Release" &&\
+ "$(CFG)" != "libray - Power Macintosh Debug"
+!MESSAGE Invalid configuration "$(CFG)" specified.
+!MESSAGE You can specify a configuration when running NMAKE on this makefile
+!MESSAGE by defining the macro CFG on the command line.  For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "libray.mak" CFG="libray - Win32 Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "libray - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "libray - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "libray - Macintosh Release" (based on "Macintosh Static Library")
+!MESSAGE "libray - Macintosh Debug" (based on "Macintosh Static Library")
+!MESSAGE "libray - Power Macintosh Release" (based on\
+ "Power Macintosh Static Library")
+!MESSAGE "libray - Power Macintosh Debug" (based on\
+ "Power Macintosh Static Library")
+!MESSAGE 
+!ERROR An invalid configuration is specified.
+!ENDIF 
+
+!IF "$(OS)" == "Windows_NT"
+NULL=
+!ELSE 
+NULL=nul
+!ENDIF 
+################################################################################
+# Begin Project
+# PROP Target_Last_Scanned "libray - Win32 Debug"
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Release"
+# PROP Intermediate_Dir "Release"
+# PROP Target_Dir ""
+OUTDIR=.\Release
+INTDIR=.\Release
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
+CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
+ /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Release/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
+# PROP Target_Dir ""
+OUTDIR=.\Debug
+INTDIR=.\Debug
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
+CPP_PROJ=/nologo /MLd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
+ /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Debug/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "MacRel"
+# PROP BASE Intermediate_Dir "MacRel"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "MacRel"
+# PROP Intermediate_Dir "MacRel"
+# PROP Target_Dir ""
+OUTDIR=.\MacRel
+INTDIR=.\MacRel
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /AL /W3 /GX /O2 /D "_WINDOWS" /D "_MAC" /D "_68K_" /D "WIN32" /D "NDEBUG" /YX /c
+# ADD CPP /nologo /AL /W3 /GX /O2 /D "_WINDOWS" /D "_MAC" /D "_68K_" /D "WIN32" /D "NDEBUG" /YX /c
+CPP_PROJ=/nologo /AL /W3 /GX /O2 /D "_WINDOWS" /D "_MAC" /D "_68K_" /D "WIN32"\
+ /D "NDEBUG" /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\MacRel/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "MacDbg"
+# PROP BASE Intermediate_Dir "MacDbg"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "MacDbg"
+# PROP Intermediate_Dir "MacDbg"
+# PROP Target_Dir ""
+OUTDIR=.\MacDbg
+INTDIR=.\MacDbg
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /AL /Q68m /W3 /GX /Z7 /Od /D "_WINDOWS" /D "_MAC" /D "_68K_" /D "WIN32" /D "_DEBUG" /YX /c
+# ADD CPP /nologo /AL /Q68m /W3 /GX /Z7 /Od /D "_WINDOWS" /D "_MAC" /D "_68K_" /D "WIN32" /D "_DEBUG" /YX /c
+CPP_PROJ=/nologo /AL /Q68m /W3 /GX /Z7 /Od /D "_WINDOWS" /D "_MAC" /D "_68K_"\
+ /D "WIN32" /D "_DEBUG" /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\MacDbg/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "PMacRel"
+# PROP BASE Intermediate_Dir "PMacRel"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "PMacRel"
+# PROP Intermediate_Dir "PMacRel"
+# PROP Target_Dir ""
+OUTDIR=.\PMacRel
+INTDIR=.\PMacRel
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D "WIN32" /D "NDEBUG" /D "_WLMDLL" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D "WIN32" /D "NDEBUG" /D "_WLMDLL" /YX /c
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D "WIN32"\
+ /D "NDEBUG" /D "_WLMDLL" /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\PMacRel/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "PMacDbg"
+# PROP BASE Intermediate_Dir "PMacDbg"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "PMacDbg"
+# PROP Intermediate_Dir "PMacDbg"
+# PROP Target_Dir ""
+OUTDIR=.\PMacDbg
+INTDIR=.\PMacDbg
+
+ALL : "$(OUTDIR)\libray.lib"
+
+CLEAN : 
+	-@erase "$(INTDIR)\api.obj"
+	-@erase "$(INTDIR)\bndbox.obj"
+	-@erase "$(INTDIR)\box.obj"
+	-@erase "$(INTDIR)\camera.obj"
+	-@erase "$(INTDIR)\coordsys.obj"
+	-@erase "$(INTDIR)\cylinder.obj"
+	-@erase "$(INTDIR)\extvol.obj"
+	-@erase "$(INTDIR)\global.obj"
+	-@erase "$(INTDIR)\imap.obj"
+	-@erase "$(INTDIR)\intersect.obj"
+	-@erase "$(INTDIR)\light.obj"
+	-@erase "$(INTDIR)\objbound.obj"
+	-@erase "$(INTDIR)\parallel.obj"
+	-@erase "$(INTDIR)\parvol.obj"
+	-@erase "$(INTDIR)\plane.obj"
+	-@erase "$(INTDIR)\ppm.obj"
+	-@erase "$(INTDIR)\quadric.obj"
+	-@erase "$(INTDIR)\render.obj"
+	-@erase "$(INTDIR)\ring.obj"
+	-@erase "$(INTDIR)\shade.obj"
+	-@erase "$(INTDIR)\sphere.obj"
+	-@erase "$(INTDIR)\texture.obj"
+	-@erase "$(INTDIR)\tgafile.obj"
+	-@erase "$(INTDIR)\threads.obj"
+	-@erase "$(INTDIR)\trace.obj"
+	-@erase "$(INTDIR)\triangle.obj"
+	-@erase "$(INTDIR)\util.obj"
+	-@erase "$(INTDIR)\vector.obj"
+	-@erase "$(INTDIR)\video.obj"
+	-@erase "$(INTDIR)\vol.obj"
+	-@erase "$(OUTDIR)\libray.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /MDd /W3 /GX /Z7 /Od /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_WLMDLL" /YX /QPm /c
+# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_WLMDLL" /YX /QPm /c
+CPP_PROJ=/nologo /MDd /W3 /GX /Z7 /Od /D "_MAC" /D "_MPPC_" /D "_WINDOWS" /D\
+ "WIN32" /D "_DEBUG" /D "_WLMDLL" /Fp"$(INTDIR)/libray.pch" /YX /Fo"$(INTDIR)/"\
+ /QPm /c 
+CPP_OBJS=.\PMacDbg/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/libray.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/libray.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\api.obj" \
+	"$(INTDIR)\bndbox.obj" \
+	"$(INTDIR)\box.obj" \
+	"$(INTDIR)\camera.obj" \
+	"$(INTDIR)\coordsys.obj" \
+	"$(INTDIR)\cylinder.obj" \
+	"$(INTDIR)\extvol.obj" \
+	"$(INTDIR)\global.obj" \
+	"$(INTDIR)\imap.obj" \
+	"$(INTDIR)\intersect.obj" \
+	"$(INTDIR)\light.obj" \
+	"$(INTDIR)\objbound.obj" \
+	"$(INTDIR)\parallel.obj" \
+	"$(INTDIR)\parvol.obj" \
+	"$(INTDIR)\plane.obj" \
+	"$(INTDIR)\ppm.obj" \
+	"$(INTDIR)\quadric.obj" \
+	"$(INTDIR)\render.obj" \
+	"$(INTDIR)\ring.obj" \
+	"$(INTDIR)\shade.obj" \
+	"$(INTDIR)\sphere.obj" \
+	"$(INTDIR)\texture.obj" \
+	"$(INTDIR)\tgafile.obj" \
+	"$(INTDIR)\threads.obj" \
+	"$(INTDIR)\trace.obj" \
+	"$(INTDIR)\triangle.obj" \
+	"$(INTDIR)\util.obj" \
+	"$(INTDIR)\vector.obj" \
+	"$(INTDIR)\video.obj" \
+	"$(INTDIR)\vol.obj"
+
+"$(OUTDIR)\libray.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ENDIF 
+
+################################################################################
+# Begin Target
+
+# Name "libray - Win32 Release"
+# Name "libray - Win32 Debug"
+# Name "libray - Macintosh Release"
+# Name "libray - Macintosh Debug"
+# Name "libray - Power Macintosh Release"
+# Name "libray - Power Macintosh Debug"
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+!ENDIF 
+
+################################################################################
+# Begin Source File
+
+SOURCE=.\vol.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_VOL_C=\
+	".\box.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\vol.h"\
+	
+
+"$(INTDIR)\vol.obj" : $(SOURCE) $(DEP_CPP_VOL_C) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\api.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+
+"$(INTDIR)\api.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\bndbox.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_BNDBO=\
+	".\bndbox.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\bndbox.obj" : $(SOURCE) $(DEP_CPP_BNDBO) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\box.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_BOX_C=\
+	".\box.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\box.obj" : $(SOURCE) $(DEP_CPP_BOX_C) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\camera.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_CAMER=\
+	".\camera.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\camera.obj" : $(SOURCE) $(DEP_CPP_CAMER) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\coordsys.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_COORD=\
+	".\coordsys.h"\
+	".\machine.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\coordsys.obj" : $(SOURCE) $(DEP_CPP_COORD) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\cylinder.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_CYLIN=\
+	".\cylinder.h"\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\cylinder.obj" : $(SOURCE) $(DEP_CPP_CYLIN) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\extvol.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_EXTVO=\
+	".\box.h"\
+	".\extvol.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\extvol.obj" : $(SOURCE) $(DEP_CPP_EXTVO) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\global.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_GLOBA=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\global.obj" : $(SOURCE) $(DEP_CPP_GLOBA) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\imap.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_IMAP_=\
+	".\imap.h"\
+	".\machine.h"\
+	".\parallel.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\imap.obj" : $(SOURCE) $(DEP_CPP_IMAP_) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\intersect.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_INTER=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\intersect.obj" : $(SOURCE) $(DEP_CPP_INTER) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\light.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_LIGHT=\
+	".\light.h"\
+	".\machine.h"\
+	".\sphere.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\light.obj" : $(SOURCE) $(DEP_CPP_LIGHT) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\objbound.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+
+"$(INTDIR)\objbound.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\parallel.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_PARAL=\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\tgafile.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\parallel.obj" : $(SOURCE) $(DEP_CPP_PARAL) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\parvol.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_PARVO=\
+	".\box.h"\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\parvol.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\parvol.obj" : $(SOURCE) $(DEP_CPP_PARVO) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\plane.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+
+"$(INTDIR)\plane.obj" : $(SOURCE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\ppm.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_PPM_C=\
+	".\machine.h"\
+	".\ppm.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\ppm.obj" : $(SOURCE) $(DEP_CPP_PPM_C) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\quadric.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_QUADR=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\quadric.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\quadric.obj" : $(SOURCE) $(DEP_CPP_QUADR) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\render.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_RENDE=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\objbound.h"\
+	".\parallel.h"\
+	".\render.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\video.h"\
+	
+
+"$(INTDIR)\render.obj" : $(SOURCE) $(DEP_CPP_RENDE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\ring.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_RING_=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\ring.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\ring.obj" : $(SOURCE) $(DEP_CPP_RING_) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\shade.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_SHADE=\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\shade.obj" : $(SOURCE) $(DEP_CPP_SHADE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\sphere.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_SPHER=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\sphere.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\sphere.obj" : $(SOURCE) $(DEP_CPP_SPHER) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\texture.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_TEXTU=\
+	".\box.h"\
+	".\coordsys.h"\
+	".\imap.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\texture.h"\
+	".\types.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\texture.obj" : $(SOURCE) $(DEP_CPP_TEXTU) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tgafile.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_TGAFI=\
+	".\machine.h"\
+	".\tgafile.h"\
+	
+
+"$(INTDIR)\tgafile.obj" : $(SOURCE) $(DEP_CPP_TGAFI) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\threads.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_THREA=\
+	".\machine.h"\
+	".\threads.h"\
+	
+
+"$(INTDIR)\threads.obj" : $(SOURCE) $(DEP_CPP_THREA) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\trace.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_TRACE=\
+	".\camera.h"\
+	".\global.h"\
+	".\intersect.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\shade.h"\
+	".\sphere.h"\
+	".\tgafile.h"\
+	".\threads.h"\
+	".\trace.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	".\video.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\trace.obj" : $(SOURCE) $(DEP_CPP_TRACE) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\triangle.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_TRIAN=\
+	".\intersect.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\triangle.h"\
+	".\types.h"\
+	".\util.h"\
+	".\vector.h"\
+	
+
+"$(INTDIR)\triangle.obj" : $(SOURCE) $(DEP_CPP_TRIAN) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\util.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_UTIL_=\
+	".\global.h"\
+	".\light.h"\
+	".\machine.h"\
+	".\macros.h"\
+	".\parallel.h"\
+	".\sphere.h"\
+	".\threads.h"\
+	".\types.h"\
+	".\util.h"\
+	
+
+"$(INTDIR)\util.obj" : $(SOURCE) $(DEP_CPP_UTIL_) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\vector.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	{$(INCLUDE)}"\Sys\Stat.h"\
+	{$(INCLUDE)}"\Sys\Types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_VECTO=\
+	".\machine.h"\
+	".\macros.h"\
+	".\types.h"\
+	
+
+"$(INTDIR)\vector.obj" : $(SOURCE) $(DEP_CPP_VECTO) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\video.c
+
+!IF  "$(CFG)" == "libray - Win32 Release"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Win32 Debug"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Release"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Macintosh Debug"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Release"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "libray - Power Macintosh Debug"
+
+DEP_CPP_VIDEO=\
+	".\video.h"\
+	
+
+"$(INTDIR)\video.obj" : $(SOURCE) $(DEP_CPP_VIDEO) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+# End Target
+# End Project
+################################################################################

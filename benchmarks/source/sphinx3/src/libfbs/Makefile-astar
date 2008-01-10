@@ -1,0 +1,36 @@
+#
+# Makefile
+# 
+# HISTORY
+# 
+# 03-Sep-96	M K Ravishankar (rkm@cs.cmu.edu) at Carnegie Mellon University
+# 		Created.
+#
+
+
+include $(S3ROOT)/Makefile.defines
+VPATH = .:..
+
+
+TARGET = s3astar
+
+OBJS =	logs3.o \
+	dict.o \
+	mdef.o \
+	lm.o \
+	fillpen.o \
+	astar.o \
+	astar-main.o
+
+CFLAGS = $(S3DEBUG) ${$(MACHINE)_CFLAGS}
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -L$(LIBDIR) -o $(TARGET) $(OBJS) -lutil -lio -lfeat -lm
+
+install: $(TARGET)
+	- mv $(BINDIR)/$(TARGET) $(BINDIR)/$(TARGET).old
+	cp $(TARGET) $(BINDIR)
+	rm -f $(BINDIR)/$(TARGET).old
+
+clean:
+	rm -f *.o *.a *.BAK *.CKP .*.BAK .*.CKP *~ .*~ #*#

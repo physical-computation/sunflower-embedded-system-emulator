@@ -1,0 +1,52 @@
+
+This directory contains various example scenes in multiple formats.
+Some of these scenes require volumetric data sets in order to render
+correctly, others require texture maps in order to render correctly.
+These are primarily intended as simple examples for people interested
+in designing their own scenes.
+
+Most if not all of these scenes should render in under a few minutes
+on the current crop of machines.
+
+Scene file name        Contents/purpose
+-----------------------------------------------------------------------------
+2balls.dat             Two spheres, textured floor very simple test scene
+820spheres.dat         Old test scene based on SPD balls scene
+attenuation.dat        Lighting attentuation test scene
+balls.dat              SPD 'balls' test scene
+dna.dat                Simple DNA molecule
+dnadof.dat             Simple DNA molecule rendered with depth-of-field
+engine.dat             Simple volumetric model of an engine
+fisheye.dat            Fisheye camera test
+fog.dat                Fog test scene
+gridtest.dat           Hierarchical grid robustness test
+island.dat             Island scene to test texture maps and heightfield
+lame.dat               Very simple plane+light test scene
+lattice.dat            SPD 'lattice' test scene
+lavablobs.dat          Textured spheres
+lscapes.dat            Simple fractal landscape test scene
+model2.dat             Early test scene used for comparing vs old versions
+model3.dat             Early test scene used for comparing vs old versions 
+model4.dat             Early test scene used for comparing vs old versions 
+model6.dat             Early test scene used for comparing vs old versions 
+msti.dat               Version of the room scene for MSTI
+null.dat               Empty test scene for measuring program overhead
+null2.dat              Test scene /w tiny concentric spheres for grid testing
+null3.dat              Larger version of null2
+null4.dat              Larger version of null2
+polycyl.dat            Test scene for "polycyl" primitive
+room.dat               Simple "room" example scene.
+sc98.dat               Version of the "room" scene for Supercomputing '98
+skull.dat              Volumetric test scene
+smallballs.dat         smaller version of the SPD balls scene
+space.dat              Several flat shaded triangle mesh objects
+spotlight.dat          Spotlight test scene
+teapot.dat             SPD 'teapot' test scene
+tetra.dat              SPD 'tetra' test scene
+texture.dat            Texture mapping test scene
+tpolytest.dat          Triangle mesh test scene
+trypsin4pti.dat        Simple molecule test scene
+umr.dat                UM-Rolla logo test scene
+umrfrustum.dat         UM-Rolla logo with frustum option
+voltest.dat            Volume rendering test scene
+

@@ -1,0 +1,118 @@
+\subsection{Texture and Color}
+\subsubsection{Simple Texture Characteristics}
+  The surface textures applied to an object drastically alter its overall
+appearance, making textures and color one of the most important topics in
+this manual.  As with many other renderers, textures can be declared and
+associated with a name so that they may be used over and over again in 
+a scene definition with less typing.  If a texture is only need once, or it
+is unique to a particular object in the scene, then it may be declared along
+with the object it is applied to, and does not need a name. 
+ 
+  The simplest texture definition is a solid color with no image mapping 
+or procedural texture mapping.  A solid color texture is defined by the
+{\bf AMBIENT}, {\bf DIFFUSE}, {\bf SPECULAR}, {\bf OPACITY} and {\bf COLOR}  
+parameters.  The {\bf AMBIENT} parameter defines the ambient lighting
+coefficient to be used when shading the object.  Similarly, the {\bf DIFFUSE}
+parameter is the relative contribution of the diffuse shading to the surface
+appearance.  The {\bf SPECULAR} parameter is the contribution from perfectly
+reflected rays, as if on a mirrored surface.  {\bf OPACITY} defines how
+transparent a surface is.  An {\bf OPACITY} value of 0.0 renders the object
+completely invisible.  An {\bf OPACITY} value of 1.0 makes the object
+completely solid, and non-transmissive.  In general, the values for the
+ambient, diffuse, and specular parameters should add up to 1.0, if they don't
+then pixels may be over or underexposed quite easily.  These parameters
+function in a manner similar to that of other ray tracers.  The {\bf COLOR} 
+parameter is an RGB triple with each value ranging from 0.0 to 1.0 inclusive. 
+If the RGB values stray from 0.0 to 1.0, results are undefined.
+In the case of solid textures, a final parameter, {\bf TEXFUNC} is set to
+zero (integer).
+
+\subsubsection{Texture Declaration and Aliasing}
+  To define a simple texture for use on several objects in a scene, the 
+{\bf TEXDEF} keyword is used.  The {\bf TEXDEF} keyword is followed by
+a case sensitive texture name, which will subsequently be used while 
+defining objects.  If many objects in a scene use the same texture through
+texture definition, a significant amount of memory may be saved since only
+one copy of the texture is present in memory, and its shared by all
+of the objects.  Here is an example of a solid texture definition:
+\begin{verbatim}
+ TEXDEF MyNewRedTexture   
+    AMBIENT 0.1 DIFFUSE 0.9 SPECULAR 0.0 OPACITY 1.0 
+    COLOR 1.0 0.0 0.0  TEXFUNC 0
+\end{verbatim}
+When this texture is used in an object definition, it is referenced only by
+name.  Be careful not to use one of the other keywords as a defined texture,
+this will probably cause the parser to explode, as I don't check for use
+of keywords as texture names. 
+
+  When a texture is declared within an object definition, it appears in 
+an identical format to the {\bf TEXDEF} declaration, but the {\bf TEXTURE} 
+keyword is used instead of {\bf TEXDEF}.  If it is useful to have several
+names for the same texture (when you are too lazy to actually finish defining
+different variations of a wood texture for example, and just want to be 
+approximately correct for example) aliases can be constructed using the 
+{\bf TEXALIAS} keyword, along with the alias name, and the original name.
+An example of a texture alias is:
+\begin{verbatim}
+  TEXALIAS MyNewestRedTexture  MyNewRedTexture
+\end{verbatim}
+This line would alias MyNewestRedTexture to be the same thing as the 
+previously declared MyNewRedTexture.  Note that the source texture must
+be declared before any aliases that use it.
+
+\subsubsection{Image Maps and Procedural Textures}
+  Image maps and procedural textures very useful in making realistic looking
+scenes.  A good image map can do as much for the realism of a wooden table
+as any amount of sophisticated geometry or lighting.  Image maps are made by
+wrapping an image on to an object in one of three ways, a spherical map, a
+cylindrical map, and a planar map.  Procedural textures are used in a way
+similar to the image maps, but they are on the fly and do not use much memory
+compared to the image maps.  The main disadvantage of the procedural maps
+is that they must be hard-coded into \RAY\ when it is compiled.
+
+  The syntax used for all texture maps is fairly simple to learn.  The biggest
+problem with the way that the parser is written now is that the different
+mappings are selected by an integer, which is not very user friendly.  I 
+expect to rewrite this section of the parser sometime in the near future to
+alleviate this problem.  When I rewrite the parser, I may also end up altering
+the parameters that are used to describe a texture map, and some of them may
+become optional rather than required.  
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\multicolumn{2}{c}{Texture Mapping Functions} \\
+\hline
+{Value for TEXFUNC} & {Mapping and Texture Description}\\
+\hline
+{0} & {No special texture, plain shading}  \\
+{1} & {3D checkerboard function, like a rubik's cube}  \\
+{2} & {Grit Texture, randomized surface color}  \\
+{3} & {3D marble texture, uses object's base color}  \\
+{4} & {3D wood texture, light and dark brown, not very good yet}  \\
+{5} & {3D gradient noise function (can't remember what it look like}  \\
+{6} & {Don't remember}  \\
+{7} & {Cylindrical Image Map, requires ppm filename}  \\
+{8} & {Spherical Image Map, requires ppm filename}  \\
+{9} & {Planar Image Map, requires ppm filename}  \\
+\hline
+\end{tabular}
+\end{center}
+
+Here's an example of a sphere, with a spherical image map applied to its
+surface:
+\begin{verbatim}
+SPHERE
+  CENTER 2.0  0.0 5.0   
+  RAD 2.0 
+  TEXTURE 
+    AMBIENT  0.4 DIFFUSE  0.8 SPECULAR 0.0  OPACITY 1.0 
+    COLOR 1.0 1.0 1.0  
+    TEXFUNC 7 /cfs/johns/imaps/fire644.ppm  
+      CENTER 2.0 0.0 5.0
+      ROTATE 0.0 0.0 0.0 
+      SCALE  2.0 -2.0 1.0
+\end{verbatim}
+
+Basically, the image maps require the center, rotate and scale parameters so
+that you can position the image map on the object properly
+

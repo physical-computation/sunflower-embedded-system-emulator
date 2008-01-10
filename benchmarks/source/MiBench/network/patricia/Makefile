@@ -1,0 +1,43 @@
+TREEROOT        = ../../../../..
+include $(TREEROOT)/conf/setup.conf
+
+PROGRAM	= patricia
+
+LIBOS		= eOS
+SIMDIR		= $(TREEROOT)/sim
+TOOLSLIB      	= $(TREEROOT)/tools-lib
+INCLUDES        = -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR)
+OPTFLAGS	= -O3 -gstabs3
+CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) $(OPTFLAGS) -Wall ##-Werror -Winline
+LDFLAGS       	= -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map $(PROGRAM).map
+LOADADDR	= 0x08004000
+
+OBJS	=\
+	init.o\
+	patricia.o\
+	patricia_test.o\
+
+
+all:	$(PROGRAM).sr
+
+$(PROGRAM): $(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lm -lgcc -l$(LIBOS)-$(TARGET)
+
+$(PROGRAM).sr:$(PROGRAM)
+	$(OBJCOPY) -O srec $(PROGRAM) $@
+	$(OBJDUMP) -G $(PROGRAM) > $(PROGRAM).stabs
+
+init.o: init.S
+	$(CPP) init.S > init.i; $(AS) init.i -o $@
+
+patricia.o: patricia.c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c patricia.c
+
+patricia_test.o: patricia_test.c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c patricia_test.c
+
+clean:
+	$(RM) init.i *.o $(PROGRAM) $(PROGRAM).sr $(PROGRAM).map *.stabs
+
+nuke:	clean
+	$(RM) simlog.node* sunflower.out *.stabs

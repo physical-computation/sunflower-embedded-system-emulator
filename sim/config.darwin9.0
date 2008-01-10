@@ -1,0 +1,10 @@
+CC			= gcc
+GAWK			= gawk
+LINT			= echo 
+LD			= ld
+CC			= gcc
+BISON			= bison
+ENDIAN			= SF_B_ENDIAN
+PLATFORM_CFLAGS 	= -no-cpp-precomp -arch ppc -Wno-long-double -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -pipe -multiply_defined suppress -malign-natural -D$(ENDIAN)
+PLATFORM_LFLAGS 	= -lpthread 
+#PLATFORM_OPTFLAGS	= -fast -mcpu=7450

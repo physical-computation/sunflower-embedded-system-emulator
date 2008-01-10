@@ -1,0 +1,54 @@
+HEADERS =  csuCommon csuCommonUtil csuCommonMatrix csuCommonFile \
+csuCommonSubspace csuCommonCommandLine csuCommonImage threading
+
+SRC =  csuCommonUtil csuCommonMatrix csuCommonFile csuCommonSubspace \
+csuCommonCommandLine csuCommonImage csuSubspaceProject csuSubspaceEigen \
+csuSubspaceFisher csuSubspaceCVEigen threading
+
+TARGET = face_project
+
+# Uncomment USE_THREADS if multithreading is desired. Use THREAD_NUM to specify
+# number of threads.
+# Uncomment USE_SSE2 if SIMD code is desired.
+
+THREAD_NUM =1
+USE_THREADS = -DTHRD -DNUM_THREADS=$(THREAD_NUM)
+USE_SSE2 = -use_msasm -DSSE2
+
+USERFLAGS = $(USE_THREADS)
+USERLIBS = -lm -lpthread 
+
+LIBDIR = /usr/lib
+
+# Uncomment USE_PENTIUM_4 if you are using this processor
+# Can also profile the code by using USE_GPROF
+
+USE_PENTIUM_4 =  -vec- -march=pentium4 -mcpu=pentium4
+#USE_GPROF = -p
+
+# Choose the appropriate compiler gcc or Intel icc
+
+CC = gcc
+LD = gcc
+OPTIMIZE = -g -O4 #-Wall  # gcc has O4 as highest optimization level
+
+
+#CC = /opt/intel_cc_80/bin/icc
+#LD = /opt/intel_cc_80/bin/icc       
+#OPTIMIZE = $(USE_SSE2) $(USE_PENTIUM_4) -DUSING_ICC -g -O3 #-Wall  # icc has O3 as highest optimization level
+
+STATLINK = -dn # Option to force static linkage
+
+LIBS = $(USERLIBS) 
+CFLAGS =  $(USE_GPROF) $(OPTIMIZE) $(USERFLAGS) 
+OBJS = $(SRC:%=obj/%.o)
+
+execs/$(TARGET).out: $(OBJS)
+	$(LD) $(USE_GPROF) $(STATLINK) $(USERFLAGS) -o execs/$(TARGET) $(OBJS) $(LIBS)
+
+$(OBJS): $(HEADERS:%=src/%.h) $(SRC:%=src/%.c)
+	$(CC) -o $@ $(CFLAGS) -c $(*:obj/%=src/%.c)
+
+clean:
+	rm -f obj/*.o execs/$(TARGET)
+

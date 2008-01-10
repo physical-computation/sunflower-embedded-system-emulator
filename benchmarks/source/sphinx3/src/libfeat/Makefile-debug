@@ -1,0 +1,28 @@
+#
+# Makefile
+# 
+# HISTORY
+# 
+# 23-Dec-95	M K Ravishankar (rkm@cs.cmu.edu) at Carnegie Mellon University
+# 		Created.
+#
+
+
+include $(S3ROOT)/Makefile.defines
+VPATH = .:..
+
+TARGET = libfeat-dbg.a
+
+OBJS = feat.o feat_s2_4x.o feat_s3_1x39.o feat_1s_c.o feat_1s_c_d.o feat_1s_c_dd.o feat_1s_c_d_dd.o feat_1s_c_wd_dd.o feat_1s_c_d_ld_dd.o feat_1s_c_d_cd.o
+
+CFLAGS = ${$(MACHINE)_CFLAGS} -g
+
+$(TARGET): $(OBJS)
+	ar crv $@ $?
+	ranlib $@
+
+install: $(TARGET)
+	mv $(TARGET) $(DEBUGLIBDIR)
+
+clean:
+	rm -f *.o *.a *.BAK *.CKP .*.BAK .*.CKP *~ .*~ #*#

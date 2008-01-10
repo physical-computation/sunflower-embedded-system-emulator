@@ -1,0 +1,47 @@
+%%
+%% Main Tachyon documentation file
+%%
+
+%% LaTex 2e compatible
+\documentclass[11pt]{article}
+
+%% Make the index
+\usepackage{makeidx}
+\makeindex
+
+\pagenumbering{arabic}
+
+\input{macros}
+
+\title{\RAY\ User's Guide \\ UNDER DEVELOPMENT }
+\author{\AUTHORS\ \\ E-Mail \EMAIL}
+ 
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+
+This document contains information on using \RAY\ to create ray traced 
+images, and animations.  Information on the parallel raytracing engine and its 
+use as an external rendering library is contained in other documents.  
+Corrections and suggestions should be mailed to the author at {\em \EMAIL} 
+\end{abstract}
+\newpage
+
+\tableofcontents
+\newpage
+
+\input{intro}
+\input{compiling}
+\input{running}
+\input{scene}
+
+%% LaTeX 2e index
+\newpage
+\label{index:label}
+\addtocontents{toc}{\protect\vspace{3ex}}
+\addtocontents{toc}{{\bf Index \hspace{4.1in}\thepage}}
+\printindex
+
+\end{document}    
+

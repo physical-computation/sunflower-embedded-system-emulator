@@ -1,0 +1,72 @@
+\section{Scene Description Files}
+\index{scene description files}
+  At the present time, scene description files are very simple.  
+The parser can't handle multiple file scene descriptions, although they
+may be added in the future.  Most of the objects and their scene description
+are closely related to the \RAY\ API 
+{\em (See the API docs for additional info.)}
+
+\subsection{Basic Scene Requirements}
+  Unlike some other ray tracers out there, \RAY\ requires that you 
+specify most of the scene parameters in the scene description file itself.
+If users would rather specify some of these parameters at the command line,
+then I may add that feature in the future.  
+A scene description file contains keywords, and values associated or grouped
+with a keyword.  All keywords can be in caps, lower case, or mixed case
+for the convenience of the user.  File names and texture names are 
+normally case-sensitive, although the behavior for file names is 
+operating system-dependent.  All values are either character strings, or
+floating point numbers.  In some cases, the presence of one keyword will
+require additional keyword / value pairs. 
+
+  At the moment there are several keywords with values, 
+that must appear in every scene description file.  
+Every scene description file must begin with the 
+{\bf BEGIN\_SCENE} keyword, and end with the {\bf END\_SCENE} keyword.
+All definitions and declarations of any kind must be inside the 
+{\bf BEGIN\_SCENE}, {\bf END\_SCENE} pair.
+The {\bf RESOLUTION} keyword is followed by an x resolution
+and a y resolution in terms of pixels on each axis.  There are currently 
+no limits placed on the resolution of an output image other than the
+computer's available memory and reasonable execution time.
+An example of a simple scene description skeleton is show below:
+\begin{verbatim}
+BEGIN_SCENE
+  RESOLUTION 1024 1024 
+...
+...  Camera definition..
+...
+...  Other objects, etc..
+...
+
+END_SCENE
+\end{verbatim}
+
+\input{camera}
+
+\subsection{Including Files}
+\index{include files}
+The {\bf INCLUDE} keyword is used anywhere after the camera description,
+and is immediately followed by a valid filename, for a file containing
+additional scene description information.  The included file is opened,
+and processing continues as if it were part of the current file, until
+the end of the included file is reached.  Parsing of the current file
+continues from where it left off prior to the included file.  
+
+\subsection{Scene File Comments}
+\index{scene file comments}
+The {\bf $\#$} keyword is used anywhere after the camera description, and 
+will cause \RAY\ to ignore all characters from the {\bf $\#$} to the end 
+of the input line.  The {\bf $\#$} character must be surrounded by whitespace
+in order to be recognized.  A sequence such as {\bf $\#\#\#$} will not be
+recognized as a comment.
+
+\input{lights}
+
+\input{fog}
+
+\input{objects}
+
+\input{texture}
+
+

@@ -1,0 +1,136 @@
+INFO: main.c(568): Command line:
+s3decode \
+	-beam 1e-65 \
+	-nwbeam 1e-40 \
+	-langwt 9.5 \
+	-mdeffn vocab/largevocab_5000sen.mdef \
+	-dictfn vocab/largevocab_P2.dict \
+	-fdictfn vocab/smallvocab_filler.dict \
+	-meanfn vocab/largevocab_means \
+	-varfn vocab/largevocab_variances \
+	-mixwfn vocab/largevocab_mixture_weights \
+	-tmatfn vocab/largevocab_transition_matrices \
+	-lmfn vocab/largevocab_P2.arpabo.DMP \
+	-agc none \
+	-varnorm no \
+	-cmn current \
+	-feat s3_1x39 \
+	-ctlfn vocab/smallvocab_all_control.dat \
+	-cepdir vocab \
+	-cepext mfc \
+	-logfn s3decode.log 
+
+INFO: main.c(579): Configuration in effect:
+[Switch]         [Default] [Value]                             
+-tmatwidth       0         0.000000e+00                        
+-senonefloor     1.0       1.000000e+00                        
+-senonewidth     32        3.200000e+01                        
+-bitwidth_ugprob 32.0      3.200000e+01                        
+-bitwidth_ugbowt 32.0      3.200000e+01                        
+-bitwidth_bgprob 32.0      3.200000e+01                        
+-bitwidth_tgprob 32.0      3.200000e+01                        
+-bitwidth_tgbowt 32.0      3.200000e+01                        
+-logbase         1.0001    1.000100e+00                        
+-mdeffn                    vocab/largevocab_5000sen.mdef       
+-tmatfn                    vocab/largevocab_transition_matrices
+-meanfn                    vocab/largevocab_means              
+-varfn                     vocab/largevocab_variances          
+-senmgaufn       .cont.    .cont.                              
+-mixwfn                    vocab/largevocab_mixture_weights    
+-lambdafn                                                      
+-tpfloor         0.0001    1.000000e-04                        
+-varfloor        0.0001    1.000000e-04                        
+-mwfloor         0.0000001 1.000000e-07                        
+-agc             max       none                                
+-cmn             current   current                             
+-varnorm         no        no                                  
+-feat            s2_4x     s3_1x39                             
+-ceplen          13        13                                  
+-dictfn                    vocab/largevocab_P2.dict            
+-fdictfn                   vocab/smallvocab_filler.dict        
+-lmfn                      vocab/largevocab_P2.arpabo.DMP      
+-langwt          9.5       9.500000e+00                        
+-ugwt            0.7       7.000000e-01                        
+-bestpath        0         0                                   
+-min_endfr       3         3                                   
+-dagfudge        2         2                                   
+-bestpathlw                                                    
+-inspen          0.65      6.500000e-01                        
+-silpen          0.1       1.000000e-01                        
+-noisepen        0.05      5.000000e-02                        
+-fillpenfn                                                     
+-ctlfn                     vocab/smallvocab_all_control.dat    
+-ctloffset       0         0                                   
+-ctlcount                                                      
+-cepdir          .         vocab                               
+-cepext          mfc       mfc                                 
+-mllrctlfn                                                     
+-topn            4         4                                   
+-beam            1e-64     1.000000e-65                        
+-nwbeam          1e-27     1.000000e-40                        
+-phonepen        1.0       1.000000e+00                        
+-tracewhmm                                                     
+-hmmdumpsf                                                     
+-worddumpsf                                                    
+-inlatdir                                                      
+-inlatwin        50        50                                  
+-outlatdir                                                     
+-latext          lat       lat                                 
+-bestscoredir                                                  
+-matchfn                                                       
+-matchsegfn                                                    
+-logfn                     s3decode.log                        
+-backtrace       1         1                                   
+-bptblsize       32767     32767                               
+-bptbldump       0         0                                   
+
+pip: before unlimit
+INFO: main.c(1742): Executing on: 
+INFO: main.c(1746): s3decode COMPILED ON: Jan 29 2004, AT: 03:39:34
+
+INFO: logs3.c(56): Initializing logbase: 1.000100e+00
+INFO: logs3.c(109): Log-Add table size = 99023
+INFO: feat.c(112): Initializing feature stream to type: s3_1x39
+INFO: mdef.c(520): Reading model definition: vocab/largevocab_5000sen.mdef
+INFO: mdef.c(642): 52 CI-phones, 111593 CD-phones, 3 emitting states/phone, 5156 sen, 156 CI-sen
+INFO: dict.c(149): Reading dictionary
+INFO: dict.c(193): Reading main dictionary: vocab/largevocab_P2.dict
+INFO: dict.c(196): 68524 words read
+INFO: dict.c(201): Reading filler dictionary: vocab/smallvocab_filler.dict
+INFO: dict.c(204): 3 words read
+INFO: gauden.c(119): Reading mixture gaussian parameter: vocab/largevocab_means
+INFO: gauden.c(219): 5156 codebook, 1 feature, size 8x39
+INFO: gauden.c(119): Reading mixture gaussian parameter: vocab/largevocab_variances
+INFO: gauden.c(219): 5156 codebook, 1 feature, size 8x39
+INFO: senone.c(148): Reading senone mixture weights: vocab/largevocab_mixture_weights
+INFO: senone.c(204): Truncating senone logs3(pdf) values by 10 bits, to 8 bits
+INFO: senone.c(279): Read mixture weights for 5156 senones: 1 features x 8 codewords
+INFO: tmat.c(74): Reading HMM transition matrix: vocab/largevocab_transition_matrices
+INFO: tmat.c(204): Read 52 transition matrices of size 3x4
+INFO: lm.c(723): Reading vocab/largevocab_P2.arpabo.DMP, name ""
+INFO: lm.c(547):    64001 unigrams
+INFO: lm.c(557):  9382014 bigrams [on disk]
+INFO: lm.c(567): 13459879 trigrams [on disk]
+INFO: lm.c(592):    32582 bigram prob entries
+INFO: lm.c(613):    21467 trigram bowt entries
+INFO: lm.c(632):    30084 trigram prob entries
+INFO: lm.c(647):    18325 trigram segtable entries (512 segsize)
+INFO: lm.c(693):    64001 word strings
+INFO: lm.c(695): 3376 LM words not in dict; ignored
+INFO: lm.c(416): LM("") added
+INFO: fwd.c(2115): Forward Viterbi Initialization
+INFO: fwd.c(2149): logs3(beam)= -1496506, logs3(nwbeam)= -920927
+INFO: fwd.c(651): Building within-word triphones
+INFO: fwd.c(2165): 489 within-word triphone instances mapped to CI-phones
+INFO: fwd.c(690): Building cross-word triphones
+INFO: fwd.c(2170): 5619 cross-word triphones mapped to CI-phones
+
+INFO: main.c(1415): Processing ctl file vocab/smallvocab_all_control.dat
+WARNING: "main.c", line 1444: No -matchsegfn argument
+
+INFO: main.c(1489): Utterance: smallvocab_sb01INFO: feat.c(182): Reading mfc file: vocab/smallvocab_sb01.mfc
+INFO: feat.c(235): pip: n = 2097152, n_float32 = 6942, cepsize = 0, veclen = 13
+INFO: feat.c(236): pip: forcing cepsize to feat_s3_1x39_cepsize()
+INFO: feat.c(238): pip again: n = 2097152, n_float32 = 6942, cepsize = 13
+INFO: feat.c(239): pip: forcing cepsize to 13
+INFO: feat.c(241): pip again: n = 2097152, n_float32 = 6942, cepsize = 13

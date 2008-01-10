@@ -1,0 +1,81 @@
+
+\subsection{Lights}
+\index{lighting}
+\index{lighting!point lights}
+The most frequently used type of lights provided by \RAY\ are positional 
+point light sources.  The lights are actually small spheres, which are 
+visible.  A point light is composed of three pieces of
+information, a center, a radius (since its a sphere), and a color.
+To define a light, simply write the {\bf LIGHT} keyword, followed by 
+its {\bf CENTER} (a X, Y, Z coordinate), its {\bf RAD} (radius, a scalar),
+and its {\bf COLOR} (a Red Green Blue triple).  The radius parameter will
+accept any value of 0.0 or greater.  Lights of radius 0.0 will not be
+directly visible in the rendered scene, but contribute light to the scene
+normally. 
+For a light, the color values
+range from 0.0 to 1.0, any values outside this range may yield unpredictable
+results.  A simple light definition looks like this:
+\begin{verbatim}
+  LIGHT CENTER 4.0 3.0 2.0 
+        RAD    0.2 
+        COLOR  0.5 0.5 0.5
+\end{verbatim}
+This light would be gray colored if seen directly, and would be 50\% 
+intensity in each RGB color component. 
+
+
+\index{lighting!directional lights}
+\RAY\ supports simple directional lighting, commonly used in 
+CAD and scientific visualization programs for its performance
+advantages over positional lights.  Directional lights cannot be
+seen directly in scenes rendered by \RAY, only their illumination 
+contributes to the final image.  
+
+\begin{verbatim}
+DIRECTIONAL_LIGHT 
+  DIRECTION 0.0 -1.0 0.0
+  COLOR   1.0 0.0  0.0
+\end{verbatim}
+
+\index{lighting!spotlights}
+\RAY\ supports spotlights, which are described very similarly to a 
+point light, but they are attenuated by angle from the direction vector,
+based on a  ``falloff start'' angle and ``falloff end''angle.  Between
+the starting and ending angles, the illumination is attenuated linearly.
+The syntax for a spotlight description in a scene file is as follows.
+\begin{verbatim}
+SPOTLIGHT 
+  CENTER  0.0 3.0  17.0 
+  RAD     0.2
+  DIRECTION 0.0 -1.0 0.0
+    FALLOFF_START 20.0
+    FALLOFF_END   45.0
+  COLOR   1.0 0.0  0.0
+\end{verbatim}
+
+\index{lighting!attenuation}
+The lighting system implemented by \RAY\ provides various levels of
+distance-based lighting attenuation.  By default, a light is not attenuated
+by distance.  If the {\em attenuation} keywords is present immediately 
+prior to the light's color, \RAY\ will accept coefficients which are used 
+to calculate distance-based attenuation, which is applied the light by 
+multiplying with the resulting value.  The attenuation factor is calculated 
+from the equation 
+\begin{equation}
+\label{eq:attenuation}
+  \frac {1} {K_c + K_l d + k_q d^2}
+\end{equation}
+
+This attenuation equation should be familiar to some as it 
+is the same lighting attenuation equation used by OpenGL.
+The constant, linear, and quadratic terms are specified in a scene file
+as shown in the following example.
+\begin{verbatim}
+LIGHT  
+  CENTER  -5.0 0.0 10.0   
+  RAD     1.0
+  ATTENUATION CONSTANT 1.0 LINEAR 0.2 QUADRATIC 0.05
+  COLOR   1.0 0.0 0.0  
+\end{verbatim}
+
+

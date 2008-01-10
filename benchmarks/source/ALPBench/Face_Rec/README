@@ -1,0 +1,105 @@
+
+csuFaceIdEval README
+--------------------
+
+For detailed information on the algorithms please consult the
+"The CSU Face Identification Evaluation System User's Guide:
+Verions 5.0"
+
+Compiling the system
+--------------------
+
+Once unpacking the distribution change into the distribution
+directory and type "make"
+
+    # cd csuEvalFaceRec
+    # scripts/runAllTests_feret.sh
+
+
+II. Using the provided scripts
+==============================
+
+The provided scripts come in two different versions. The "feret"
+versions execute tests on a standard FERET image set (not provided)
+while the "scraps" versions execute tests on the much smaller 
+"csuScrapShots" image set which is provided with this distribution
+for testing purposes.
+
+The PGM files for the "csuScrapShots" image set are provided under
+"data/csuScrapShots/source/pgm". Those for the FERET image set are
+not provided. For the "feret" scripts to work, it is assumed that
+the PGM files for the standard FERET sets are copied into the
+"data/FERET/source/pgm" directory.
+
+------------------------------
+SCRIPTS FOR TESTING THE SYSTEM
+------------------------------
+
+These two scripts allow you to test the system by running
+the normalization code and all the experiments (PCA, LDA
+and Bayesian) sequentially:
+
+   runAllTests_feret.sh
+   runAllTests_scraps.sh
+
+These scripts ought to be executed from the "csuEvalFaceRec"
+directory:
+
+    # cd csuEvalFaceRec
+    # scripts/runAllTests_feret.sh
+
+Or:
+
+    # cd csuEvalFaceRec
+    # scripts/runAllTests_scraps.sh
+
+In general, after installing the system and compiling the
+files, you should at least run "runAllTests_scraps.sh"
+to make sure the system is operating correctly.
+
+---------------------
+NORMALIZATION SCRIPTS
+---------------------
+
+The following two scripts execute the process to convert
+the source PGM files into the normalized the images that
+are needed to perform the experiments:
+
+   scripts/runPreprocessing_feret.sh
+   scripts/runPreprocessing_scraps.sh
+
+These scripts only need to be executed once. Normalized
+images will be stored in "data/FERET/normSep2002*" directories
+and "data/csuScrapShots/normSep2002*" directories.
+
+------------------
+EXPERIMENT SCRIPTS
+------------------
+
+The following scripts run the individual expriments:
+
+   scripts/runBayesian_feret.sh
+   scripts/runBayesian_scraps.sh
+
+   scripts/runLDA_feret.sh
+   scripts/runLDA_scraps.sh
+
+   scripts/runPCA_feret.sh
+   scripts/runPCA_scraps.sh
+
+One script is provided for each variation on the face identification
+algorithm (PCA, LDA and Bayesian) as well as for the two data sets.
+
+Running these experiments will generate distance information in the
+"distances" directory.
+
+-----------------------------------
+SCRIPTS FOR GENERATING A RANK CURVE
+-----------------------------------
+
+This script generates recognition rank curves for the FERET experiment
+for the fafb, fafc, dup1 and dup2 probe sets:
+
+   scripts/makeRankCurves_feret.sh
+
+These rank curves are saved as text files in the "results" directory.

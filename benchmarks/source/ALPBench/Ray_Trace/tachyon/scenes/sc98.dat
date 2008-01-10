@@ -1,0 +1,334 @@
+begin_scene
+  resolution 512 512
+
+#
+# A simple scene I constructed to use as a demo for SuperComputing '98
+# This scene can be rendered at real-time rates using a medium-sized
+# parallel computer.
+#
+
+camera 
+  zoom 1.0
+  aspectratio 1.0
+  antialiasing 0
+  raydepth 4
+  center  -25.0 8.0 -15.0
+  viewdir   0.5 0.0   0.3
+  updir     0.0 1.0   0.0
+end_camera
+
+texdef ground
+  ambient 0.02 diffuse 0.9 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 45.0
+  color 0.7 0.6 0.4
+  texfunc 0
+
+texdef sculpt1
+  ambient 0.1 diffuse 0.6 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 45.0
+  color 1.0 1.0 1.0
+  texfunc 0
+
+texdef sculpt2
+  ambient 0.1 diffuse 0.6 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 45.0
+  color 1.0 1.0 1.0
+  texfunc 4
+     CENTER 10.0 -200.0 110.3
+     ROTATE 0. 0.0 0.0
+     SCALE  0.01 0.01 0.01
+
+texdef sculpt3
+  ambient 0.1 diffuse 0.6 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 445.0
+  color 1.0 0.0 0.0
+  texfunc 0
+
+texdef sculpt4
+  ambient 0.1 diffuse 0.6 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 445.0
+  color 0.0 1.0 0.0
+  texfunc 0
+
+texdef sculpt5
+  ambient 0.1 diffuse 0.6 specular 0.0 opacity 1.0
+  phong plastic 0.5 phong_size 445.0
+  color 0.0 0.0 1.0
+  texfunc 0
+
+texdef mirror
+  ambient 0.02 diffuse 0.2 specular 0.5 opacity 1.0
+  phong metal 0.5 phong_size 45.0
+  color 0.3 0.3 1.0
+  texfunc 0
+
+texdef boring
+  ambient 0.1 diffuse 0.9 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 0
+
+Light
+  center 22.0 22.0 -25.0
+  rad 1.0
+  color 0.8 0.8 0.8
+
+Light
+  center -17.0 32.0 25.0
+  rad 1.0
+  color 0.8 0.8 0.8
+
+plane 
+  center 0.0 0.0 0.0 
+  normal 0.0 1.0 0.0
+  ground
+
+sphere 
+  center -5.0 0.5 5.0
+  rad 0.5
+  sculpt1
+
+sphere 
+  center  5.0 0.5 5.0
+  rad 0.5
+  sculpt1
+  
+sphere 
+  center -5.0 0.5 -5.0
+  rad 0.5
+  sculpt1
+ 
+sphere
+  center  5.0 0.5 -5.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base   -5.0 0.5 5.0
+  apex    5.0 0.5 5.0
+  rad 0.5
+  sculpt1
+
+fcylinder 
+  base   -5.0 0.5 -5.0
+  apex    5.0 0.5 -5.0
+  rad 0.5
+  sculpt1
+ 
+fcylinder
+  base   -5.0 0.5 -5.0
+  apex   -5.0 0.5  5.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base    5.0 0.5 -5.0
+  apex    5.0 0.5  5.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base   -5.0 0.5 -5.0
+  apex    0.0 8.5  0.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base    5.0 0.5 -5.0
+  apex    0.0 8.5  0.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base   -5.0 0.5  5.0
+  apex    0.0 8.5  0.0
+  rad 0.5
+  sculpt1
+
+fcylinder
+  base    5.0 0.5  5.0
+  apex    0.0 8.5  0.0
+  rad 0.5
+  sculpt1
+
+sphere 
+  center  0.0 8.5 0.0
+  rad     4.0
+  mirror
+
+ring
+  center  0.0 0.1 10.0 
+  normal  0.0 1.0 0.0
+  inner   1.0
+  outer   4.0
+  mirror
+
+ring
+  center  0.0 0.1 -10.0 
+  normal  0.0 1.0  0.0
+  inner   1.0
+  outer   4.0
+  mirror
+
+ring
+  center  10.0 0.1 0.0 
+  normal  0.0 1.0 0.0
+  inner   1.0
+  outer   4.0
+  mirror
+
+ring
+  center -10.0 0.1 0.0 
+  normal  0.0 1.0 0.0
+  inner   1.0
+  outer   4.0
+  mirror
+
+tri 
+  v0   15.0  0.0 -5.0
+  v1   20.0 12.5  0.0
+  v2   15.0  0.0  5.0     
+  sculpt2
+
+tri 
+  v0   25.0  0.0 -5.0
+  v1   20.0 12.5  0.0
+  v2   25.0  0.0  5.0     
+  sculpt2
+
+tri 
+  v0   15.0  0.0 -5.0
+  v1   20.0 12.5  0.0
+  v2   25.0  0.0 -5.0     
+  sculpt2
+
+tri 
+  v0   15.0  0.0  5.0
+  v1   20.0 12.5  0.0
+  v2   25.0  0.0  5.0     
+  sculpt2
+
+
+
+
+tri 
+  v0   -15.0  0.0 -5.0
+  v1   -20.0 12.5  0.0
+  v2   -15.0  0.0  5.0     
+  sculpt3
+
+tri 
+  v0  -25.0  0.0 -5.0
+  v1  -20.0 12.5  0.0
+  v2  -25.0  0.0  5.0     
+  sculpt3
+
+tri 
+  v0  -15.0  0.0 -5.0
+  v1  -20.0 12.5  0.0
+  v2  -25.0  0.0 -5.0     
+  sculpt3
+
+tri 
+  v0  -15.0  0.0  5.0
+  v1  -20.0 12.5  0.0
+  v2  -25.0  0.0  5.0     
+  sculpt3
+
+
+
+
+tri 
+  v0    5.0  0.0  15.0
+  v1    0.0 12.5  20.0
+  v2    5.0  0.0  25.0     
+  sculpt4
+
+tri 
+  v0   -5.0  0.0  15.0
+  v1    0.0 12.5  20.0
+  v2   -5.0  0.0  25.0     
+  sculpt4
+
+tri 
+  v0    5.0  0.0  15.0
+  v1    0.0 12.5  20.0
+  v2   -5.0  0.0  15.0     
+  sculpt4
+
+tri 
+  v0    5.0  0.0  25.0
+  v1    0.0 12.5  20.0
+  v2   -5.0  0.0  25.0     
+  sculpt4
+
+
+
+tri 
+  v0    5.0  0.0 -25.0
+  v1    0.0 12.5 -20.0
+  v2    5.0  0.0 -15.0     
+  sculpt5
+
+tri 
+  v0   -5.0  0.0 -25.0
+  v1    0.0 12.5 -20.0
+  v2   -5.0  0.0 -15.0     
+  sculpt5
+
+tri 
+  v0    5.0  0.0 -25.0
+  v1    0.0 12.5 -20.0
+  v2   -5.0  0.0 -25.0     
+  sculpt5
+
+tri 
+  v0    5.0  0.0 -15.0
+  v1    0.0 12.5 -20.0
+  v2   -5.0  0.0 -15.0    
+  sculpt5
+
+sphere
+  center 10.0 2.5 10.0
+  rad    2.5 
+  texture
+  ambient 0.02 diffuse 0.9 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 7 imaps/bumpy.ppm
+    center 10.0 2.5 10.0
+    rotate 0.0 0.0 0.0
+    scale  2.0 2.0 2.0
+    
+sphere
+  center -10.0 2.5 10.0
+  rad    2.5 
+  texture
+  ambient 0.02 diffuse 0.9 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 7 imaps/burgn.ppm
+    center -10.0 2.5 10.0
+    rotate 0.0 0.0 0.0
+    scale  2.0 2.0 2.0
+
+sphere
+  center 10.0 2.5 -10.0
+  rad    2.5 
+  texture
+  ambient 0.02 diffuse 0.9 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 7 imaps/metal.ppm
+    center 10.0 2.5 -10.0
+    rotate 0.0 0.0 0.0
+    scale  1.0 1.0 1.0
+
+sphere
+  center -10.0 2.5 -10.0
+  rad    2.5 
+  texture
+  ambient 0.02 diffuse 0.9 specular 0.0 opacity 1.0
+  color 1.0 1.0 1.0
+  texfunc 7 imaps/aqua.ppm
+    center -10.0 2.5 -10.0
+    rotate 0.0 0.0 0.0
+    scale  1.0 1.0 1.0
+
+end_scene

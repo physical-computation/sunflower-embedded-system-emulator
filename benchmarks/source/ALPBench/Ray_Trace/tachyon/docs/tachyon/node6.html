@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>General command line options</TITLE>
+<META NAME="description" CONTENT="General command line options">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node7.html">
+<LINK REL="previous" HREF="node5.html">
+<LINK REL="up" HREF="node5.html">
+<LINK REL="next" HREF="node7.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html153"
+  HREF="node7.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html147"
+  HREF="node5.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html141"
+  HREF="node5.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html149"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html151"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html154"
+  HREF="node7.html">Command line shading controls</A>
+<B> Up:</B> <A NAME="tex2html148"
+  HREF="node5.html">Running Tachyon</A>
+<B> Previous:</B> <A NAME="tex2html142"
+  HREF="node5.html">Running Tachyon</A>
+ &nbsp <B>  <A NAME="tex2html150"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html152"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00041000000000000000">
+General command line options</A>
+</H2>
+Several command line options are available to tune 
+Tachyon performance, display built-in help text, and 
+set output verbosity.
+
+<UL>
+<LI><TT>-nobounding</TT>: disable automatic generation of hierarchical
+      grid-based acceleration data structures
+</LI>
+<LI><TT>-boundthresh <I>object_count</I></TT>: override default threshold for 
+      subdividing grid cells with a new grid
+</LI>
+<LI><TT>-numthreads <I>thread_count</I></TT>: command line override for the number of 
+      threads to spawn during the ray tracing process.  When this
+      options is not specified, Tachyon determines the number of threads
+      to spawn based on the number of CPUs available on a given node.
+</LI>
+<LI><TT>+V</TT>: enable verbose status messages, including reporting of
+      overall node and processor count.
+</LI>
+<LI><TT>-nosave</TT>: disable saving of output images to disk files.  This 
+      feature is normally only used when benchmarking, or when using one of
+      the OpenGL-enabled Tachyon configurations which provide runtime display
+      of rendered images.
+</LI>
+<LI><TT>-camfile <I>filename</I></TT>: run a fly-through animation from 
+      the named camera file. 
+</LI>
+</UL>
+
+<P>
+<BR><HR>
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

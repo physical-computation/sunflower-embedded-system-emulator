@@ -1,0 +1,43 @@
+# The INPUT_IMAGE_WIDTH and INPUT_IMAGE_HEIGHT specify
+# the sizes of the input images
+
+INPUT_IMAGE_WIDTH=130
+INPUT_IMAGE_HEIGHT=150
+
+# The IMAGE_DIRECTORY path specifies the directory where
+# the source images are stored
+
+IMAGE_DIRECTORY="data/FERET/processed/normJun2002sfi"
+
+# The TRAINING_SRT specifies the list of training images
+# for which the intrapersonal and extrapersonal images
+# are created.
+
+TRAINING_SRT="imagelists/list195x3.srt"
+
+# The INTRAPERSONAL_N_DIFFS and EXTRAPERSONAL_N_DIFFS parameters
+# control how many intrapersonal and extrapersonal images are
+# generated per subject in the training set. These images
+# are chosen at random, unless the RANK_DIFFS parameter is set
+
+INTRAPERSONAL_N_DIFFS=2
+EXTRAPERSONAL_N_DIFFS=2
+
+# If you wish the system to train only on the N closest difference
+# images, then set RANK_DIFFS to the location of a distance matrix.
+# If this variable is undefined, then the N training difference
+# images are chosen at random out of all possible choices.
+
+# RANK_DIFFS=""
+
+# The INTRAPERSONAL_CUTOFF and EXTRAPERSONAL_CUTOFF parameters
+# control the percentage of basis vectors are kept in the
+# intrapersonal and extrapersonal spaces after training.
+
+INTRAPERSONAL_CUTOFF=15.00
+EXTRAPERSONAL_CUTOFF=15.00
+
+# The TESTING_LST parameter specifies the subjects for
+# which the distance matrix is computed.
+
+TESTING_LST="imagelists/list1024.srt"

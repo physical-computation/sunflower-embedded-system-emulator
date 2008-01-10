@@ -1,0 +1,385 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Objects</TITLE>
+<META NAME="description" CONTENT="Objects">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node19.html">
+<LINK REL="previous" HREF="node17.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node19.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html349"
+  HREF="node19.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html343"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html337"
+  HREF="node17.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html345"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html347"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html350"
+  HREF="node19.html">Texture and Color</A>
+<B> Up:</B> <A NAME="tex2html344"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html338"
+  HREF="node17.html">Atmospheric effects</A>
+ &nbsp <B>  <A NAME="tex2html346"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html348"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html351"
+  HREF="node18.html#SECTION00057100000000000000">Spheres</A>
+<LI><A NAME="tex2html352"
+  HREF="node18.html#SECTION00057200000000000000">Triangles</A>
+<LI><A NAME="tex2html353"
+  HREF="node18.html#SECTION00057300000000000000">Smoothed Triangles</A>
+<LI><A NAME="tex2html354"
+  HREF="node18.html#SECTION00057400000000000000">Infinite Planes</A>
+<LI><A NAME="tex2html355"
+  HREF="node18.html#SECTION00057500000000000000">Rings</A>
+<LI><A NAME="tex2html356"
+  HREF="node18.html#SECTION00057600000000000000">Infinite Cylinders</A>
+<LI><A NAME="tex2html357"
+  HREF="node18.html#SECTION00057700000000000000">Finite Cylinders</A>
+<LI><A NAME="tex2html358"
+  HREF="node18.html#SECTION00057800000000000000">Axis Aligned Boxes</A>
+<LI><A NAME="tex2html359"
+  HREF="node18.html#SECTION00057900000000000000">Fractal Landscapes</A>
+<LI><A NAME="tex2html360"
+  HREF="node18.html#SECTION000571000000000000000">Arbitrary Quadric Surfaces</A>
+<LI><A NAME="tex2html361"
+  HREF="node18.html#SECTION000571100000000000000">Volume Rendered Scalar Voxels</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A NAME="SECTION00057000000000000000"></A>
+<A NAME="499"></A>
+<BR>
+Objects
+</H2>
+
+<P>
+
+<H3><A NAME="SECTION00057100000000000000"></A>
+<A NAME="501"></A>
+<BR>
+Spheres
+</H3>
+  Spheres are the simplest object supported by Tachyon and they are
+also the fastest object to render.  Spheres are defined as one would expect,
+with a <B>CENTER</B>, <B>RAD</B> (radius), and a texture.  The texture may
+be defined along with the object as discussed earlier, or it may be declared
+and assigned a name.  
+Here's a sphere definition using a previously defined "NitrogenAtom" texture:
+<PRE>
+ SPHERE  CENTER 26.4 27.4 -2.4   RAD 1.0   NitrogenAtom
+</PRE>
+A sphere with an inline texture definition is declared like this:
+<PRE>
+ Sphere center 1.0 0.0 10.0   
+           Rad 1.0
+        Texture  Ambient 0.2  Diffuse 0.8  Specular 0.0  Opacity 1.0
+                 Color   1.0 0.0 0.5
+                 TexFunc 0
+</PRE>
+Notice that in this example I used mixed case for the keywords, this is
+allowable...
+Review the section on textures if the texture definitions are confusing.
+
+<P>
+
+<H3><A NAME="SECTION00057200000000000000"></A>
+<A NAME="509"></A>
+<BR>
+Triangles
+</H3>
+  Triangles are also fairly simple objects, constructed by listing the
+three vertices of the triangle, and its texture.  The order of the
+vertices isn't important, the triangle object is "double sided", so the
+surface normal is always pointing back in the direction of the incident ray.
+The triangle vertices are listed as <B>V1</B>, <B>V2</B>, and <B>V3</B> each one
+is an X, Y, Z coordinate.  An example of a triangle is shown below:
+<PRE>
+TRI
+  V0  0.0 -4.0 12.0
+  V1  4.0 -4.0 8.0
+  V2 -4.0 -4.0 8.0
+  TEXTURE
+    AMBIENT  0.1 DIFFUSE  0.2 SPECULAR 0.7 OPACITY 1.0
+    COLOR 1.0 1.0 1.0
+    TEXFUNC 0
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057300000000000000"></A>
+<A NAME="516"></A>
+<BR>
+Smoothed Triangles
+</H3>
+  Smoothed triangles are just like regular triangles, except that the  
+  surface normal for each of the three vertexes is used to determine the
+  surface normal across the triangle by linear interpolation.
+  Smoothed triangles yield curved looking objects and have nice 
+  reflections.  
+<PRE>
+STRI 
+  V0 1.4   0.0   2.4  
+  V1 1.35 -0.37  2.4   
+  V2 1.36 -0.32  2.45 
+  N0 -0.9 -0.0  -0.4  
+  N1 -0.8  0.23 -0.4  
+  N2 -0.9  0.27 -0.15 
+  TEXTURE
+    AMBIENT  0.1 DIFFUSE  0.2 SPECULAR 0.7 OPACITY 1.0
+    COLOR 1.0 1.0 1.0
+    TEXFUNC 0
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057400000000000000"></A>
+<A NAME="520"></A>
+<BR>
+Infinite Planes
+</H3>
+  Useful for things like desert floors, backgrounds, skies etc, the infinite
+plane is pretty easy to use.  An infinite plane only consists of two pieces
+of information, the <B>CENTER</B> of the plane, and a <B>NORMAL</B> to the plane.
+The center of the plane is just any point on the plane such that the point 
+combined with the surface normal define the equation for the plane.
+As with triangles, planes are double sided.  Here is an example of an 
+infinite plane:
+<PRE>
+PLANE
+  CENTER 0.0 -5.0 0.0
+  NORMAL 0.0  1.0 0.0
+  TEXTURE
+    AMBIENT  0.1 DIFFUSE  0.9 SPECULAR 0.0  OPACITY 1.0
+    COLOR  1.0 1.0 1.0
+    TEXFUNC  1
+      CENTER 0.0 -5.0 0.0
+      ROTATE 0. 0.0 0.0
+      SCALE  1.0 1.0 1.0
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057500000000000000"></A>
+<A NAME="526"></A>
+<BR>
+Rings
+</H3>
+  Rings are a simple object, they are really a not-so-infinite plane.
+Rings are simply an infinite plane cut into a washer shaped ring, infinitely
+thing just like a plane.  A ring only requires two more pieces of information
+than an infinite plane does, an inner and outer radius.  Here's an example
+of a ring:
+<PRE>   
+  Ring
+    Center 1.0 1.0 1.0
+    Normal 0.0 1.0 0.0
+    Inner  1.0
+    Outer  5.0
+    MyNewRedTexture
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057600000000000000"></A>
+<A NAME="530"></A>
+<BR>
+Infinite Cylinders
+</H3>
+  Infinite cylinders are quite simple.  They are defined by a center, an 
+axis, and a radius.  An example of an infinite cylinder is:
+<PRE>
+  Cylinder
+    Center 0.0 0.0 0.0
+    Axis   0.0 1.0 0.0
+    Rad    1.0
+    SomeRandomTexture
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057700000000000000"></A>
+<A NAME="534"></A>
+<BR>
+Finite Cylinders
+</H3>
+  Finite cylinders are almost the same as infinite ones, but the
+  center and length of the axis determine the extents of the cylinder.  
+  The finite cylinder is also really a shell, it doesn't have any
+  caps.  If you need to close off the ends of the cylinder, use two
+  ring objects, with the inner radius set to 0.0 and the normal set
+  to be the axis of the cylinder.  Finite cylinders are built this
+  way to enhance speed. 
+
+<P>
+<PRE>
+  FCylinder
+    Center 0.0 0.0 0.0
+    Axis   0.0 9.0 0.0
+    Rad    1.0
+    SomeRandomTexture
+</PRE>
+This defines a finite cylinder with radius 1.0, going from 0.0 0.0 0.0, to 
+0.0 9.0 0.0 along the Y axis.  The main difference between an infinite cylinder
+and a finite cylinder is in the interpretation of the <B>AXIS</B> parameter.
+In the case of the infinite cylinder, the length of the axis vector is 
+ignored.  In the case of the finite cylinder, the axis parameter is used
+to determine the length of the overall cylinder.
+
+<P>
+
+<H3><A NAME="SECTION00057800000000000000"></A>
+<A NAME="539"></A>
+<BR>
+Axis Aligned Boxes
+</H3>
+  Axis aligned boxes are fast, but of limited usefulness.  As such, I'm
+not going to waste much time explaining 'em.  An axis aligned box is
+defined by a <B>MIN</B> point, and a <B>MAX</B> point.  The volume between
+the min and max points is the box.  Here's a simple box:
+<PRE>
+  BOX
+    MIN -1.0 -1.0 -1.0
+    MAX  1.0  1.0  1.0
+    Boxtexture1
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION00057900000000000000"></A>
+<A NAME="545"></A>
+<BR>
+Fractal Landscapes
+</H3>
+  Currently fractal landscapes are a built-in function.  In the near future
+I'll allow the user to load an image map for use as a heightfield.
+Fractal landscapes are currently forced to be axis aligned.  Any suggestion
+on how to make them more appealing to users is welcome.  A fractal landscape
+is defined by its "resolution" which is the number of grid points along
+each axis, and by its scale and center.  The "scale" is how large the
+landscape is along the X, and Y axes in world coordinates.  Here's a simple
+landscape:  
+<PRE>
+SCAPE
+  RES 30 30
+  SCALE 80.0 80.0
+  CENTER 0.0 -4.0 20.0
+  TEXTURE
+    AMBIENT 0.1 DIFFUSE 0.9 SPECULAR 0.0 OPACITY 1.0
+    COLOR 1.0 1.0 1.0
+    TEXFUNC 0
+</PRE>
+The landscape shown above generates a square landscape made of 1,800 triangles.
+When time permits, the heightfield code will be rewritten to be more 
+general and to increase rendering speed.
+
+<P>
+
+<H3><A NAME="SECTION000571000000000000000"></A>
+<A NAME="549"></A>
+<BR>
+Arbitrary Quadric Surfaces
+</H3>
+  Docs soon. I need to add these into the parser, must have forgotten
+before ;-)   
+
+<P>
+
+<H3><A NAME="SECTION000571100000000000000"></A>
+<A NAME="551"></A>
+<BR>
+Volume Rendered Scalar Voxels
+</H3>
+  These are a little trickier than the average object :-)
+These are likely to change substantially in the very near future so I'm not
+going to get too detailed yet.
+A volume rendered data set is described by its axis aligned bounding box, and 
+its resolution along each axis.  The final parameter is the voxel data 
+file.  If you are seriously interested in messing with these, get hold of
+me and I'll give you more info.  Here's a quick example:
+<PRE>
+SCALARVOL
+  MIN -1.0 -1.0 -0.4
+  MAX  1.0  1.0  0.4
+  DIM 256 256 100
+  FILE /cfs/johns/vol/engine.256x256x110
+  TEXTURE
+        AMBIENT 1.0 DIFFUSE 0.0 SPECULAR 0.0 OPACITY 8.1
+        COLOR 1.0 1.0 1.0
+        TEXFUNC 0
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html349"
+  HREF="node19.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html343"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html337"
+  HREF="node17.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html345"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html347"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html350"
+  HREF="node19.html">Texture and Color</A>
+<B> Up:</B> <A NAME="tex2html344"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html338"
+  HREF="node17.html">Atmospheric effects</A>
+ &nbsp <B>  <A NAME="tex2html346"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html348"
+  HREF="node20.html">Index</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>

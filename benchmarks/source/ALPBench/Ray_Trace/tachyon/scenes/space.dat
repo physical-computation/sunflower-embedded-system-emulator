@@ -1,0 +1,88 @@
+begin_scene
+  resolution 512 512
+
+camera 
+  zoom 2.0
+  aspectratio 1.0
+  antialiasing 0
+  raydepth 12
+  center    0.0   0.0 -200.0
+  viewdir   0.0   0.0    1.0
+  updir     0.0   1.0    0.0
+end_camera
+
+texdef tex1
+    AMBIENT 0.1  DIFFUSE 0.9 SPECULAR 0.0 OPACITY 1.0
+    COLOR 1.0 1.0 1.0
+    TEXFUNC 0
+
+light 
+  center 0.0 500.0 -500.0
+  rad    1.0
+  color  1.0 1.0 1.0
+
+sphere
+  center 0.0 0.0 0.0
+  rad 20000.0
+  texture 
+    ambient 1.0 diffuse 0.0 specular 0.0 opacity 1.0
+    color 1.0 1.0 1.0
+    texfunc 7 imaps/space.ppm
+      center 0.0 0.0 0.0
+      rotate 0.0 0.0 0.0
+      scale  18.0 18.0 18.0
+
+
+tpolyfile
+  scale   1.0  1.0  1.0 
+  rot     -90.0  90.0  0.0 
+  center  -50.0  0.0  200.0 
+  file tpoly/galclass.tpoly
+    tex1 
+
+tpolyfile
+  scale   70.0  70.0  -70.0
+  rot     90.0  0.0  0.0
+  center  0.0  0.0  1500.0
+  file tpoly/deathstr.tpoly
+    tex1
+
+tpolyfile
+  scale   1.0 1.0 1.0 
+  rot     -90.0  -90.0  0.0 
+  center  0.0  0.0  300.0 
+  file tpoly/destroyr.tpoly
+  tex1
+
+tpolyfile
+  scale   .08  .08  .08
+  rot     -90.0  90.0  0.0 
+  center  40.0  30.0  0.0 
+  file tpoly/t_i_e.tpoly
+    tex1 
+
+
+tpolyfile
+  scale   0.4  0.4  .4 
+  rot     -90.0  -90.0  0.0 
+  center  20.0  30.0  0.0 
+  file tpoly/x_wing.tpoly
+    tex1 
+
+tpolyfile
+  scale   1.0  1.0  1.0 
+  rot     -90.0  90.0  0.0 
+  center  -14.0  -15.0  -120.0 
+  file tpoly/intercep.tpoly
+    tex1 
+
+tpolyfile
+  scale   4.0  -4.0  4.0 
+  rot     -90.0  00.0  0.0 
+  center  10.0  -18.0  -100.0 
+  file tpoly/r_falke.tpoly
+    tex1 
+
+
+END_SCENE
+

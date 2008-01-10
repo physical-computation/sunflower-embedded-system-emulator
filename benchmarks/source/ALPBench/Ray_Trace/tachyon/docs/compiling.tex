@@ -1,0 +1,64 @@
+\section{Compiling \RAY\ From Source Code}
+\index{compiling on Unix systems}
+  In order to use \RAY\, you may need to compile it from source 
+code, since it is normally distributed in source code form.
+Building \RAY\ binaries is a fairly straightforward process.  
+Download the \RAY\ distribution from the web/ftp server.  Once you 
+have downloaded the distribution, unpack the distribution using 
+gunzip and tar.  Once the distribution is unpacked, cd into the 
+'tachyon' directory, and then into the 'unix' directory.  
+Once in the 'unix' directory, type 'make' to see the list of 
+configurations that are currently supported.  
+
+\begin{verbatim}
+johns:/disk5/users/johns/graphics % gunzip tachyon.tar.gz
+johns:/disk5/users/johns/graphics % tar -xvf tachyon.tar.gz
+johns:/disk5/users/johns/graphics % cd tachyon
+johns:/disk5/users/johns/graphics/tachyon % cd unix
+johns:/disk5/users/johns/graphics/tachyon/unix % make
+  Choose one of the architectures specified below.
+-----------------------------------------------------------
+              Parallel Versions        
+ 
+paragon-thr-mpi - Intel Paragon    (MPI + Threads + Thread I/O) 
+ paragon-mp-mpi - Intel Paragon    (MPI + Threads + Reg I/O)    
+    paragon-mpi - Intel Paragon    (MPI)           
+    ipsc860-mpi - Intel iPSC/860   (MPI)           
+        sp2-mpi - IBM SP2          (MPI)           
+    solaris-mpi - Sun Solaris 2.x  (MPI)           
+      irix5-mpi - SGI Irix 5.x     (MPI)           
+    solaris-thr - Sun Solaris 2.x  Threads       
+ solaris-c4-thr - Sun Solaris 2.x  Threads (Sun C 4.x)     
+-----------------------------------------------------------
+              Sequential Versions        
+ 
+   solaris-v9 - Sun Solaris 2.5      (Sun C 4.x)     
+   solaris-c4 - Sun Solaris 2.[345]  (Sun C 4.x)     
+   solaris-c3 - Sun Solaris 2.[345]  (Sun C 3.x)     
+       sunos4 - SunOS 4.1.x                    
+        irix5 - SGI Irix 5.x (32 bit, R4000)   
+        irix6 - SGI Irix 6.x (64 bit, R8000)   
+          aix - IBM AIX 3.x  (Generic RS/6000) 
+      aix-ppc - IBM AIX 3.x  (PPC 601)         
+         hpux - HP/UX 9.x and 10.x             
+        linux - Linux (on a little endian machine 
+          bsd - BSD   (on a little endian machine 
+ 
+        clean - Remove .o .a and executables
+---------------------------------------------------------------
+Type: 'make arch' to build for an architecture listed above.
+
+johns:/disk5/users/johns/graphics/ray/unix % make solaris-thr
+
+[lots of make output ommitted]
+
+\end{verbatim}
+
+  Hopefully once you've run 'make' to build the ray tracer for your machine,
+everything went well and you now have a binary to run.  If you are building
+an MPI version, you may need to edit the make-config file to edit the 
+locations of libraries and header files as they are listed there.
+If you have trouble, for now the best way to go is to send me email, at
+{\em \EMAIL}  As I have time I'll improve this document and give
+more detailed instructions on building.  
+

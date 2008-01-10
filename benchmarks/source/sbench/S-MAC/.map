@@ -1,0 +1,598 @@
+Archive member included because of file (symbol)
+
+/Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(print.o)
+                              devnet.o (print)
+/Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strncpy.o)
+                              dam.o (strncpy)
+/Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strcmp.o)
+                              dam.o (strcmp)
+/Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(memmove.o)
+                              dam.o (memmove)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(printf.o)
+                              dam.o (printf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o)
+                              dam.o (strtol)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sprintf.o)
+                              dam.o (sprintf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(printf.o) (vfprintf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(impure.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(printf.o) (_impure_ptr)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(ctype_.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o) (_ctype_)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fvwrite.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__sfvwrite)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fflush.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (fflush)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__sinit)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(locale.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (localeconv)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(wsetup.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__swsetup)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mbtowc_r.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (_mbtowc_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strlen.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (strlen)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isinf.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (isinf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isnan.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (isnan)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memchr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (memchr)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (_dtoa_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fwalk.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fflush.o) (_fwalk)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o) (__sread)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o) (_malloc_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memset.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o) (memset)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(freer.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(wsetup.o) (_free_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(makebuf.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(wsetup.o) (__smakebuf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mprec.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o) (_Balloc)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memcpy.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o) (memcpy)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(readr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o) (_read_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(writer.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o) (_write_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(lseekr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o) (_lseek_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(closer.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o) (_close_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sbrkr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o) (_sbrk_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mlock.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o) (__malloc_lock)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fstatr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(makebuf.o) (_fstat_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(readr.o) (_read)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(callocr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mprec.o) (_calloc_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(trap.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o) (__trap34)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(abort.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o) (abort)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signal.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(abort.o) (raise)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signalr.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signal.o) (_kill_r)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_si_to_df.o)
+                              devnet.o (__floatsidf)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o)
+                              devnet.o (__muldf3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_addsub_df.o)
+                              devnet.o (__adddf3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_div_df.o)
+                              devnet.o (__divdf3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_df_to_si.o)
+                              devnet.o (__fixdfsi)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftrt.o)
+                              devnet.o (__ashiftrt_r4_8)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_gt_df.o)
+                              dam.o (__gtdf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_sdivsi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(print.o) (__sdivsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_udivsi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o) (__udivsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mulsi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o) (__mulsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_eq_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__eqdf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ne_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__nedf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lt_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__ltdf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_negate_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o) (__negdf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ge_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o) (__gedf2)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftlt.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o) (__ashlsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lshiftrt.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o) (__lshrsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftrt_n.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mprec.o) (__ashrsi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_pack_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_si_to_df.o) (__pack_d)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_unpack_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o) (__unpack_d)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_thenan_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o) (__thenan_df)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_muldi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o) (__muldi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lshrdi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_df_to_si.o) (__lshrdi3)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_fpcmp_parts_df.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_gt_df.o) (__fpcmp_parts_d)
+/Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashldi3.o)
+                              /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_pack_df.o) (__ashldi3)
+
+Allocating common symbols
+Common symbol       size              file
+
+dam_myParent        0x10              dam.o
+dam_maxPrHeard      0x8               dam.o
+dam_myPr            0x8               dam.o
+dam_period          0x4               dam.o
+dam_p               0x30              dam.o
+dam_participating   0x4               dam.o
+dam_myID            0x10              dam.o
+dam_leaderID        0x10              dam.o
+REGSAVESTACK        0x24              dam.o
+errno               0x4               /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sbrkr.o)
+dam_delta           0x8               dam.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .text set to 0x8004000
+
+.text           0x08004000     0x8480
+                0x08004000                _text = .
+ *(.text)
+ .text          0x08004000      0x100 init.o
+                0x0800403e                getssr
+                0x0800404a                getgbr
+                0x080040e4                sleep
+                0x08004070                vec_stub_begin
+                0x08004038                getpsr
+                0x08004050                getvbr
+                0x08004062                getmach
+                0x08004020                spllo
+                0x0800405c                getpr
+                0x08004044                getspc
+                0x08004032                spldone
+                0x08004068                getmacl
+                0x08004010                splhi
+                0x080040e4                vec_stub_end
+                0x08004056                getsp
+ .text          0x08004100      0x6c0 devnet.o
+                0x08004100                devnet_getcurifc
+                0x0800437c                devnet_getncsense
+                0x080044a4                devnet_xmit
+                0x0800429c                devnet_getfsz
+                0x0800475c                devnet_ctl
+                0x0800430c                devnet_getncolls
+                0x08004180                devnet_framedelay
+                0x08004708                devnet_recv
+                0x080043ec                devnet_getspeed
+                0x08004110                devnet_getncr
+ .text          0x080047c0       0x50 devrtc.o
+                0x080047c0                devrtc_getusecs
+ .text          0x08004810       0x40 devexcp.o
+                0x08004810                devexcp_getintevt
+ .text          0x08004850      0x130 misc.o
+                0x080048f4                xusleep
+                0x0800493c                pow10
+                0x08004894                devlogprintputc
+                0x08004850                sccputc
+                0x080048bc                udelay
+ .text          0x08004980       0xe0 devsensor.o
+                0x08004a40                devsignal_write
+                0x08004980                devsignal_read
+ .text          0x08004a60      0x240 devloc.o
+                0x08004af8                devloc_getxloc
+                0x08004b84                devloc_getyloc
+                0x08004a60                devloc_getorbit
+                0x08004c10                devloc_getzloc
+                0x08004aac                devloc_getvelocity
+ .text          0x08004ca0      0x940 dam.o
+                0x08005404                nic_hdlr
+                0x08004d18                startup
+                0x08005548                intr_hdlr
+ .text          0x080055e0      0x5f0 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(print.o)
+                0x08005664                sprint
+                0x08005638                fprint
+                0x0800560c                lprint
+                0x08005690                snprint
+                0x080055e0                print
+ .text          0x08005bd0       0x50 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strncpy.o)
+                0x08005bd0                strncpy
+ .text          0x08005c20       0x40 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strcmp.o)
+                0x08005c20                strcmp
+ .text          0x08005c60       0x60 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(memmove.o)
+                0x08005c60                memmove
+ .text          0x08005cc0       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(printf.o)
+                0x08005cc0                _printf_r
+                0x08005ce4                printf
+ .text          0x08005d20      0x190 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o)
+                0x08005e84                strtol
+                0x08005d20                _strtol_r
+ .text          0x08005eb0       0xa0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sprintf.o)
+                0x08005efc                sprintf
+                0x08005eb0                _sprintf_r
+ .text          0x08005f50     0x16a0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o)
+                0x080060f4                _vfprintf_r
+                0x0800601c                vfprintf
+ .text          0x080075f0       0x10 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(impure.o)
+ .text          0x08007600      0x110 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(ctype_.o)
+                0x08007600                _ctype_
+ .text          0x08007710      0x250 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fvwrite.o)
+                0x08007710                __sfvwrite
+ .text          0x08007960       0xc0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fflush.o)
+                0x08007960                fflush
+ .text          0x08007a20      0x1e0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o)
+                0x08007ac0                __sfp
+                0x08007b8c                __sinit
+                0x08007b74                _cleanup
+                0x08007b5c                _cleanup_r
+                0x08007a68                __sfmoreglue
+ .text          0x08007c00       0xf0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(locale.o)
+                0x08007cb0                setlocale
+                0x08007c3c                _setlocale_r
+                0x08007cd0                localeconv
+                0x08007ca0                _localeconv_r
+ .text          0x08007cf0       0xe0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(wsetup.o)
+                0x08007cf0                __swsetup
+ .text          0x08007dd0       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mbtowc_r.o)
+                0x08007dd0                _mbtowc_r
+ .text          0x08007e10       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strlen.o)
+                0x08007e10                strlen
+ .text          0x08007e70       0x30 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isinf.o)
+                0x08007e70                isinf
+ .text          0x08007ea0       0x30 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isnan.o)
+                0x08007ea0                isnan
+ .text          0x08007ed0       0xb0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memchr.o)
+                0x08007ed0                memchr
+ .text          0x08007f80     0x1230 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o)
+                0x08008130                _dtoa_r
+ .text          0x080091b0       0x70 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fwalk.o)
+                0x080091b0                _fwalk
+ .text          0x08009220      0x130 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o)
+                0x0800926c                __swrite
+                0x08009334                __sclose
+                0x08009220                __sread
+                0x080092dc                __sseek
+ .text          0x08009350      0x530 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o)
+                0x080094a8                _malloc_r
+ .text          0x08009880       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memset.o)
+                0x08009880                memset
+ .text          0x080098c0      0x300 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(freer.o)
+                0x08009ad8                _malloc_trim_r
+                0x080098c0                _free_r
+ .text          0x08009bc0      0x110 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(makebuf.o)
+                0x08009bc0                __smakebuf
+ .text          0x08009cd0      0xc20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mprec.o)
+                0x0800a330                __mcmp
+                0x0800a6fc                _ratio
+                0x08009fc0                _i2b
+                0x0800a4f0                _b2d
+                0x08009e40                _s2b
+                0x08009ee4                _hi0bits
+                0x0800a17c                _pow5mult
+                0x0800a370                __mdiff
+                0x0800a248                _lshift
+                0x08009fe4                _multiply
+                0x0800a5e8                _d2b
+                0x08009cd0                _Balloc
+                0x0800a868                __mprec_tinytens
+                0x0800a890                _mprec_log10
+                0x0800a840                __mprec_bigtens
+                0x0800a474                _ulp
+                0x08009d54                _Bfree
+                0x0800a778                __mprec_tens
+                0x08009f40                _lo0bits
+                0x08009d74                _multadd
+ .text          0x0800a8f0       0xa0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memcpy.o)
+                0x0800a8f0                memcpy
+ .text          0x0800a990       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(readr.o)
+                0x0800a990                _read_r
+ .text          0x0800a9d0       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(writer.o)
+                0x0800a9d0                _write_r
+ .text          0x0800aa10       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(lseekr.o)
+                0x0800aa10                _lseek_r
+ .text          0x0800aa50       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(closer.o)
+                0x0800aa50                _close_r
+ .text          0x0800aa90       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sbrkr.o)
+                0x0800aa90                _sbrk_r
+ .text          0x0800aad0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mlock.o)
+                0x0800aad0                __malloc_lock
+                0x0800aadc                __malloc_unlock
+ .text          0x0800aaf0       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fstatr.o)
+                0x0800aaf0                _fstat_r
+ .text          0x0800ab30      0x290 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o)
+                0x0800ac8c                _exit
+                0x0800acc0                _getpid
+                0x0800ad28                _utime
+                0x0800ab68                _write
+                0x0800ab30                _read
+                0x0800ac74                _unlink
+                0x0800ac3c                _open
+                0x0800acd8                _stat
+                0x0800ac80                isatty
+                0x0800ad58                _wait
+                0x0800aca4                _kill
+                0x0800acf4                _chmod
+                0x0800ad88                _execv
+                0x0800ad6c                _execve
+                0x0800ab9c                _link
+                0x0800accc                _raise
+                0x0800ac58                _creat
+                0x0800ada0                _pipe
+                0x0800ad0c                _chown
+                0x0800ab4c                _lseek
+                0x0800ab84                _close
+                0x0800ac28                _fstat
+                0x0800ad44                _fork
+                0x0800abc4                _sbrk
+ .text          0x0800adc0       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(callocr.o)
+                0x0800adc0                _calloc_r
+ .text          0x0800ae50       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(trap.o)
+                0x0800ae50                __trap34
+ .text          0x0800ae70       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(abort.o)
+                0x0800ae70                abort
+ .text          0x0800ae90      0x220 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signal.o)
+                0x0800af38                _raise_r
+                0x0800b094                __sigtramp
+                0x0800b040                raise
+                0x0800b07c                _init_signal
+                0x0800afd4                __sigtramp_r
+                0x0800b05c                signal
+                0x0800aedc                _signal_r
+                0x0800ae90                _init_signal_r
+ .text          0x0800b0b0       0x50 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signalr.o)
+                0x0800b0f0                _getpid_r
+                0x0800b0b0                _kill_r
+ .text          0x0800b100       0xb0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_si_to_df.o)
+                0x0800b100                __floatsidf
+ .text          0x0800b1b0      0x2d0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o)
+                0x0800b1b0                __muldf3
+ .text          0x0800b480      0x2d0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_addsub_df.o)
+                0x0800b6e8                __subdf3
+                0x0800b68c                __adddf3
+ .text          0x0800b750      0x190 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_div_df.o)
+                0x0800b750                __divdf3
+ .text          0x0800b8e0       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_df_to_si.o)
+                0x0800b8e0                __fixdfsi
+ .text          0x0800b970       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftrt.o)
+                0x0800b97c                __ashiftrt_r4_27
+                0x0800b9b0                __ashiftrt_r4_6
+                0x0800b9a0                __ashiftrt_r4_14
+                0x0800b992                __ashiftrt_r4_19
+                0x0800b9aa                __ashiftrt_r4_9
+                0x0800b9be                __ashiftrt_r4_0
+                0x0800b970                __ashiftrt_r4_31
+                0x0800b97e                __ashiftrt_r4_26
+                0x0800b98c                __ashiftrt_r4_22
+                0x0800b998                __ashiftrt_r4_16
+                0x0800b9a4                __ashiftrt_r4_12
+                0x0800b978                __ashiftrt_r4_29
+                0x0800b996                __ashiftrt_r4_17
+                0x0800b976                __ashiftrt_r4_30
+                0x0800b9b2                __ashiftrt_r4_5
+                0x0800b9ac                __ashiftrt_r4_8
+                0x0800b970                __ashiftrt_r4_32
+                0x0800b980                __ashiftrt_r4_25
+                0x0800b9b8                __ashiftrt_r4_2
+                0x0800b982                __ashiftrt_r4_24
+                0x0800b99e                __ashiftrt_r4_15
+                0x0800b9a8                __ashiftrt_r4_10
+                0x0800b9ba                __ashiftrt_r4_1
+                0x0800b97a                __ashiftrt_r4_28
+                0x0800b990                __ashiftrt_r4_20
+                0x0800b9ae                __ashiftrt_r4_7
+                0x0800b9a2                __ashiftrt_r4_13
+                0x0800b9a6                __ashiftrt_r4_11
+                0x0800b9b4                __ashiftrt_r4_4
+                0x0800b98a                __ashiftrt_r4_23
+                0x0800b994                __ashiftrt_r4_18
+                0x0800b98e                __ashiftrt_r4_21
+                0x0800b9b6                __ashiftrt_r4_3
+ .text          0x0800b9d0       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_gt_df.o)
+                0x0800b9d0                __gtdf2
+ .text          0x0800ba30       0xa0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_sdivsi3.o)
+                0x0800ba30                __sdivsi3
+ .text          0x0800bad0       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_udivsi3.o)
+                0x0800bad0                __udivsi3
+ .text          0x0800bb60       0x30 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mulsi3.o)
+                0x0800bb60                __mulsi3
+ .text          0x0800bb90       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_eq_df.o)
+                0x0800bb90                __eqdf2
+ .text          0x0800bbf0       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ne_df.o)
+                0x0800bbf0                __nedf2
+ .text          0x0800bc50       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lt_df.o)
+                0x0800bc50                __ltdf2
+ .text          0x0800bcb0       0x40 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_negate_df.o)
+                0x0800bcb0                __negdf2
+ .text          0x0800bcf0       0x60 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ge_df.o)
+                0x0800bcf0                __gedf2
+ .text          0x0800bd50       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftlt.o)
+                0x0800bd50                __ashlsi3
+ .text          0x0800bde0       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lshiftrt.o)
+                0x0800bde0                __lshrsi3
+ .text          0x0800be70       0x90 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashiftrt_n.o)
+                0x0800be70                __ashrsi3
+ .text          0x0800bf00      0x1b0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_pack_df.o)
+                0x0800bf00                __pack_d
+ .text          0x0800c0b0      0x110 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_unpack_df.o)
+                0x0800c0b0                __unpack_d
+ .text          0x0800c1c0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_thenan_df.o)
+                0x0800c1c0                __thenan_df
+ .text          0x0800c1e0       0xc0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_muldi3.o)
+                0x0800c1e0                __muldi3
+ .text          0x0800c2a0       0x80 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lshrdi3.o)
+                0x0800c2a0                __lshrdi3
+ .text          0x0800c320       0xe0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_fpcmp_parts_df.o)
+                0x0800c320                __fpcmp_parts_d
+ .text          0x0800c400       0x80 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashldi3.o)
+                0x0800c400                __ashldi3
+ *(.strings)
+                0x0800c480                _etext = .
+
+.data           0x0800c480      0x750
+                0x0800c480                _data = .
+ *(.data)
+ .data          0x0800c480      0x2f0 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(impure.o)
+                0x0800c76c                _impure_ptr
+ .data          0x0800c770       0x10 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(locale.o)
+                0x0800c770                __mb_cur_max
+ .data          0x0800c780      0x450 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o)
+                0x0800cb8c                __malloc_top_pad
+                0x0800cb9c                __malloc_current_mallinfo
+                0x0800c780                __malloc_av_
+                0x0800cb88                __malloc_trim_threshold
+                0x0800cb90                __malloc_sbrk_base
+                0x0800cb94                __malloc_max_sbrked_mem
+                0x0800cb98                __malloc_max_total_mem
+                0x0800cbd0                _edata = .
+
+.bss            0x0800cbd0       0xd4
+                0x0800cbd0                _bss = .
+ *(.bss)
+ .bss           0x0800cbd0       0x10 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o)
+ *(COMMON)
+ COMMON         0x0800cbe0       0xc0 dam.o
+                                  0x0 (size before relaxing)
+                0x0800cbe0                dam_myParent
+                0x0800cbf0                dam_maxPrHeard
+                0x0800cbf8                dam_myPr
+                0x0800cc00                dam_period
+                0x0800cc10                dam_p
+                0x0800cc40                dam_participating
+                0x0800cc50                dam_myID
+                0x0800cc60                dam_leaderID
+                0x0800cc70                REGSAVESTACK
+                0x0800cc98                dam_delta
+ COMMON         0x0800cca0        0x4 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sbrkr.o)
+                                  0x0 (size before relaxing)
+                0x0800cca0                errno
+                0x0800cca4                _ebss = .
+                0x0800cca4                _end = .
+LOAD init.o
+LOAD devnet.o
+LOAD devrtc.o
+LOAD devexcp.o
+LOAD misc.o
+LOAD devsensor.o
+LOAD devloc.o
+LOAD dam.o
+LOAD /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a
+LOAD /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libm.a
+LOAD /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a
+LOAD /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a
+OUTPUT(dam coff-sh)
+
+.stab           0x0800cca4     0x3ef0
+ .stab          0x0800cca4      0xb28 devnet.o
+ .stab          0x0800d7cc      0x1e0 devrtc.o
+                                0x204 (size before relaxing)
+ .stab          0x0800d9ac      0x1e0 devexcp.o
+                                0x204 (size before relaxing)
+ .stab          0x0800db8c      0x408 misc.o
+                                0x450 (size before relaxing)
+ .stab          0x0800df94      0x27c devsensor.o
+                                0x2dc (size before relaxing)
+ .stab          0x0800e210      0x4c8 devloc.o
+                                0x528 (size before relaxing)
+ .stab          0x0800e6d8      0xe94 dam.o
+                                0xf60 (size before relaxing)
+ .stab          0x0800f56c      0xf30 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(print.o)
+                                0xf3c (size before relaxing)
+ .stab          0x0801049c      0x258 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strncpy.o)
+                                0x264 (size before relaxing)
+ .stab          0x080106f4      0x1d4 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strcmp.o)
+                                0x1e0 (size before relaxing)
+ .stab          0x080108c8      0x2c4 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(memmove.o)
+                                0x2d0 (size before relaxing)
+
+.stabstr        0x08010b8c     0x5ff3
+ .stabstr       0x08010b8c     0x5ff3 devnet.o
+                                  0x0 (size before relaxing)
+
+.comment        0x08016b80      0x800
+ .comment       0x08016b80       0x20 devnet.o
+ .comment       0x08016ba0       0x20 devrtc.o
+ .comment       0x08016bc0       0x20 devexcp.o
+ .comment       0x08016be0       0x20 misc.o
+ .comment       0x08016c00       0x20 devsensor.o
+ .comment       0x08016c20       0x20 devloc.o
+ .comment       0x08016c40       0x20 dam.o
+ .comment       0x08016c60       0x20 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(print.o)
+ .comment       0x08016c80       0x20 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strncpy.o)
+ .comment       0x08016ca0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(strcmp.o)
+ .comment       0x08016cc0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/sys/libOS/eOS/libeOS-superH.a(memmove.o)
+ .comment       0x08016ce0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(printf.o)
+ .comment       0x08016d00       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strtol.o)
+ .comment       0x08016d20       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sprintf.o)
+ .comment       0x08016d40       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(vfprintf.o)
+ .comment       0x08016d60       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(impure.o)
+ .comment       0x08016d80       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(ctype_.o)
+ .comment       0x08016da0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fvwrite.o)
+ .comment       0x08016dc0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fflush.o)
+ .comment       0x08016de0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(findfp.o)
+ .comment       0x08016e00       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(locale.o)
+ .comment       0x08016e20       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(wsetup.o)
+ .comment       0x08016e40       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mbtowc_r.o)
+ .comment       0x08016e60       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(strlen.o)
+ .comment       0x08016e80       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isinf.o)
+ .comment       0x08016ea0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(s_isnan.o)
+ .comment       0x08016ec0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(memchr.o)
+ .comment       0x08016ee0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(dtoa.o)
+ .comment       0x08016f00       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fwalk.o)
+ .comment       0x08016f20       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(stdio.o)
+ .comment       0x08016f40       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mallocr.o)
+ .comment       0x08016f60       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(freer.o)
+ .comment       0x08016f80       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(makebuf.o)
+ .comment       0x08016fa0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mprec.o)
+ .comment       0x08016fc0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(readr.o)
+ .comment       0x08016fe0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(writer.o)
+ .comment       0x08017000       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(lseekr.o)
+ .comment       0x08017020       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(closer.o)
+ .comment       0x08017040       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(sbrkr.o)
+ .comment       0x08017060       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(mlock.o)
+ .comment       0x08017080       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(fstatr.o)
+ .comment       0x080170a0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(syscalls.o)
+ .comment       0x080170c0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(callocr.o)
+ .comment       0x080170e0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(abort.o)
+ .comment       0x08017100       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signal.o)
+ .comment       0x08017120       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libc.a(signalr.o)
+ .comment       0x08017140       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_si_to_df.o)
+ .comment       0x08017160       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_mul_df.o)
+ .comment       0x08017180       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_addsub_df.o)
+ .comment       0x080171a0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_div_df.o)
+ .comment       0x080171c0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_df_to_si.o)
+ .comment       0x080171e0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_gt_df.o)
+ .comment       0x08017200       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_eq_df.o)
+ .comment       0x08017220       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ne_df.o)
+ .comment       0x08017240       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lt_df.o)
+ .comment       0x08017260       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_negate_df.o)
+ .comment       0x08017280       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ge_df.o)
+ .comment       0x080172a0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_pack_df.o)
+ .comment       0x080172c0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_unpack_df.o)
+ .comment       0x080172e0       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_thenan_df.o)
+ .comment       0x08017300       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_muldi3.o)
+ .comment       0x08017320       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_lshrdi3.o)
+ .comment       0x08017340       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_fpcmp_parts_df.o)
+ .comment       0x08017360       0x20 /Users/pip/Desktop/sunflower-1.0-beta/tools-lib/superH/libgcc.a(_ashldi3.o)

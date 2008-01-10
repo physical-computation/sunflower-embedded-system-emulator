@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta6 (1.42)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Lights</TITLE>
+<META NAME="description" CONTENT="Lights">
+<META NAME="keywords" CONTENT="tachyon">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta6">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="tachyon.css">
+
+<LINK REL="next" HREF="node17.html">
+<LINK REL="previous" HREF="node15.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node17.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html320"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html314"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html308"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html316"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html318"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html321"
+  HREF="node17.html">Atmospheric effects</A>
+<B> Up:</B> <A NAME="tex2html315"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html309"
+  HREF="node15.html">Scene File Comments</A>
+ &nbsp <B>  <A NAME="tex2html317"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html319"
+  HREF="node20.html">Index</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00055000000000000000"></A>
+<A NAME="426"></A>
+<A NAME="427"></A>
+<BR>
+Lights
+</H2>
+The most frequently used type of lights provided by Tachyon are positional 
+point light sources.  The lights are actually small spheres, which are 
+visible.  A point light is composed of three pieces of
+information, a center, a radius (since its a sphere), and a color.
+To define a light, simply write the <B>LIGHT</B> keyword, followed by 
+its <B>CENTER</B> (a X, Y, Z coordinate), its <B>RAD</B> (radius, a scalar),
+and its <B>COLOR</B> (a Red Green Blue triple).  The radius parameter will
+accept any value of 0.0 or greater.  Lights of radius 0.0 will not be
+directly visible in the rendered scene, but contribute light to the scene
+normally. 
+For a light, the color values
+range from 0.0 to 1.0, any values outside this range may yield unpredictable
+results.  A simple light definition looks like this:
+<PRE>
+  LIGHT CENTER 4.0 3.0 2.0 
+        RAD    0.2 
+        COLOR  0.5 0.5 0.5
+</PRE>
+This light would be gray colored if seen directly, and would be 50% 
+intensity in each RGB color component. 
+
+<P>
+<A NAME="434"></A>
+Tachyon supports simple directional lighting, commonly used in 
+CAD and scientific visualization programs for its performance
+advantages over positional lights.  Directional lights cannot be
+seen directly in scenes rendered by Tachyon, only their illumination 
+contributes to the final image.  
+
+<P>
+<PRE>
+DIRECTIONAL_LIGHT 
+  DIRECTION 0.0 -1.0 0.0
+  COLOR   1.0 0.0  0.0
+</PRE>
+
+<P>
+<A NAME="437"></A>
+Tachyon supports spotlights, which are described very similarly to a 
+point light, but they are attenuated by angle from the direction vector,
+based on a  ``falloff start'' angle and ``falloff end''angle.  Between
+the starting and ending angles, the illumination is attenuated linearly.
+The syntax for a spotlight description in a scene file is as follows.
+<PRE>
+SPOTLIGHT 
+  CENTER  0.0 3.0  17.0 
+  RAD     0.2
+  DIRECTION 0.0 -1.0 0.0
+    FALLOFF_START 20.0
+    FALLOFF_END   45.0
+  COLOR   1.0 0.0  0.0
+</PRE>
+
+<P>
+<A NAME="440"></A>
+The lighting system implemented by Tachyon provides various levels of
+distance-based lighting attenuation.  By default, a light is not attenuated
+by distance.  If the <EM>attenuation</EM> keywords is present immediately 
+prior to the light's color, Tachyon will accept coefficients which are used 
+to calculate distance-based attenuation, which is applied the light by 
+multiplying with the resulting value.  The attenuation factor is calculated 
+from the equation 
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+\frac {1} {K_c + K_l d + k_q d^2}
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:attenuation"></A><IMG
+ WIDTH="126" HEIGHT="47" BORDER="0"
+ SRC="img3.gif"
+ ALT="\begin{displaymath}
+\frac {1} {K_c + K_l d + k_q d^2}
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(1)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+
+<P>
+This attenuation equation should be familiar to some as it 
+is the same lighting attenuation equation used by OpenGL.
+The constant, linear, and quadratic terms are specified in a scene file
+as shown in the following example.
+<PRE>
+LIGHT  
+  CENTER  -5.0 0.0 10.0   
+  RAD     1.0
+  ATTENUATION CONSTANT 1.0 LINEAR 0.2 QUADRATIC 0.05
+  COLOR   1.0 0.0 0.0
+</PRE>
+
+<P>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html320"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.gif"></A> 
+<A NAME="tex2html314"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.gif"></A> 
+<A NAME="tex2html308"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.gif"></A> 
+<A NAME="tex2html316"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.gif"></A> 
+<A NAME="tex2html318"
+  HREF="node20.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.gif"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html321"
+  HREF="node17.html">Atmospheric effects</A>
+<B> Up:</B> <A NAME="tex2html315"
+  HREF="node11.html">Scene Description Files</A>
+<B> Previous:</B> <A NAME="tex2html309"
+  HREF="node15.html">Scene File Comments</A>
+ &nbsp <B>  <A NAME="tex2html317"
+  HREF="node1.html">Contents</A></B> 
+ &nbsp <B>  <A NAME="tex2html319"
+  HREF="node20.html">Index</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+johns@megapixel.com
+</ADDRESS>
+</BODY>
+</HTML>
