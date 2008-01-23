@@ -52,4 +52,4 @@ clean:
 
 nuke: clean
 	cd $(TOOLS); $(MAKE) nuke; \
-	for dir in $(SUPPORTED-TARGETS); do ($(DEL) $(SUNFLOWERROOT)/tools-lib/*/*.a); done
+	for dir in $(SUPPORTED-TARGETS); do ($(DEL) $(SUNFLOWERROOT)/tools/tools-lib/*/*.a); done

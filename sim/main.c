@@ -939,9 +939,9 @@ m_version(void)
 	mprint(NULL, siminfo,
 		"\nSunflower %s\n", MVERSION);
 	mprint(NULL, siminfo,
-		"Authored, 1999-2005, by phillip stanley-marbell, <pstanley@ece.cmu.edu>\n");
+		"Authored, 1999-2008, by p stanley-marbell <phillip.stanleymarbell@gmail.com>\n");
 	mprint(NULL, siminfo,
-		"Public key fingerprint 0884 DE6E E1F6 A201 023C 2E9B 7F9F FD41 AB2A 4587\n");
+		"Public key fingerprint 62A1 E95D 304D 9876 D5B1  1FB2 BF7E B65F BD89 20AB\n");
 	mprint(NULL, siminfo,
 		"This software is provided with ");
 	mprint(NULL, siminfo,
