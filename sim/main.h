@@ -1,36 +1,40 @@
-/*										*/
-/*		Copyright (C) 1999-2006 Phillip Stanley-Marbell.		*/
-/*										*/
-/*	You may redistribute and/or copy the source and binary			*/
-/*	versions of this software provided:					*/
-/*										*/
-/*	1.	The source retains the copyright notice above, 			*/
-/*		this list of conditions, and the following 			*/
-/*		disclaimer.							*/
-/*										*/
-/*	2.	Redistributed binaries must reproduce the above			*/
-/*		copyright notice, this list of conditions, and			*/
-/*		the following disclaimer.					*/
-/*										*/
-/*	3.	The source and binaries are used for non-commercial 		*/
-/*		purposes only.							*/
-/*										*/
-/*	4.	Permission is granted to all others, to redistribute		*/
-/*		or make copies of the source or binaries, either		*/
-/*		as it was received or with modifications, provided		*/
-/*		the above three conditions are enforced and 			*/
-/*		preserved, and that permission is granted for 			*/
-/*		further redistribution, under the conditions of this		*/
-/*		document.							*/
-/*										*/
-/*	The source is provided "as is", and no warranty is either		*/
-/*	implied or explicitly granted. The authors will not be liable 		*/
-/*	for any damages arising in any way out of the use or misuse 		*/
-/*	of this software, even if advised of the possibility of such 		*/
-/*	damage.									*/
-/*										*/
-/*	Contact: phillip Stanley-Marbell <pstanley@ece.cmu.edu>			*/
-/*										*/	
+/*
+	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+ 
+	All rights reserved.
+
+	Redistribution and use in source and binary forms, with or without 
+	modification, are permitted provided that the following conditions
+	are met:
+
+	*	Redistributions of source code must retain the above
+		copyright notice, this list of conditions and the following
+		disclaimer.
+
+	*	Redistributions in binary form must reproduce the above
+		copyright notice, this list of conditions and the following
+		disclaimer in the documentation and/or other materials
+		provided with the distribution.
+
+	*	Neither the name of the author nor the names of its
+		contributors may be used to endorse or promote products
+		derived from this software without specific prior written 
+		permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+	POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #define MAXCLOCK		(~(vlong)0)
 
 #ifndef M_E
@@ -122,7 +126,6 @@ enum
 	MEM_WRITE_STALL,
 };
 
-
 enum
 {
 	MAX_SIMNODES			= 64,		
@@ -157,27 +160,11 @@ enum
 	MAX_MIO_BUFSZ,
 };
 
-
 typedef enum
 {
 	SchedRoundRobin,
 	SchedRandom,
 } SchedType;
-
-
-typedef struct State State;
-typedef struct Engine Engine;
-typedef struct SEEstruct SEEstruct;
-
-
-
-
-typedef struct
-{
-	char	*cmd;
-	char	*intro;
-	char	*args;
-} Help;
 
 typedef enum
 {
@@ -190,6 +177,49 @@ typedef enum
 	MACHINE_SUPERH,
 	MACHINE_MSP430,
 } Machinetype;
+
+enum
+{
+	nodestdout,
+	nodestderr,
+	nodeinfo,
+	siminfo,
+};
+
+enum
+{
+	M_OREAD		= 1 << 0,
+	M_OWRITE	= 1 << 1,
+	M_OTRUNCATE	= 1 << 2,
+};
+
+typedef enum
+{
+	BPT_CYCLES,
+	BPT_GLOBALTIME,
+	BPT_INSTRS,
+	BPT_SENSORREADING,
+} Breaktype;
+
+
+
+
+
+typedef struct State State;
+typedef struct Engine Engine;
+typedef struct SEEstruct SEEstruct;
+
+
+
+
+
+
+typedef struct
+{
+	char	*cmd;
+	char	*intro;
+	char	*args;
+} Help;
 
 /*		Translated virtual address		*/
 typedef struct
@@ -222,8 +252,6 @@ typedef struct
 	DisasmAddr	*disaddrs;
 } DisasmRegion;
 
-
-
 /*	Non-uniform memory access properties		*/
 typedef struct
 {
@@ -246,8 +274,6 @@ typedef struct
 	int		map_id;
 	ulong		map_offset;
 
-//TODO: these should be made doubles: see problems
-//	that pchau run into (email)
 	
 	ulong		local_read_latency;
 	ulong		local_write_latency;
@@ -301,22 +327,6 @@ typedef struct
 	int		count;
 } Regtraces;
 
-enum
-{
-	nodestdout,
-	nodestderr,
-	nodeinfo,
-	siminfo,
-};
-
-enum
-{
-	M_OREAD		= 1 << 0,
-	M_OWRITE	= 1 << 1,
-	M_OTRUNCATE	= 1 << 2,
-};
-
-
 typedef struct
 {
 	int	rlat;
@@ -330,8 +340,6 @@ typedef struct
 
 typedef struct
 {
-	//TODO: unused field			int	type;
-
 	union
 	{
 		struct	/*	dval	*/
@@ -495,8 +503,7 @@ struct State
 	int		MEMBASE;
 	int		MEMEND;
 
-
-	/*	TODO: replace MEM array with these	*/
+	//	TODO:
 	Mem		*M;
 	int		nmems;
 
@@ -698,14 +705,6 @@ struct State
 	void 		(*writebyte)(Engine *, State *S, ulong addr, ulong data);
 };	
 
-typedef enum
-{
-	BPT_CYCLES,
-	BPT_GLOBALTIME,
-	BPT_INSTRS,
-	BPT_SENSORREADING,
-} Breaktype;
-
 typedef struct
 {
 	Breaktype	type;
@@ -844,12 +843,13 @@ struct Engine
 	Picosec		dumplastpsec;
 	Picosec		dumpperiodpsec;
 
+
+
 #ifdef LIBSF
 	int		sched_pid;
 #else
 	pthread_t	sched_handle;
 #endif
-
 
 
 	/*		Malloc accounting		*/

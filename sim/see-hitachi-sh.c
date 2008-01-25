@@ -1,24 +1,39 @@
-TODO: should also include PC ranges in the structures for registering
-SEE vulnerable HW units (regs, mem cells, simulator variables, etc),
-and these PC ranges are used as a filter for when to enact the
-SEE inducement (or the stats gatherting as outlined below)
+/*
+	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+ 
+	All rights reserved.
 
-TODO: the same canonical namig we use for SEE modeling should be
-used to enable users to provide the names of structures whose
-values they want distirbutions for.  In registering such names,
-users will provide the structure name, the number of bins to use,
-and the value ranges to be stored in each bin.  This should be
-used in _addition_ to the LOGMARK stuff, so LOGMARK can be used
-for quick and dirty stats gathering, eg., determining the value ranges
-and bins that make sense, and this in-built distribution gathering
-(which is much faster since we are not doing all that disk I/O to
-write verbose logs), can be used for more extensive profiling.
+	Redistribution and use in source and binary forms, with or without 
+	modification, are permitted provided that the following conditions
+	are met:
 
-The nice thing about this is that since for SEE modeling we can register
-memory cells and register file entries, we can also use this to
-do in-situ value distirbution measurement (since we are also
-associating PC ranges with the HW structure registration)
+	*	Redistributions of source code must retain the above
+		copyright notice, this list of conditions and the following
+		disclaimer.
 
+	*	Redistributions in binary form must reproduce the above
+		copyright notice, this list of conditions and the following
+		disclaimer in the documentation and/or other materials
+		provided with the distribution.
+
+	*	Neither the name of the author nor the names of its
+		contributors may be used to endorse or promote products
+		derived from this software without specific prior written 
+		permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+	POSSIBILITY OF SUCH DAMAGE.
+*/
 
 void
 superHhwSEEreg(Engine *E, State *S, char *hwstruct, int actual_bits, int logical_bits, int bit_offset)
