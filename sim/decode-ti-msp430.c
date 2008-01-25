@@ -34,10 +34,10 @@
 #include "instr-ti-msp430.h"
 #include "sf.h"
 
-static tuck int		ilen(State *S, int type, int amode_d, int amode_s);
-static tuck int		ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr);
-static tuck int		smode(State *S, int type, ushort instr);
-static tuck int		dmode(State *S, int type, ushort instr);
+static tuck int		ilen(Engine *, State *S, int type, int amode_d, int amode_s);
+static tuck int		ilat(Engine *, State *S, int type, int op, int amode_d, int amode_s, ushort instr);
+static tuck int		smode(Engine *, State *S, int type, ushort instr);
+static tuck int		dmode(Engine *, State *S, int type, ushort instr);
 
 
 
@@ -45,7 +45,7 @@ static tuck int		dmode(State *S, int type, ushort instr);
 /*		Based on pages 3-72 and 3-73 of slau049d.pdf.		*/
 /*									*/
 tuck int
-ilen(State *S, int type, int amode_d, int amode_s)
+ilen(Engine *E, State *S, int type, int amode_d, int amode_s)
 {
 	/*								*/
 	/*	Returned length is length in bytes. Manual lists	*/
@@ -100,7 +100,7 @@ ilen(State *S, int type, int amode_d, int amode_s)
 
 			default:
 			{
-				sfatal(S, "Unknown instruction src/dst modes supplied to ilen");
+				sfatal(E, S, "Unknown instruction src/dst modes supplied to ilen");
 			}
 		}
 	}
@@ -125,7 +125,7 @@ ilen(State *S, int type, int amode_d, int amode_s)
 
 			default:
 			{
-				sfatal(S, "Unknown instruction mode supplied to ilen");
+				sfatal(E, S, "Unknown instruction mode supplied to ilen");
 			}
 		}
 	}
@@ -138,7 +138,7 @@ ilen(State *S, int type, int amode_d, int amode_s)
 	}
 	else
 	{
-		sfatal(S, "Unknown instruction format supplied to ilen");
+		sfatal(E, S, "Unknown instruction format supplied to ilen");
 	}
 	
 	/* Not reached */
@@ -147,7 +147,7 @@ ilen(State *S, int type, int amode_d, int amode_s)
 }
 
 tuck int
-ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
+ilat(Engine *E, State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 {
 	if (type == MSP430_INSTR_I)
 	{
@@ -267,7 +267,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 
 			default:
 			{
-				sfatal(S, "Unknown instruction src/dst modes supplied to ilat");
+				sfatal(E, S, "Unknown instruction src/dst modes supplied to ilat");
 			}
 		}
 	}
@@ -296,7 +296,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					}
 					default:
 					{
-						sfatal(S, "Illegal instruction type supplied to ilat()");
+						sfatal(E, S, "Illegal instruction type supplied to ilat()");
 					}
 				}
 				break;
@@ -323,7 +323,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					}
 					default:
 					{
-						sfatal(S, "Illegal instruction type supplied to ilat()");
+						sfatal(E, S, "Illegal instruction type supplied to ilat()");
 					}
 				}
 				break;
@@ -354,7 +354,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					}
 					default:
 					{
-						sfatal(S, "Illegal instruction type supplied to ilat()");
+						sfatal(E, S, "Illegal instruction type supplied to ilat()");
 					}
 				}
 				break;
@@ -369,7 +369,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					case MSP430_OP_SWPB:
 					case MSP430_OP_SXT:
 					{
-						sfatal(S, "instrlatency(): bad instr: "
+						sfatal(E, S, "instrlatency(): bad instr: "
 							"RRA/RRC/SWPB/SXT not permitted "
 							"in format II immediate mode");
 					}
@@ -383,7 +383,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					}
 					default:
 					{
-						sfatal(S, "Illegal instruction type supplied to ilat()");
+						sfatal(E, S, "Illegal instruction type supplied to ilat()");
 					}
 				}
 				break;
@@ -412,7 +412,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 					}
 					default:
 					{
-						sfatal(S, "Illegal instruction type supplied to ilat()");
+						sfatal(E, S, "Illegal instruction type supplied to ilat()");
 					}
 				}
 				break;
@@ -420,7 +420,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 
 			default:
 			{
-				sfatal(S, "Unknown instruction mode supplied to ilat");
+				sfatal(E, S, "Unknown instruction mode supplied to ilat");
 			}
 		}
 	}
@@ -434,7 +434,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 	}
 	else
 	{
-		sfatal(S, "Unknown instruction format supplied to ilat");
+		sfatal(E, S, "Unknown instruction format supplied to ilat");
 	}
 
 	/* Not reached */
@@ -450,7 +450,7 @@ ilat(State *S, int type, int op, int amode_d, int amode_s, ushort instr)
 /*	(i.e. SR), then 01 => ABS. See Table 3-3 in slau049e.pdf.	*/
 /*									*/
 tuck int
-smode(State *S, int type, ushort instr)
+smode(Engine *E, State *S, int type, ushort instr)
 {
 	int	asd = -1, dsreg = -1;
 
@@ -472,14 +472,14 @@ smode(State *S, int type, ushort instr)
 		}
 		case MSP430_INSTR_III:
 		{
-			sfatal(S, "Internal error: "
+			sfatal(E, S, "Internal error: "
 				"smode() should not have been called "
 				"for a type III instruction");
 			break;
 		}
 		default:
 		{
-			sfatal(S, "Unknown instruction format supplied to smode");
+			sfatal(E, S, "Unknown instruction format supplied to smode");
 		}
 	}
 
@@ -511,7 +511,7 @@ smode(State *S, int type, ushort instr)
 		}
 		default:
 		{
-			sfatal(S, "Invalid As in smode()");
+			sfatal(E, S, "Invalid As in smode()");
 		}
 	}
 
@@ -519,7 +519,7 @@ smode(State *S, int type, ushort instr)
 }
 
 tuck int
-dmode(State *S, int type, ushort instr)
+dmode(Engine *E, State *S, int type, ushort instr)
 {
 	int	ad = -1, dreg = -1;
 
@@ -534,21 +534,21 @@ dmode(State *S, int type, ushort instr)
 		}
 		case MSP430_INSTR_II:
 		{
-			sfatal(S, "Internal error: "
+			sfatal(E, S, "Internal error: "
 				"dmode() should not have been called for a"
 				"type II instruction (use smode() instead)");
 			break;
 		}
 		case MSP430_INSTR_III:
 		{
-			sfatal(S, "Internal error: "
+			sfatal(E, S, "Internal error: "
 				"dmode() should not have been called "
 				"for a type III instruction");
 			break;
 		}
 		default:
 		{
-			sfatal(S, "Unknown instruction format supplied to smode");
+			sfatal(E, S, "Unknown instruction format supplied to smode");
 		}
 	}
 
@@ -569,7 +569,7 @@ dmode(State *S, int type, ushort instr)
 		}
 		default:
 		{
-			sfatal(S, "Invalid Ad in dmode()");
+			sfatal(E, S, "Invalid Ad in dmode()");
 		}
 	}
 
@@ -577,7 +577,7 @@ dmode(State *S, int type, ushort instr)
 }
 
 void
-msp430decode(State *S, ushort instr, MSP430Pipestage *p)
+msp430decode(Engine *E, State *S, ushort instr, MSP430Pipestage *p)
 {
 	p->instr = instr;
 
@@ -586,8 +586,8 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 		case 0x1:
 		{
 			p->format = MSP430_INSTR_II;
-			p->amode_s = p->amode_d = smode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = p->amode_d = smode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			switch (instr & 0xFFF)
 			{
@@ -598,7 +598,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 
 					if (p->amode_s == MSP430_AMODE_IMM)
 					{
-						sfatal(S,
+						sfatal(E, S,
 							"Architecture has undefined behavior for "
 							"immediate mode in destination field. "
 							"See slau049d.pdf, Table 3-15");
@@ -620,7 +620,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 
 					if (p->amode_s == MSP430_AMODE_IMM)
 					{
-						sfatal(S,
+						sfatal(E, S,
 							"Architecture has undefined behavior for "
 							"immediate mode in destination field. "
 							"See slau049d.pdf, Table 3-15");
@@ -635,7 +635,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 
 					if (p->amode_s == MSP430_AMODE_IMM)
 					{
-						sfatal(S,
+						sfatal(E, S,
 							"Architecture has undefined behavior for "
 							"immediate mode in destination field. "
 							"See slau049d.pdf, Table 3-15");
@@ -657,7 +657,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 
 					if (p->amode_s == MSP430_AMODE_IMM)
 					{
-						sfatal(S,
+						sfatal(E, S,
 							"Architecture has undefined behavior for "
 							"immediate mode in destination field. "
 							"See slau049d.pdf, Table 3-15");
@@ -696,13 +696,13 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				default:
 				{
 					/*	No instructions mapped to this opcode	*/
-					mprint(NULL, siminfo,
-						"Illegal instruction encoding [%4X]\n",
+					mprint(E, NULL, siminfo,
+						"Illegal instruction encoding in msp430decode(), [%4X]\n",
 						instr);
-					sfatal(S, "See above messages.");
+					sfatal(E, S, "See above messages.");
 				}
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
@@ -710,7 +710,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 		case 0x2:
 		{
 			p->format = MSP430_INSTR_III;
-			p->ilen = ilen(S, p->format, -1, -1);
+			p->ilen = ilen(E, S, p->format, -1, -1);
 
 			switch ((instr & 0x0F00) >> 8)
 			{
@@ -745,14 +745,14 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				default:
 				{
 					/*	No instructions mapped to this opcode	*/
-					mprint(NULL, siminfo,
-						"Illegal instruction encoding [%4X]\n",
+					mprint(E, NULL, siminfo,
+						"Illegal instruction encoding in msp430decode(), [%4X]\n",
 						instr);
-					sfatal(S, "See above messages.");
+					sfatal(E, S, "See above messages.");
 				}
 			}
 
-			p->cycles = ilat(S, p->format, p->op, -1, -1, instr);
+			p->cycles = ilat(E, S, p->format, p->op, -1, -1, instr);
 
 			break;
 		}
@@ -760,7 +760,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 		case 0x3:
 		{
 			p->format = MSP430_INSTR_III;
-			p->ilen = ilen(S, p->format, -1, -1);
+			p->ilen = ilen(E, S, p->format, -1, -1);
 
 			switch ((instr & 0x0F00) >> 8)
 			{
@@ -795,23 +795,23 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				default:
 				{
 					/*	No instructions mapped to this opcode	*/
-					mprint(NULL, siminfo,
-						"Illegal instruction encoding [%4X]\n",
+					mprint(E, NULL, siminfo,
+						"Illegal instruction encoding in msp430decode(), [%4X]\n",
 						instr);
-					sfatal(S, "See above messages.");
+					sfatal(E, S, "See above messages.");
 				}
 			}
 
-			p->cycles = ilat(S, p->format, p->op, -1, -1, instr);
+			p->cycles = ilat(E, S, p->format, p->op, -1, -1, instr);
 
 			break;
 		}
 		case 0x4:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -823,16 +823,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_MOV;
 				p->fptr = (void *)msp430_mov;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0x5:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -844,16 +844,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_ADD;
 				p->fptr = (void *)msp430_add;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0x6:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -865,16 +865,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_ADDC;
 				p->fptr = (void *)msp430_addc;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0x7:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -886,16 +886,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_SUBC;
 				p->fptr = (void *)msp430_subc;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0x8:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -907,16 +907,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_SUB;
 				p->fptr = (void *)msp430_sub;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0x9:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -928,16 +928,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_CMP;
 				p->fptr = (void *)msp430_cmp;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0xA:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -949,16 +949,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_DADD;
 				p->fptr = (void *)msp430_dadd;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0xB:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -970,7 +970,7 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_BIT;
 				p->fptr = (void *)msp430_bit;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
@@ -978,9 +978,9 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 		case 0xC:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -992,16 +992,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_BIC;
 				p->fptr = (void *)msp430_bic;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0xD:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -1013,16 +1013,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_BIS;
 				p->fptr = (void *)msp430_bis;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0xE:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -1034,16 +1034,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_XOR;
 				p->fptr = (void *)msp430_xor;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		case 0xF:
 		{
 			p->format = MSP430_INSTR_I;
-			p->amode_s = smode(S, p->format, p->instr);
-			p->amode_d = dmode(S, p->format, p->instr);
-			p->ilen = ilen(S, p->format, p->amode_d, p->amode_s);
+			p->amode_s = smode(E, S, p->format, p->instr);
+			p->amode_d = dmode(E, S, p->format, p->instr);
+			p->ilen = ilen(E, S, p->format, p->amode_d, p->amode_s);
 
 			if ((instr >> 6) & B0001)
 			{
@@ -1055,16 +1055,16 @@ msp430decode(State *S, ushort instr, MSP430Pipestage *p)
 				p->op = MSP430_OP_AND;
 				p->fptr = (void *)msp430_and;
 			}
-			p->cycles = ilat(S, p->format, p->op, p->amode_d, p->amode_s, instr);
+			p->cycles = ilat(E, S, p->format, p->op, p->amode_d, p->amode_s, instr);
 
 			break;
 		}
 		default:
 		{
 			/*	No instructions mapped to this opcode	*/
-			mprint(NULL, siminfo,
-				"Illegal instruction encoding [%4X]\n", instr);
-			sfatal(S, "See above messages.");
+			mprint(E, NULL, siminfo,
+				"Illegal instruction encoding in msp430decode(), [%4X]\n", instr);
+			sfatal(E, S, "See above messages.");
 		}
 	}
 

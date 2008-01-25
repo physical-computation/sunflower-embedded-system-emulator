@@ -39,7 +39,6 @@
 #include "fcall.h"
 #include "sf.h"
 #include "mextern.h"
-#include "mmalloc.h"
 
 #ifdef linux
 #	include <sys/types.h>
@@ -54,7 +53,8 @@ extern int	devsfspawnscheduler(void);
 
 tuck void	checkh2o(int maxbufsz, int *h2o, char *circbuf, char *buf);
 
-QLock	statelock;
+
+QLock		statelock;
 
 void
 mstatelock(void)
@@ -111,6 +111,13 @@ marchinit(void)
 	/*	though that should prolly kill us). See Eric Grosse's	*/
 	/*	"Real Inferno" paper for more information.		*/
 	/*								*/
+	/*
+		TODO: decide whether or not we want this.  Need to fix
+		the cause of FP exceptions on Linux.  I think it is
+		caused by batt code, since it is triggered towards end
+		of simulation
+	*/
+
 /*
 	FPcontrol(0, INEX);
 	FPcontrol(0, OVFL);
@@ -184,21 +191,6 @@ mfgets(char *buf, int len, int fd)
 	return buf;
 }
 
-long
-mrandom(void)
-{
-	return rand();
-}
-
-long
-mrandominit(void)
-{
-	long	init = osusectime();
-	srand(init);
-
-	return init;
-}
-
 void
 mprintfd(int fd, char* buf)
 {
@@ -234,6 +226,12 @@ mcreate(char *path, int omode)
 
 	return fd;
 }
+
+/*
+	TODO: there are many problems with our open/create management under
+	inferno. Under slax linux liveCD, we cannot write to sunflower.out
+	(we keep getting fd=0).
+*/
 
 int
 mopen(char *path, int omode)
@@ -274,17 +272,20 @@ mwrite(int fd, char* buf, int len)
 }
 
 int
-mspawnscheduler(void)
+mspawnscheduler(Engine *E)
 {	
-	return devsfspawnscheduler();
+	E->sched_pid = devsfspawnscheduler(E);
+
+	return E->sched_pid;
 }
 
 int
-mkillscheduler(void)
+mkillscheduler(Engine *E)
 {
-	SIM_ON = 0;	
-
-	return 0;
+	if (E->nodetach || !E->on)
+		return 0;
+		
+	return devsfkillscheduler(E->sched_pid);
 }
 
 int
@@ -300,6 +301,38 @@ mgetpwd(void)
 	return kfd2path(fd);
 }
 
+#ifdef EMU
+ulong
+musercputimeusecs(void)
+{
+	struct rusage 	r;
+
+	getrusage(RUSAGE_SELF, &r);
+
+	return (ulong)(r.ru_utime.tv_sec*1E6 + r.ru_utime.tv_usec);
+}
+
+
+ulong
+mcputimeusecs(void)
+{
+	struct rusage 	r;
+
+	getrusage(RUSAGE_SELF, &r);
+
+	return (ulong)(r.ru_utime.tv_sec*1E6 + r.ru_utime.tv_usec +
+		       r.ru_stime.tv_sec*1E6 + r.ru_stime.tv_usec);
+}
+
+ulong
+mwallclockusecs(void)
+{
+	struct timeval 	t;
+	gettimeofday(&t, NULL);
+
+	return t.tv_usec;
+}
+#else
 ulong
 musercputimeusecs(void)
 {
@@ -310,34 +343,24 @@ ulong
 mcputimeusecs(void)
 {
 	return osusectime();
-	
-
-/*
-
-//This is a temporary non-portable version to
-//get accurate timing results. Newer versions
-//of Inferno have finer grained timers.
-
-#include <sys/time.h>
-#include <sys/resource.h>
-
-	struct rusage 	r;
-
-	getrusage(RUSAGE_SELF, &r);
-
-	return (ulong)(r.ru_utime.tv_sec*1E6 + r.ru_utime.tv_usec +
-		       r.ru_stime.tv_sec*1E6 + r.ru_stime.tv_usec);
-*/
 }
 
+ulong
+mwallclockusecs(void)
+{
+	return osusectime();
+}
+#endif
+
+
 void
-mexit(char *str, int status)
+mexit(Engine *E, char *str, int status)
 {
 	extern void	cleanexit(int);
 
 	print("\n\n\tExiting: %s\n", str);
 	print("\tWriting all node information to sunflower.out\n\n");
-	m_dumpall("sunflower.out");
+	m_dumpall(E, E->logfilename, M_OWRITE, "Exit", "");
 
 //	pexit(str, 0);
 //	cleanexit(0);
@@ -419,7 +442,7 @@ checkh2o(int maxbufsz, int *h2o, char *circbuf, char *buf)
 }
 
 void
-mlog(State *S, char *fmt, ...)
+mlog(Engine *E, State *S, char *fmt, ...)
 {
 	char	*buf;
 	va_list	arg;
@@ -435,10 +458,10 @@ mlog(State *S, char *fmt, ...)
 		return;
 	}
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
 	}
 
 	va_start(arg, fmt);
@@ -446,28 +469,41 @@ mlog(State *S, char *fmt, ...)
 	va_end(arg);
 
 	kwrite(S->logfd, buf, strlen(buf));
-	mfree(buf, "(char *)buf in arch-Inferno.c");
+	mfree(E, buf, "(char *)buf in arch-Inferno.c");
 
 
 	return;
 }
 
+int
+msnprint(char *dst, int size, char *fmt, ...)
+{
+	va_list		arg;
+	int		n;
+
+	va_start(arg, fmt);
+	n = vsnprintf(dst, size, fmt, arg);
+	va_end(arg);
+
+	return n;
+}
+
 void
-mprint(State *S, int out, char *fmt, ...)
+mprint(Engine *E, State *S, int out, char *fmt, ...)
 {
 	char		*buf;
 	va_list		arg;
 
 
-	if (!SIM_VERBOSE && S != NULL)
+	if (!E->verbose && S != NULL)
 	{
 		return;
 	}
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
 	}
 
 	va_start(arg, fmt);
@@ -480,13 +516,13 @@ mprint(State *S, int out, char *fmt, ...)
 		if (out != siminfo)
 		{
 			fprint(2, "%s\n", Ebadsfout);
-			mfree(buf, "(char *)buf in arch-Inferno.c");
+			mfree(E, buf, "(char *)buf in arch-Inferno.c");
 
 			return;
 		}
 
-		checkh2o(MAX_SIM_INFO_BUFSZ, &SIM_INFO_H2O, SIM_INFO_BUF, buf);
-		mfree(buf, "(char *)buf in arch-Inferno.c");
+		checkh2o(MAX_SIM_INFO_BUFSZ, &E->infoh2o, E->infobuf, buf);
+		mfree(E, buf, "(char *)buf in arch-Inferno.c");
 
 		return;
 	}
@@ -513,7 +549,7 @@ mprint(State *S, int out, char *fmt, ...)
 	/*	Qoutputrdy in emu/port/devsf.c			*/
 	/*								*/
 //	wakeup();
-	mfree(buf, "(char *)buf in arch-Inferno.c");
+	mfree(E, buf, "(char *)buf in arch-Inferno.c");
 
 	return;
 }
@@ -527,7 +563,7 @@ mnsleep(ulong nsecs)
 	/*								*/
 	/*	Inferno 3.0 doesn't provide us with enough granularity.	*/
 	/*	This should still be fairly portable since nanosleep	*/
-	/*	is POSIX.1b.						*/
+	/*	is POSIX.1b ... yeah, right.				*/
 	/*								*/
 	struct timespec rqtp;
 	
@@ -539,24 +575,24 @@ mnsleep(ulong nsecs)
 }
 
 void
-merror(char *fmt, ...)
+merror(Engine *E, char *fmt, ...)
 {
 	char	*buf;
 	va_list	arg;
 
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-Inferno.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-Inferno.c", -1);
 	}
 
 	va_start(arg, fmt);
 	vseprint(buf, buf+MAX_MIO_BUFSZ, fmt, arg);
 	va_end(arg);
  
-	mprint(NULL, siminfo, "Error: %s\n", buf);
-	mfree(buf, "(char *)buf in arch-Inferno.c");
+	mprint(E, NULL, siminfo, "Error: %s\n", buf);
+	mfree(E, buf, "(char *)buf in arch-Inferno.c");
 
 	return;
 }

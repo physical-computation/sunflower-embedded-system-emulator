@@ -36,24 +36,24 @@
 #include "sf.h"
 #include "mextern.h"
 
-static void	superHtlbexception(State *S, int code, ulong vaddr);
-static void	prcheckpriv(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr);
-static void	prcheckuser(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr);
+static void	superHtlbexception(Engine *, State *S, int code, ulong vaddr);
+static void	prcheckpriv(Engine *, State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr);
+static void	prcheckuser(Engine *, State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr);
 
 
 int
-superHtlb_init(State *S, int size, int blocksize, int assoc)
+superHtlb_init(Engine *E, State *S, int size, int blocksize, int assoc)
 {
 	if (S->superH->TLB != NULL)
 	{
-		mfree(S->superH->TLB, "(Cache *)S->superH->TLB");
+		mfree(E, S->superH->TLB, "(Cache *)S->superH->TLB");
 	}
 
-	S->superH->TLB = (Cache *)mcalloc(1, sizeof(Cache),
+	S->superH->TLB = (Cache *)mcalloc(E, 1, sizeof(Cache),
 				"(Cache *)S->superH->TLB");
 	if (S->superH->TLB == NULL)
 	{
-		merror("mcalloc failed for (Cache *)S->superH->TLB in cache_init()");
+		merror(E, "mcalloc failed for (Cache *)S->superH->TLB in cache_init()");
 		return -1;
 	}
 
@@ -61,7 +61,7 @@ superHtlb_init(State *S, int size, int blocksize, int assoc)
 		(blocksize <= 0)||(size%blocksize != 0)||\
 		((size/blocksize)%assoc != 0))
 	{
-		merror("superHtlb_init() failed: Invalid TLB parameters");
+		merror(E, "superHtlb_init() failed: Invalid TLB parameters");
 		return -1;
 	}
 
@@ -70,11 +70,11 @@ superHtlb_init(State *S, int size, int blocksize, int assoc)
 	S->superH->TLB->size = size;
 	S->superH->TLB->nblocks = size/blocksize;
 
-	S->superH->TLB->blocks = (CacheBlock *)mcalloc(S->superH->TLB->nblocks,
+	S->superH->TLB->blocks = (CacheBlock *)mcalloc(E, S->superH->TLB->nblocks,
 			sizeof(CacheBlock), "(CacheBlock *)S->superH->TLB->blocks");
 	if (S->superH->TLB->blocks == NULL)
 	{
-		merror("mcalloc failed for S->superH->TLB->blocks in superHtlb_init()");
+		merror(E, "mcalloc failed for S->superH->TLB->blocks in superHtlb_init()");
 		return -1;
 	}
 
@@ -85,12 +85,12 @@ superHtlb_init(State *S, int size, int blocksize, int assoc)
 				(S->superH->TLB->offsetbits+S->superH->TLB->indexbits);
 
 /*
-	mprint(S, nodeinfo, "TLB Parameters:\n");
-	mprint(S, nodeinfo, "\t\tNumber of entries: %d\n",
+	mprint(E, S, nodeinfo, "TLB Parameters:\n");
+	mprint(E, S, nodeinfo, "\t\tNumber of entries: %d\n",
 		S->superH->TLB->nblocks);
-	mprint(S, nodeinfo, "\t\tAssociativity: %d-way set associative\n",
+	mprint(E, S, nodeinfo, "\t\tAssociativity: %d-way set associative\n",
 		S->superH->TLB->assoc);
-	mprint(S, nodeinfo, "\t\tNumber of Sets: %d\n",
+	mprint(E, S, nodeinfo, "\t\tNumber of Sets: %d\n",
 		S->superH->TLB->nsets);
 */
 
@@ -99,7 +99,7 @@ superHtlb_init(State *S, int size, int blocksize, int assoc)
 
 
 void
-superHvmtranslate(State *S, int op, TransAddr *tr)
+superHvmtranslate(Engine *E, State *S, int op, TransAddr *tr)
 {
 	int		area = MMU_AREA_INVALID, i, start, end, hflag;
 	ulong		vaddr = tr->vaddr, index;
@@ -147,15 +147,15 @@ superHvmtranslate(State *S, int op, TransAddr *tr)
 		{
 			if (op == MEM_READ_BYTE)
 			{
-				superHtlbexception(S, CPU_LOAD_ADDRERR_EXCP, vaddr);
+				superHtlbexception(E, S, CPU_LOAD_ADDRERR_EXCP, vaddr);
 			}
 			else
 			{
-				superHtlbexception(S, CPU_STORE_ADDRERR_EXCP, vaddr);
+				superHtlbexception(E, S, CPU_STORE_ADDRERR_EXCP, vaddr);
 			}
 			tr->error = 1;
-mprint(NULL, siminfo, "Load/store address error for address [0x" UHLONGFMT "]...\n", vaddr);
-sfatal(S, "stopping on tlb exception...\n");
+mprint(E, NULL, siminfo, "Load/store address error for address [0x" UHLONGFMT "]...\n", vaddr);
+sfatal(E, S, "stopping on tlb exception...\n");
 
 			return;
 		}
@@ -240,7 +240,9 @@ sfatal(S, "stopping on tlb exception...\n");
 	hflag = 0;
 
 
-//TODO: check whether this obeys Figure 3.10
+	/*
+		TODO: check whether this obeys Figure 3.10
+	*/
 	for (i = start; i < end; i++)
 	{
 		ulong data		= S->superH->TLB->blocks[i].data;
@@ -320,50 +322,50 @@ sfatal(S, "stopping on tlb exception...\n");
 		{
 			if (wflag)
 			{
-				superHtlbexception(S, TLB_STORE_INVALID_EXCP, vaddr);
+				superHtlbexception(E, S, TLB_STORE_INVALID_EXCP, vaddr);
 			}
 			else
 			{
-				superHtlbexception(S, TLB_LOAD_INVALID_EXCP, vaddr);
+				superHtlbexception(E, S, TLB_LOAD_INVALID_EXCP, vaddr);
 			}
 			tr->error = 1;
-mprint(NULL, siminfo, "TLB invalid exception for address [0x" UHLONGFMT "]...\n", vaddr);
-sfatal(S, "stopping on tlb exception...\n");
+mprint(E, NULL, siminfo, "TLB invalid exception for address [0x" UHLONGFMT "]...\n", vaddr);
+sfatal(E, S, "stopping on tlb exception...\n");
 
 			return;
 		}
 
 		if (S->superH->SR.MD)
 		{
-			prcheckpriv(S, wflag, data, vaddr, tr);
+			prcheckpriv(E, S, wflag, data, vaddr, tr);
 		}
 		else
 		{
-			prcheckuser(S, wflag, data, vaddr, tr);
+			prcheckuser(E, S, wflag, data, vaddr, tr);
 		}
 	}
 	else
 	{
 		if ((op==MEM_READ_BYTE)||(op==MEM_READ_WORD)||(op==MEM_READ_LONG))
 		{
-			superHtlbexception(S, TLB_LOAD_MISS_EXCP, vaddr);
+			superHtlbexception(E, S, TLB_LOAD_MISS_EXCP, vaddr);
 		}
 		else
 		{
-			superHtlbexception(S, TLB_STORE_MISS_EXCP, vaddr);
+			superHtlbexception(E, S, TLB_STORE_MISS_EXCP, vaddr);
 		}
 		tr->error = 1;
-mprint(NULL, siminfo, "MMU_AREA_P0/P3. TLB load/store miss exception for address [0x" UHLONGFMT "]...\n", vaddr);
-sfatal(S, "stopping on tlb exception...\n");
+mprint(E, NULL, siminfo, "MMU_AREA_P0/P3. TLB load/store miss exception for address [0x" UHLONGFMT "]...\n", vaddr);
+sfatal(E, S, "stopping on tlb exception...\n");
 
 		return;
 	}
 
-	mexit("End of superHvmtranslate reached. Some condition unhandled", -1);
+	mexit(E, "End of superHvmtranslate reached. Some condition unhandled", -1);
 }
 
 void
-prcheckuser(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
+prcheckuser(Engine *E, State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
 {
 	int	tlb_pr = tlbdataarray_datafield_pr(data);
 	ulong	tlb_sz = tlbdataarray_datafield_sz(data);
@@ -374,32 +376,32 @@ prcheckuser(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
 	{
 		if (wflag)
 		{
-			superHtlbexception(S, TLB_STORE_PROTECT_EXCP, vaddr);
+			superHtlbexception(E, S, TLB_STORE_PROTECT_EXCP, vaddr);
 		}
 		else
 		{
-			superHtlbexception(S, TLB_LOAD_PROTECT_EXCP, vaddr);
+			superHtlbexception(E, S, TLB_LOAD_PROTECT_EXCP, vaddr);
 		}
 		tr->error = 1;
-mprint(NULL, siminfo, "TLB protect exception...\n");
+mprint(E, NULL, siminfo, "TLB protect exception...\n");
 
 		return;
 	}
 
 	if ((tlb_pr == B0010) && wflag)
 	{
-		superHtlbexception(S, TLB_STORE_PROTECT_EXCP, vaddr);
+		superHtlbexception(E, S, TLB_STORE_PROTECT_EXCP, vaddr);
 		tr->error = 1;
-mprint(NULL, siminfo, "TLB protect exception...\n");
+mprint(E, NULL, siminfo, "TLB protect exception...\n");
 
 		return;
 	}
 
 	if ((tlb_pr == B0011) && wflag && !tlb_d)
 	{
-		superHtlbexception(S, TLB_INIT_PAGEWRITE_EXCP, vaddr);
+		superHtlbexception(E, S, TLB_INIT_PAGEWRITE_EXCP, vaddr);
 		tr->error = 1;
-mprint(NULL, siminfo, "TLB init page write exception...\n");
+mprint(E, NULL, siminfo, "TLB init page write exception...\n");
 
 		return;
 	}
@@ -432,7 +434,7 @@ mprint(NULL, siminfo, "TLB init page write exception...\n");
 }
 
 void
-prcheckpriv(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
+prcheckpriv(Engine *E, State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
 {
 	int	tlb_pr = tlbdataarray_datafield_pr(data);
 	ulong	tlb_sz = tlbdataarray_datafield_sz(data);
@@ -441,9 +443,9 @@ prcheckpriv(State *S, int wflag, ulong data, ulong vaddr, TransAddr *tr)
 
 	if (((tlb_pr == B0000) || (tlb_pr == B0010)) && wflag)
 	{
-		superHtlbexception(S, TLB_STORE_PROTECT_EXCP, vaddr);
+		superHtlbexception(E, S, TLB_STORE_PROTECT_EXCP, vaddr);
 		tr->error = 1;
-mprint(NULL, siminfo, "TLB store protect exception...\n");
+mprint(E, NULL, siminfo, "TLB store protect exception...\n");
 
 		return;
 	}
@@ -451,9 +453,9 @@ mprint(NULL, siminfo, "TLB store protect exception...\n");
 
 	if (((tlb_pr == B0001) || (tlb_pr == B0011)) && wflag && !tlb_d)
 	{
-		superHtlbexception(S, TLB_INIT_PAGEWRITE_EXCP, vaddr);
+		superHtlbexception(E, S, TLB_INIT_PAGEWRITE_EXCP, vaddr);
 		tr->error = 1;
-mprint(NULL, siminfo, "TLB init page write exception...\n");
+mprint(E, NULL, siminfo, "TLB init page write exception...\n");
 
 		return;
 	}
@@ -486,7 +488,7 @@ mprint(NULL, siminfo, "TLB init page write exception...\n");
 }
 
 void
-superHtlbexception(State *S, int type, ulong vaddr)
+superHtlbexception(Engine *E, State *S, int type, ulong vaddr)
 {
 	/*								*/
 	/*	All TLB exceptions lead to same sequence of events,	*/
@@ -524,12 +526,12 @@ superHtlbexception(State *S, int type, ulong vaddr)
 	/*	(10)	*/
 	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
 	{
-		pic_intr_enqueue(S, S->superH->excpQ, type,
+		pic_intr_enqueue(E, S, S->superH->excpQ, type,
 			S->PC, S->superH->mem_access_type);
 	}
 	else
 	{
-		pic_intr_enqueue(S, S->superH->excpQ, type,
+		pic_intr_enqueue(E, S, S->superH->excpQ, type,
 			S->superH->P.EX.fetchedpc, S->superH->mem_access_type);
 	}
 //fprintf(stderr, "S->excpQ->nqintrs = %d\n", S->excpQ->nqintrs);
@@ -615,12 +617,12 @@ superHtlb_dataarray_write(State *S, ulong addr, ulong data)
 }
 
 void
-superHdumptlb(State *S)
+superHdumptlb(Engine *E, State *S)
 {
 	int	i;
 
 			
-	mprint(S, nodeinfo, "\n");
+	mprint(E, S, nodeinfo, "\n");
 	for (i = 0; i < S->superH->TLB->nblocks; i++)
 	{
 		ulong data		= S->superH->TLB->blocks[i].data;
@@ -631,34 +633,38 @@ superHdumptlb(State *S)
 			continue;
 		}
 
-		mprint(S, nodeinfo, "VPN:0x" UHLONGFMT ",0x" UHLONGFMT " ",
+		mprint(E, S, nodeinfo, "VPN:0x" UHLONGFMT ",0x" UHLONGFMT " ",
 			tlbaddrarray_datafield_vpn31_17(tag),
 			tlbaddrarray_datafield_vpn11_10(tag));
-		mprint(S, nodeinfo, "V:0x" UHLONGFMT " ", tlbaddrarray_datafield_v(tag));
-		mprint(S, nodeinfo, "ASID:0x" UHLONGFMT "\t", tlbaddrarray_datafield_asid(tag));
+		mprint(E, S, nodeinfo, "V:0x" UHLONGFMT " ", tlbaddrarray_datafield_v(tag));
+		mprint(E, S, nodeinfo, "ASID:0x" UHLONGFMT "\t", tlbaddrarray_datafield_asid(tag));
 
-		mprint(S, nodeinfo, "PPN:0x" UHLONGFMT " ", tlbdataarray_datafield_ppn(data));
-		mprint(S, nodeinfo, "V:0x" UHLONGFMT " ", tlbdataarray_datafield_v(data));
-		mprint(S, nodeinfo, "PR:0x" UHLONGFMT " ", tlbdataarray_datafield_pr(data));
-		mprint(S, nodeinfo, "SZ:0x" UHLONGFMT " ", tlbdataarray_datafield_sz(data));
-		mprint(S, nodeinfo, "C:0x" UHLONGFMT " ", tlbdataarray_datafield_c(data));
-		mprint(S, nodeinfo, "D:0x" UHLONGFMT " ", tlbdataarray_datafield_d(data));
-		mprint(S, nodeinfo, "SH:0x" UHLONGFMT "\n", tlbdataarray_datafield_sh(data));
+		mprint(E, S, nodeinfo, "PPN:0x" UHLONGFMT " ", tlbdataarray_datafield_ppn(data));
+		mprint(E, S, nodeinfo, "V:0x" UHLONGFMT " ", tlbdataarray_datafield_v(data));
+		mprint(E, S, nodeinfo, "PR:0x" UHLONGFMT " ", tlbdataarray_datafield_pr(data));
+		mprint(E, S, nodeinfo, "SZ:0x" UHLONGFMT " ", tlbdataarray_datafield_sz(data));
+		mprint(E, S, nodeinfo, "C:0x" UHLONGFMT " ", tlbdataarray_datafield_c(data));
+		mprint(E, S, nodeinfo, "D:0x" UHLONGFMT " ", tlbdataarray_datafield_d(data));
+		mprint(E, S, nodeinfo, "SH:0x" UHLONGFMT "\n", tlbdataarray_datafield_sh(data));
 
 		if (!((i+1) % S->superH->TLB->assoc))
 		{
-			mprint(S, nodeinfo, "\n");
+			mprint(E, S, nodeinfo, "\n");
 		}
 	}
-	mprint(S, nodeinfo, "\n");
+	mprint(E, S, nodeinfo, "\n");
 
 	return;
 }
 
 void
-superHtlbflush(State *S)
+superHtlbflush(Engine *E, State *S)
 {
-	//TODO:
-mprint(NULL, siminfo, "\nsunflower debug: in superHtlbflush\n\n");
+	/*
+		TODO: we currently don't do an actual flush
+	*/
+
+	mprint(E, NULL, siminfo, "\nSunflower debug: in superHtlbflush\n\n");
+
 	return;
 }

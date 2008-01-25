@@ -1,10 +1,27 @@
 (1)	Read manual.pdf if you can.
 
 (2)	Edit conf/setup.conf and set SUNFLOWERROOT, and HOST appropriately.
+	You might need to set your $OSTYPE environment variable in your shell
+	if it is not already set.  Examples include "darwin" for MacOSX,
+	and the eponymous "OpenBSD", "linux", "solaris".
 
 (3)	cd to sim/ and type 'make'. The build should work automatically on
 	MacOS, Linux, and Solaris.  This builds the console version of
 	the simulator.
 
-(4)	To build the cross-compiler, type 'make cross' from the root of
+(4)	To build the cross-compiler, first populate tools/source with the
+	appropriate distributions (there are currently empty placeholder
+	directories therein). You should be able to obtain these distributions
+	from:
+
+	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1.tar.gz
+	ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.16.1.tar.gz
+	ftp://sources.redhat.com/pub/newlib/newlib-1.9.0.tar.gz
+	
+	Download the above into tools/source.  You can delete or
+	overwrite the existing empty stub directories.
+	
+	Next, type 'make cross' from the root of
 	the installation (the directory containing this README file).
+	That will start the process of configuring the aforementioned
+	distirbutions to build the cross-compiler suite for the simulator.

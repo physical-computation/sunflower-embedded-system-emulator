@@ -69,8 +69,3 @@ typedef struct
 	Datum 	*head;
 	Datum 	*tail;
 } Labels;
-
-void	input(char *);
-void	load(char *);
-void	scan_labels_and_globalvars(void);
-void	streamchk(void);

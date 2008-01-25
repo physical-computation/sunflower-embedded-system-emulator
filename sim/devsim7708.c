@@ -34,11 +34,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "sf.h"
 #include "mextern.h"
 
 ulong
-devportreadlong(State *S, ulong addr)
+devportreadlong(Engine *E, State *S, ulong addr)
 {
 	if (addr == SUPERH_THREADID)
 	{
@@ -56,13 +57,13 @@ devportreadlong(State *S, ulong addr)
 
 		if (which >= S->N->count)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Longword access to address [0x" UHLONGFMT 
 				"] (NUMAREGION_RDCNT register)\n",
 				addr);
-			mprint(S, nodeinfo, "which = %d\n", which);
+			mprint(E, S, nodeinfo, "which = %d\n", which);
 
-			sfatal(S, "Attempt to access NUMAREGION_RDCNT register "
+			sfatal(E, S, "Attempt to access NUMAREGION_RDCNT register "
 				"outside number of NUMAREGIONs");
 		}
 
@@ -80,13 +81,13 @@ devportreadlong(State *S, ulong addr)
 
 		if (which >= S->N->count)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Longword access to address [0x" UHLONGFMT 
 				"] (NUMAREGION_WRCNT register)\n",
 				addr);
-			mprint(S, nodeinfo, "which = %d\n", which);
+			mprint(E, S, nodeinfo, "which = %d\n", which);
 
-			sfatal(S, "Attempt to access NUMAREGION_WRCNT register "
+			sfatal(E, S, "Attempt to access NUMAREGION_WRCNT register "
 				"outside number of NUMAREGIONs");
 		}
 
@@ -96,21 +97,63 @@ devportreadlong(State *S, ulong addr)
 	{
 		return S->N->count;
 	}
+	else if (addr == SUPERH_BATTPERCENT)
+	{
+		return (int)ceil(100*((Batt*)S->BATT)->battery_remaining / ((Batt*)S->BATT)->battery_capacity);
+	}
+	else if ((addr >= SUPERH_SENSREAD_BEGIN) && (addr < SUPERH_SENSREAD_END))
+	{
+		int	which;
+		ulong	tmp;
 
-	return S->devreadlong(S, addr);
+		//TODO: we should be doing it this way for NIC regs too, why aren't we ??
+		which = ((addr - SUPERH_SENSREAD_BEGIN) >> 4) & 0xFFF;
+		if (which >= MAX_NODE_SENSORS)
+		{
+			sfatal(E, S, "Attempt to access sensor register outside number of sensors");
+			return 0;
+		}
+
+//fprintf(stderr, "sensor being read has value %f\n", S->sensors[which].reading);
+
+/*
+	BUG: this currently works fine for host=macos, clientcpu=superH,
+		but will not work when there is andiannes mismatch.
+		what we should really do, is 
+		(1) autodetect endiannes during compile and get rid
+		of the SF_X_endian stuff or clean it up at least
+
+		(2) maintain a var in sim of what host endian is,
+			in the gloabl M structure
+
+		(3) when endian diff, marshall the data into
+		tmp sinstead of the simple memmove, along lines of
+
+	       	((uchar *)&tmp)[3] = ((uchar *)&reading)[0];
+        	((uchar *)&tmp)[2] = ((uchar *)&reading)[1];
+        	((uchar *)&tmp)[1] = ((uchar *)&reading)[2];
+        	((uchar *)&tmp)[0] = ((uchar *)&reading)[3];
+
+		etc
+*/
+		memmove(&tmp, &S->sensors[which].reading, sizeof(ulong));
+		return tmp;
+	}
+
+	return S->devreadlong(E, S, addr);
 }
 
 ushort
-devportreadword(State *S, ulong addr)
+devportreadword(Engine *E, State *S, ulong addr)
 {
-	mprint(S, nodeinfo, "Word access (read) at address 0x" UHLONGFMT "\n", addr);
-	sfatal(S, "Address not in main mem, and not in I/O space either !");
+	mprint(E, S, nodeinfo, "Word access (read) at address 0x" UHLONGFMT "\n", addr);
+	sfatal(E, S, "Address not in main mem, and not in I/O space either !");
 
 	return 0;
 }
 
 uchar
-devportreadbyte(State *S, ulong addr)
+devportreadbyte(Engine *E, State *S, ulong addr)
 {
 	uchar	data = 0;
 
@@ -129,12 +172,12 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_DST register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = S->superH->NIC_IFCS[whichifc].IFC_DST[offset];
@@ -146,12 +189,12 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_OUI register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = S->superH->NIC_IFCS[whichifc].IFC_OUI[offset];
@@ -163,15 +206,48 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_NCSENSE register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = (uchar)(S->superH->NIC_IFCS[whichifc].IFC_CNTR_CSENSE_ERR >> (offset*8))&0xFF;
+	}
+	else if ((addr >= SUPERH_NIC_CSENSE) && (addr < SUPERH_NIC_CSENSE+SUPERH_NIC_REG_SPACING))
+	{
+		int		i, whichifc = (addr >> 4) & 0xFFF;
+		Netsegment	*curseg;
+
+
+		if (whichifc >= NIC_MAX_IFCS)
+		{
+			mprint(E, S, nodeinfo,
+				"Byte access to address [0x" UHLONGFMT "] (NIC_NCSENSE register)\n",
+				addr);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
+
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
+		}
+		
+		curseg = &E->netsegs[S->superH->NIC_IFCS[whichifc].segno];
+		data = 0;
+
+		for (i = 0; i < curseg->cur_queue_width; i++)
+		{
+			//this is too ideal: we should return 1 only if the snr 
+			//if (curseg->segbufs[i].bits_left > 0)
+			//{
+			//	data = 1;
+			//}
+
+			if (check_snr(E, curseg, ((State *)curseg->segbufs[i].src_node), S) > curseg->minsnr)
+			{
+				data = 1;
+			}
+		}
 	}
 	else if ((addr >= SUPERH_NIC_NCOLLS) && (addr < SUPERH_NIC_NCOLLS+SUPERH_NIC_REG_SPACING))
 	{
@@ -180,33 +256,67 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_NCOLLS register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = (uchar)(S->superH->NIC_IFCS[whichifc].IFC_CNTR_COLLS_ERR >> (offset*8))&0xFF;
 	}
-	else if ((addr >= SUPERH_NIC_FSZ) && (addr < SUPERH_NIC_FSZ+SUPERH_NIC_REG_SPACING))
+	else if ((addr >= SUPERH_NIC_MAXFSZ) && (addr < SUPERH_NIC_MAXFSZ+SUPERH_NIC_REG_SPACING))
 	{
 		int	whichifc = (addr >> 4) & 0xFFF;
 		int	offset = addr & 0xF;
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_FSZ register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = (uchar)((int)S->superH->NIC_IFCS[whichifc].frame_bits/8 >> (offset*8))&0xFF;
 	}
+	else if ((addr >= SUPERH_NIC_RXFSZ) && (addr < SUPERH_NIC_RXFSZ+SUPERH_NIC_REG_SPACING))
+	{
+		int	whichifc = (addr >> 4) & 0xFFF;
+		int	offset = addr & 0xF;
+		Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
+
+		if (whichifc >= NIC_MAX_IFCS)
+		{
+			mprint(E, S, nodeinfo,
+				"Byte access to address [0x" UHLONGFMT "] (NIC_FSZ register)\n",
+				addr);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
+
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
+		}
+
+		/*								*/
+		/*	If theres nothing in the localbuf, then the next	*/
+		/*	framesize is the one at oldestidx, since rx_localbuf	*/
+		/*	and rx_localbuf_framesize don't get set until you	*/
+		/*	start reading from them.				*/
+		/*								*/
+		if (ifcptr->rx_localbuf_h2o == 0)
+		{
+//fprintf(stderr, "+++SUPERH_NIC_RXFSZ = %d\n", ifcptr->rx_fifo_framesizes[ifcptr->rx_fifo_oldestidx]);
+			data = (uchar)(ifcptr->rx_fifo_framesizes[ifcptr->rx_fifo_oldestidx] >> (offset*8))&0xFF;
+		}
+		else
+		{
+//fprintf(stderr, "---SUPERH_NIC_RXFSZ = %d\n", ifcptr->rx_localbuf_framesize);
+			data = (uchar)(ifcptr->rx_localbuf_framesize >> (offset*8))&0xFF;
+		}
+	}
+
 	else if ((addr >= SUPERH_NIC_BRR) && (addr < SUPERH_NIC_BRR+SUPERH_NIC_REG_SPACING))
 	{
 		int	whichifc = (addr >> 4) & 0xFFF;
@@ -214,12 +324,12 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_BRR register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		/*	NIC_BRR contains network speed in Kb/s		*/
@@ -227,7 +337,7 @@ devportreadbyte(State *S, ulong addr)
 	}
 	else if ((addr >= SUPERH_NIC_NMR) && (addr < SUPERH_NIC_NMR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "You should not be reading NIC_NMR !?");
+		sfatal(E, S, "You should not be reading NIC_NMR !?");
 	}
 	else if ((addr >= SUPERH_NIC_NCR) && (addr < SUPERH_NIC_NCR+SUPERH_NIC_REG_SPACING))
 	{
@@ -236,19 +346,19 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_NCR register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = (uchar)((int)S->superH->NIC_IFCS[whichifc].IFC_NCR >> (offset*8))&0xFF;
 	}
 	else if ((addr >= SUPERH_NIC_TDR) && (addr < SUPERH_NIC_TDR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "You should not be reading NIC_TDR !?");
+		sfatal(E, S, "You should not be reading NIC_TDR !?");
 	}
 	else if ((addr >= SUPERH_NIC_NSR) && (addr < SUPERH_NIC_NSR+SUPERH_NIC_REG_SPACING))
 	{
@@ -257,12 +367,12 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_NSR register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
 		data = (uchar)((int)S->superH->NIC_IFCS[whichifc].IFC_NSR >> (offset*8))&0xFF;
@@ -273,15 +383,16 @@ devportreadbyte(State *S, ulong addr)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Byte access to address [0x" UHLONGFMT "] (NIC_RDR register)\n",
 				addr);
-			mprint(S, nodeinfo, "whichifc = %d\n", whichifc);
+			mprint(E, S, nodeinfo, "whichifc = %d\n", whichifc);
 
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 		}
 
-		data = nic_rx_dequeue(S, whichifc);
+		data = nic_rx_dequeue(E, S, whichifc);
+//fprintf(stderr, "RDR returning [%d]\n", data);
 	}
 	else if ((addr >= SUPERH_RAND_BEGIN) && (addr < SUPERH_RAND_END))
 	{
@@ -294,33 +405,17 @@ devportreadbyte(State *S, ulong addr)
 
 
 		offset = addr - SUPERH_RAND_BEGIN;
-		rnd = (ulong)mrandom();
+		rnd = (ulong)mrandom(E);
 			
 		data = (uchar)(rnd >> (offset*8))&0xFF;
 	}
 	else if (addr == SUPERH_SIMCMD_DATA)
 	{
-		sfatal(S, "You should not be reading SIMCMD_DATA !?");
+		sfatal(E, S, "You should not be reading SIMCMD_DATA !?");
 	}
 	else if (addr == SUPERH_SIMCMD_CTL)
 	{
-		sfatal(S, "You should not be reading SIMCMD_CTL !?");
-	}
-	else if ((addr >= SUPERH_ORBIT_BEGIN) && (addr < SUPERH_ORBIT_END))
-	{
-		int	offset;
-
-		offset = addr - SUPERH_ORBIT_BEGIN;
-		data = (uchar)(S->orbit >> (offset*8))&0xFF;
-	}
-	else if ((addr >= SUPERH_VELOCITY_BEGIN) && (addr < SUPERH_VELOCITY_END))
-	{
-		int	offset;
-		uvlong	tmp;
-
-		memmove(&tmp, &S->velocity, sizeof(uvlong));
-		offset = addr - SUPERH_VELOCITY_BEGIN;
-		data = (uchar)(tmp >> (offset*8))&0xFF;
+		sfatal(E, S, "You should not be reading SIMCMD_CTL !?");
 	}
 	else if ((addr >= SUPERH_XLOC_BEGIN) && (addr < SUPERH_XLOC_END))
 	{
@@ -349,30 +444,13 @@ devportreadbyte(State *S, ulong addr)
 		offset = addr - SUPERH_ZLOC_BEGIN;
 		data = (uchar)(tmp >> (offset*8))&0xFF;
 	}
-	else if ((addr >= SUPERH_SENSREAD_BEGIN) && (addr < SUPERH_SENSREAD_END))
-	{
-		int	which, offset;
-		uvlong	tmp;
-
-		//TODO: we should be doing it this way for NIC regs too, why aren't we ??
-		which = ((addr - SUPERH_SENSREAD_BEGIN) >> 4) & 0xFFF;
-		if (which >= MAX_NODE_SENSORS)
-		{
-			sfatal(S, "Attempt to access sensor register outside number of sensors");
-			return 0;
-		}
-
-		memmove(&tmp, &S->sensors[which].reading, sizeof(uvlong));
-		offset = (addr - SUPERH_SENSREAD_BEGIN) & 0xF;
-		data = (uchar)(tmp >> (offset*8))&0xFF;
-	}
 	else if (addr == SUPERH_DEVLOGPRINT)
 	{
-		sfatal(S, "You should not be reading DEVLOGPRINT !?");
+		sfatal(E, S, "You should not be reading DEVLOGPRINT !?");
 	}
 	else
 	{
-		return S->devreadbyte(S, addr);
+		return S->devreadbyte(E, S, addr);
 	}
 
 	if (SF_BITFLIP_ANALYSIS)
@@ -391,7 +469,7 @@ devportreadbyte(State *S, ulong addr)
 
 
 void
-devportwritelong(State *S, ulong addr, ulong data)
+devportwritelong(Engine *E, State *S, ulong addr, ulong data)
 {
 	
 	if ((addr >= SUPERH_NUMAREGION_RDCNT_BEGIN) &&
@@ -406,13 +484,13 @@ devportwritelong(State *S, ulong addr, ulong data)
 
 		if (which >= S->N->count)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Longword access to address [0x" UHLONGFMT 
 				"] (NUMAREGION_RDCNT register)\n",
 				addr);
-			mprint(S, nodeinfo, "which = %d\n", which);
+			mprint(E, S, nodeinfo, "which = %d\n", which);
 
-			sfatal(S, "Attempt to access NUMAREGION_RDCNT register "
+			sfatal(E, S, "Attempt to access NUMAREGION_RDCNT register "
 				"outside number of NUMAREGIONs");
 		}
 
@@ -433,13 +511,13 @@ devportwritelong(State *S, ulong addr, ulong data)
 
 		if (which >= S->N->count)
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Longword access to address [0x" UHLONGFMT 
 				"] (NUMAREGION_WRCNT register)\n",
 				addr);
-			mprint(S, nodeinfo, "which = %d\n", which);
+			mprint(E, S, nodeinfo, "which = %d\n", which);
 
-			sfatal(S, "Attempt to access NUMAREGION_WRCNT register "
+			sfatal(E, S, "Attempt to access NUMAREGION_WRCNT register "
 				"outside number of NUMAREGIONs");
 		}
 
@@ -464,13 +542,13 @@ devportwritelong(State *S, ulong addr, ulong data)
 		S->superH->B->paddr_bus = addr;
 	}
 
-	S->devwritelong(S, addr, data);
+	S->devwritelong(E, S, addr, data);
 
 	return;
 }
 
 void
-devportwriteword(State *S, ulong addr, ushort data)
+devportwriteword(Engine *E, State *S, ulong addr, ushort data)
 {
 	if (SF_BITFLIP_ANALYSIS)
 	{
@@ -482,13 +560,13 @@ devportwriteword(State *S, ulong addr, ushort data)
 		S->Cycletrans += bit_flips_32(S->superH->B->peraddr_bus, addr);
 		S->superH->B->peraddr_bus = addr;
 	}
-	S->devwriteword(S, addr, data);
+	S->devwriteword(E, S, addr, data);
 
 	return;
 }
 
 void
-devportwritebyte(State *S, ulong addr, uchar data)
+devportwritebyte(Engine *E, State *S, ulong addr, uchar data)
 {
 	if (SF_BITFLIP_ANALYSIS)
 	{
@@ -508,7 +586,7 @@ devportwritebyte(State *S, ulong addr, uchar data)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 			return;
 		}
 
@@ -521,7 +599,7 @@ devportwritebyte(State *S, ulong addr, uchar data)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 			return;
 		}
 
@@ -529,11 +607,11 @@ devportwritebyte(State *S, ulong addr, uchar data)
 	}
 	else if ((addr >= SUPERH_NIC_NMR) && (addr < SUPERH_NIC_NMR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "Use of NIC_NMR deprecated. Update your application!!");
+		sfatal(E, S, "Use of NIC_NMR deprecated. Update your application!!");
 	}
 	else if ((addr >= SUPERH_NIC_BRR) && (addr < SUPERH_NIC_BRR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "Write to NIC_BRR ignored. What are you trying to do ?!");
+		sfatal(E, S, "Write to NIC_BRR ignored. What are you trying to do ?!");
 	}
 	else if ((addr >= SUPERH_NIC_NCR) && (addr < SUPERH_NIC_NCR+SUPERH_NIC_REG_SPACING))
 	{
@@ -541,17 +619,18 @@ devportwritebyte(State *S, ulong addr, uchar data)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 			return;
 		}
 
+/*
 		if (!(data & (1 << 0)))
 		{
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Dequeing and clearing all interrupts on IFC [%d]\n",
 				whichifc);
-			sfatal(S, "Are you sure thats what you wanted to do ?");
-/*
+			sfatal(E, S, "Are you sure thats what you wanted to do ?");
+
 			pic_intr_clear(S, NIC_RXOK_INTR, whichifc, 1);
 			pic_intr_clear(S, NIC_TXOK_INTR, whichifc, 1);
 			pic_intr_clear(S, NIC_ADDRERR_INTR, whichifc, 1);
@@ -562,7 +641,46 @@ devportwritebyte(State *S, ulong addr, uchar data)
 			pic_intr_clear(S, NIC_RXUNDRRUNERR_INTR, whichifc, 1);
 			pic_intr_clear(S, NIC_TXOVRRUNERR_INTR, whichifc, 1);
 			pic_intr_clear(S, NIC_TXUNDRRUNERR_INTR, whichifc, 1);
+		}
 */
+
+		switch (data)
+		{
+			case NIC_CMD_POWERUP:
+			{
+//fprintf(stderr, "## powering UP interface for node %d\n", S->NODE_ID);
+
+				S->superH->NIC_IFCS[whichifc].IFC_STATE = NIC_STATE_LISTEN;
+
+				break;
+			}
+
+			case NIC_CMD_POWERDN:
+			{
+//fprintf(stderr, "## powering DOWN interface for node %d\n", S->NODE_ID);
+
+				S->superH->NIC_IFCS[whichifc].IFC_STATE = NIC_STATE_IDLE;
+
+				break;
+			}
+	
+			case NIC_CMD_TRANSMIT:
+			{
+				Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
+
+//fprintf(stderr, "## triggering TRANSMIT interface for node %d\n", S->NODE_ID);
+
+				ifcptr->tx_fifo_framesizes[ifcptr->tx_fifo_curidx] = ifcptr->tx_fifo_h2o;
+				fifo_enqueue(E, S, TX_FIFO, whichifc);
+				ifcptr->tx_fifo_h2o = 0;
+
+				break;
+			}
+
+			default:
+			{
+				sfatal(E, S, "Invalid command in NIC_NCR");
+			}
 		}
 
 		S->superH->NIC_IFCS[whichifc].IFC_NCR = data & 0xff;
@@ -573,27 +691,79 @@ devportwritebyte(State *S, ulong addr, uchar data)
 
 		if (whichifc >= NIC_MAX_IFCS)
 		{
-			sfatal(S, "Attempt to access IFC register outside number of IFCs");
+			sfatal(E, S, "Attempt to access IFC register outside number of IFCs");
 			return;
 		}
 
-		nic_tx_enqueue(S, data, whichifc);
+		nic_tx_enqueue(E, S, data, whichifc);
 	}
 	else if ((addr >= SUPERH_NIC_NSR) && (addr < SUPERH_NIC_NSR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "You should not write into NSR");
+		sfatal(E, S, "You should not write into NSR");
 	}
 	else if ((addr >= SUPERH_NIC_RDR) && (addr < SUPERH_NIC_RDR+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "You should not write into RDR");
+		sfatal(E, S, "You should not write into RDR");
 	}
-	else if ((addr >= SUPERH_NIC_FSZ) && (addr < SUPERH_NIC_FSZ+SUPERH_NIC_REG_SPACING))
+	else if ((addr >= SUPERH_NIC_MAXFSZ) && (addr < SUPERH_NIC_MAXFSZ+SUPERH_NIC_REG_SPACING))
 	{
-		sfatal(S, "You should not write into NIC_FSZ");
+		sfatal(E, S, "You should not write into NIC_MAXFSZ");
+	}
+	else if ((addr >= SUPERH_NIC_RXFSZ) && (addr < SUPERH_NIC_RXFSZ+SUPERH_NIC_REG_SPACING))
+	{
+		sfatal(E, S, "You should not write into NIC_RXFSZ");
+	}
+	else if ((addr >= SUPERH_LOGMARK_BEGIN) &&
+		(addr < SUPERH_LOGMARK_END))
+	{
+		char	logtag[MAX_NAMELEN];
+
+
+		/*							*/
+		/*	Single byte memory access is used to trigger	*/
+		/*	logging.  If read, we identify which log tag	*/
+		/*	The logs go into the global simulation logfile	*/
+		/*							*/
+		int	which = addr - SUPERH_LOGMARK_BEGIN;
+
+		msnprint(&logtag[0], MAX_NAMELEN, "NODE%d_LOGMARK_TAG_%d", S->NODE_ID, which);
+		m_dumpnode(E, S->NODE_ID, E->logfilename, M_OWRITE, logtag, "");
+	}
+	else if ((addr >= SUPERH_NETTRACEMARK_BEGIN) &&
+		(addr < SUPERH_NETTRACEMARK_END))
+	{
+		int		i, j;
+		char		logtag[MAX_NAMELEN];
+		Ifc		*ifcptr;
+		Netsegment	*Seg;
+
+
+		/*							*/
+		/*	Single byte memory access is used to trigger	*/
+		/*	logging.  Note that there is a whole bank of	*/
+		/*	log trigger addresses per IFC.			*/
+		/*		If read, we identify which log tag	*/
+		/*	The log is replicated into ALL current net	*/
+		/*	trace log files.				*/
+		/*							*/
+		int	which = addr - SUPERH_NETTRACEMARK_BEGIN;
+
+		msnprint(&logtag[0], MAX_NAMELEN, "NODE%d_NETTRACEMARK_TAG_%d", S->NODE_ID, which);
+
+		for (i = 0; i < S->superH->NIC_NUM_IFCS; i++)
+		{
+			ifcptr = &S->superH->NIC_IFCS[i];
+			Seg = &E->netsegs[ifcptr->segno];
+
+			for (j = 0; j < Seg->num_seg2files; j++)
+			{
+				m_dumpnode(E, S->NODE_ID, Seg->seg2filenames[j], M_OWRITE, logtag, "--");
+			}
+		}
 	}
 	else if ((addr >= SUPERH_RAND_BEGIN) && (addr < SUPERH_RAND_END))
 	{
-		sfatal(S, "You should not write into RAND");
+		sfatal(E, S, "You should not write into RAND");
 	}
 	else if (addr == SUPERH_SIMCMD_DATA)
 	{
@@ -604,28 +774,29 @@ devportwritebyte(State *S, ulong addr, uchar data)
 		S->cmdbuf[S->cmdbuf_nbytes++] = data;
 		if (S->cmdbuf_nbytes == MAX_CMD_LEN - 2)
 		{
-			State		*tmpstate = CUR_STATE;
+			State		*tmpstate = E->cp;
 			extern	int	yyparse(void);
 
 			S->cmdbuf[S->cmdbuf_nbytes++] = '\n';
 			S->cmdbuf[S->cmdbuf_nbytes++] = '\0';
-			munchinput(S->cmdbuf);
+			munchinput(E, S->cmdbuf);
 			S->cmdbuf_nbytes = 0;
 
 			/*							*/
-			/*	Everything in sunflower.y is relative to the	*/
-			/*	current value of CUR_STATE, so we have to 	*/
+			/*	Everything in sf.y is relative to the		*/
+			/*	current value of E->cp, so we have to 		*/
 			/*	do a little dance, for the people, and their 	*/
 			/*	cats, i guess, but then again, who cares ? 	*/
 			/*							*/
-			CUR_STATE = S;
+			E->cp = S;
+			yyengine = E;
 			yyparse();
-			CUR_STATE = tmpstate;
+			E->cp = tmpstate;
 		}
 	}
 	else if (addr == SUPERH_SIMCMD_CTL)
 	{
-		State		*tmpstate = CUR_STATE;
+		State		*tmpstate = E->cp;
 		extern	int	yyparse(void);
 
 
@@ -635,38 +806,39 @@ devportwritebyte(State *S, ulong addr, uchar data)
 		/*								*/
 		S->cmdbuf[S->cmdbuf_nbytes++] = '\n';
 		S->cmdbuf[S->cmdbuf_nbytes++] = '\0';
-		munchinput(S->cmdbuf);
+		munchinput(E, S->cmdbuf);
 		S->cmdbuf_nbytes = 0;
 
 		/*							*/
-		/*	Everything in sunflower.y is relative to the	*/
-		/*	current value of CUR_STATE, so we have to 	*/
+		/*	Everything in sf.y is relative to the		*/
+		/*	current value of E->cp, so we have to 		*/
 		/*	do a little dance, for the people, and their 	*/
 		/*	cats, i guess, but then again, who cares ? 	*/
 		/*							*/
-		CUR_STATE = S;
+		E->cp = S;
+		yyengine = E;
 		yyparse();
-		CUR_STATE = tmpstate;
+		E->cp = tmpstate;
 	}
 	else if ((addr >= SUPERH_ORBIT_BEGIN) && (addr < SUPERH_ORBIT_END))
 	{
-		sfatal(S, "You should not write into ORBIT data register");
+		sfatal(E, S, "You should not write into ORBIT data register");
 	}
 	else if ((addr >= SUPERH_VELOCITY_BEGIN) && (addr < SUPERH_VELOCITY_END))
 	{
-		sfatal(S, "You should not write into VELOCITY data register");
+		sfatal(E, S, "You should not write into VELOCITY data register");
 	}
 	else if ((addr >= SUPERH_XLOC_BEGIN) && (addr < SUPERH_XLOC_END))
 	{
-		sfatal(S, "You should not write into XLOC data register");
+		sfatal(E, S, "You should not write into XLOC data register");
 	}
 	else if ((addr >= SUPERH_YLOC_BEGIN) && (addr < SUPERH_YLOC_END))
 	{
-		sfatal(S, "You should not write into YLOC data register");
+		sfatal(E, S, "You should not write into YLOC data register");
 	}
 	else if ((addr >= SUPERH_ZLOC_BEGIN) && (addr < SUPERH_ZLOC_END))
 	{
-		sfatal(S, "You should not write into ZLOC data register");
+		sfatal(E, S, "You should not write into ZLOC data register");
 	}
 	else if ((addr >= SUPERH_SENSWRITE_BEGIN) && (addr < SUPERH_SENSWRITE_END))
 	{
@@ -677,7 +849,7 @@ devportwritebyte(State *S, ulong addr, uchar data)
 		which = ((addr - SUPERH_SENSWRITE_BEGIN) >> 4) & 0xFFF;
 		if (which >= MAX_NODE_SENSORS)
 		{
-			sfatal(S, "Attempt to access sensor register outside number of sensors");
+			sfatal(E, S, "Attempt to access sensor register outside number of sensors");
 		}
 
 		//	TODO:
@@ -690,12 +862,12 @@ devportwritebyte(State *S, ulong addr, uchar data)
 	{
 		if (SF_SIMLOG)
 		{
-			mlog(S, "%c", data);
+			mlog(E, S, "%c", data);
 		}
 	}
 	else
 	{
-		S->devwritebyte(S, addr, data);
+		S->devwritebyte(E, S, addr, data);
 	}
 
 	return;

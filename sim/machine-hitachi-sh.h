@@ -132,10 +132,10 @@ struct SuperHState
 	InterruptQ	*nicintrQ;
 
 	/*	Time of last generated timer intr	*/
-	double		TIMER_LASTACTIVATE;
+	Picosec		TIMER_LASTACTIVATE;
 
 	/*		Delay b/n timer interrupts	*/
-	double		TIMER_INTR_DELAY;
+	Picosec		TIMER_INTR_DELAY;
 
 	ulong 		R[16];
 	ulong		R_BANK[8];
@@ -146,14 +146,6 @@ struct SuperHState
 	ulong		SPC;
 	ulong 		GBR;
 	ulong		VBR;
-
-	double		VDD;
-
-	/*	The default low operating voltage. 	*/
-	double		LOWVDD;			
-
-	/*		Saved VDD. see pau.c		*/
-	double		SVDD;			
 
 	SuperHPipe	P;
 	int		opncycles[OP_MAX];

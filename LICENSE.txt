@@ -1,4 +1,4 @@
-Copyright (c) 2000-2008, Phillip Stanley-Marbell 
+Copyright (c) 1999-2008, Phillip Stanley-Marbell 
 
 All rights reserved.
 

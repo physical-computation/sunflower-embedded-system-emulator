@@ -4,13 +4,9 @@
 <../mkconfig
 
 LIB=libsunflower.a
+GAWK=/sw/bin/gawk
 
 OFILES=\
-	decode-ti-msp430.$O\
-	dev430x1xx.$O\
-	machine-ti-msp430.$O\
-	op-ti-msp430.$O\
-	pipeline-ti-msp430.$O\
 	arch-Inferno.$O\
 	batt.$O\
 	bit-utils.$O\
@@ -34,6 +30,12 @@ OFILES=\
 	sf.$O\
 	syscalls-Inferno.$O\
 	tokenhandling.$O\
+	randgen.$O\
+#	decode-ti-msp430.$O\
+#	dev430x1xx.$O\
+#	machine-ti-msp430.$O\
+#	op-ti-msp430.$O\
+#	pipeline-ti-msp430.$O\
 
 
 HFILES=\
@@ -71,13 +73,13 @@ HFILES=\
 
 <$ROOT/mkfiles/mksyslib-$SHELLTYPE
 
-CFLAGS = $CFLAGS $PLATFORM_CFLAGS -I. -c -DSF_B_ENDIAN -DNULL=nil -DLIBSF
+CFLAGS = $ANSICPP $CFLAGS $PLATFORM_CFLAGS -I. -c -DSF_B_ENDIAN -DNULL=nil -DLIBSF
 
 sim: $OFILES
 	$CC -I. -DNULL=nil $OFILES -o sf
 
 sf.$O: sf.tab.c $HFILES
-	$CC $CFLAGS sf.tab.c -o sf.o
+	$CC $CFLAGS sf.tab.c -o sf.$O
 
 sf.tab.c: sf.y lex.c main.h
 	bison sf.y
@@ -88,17 +90,14 @@ syscalls-Inferno.$O: syscalls-Inferno.c $HFILES
 arch-Inferno.$O: arch-Inferno.c $HFILES
 	$CC $CFLAGS -DLIB9 arch-Inferno.c
 
-opstr-hitachi-sh.c: decode-hitachi-sh.h
-	$SHELLNAME mkopstr decode-hitachi-sh.h > opstr-hitachi-sh.c
-
 mversion.h: Makefile
 	echo 'char const MVERSION[] = "1.0-beta (build '`date '+%m-%d-%Y-%H:%M:%S'`-`whoami`@`hostname`-`uname`\)\"\; > mversion.h
 
 opstr-hitachi-sh.h: decode-hitachi-sh.h
-	$SHELLNAME mkopstr-hitachi-sh > opstr-hitachi-sh.h
+	$SHELLNAME mkopstr-hitachi-sh $GAWK > opstr-hitachi-sh.h
 
 opstr-ti-msp430.h: decode-ti-msp430.h
-	$SHELLNAME mkopstr-ti-msp430 > opstr-ti-msp430.h
+	$SHELLNAME mkopstr-ti-msp430 $GAWK > opstr-ti-msp430.h
 
 help.h: lex.c
-	$SHELLNAME mkhelp > help.h
+	$SHELLNAME mkhelp $GAWK > help.h

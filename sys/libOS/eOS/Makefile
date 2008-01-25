@@ -1,21 +1,21 @@
 include 	../../../conf/setup.conf
 
-PORT		= $(ROOT)/sys/libOS/port
-DEV		= $(ROOT)/sys/dev
+PORT		= $(SUNFLOWERROOT)/sys/libOS/port
+DEV		= $(SUNFLOWERROOT)/sys/dev
 
-INCLUDEDIR      = $(ROOT)/sys/include
-LIB 	     	= $(ROOT)/tools-lib/$(TARGET)
+INCLUDEDIR      = $(SUNFLOWERROOT)/sys/include
+LIB 	     	= $(SUNFLOWERROOT)/tools-lib/$(TARGET)
 INCLUDES        = -I. -I$(INCLUDEDIR) -I$(PORT) -I$(GCCINCLUDEDIR) -I../../kern/port
-CCFLAGS       	= -gstabs3 -O2 $(TARGET-ARCH-FLAGS) -nostdinc $(INCLUDES) -fno-builtin -Wall -Werror -c
+CCFLAGS       	= -g3 -O2 $(TARGET-ARCH-FLAGS) -nostdinc $(INCLUDES) -fno-builtin -Wall -Werror -c
 
 DELETE          = rm -f 
 COPY            = cp
 
 
 OBJS     	=\
-		osinit.o\
-		proc.o\
-		mem.o\
+		#osinit.o\
+		#proc.o\
+		#mem.o\
 		#sleep.o\
 		#wakeup.o\
 
@@ -55,7 +55,7 @@ osinit.o: osinit.c version.h
 	$(CC) $(CCFLAGS) osinit.c
 
 version.h:
-	echo 'char const VERSION[] = "Khimaira MindWorks Research eOS-$(TARGET-ARCH)-'`date '+%m-%d-%Y-%H:%M:%S'` \(MARIA\)\"\; > version.h
+	echo 'char const VERSION[] = "eOS-$(TARGET-ARCH)-'`date '+%m-%d-%Y-%H:%M:%S'` \(MARIA\)\"\; > version.h
 
 proc.o: proc.c
 	$(CC) $(CCFLAGS) proc.c

@@ -232,11 +232,13 @@
 #define NIC_TDR 		((volatile unsigned char *) SUPERH_NIC_TDR)
 #define NIC_NSR 		((volatile unsigned char *) SUPERH_NIC_NSR)
 #define NIC_RDR 		((volatile unsigned char *) SUPERH_NIC_RDR)
-#define NIC_FSZ 		((volatile unsigned char *) SUPERH_NIC_FSZ)
+#define NIC_MAXFSZ 		((volatile unsigned char *) SUPERH_NIC_MAXFSZ)
+#define NIC_RXFSZ 		((volatile unsigned char *) SUPERH_NIC_RXFSZ)
 #define NIC_OUI 		((volatile unsigned char *) SUPERH_NIC_OUI)
 #define NIC_DST 		((volatile unsigned char *) SUPERH_NIC_DST)
 #define NIC_NCSENSE 		((volatile unsigned char *) SUPERH_NIC_NCSENSE)
 #define NIC_NCOLLS 		((volatile unsigned char *) SUPERH_NIC_NCOLLS)
+#define NIC_CSENSE 		((volatile unsigned char *) SUPERH_NIC_CSENSE)
 
 
 
@@ -292,5 +294,5 @@
 /*									*/
 /*				Sensors and Actuators			*/
 /*									*/
-#define SENSOR_READ 		((volatile unsigned char *) SUPERH_SENSREAD_BEGIN)
-#define SENSOR_WRITE 		((volatile unsigned char *) SUPERH_SENSWRITE_BEGIN)
+#define SENSOR_READ 		((volatile float *) SUPERH_SENSREAD_BEGIN)
+#define SENSOR_WRITE 		((volatile float *) SUPERH_SENSWRITE_BEGIN)

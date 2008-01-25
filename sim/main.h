@@ -49,29 +49,45 @@
 #	define DBL_EPSILON	((double)2.2204460492503131e-16)
 #endif
 
+/*
+	We are yet to make the switch to picoseconds
+	#define	PICOSEC_MAX		(~(Picosec)0)
+*/
+#define	PICOSEC_MAX		DBL_MAX
+
 
 #ifdef	_WIN32_WINNT
 #	define	tuck
-#	define	snprintf snprint
-#	define	max(x,y)	((x) > (y) ? (x) : (y))
-#	define	min(x,y)	((x) < (y) ? (x) : (y))
 #else
 #	define	tuck		inline
-#	define	min(x,y)	((x) < (y) ? (x) : (y))
-#	define	max(x,y)	((x) > (y) ? (x) : (y))
 #endif
+
+#define	max(x,y)	((x) > (y) ? (x) : (y))
+#define	min(x,y)	((x) < (y) ? (x) : (y))
 
 #define eventready(curtime, lastactivate, period)\
 				((((curtime) - (lastactivate)) >= (period)) ? 1 : 0)
 
+#define	SF_LOGFILENAME		"sunflower.out"
+
+#define SF_FILE_MACRO		__FILE__
+
 #ifdef LIBSF
+#	define INTFMT		"%d"
+#	define UINTFMT		"%ud"
 #	define UVLONGFMT	"%llud"
 #	define ULONGFMT		"%lud"
 #	define UHLONGFMT	"%lux"
+#	define UH8LONGFMT	"%08lux"
+#	define UH2XFMT		"%02X"
 #else
+#	define INTFMT		"%d"
+#	define UINTFMT		"%u"
 #	define UVLONGFMT	"%llu"
 #	define ULONGFMT		"%lu"
 #	define UHLONGFMT	"%lx"
+#	define UH8LONGFMT	"%08lx"
+#	define UH2XFMT		"%02X"
 #endif
 
 
@@ -81,7 +97,7 @@ enum
 	DEFAULT_MEMWRITE_LATENCY	= 100,
 	DEFAULT_FLASHREAD_LATENCY	= 1,
 	DEFAULT_FLASHWRITE_LATENCY	= 100,
-	DEFLT_MEMSIZE			= 1<<20,
+	DEFLT_MEMSIZE			= 1<<24,
 	DEFLT_FLASHSIZE			= 1<<4,
 };
 
@@ -109,25 +125,29 @@ enum
 
 enum
 {
-	MAX_SIMNODES			= 1024,		
+	MAX_SIMNODES			= 64,		
 	MAX_NODE_DIGITS			= 8,
 	MAX_RUN_ARGS			= 64,		
 	MAX_SREC_LINELEN		= 1024,
 	MAX_NAMELEN			= 128,
-	MAX_NUMA_REGIONS		= 8192,
-	MAX_REG_TRACERS			= 8192,
+	MAX_NUMA_REGIONS		= 1024,
+	MAX_REG_TRACERS			= 1024,
 	MAX_CMD_LEN			= 128,
-	MAX_NUMAREGION_NAMELEN		= 128,
-	MAX_REGTRACER_NAMELEN		= 128,
-	BASE_NUMAREGION_VALUETRACE	= 1024,
-	BASE_REGTRACER_VALUETRACE	= 1024,
+	MAX_NUMAREGION_NAMELEN		= 64,
+	MAX_REGTRACER_NAMELEN		= 64,
+	BASE_NUMAREGION_VALUETRACE	= 128,
+	BASE_REGTRACER_VALUETRACE	= 128,
+	BASE_REGTRACER_DEVNTRACE	= 128,
 	MAX_NUMAREGION_VALUETRACE	= 1048576,
 	MAX_REGTRACER_VALUETRACE	= 1048576,
-	MAX_PCSTACK_HEIGHT		= 1024,
-	MAX_FPSTACK_HEIGHT		= 1024,
+	MAX_PCSTACK_HEIGHT		= 32,
+	MAX_FPSTACK_HEIGHT		= 32,
+	MAX_RANDTABLEENTRIES		= 8192,
+	MAX_RVARENTRIES			= 128,
+	MAX_NUM_ENGINES			= 4,
+	MAX_BREAKPOINTS			= 8,
+	
 
-	/*	Maximum freq modeled is 1 Terahertz. Yeah.	*/
-	MAX_FREQ_MHZ = 1000000,
 
 	/*	Keep sorted in order, so last entry is max	*/
 	MAX_NODESTDOUT_BUFSZ		= 8192,
@@ -137,22 +157,20 @@ enum
 	MAX_MIO_BUFSZ,
 };
 
-enum
-{
-	LOG_STEP	= 10,
-};
 
-enum
+typedef enum
 {
-	MOBILITY_RANDOM,
-};
+	SchedRoundRobin,
+	SchedRandom,
+} SchedType;
 
-enum
-{
-	SIM_LOC_XMAX = 1000,
-	SIM_LOC_YMAX = 1000,
-	SIM_LOC_ZMAX = 1000,
-};
+
+typedef struct State State;
+typedef struct Engine Engine;
+typedef struct SEEstruct SEEstruct;
+
+
+
 
 typedef struct
 {
@@ -227,6 +245,9 @@ typedef struct
 	/*	Actual accesses to this CPU's mem	*/
 	int		map_id;
 	ulong		map_offset;
+
+//TODO: these should be made doubles: see problems
+//	that pchau run into (email)
 	
 	ulong		local_read_latency;
 	ulong		local_write_latency;
@@ -265,9 +286,11 @@ typedef struct
 	int		regnum;
 	int		validx;
 	ulong		*values;
+	ulong		*devns;
 
 	/*	May be resized at runtime		*/
 	int		nvalues;
+	int		ndevns;
 
 	ulong		pcstart;
 } Regvt;
@@ -305,7 +328,153 @@ typedef struct
 	uchar	*data;
 } Mem;
 
-typedef struct State State;
+typedef struct
+{
+	//TODO: unused field			int	type;
+
+	union
+	{
+		struct	/*	dval	*/
+		{
+			double	value;
+		};
+
+		struct	/*	uval	*/
+		{
+			ulong	value;
+		};
+
+		struct	/*	sval	*/
+		{
+			long	value;
+		};
+
+		struct	/*	str	*/
+		{
+			char	*value;
+		};
+	};
+
+	struct
+	{
+		int	pfunid;
+		int	disttabid;
+
+		double	p1;
+		double	p2;
+		double	p3;
+		double	p4;
+	} rv;
+} Rval;
+
+typedef struct
+{
+	char	*name;
+	double	*table;
+	int	size;
+} RandTable;
+
+typedef struct
+{
+	int	id;
+	int	idx;
+	int	valdistfnid;
+	int	valdisttabid;
+	int	durdistfnid;
+	int	durdisttabid;
+	int	type;
+	int	mode;
+
+	/*	parameters for a particular instance of a pfun	*/
+	double	min;
+	double	max;
+	double	p1;
+	double	p2;
+	double	p3;
+	double	p4;
+
+	char	*name;
+	void	*addr;
+
+	Picosec	nextupdate;
+} Rvar;
+
+struct SEEstruct
+{
+	uchar*		hw;
+
+	/*	Size of structure, in bits	*/
+	int		actual_bits;
+
+	/*					*/
+	/*	Number of machine bits that	*/
+	/*	structure logically represents	*/
+	/*					*/
+	int		logical_bits;
+
+	/*					*/
+	/*	Location of struct in space	*/
+	/*	of logical bits.		*/
+	/*					*/
+	int		logical_offset;
+
+
+	/*					*/
+	/*	To enable treating different	*/
+	/*	portions of a hw structure 	*/
+	/*	differently.			*/
+	/*					*/
+	int		bit_offset;
+
+
+	SEEstruct	*next;
+};
+
+typedef struct
+{
+	SEEstruct	*hd;
+	SEEstruct	*tl;
+
+	int		logical_bits;
+	int		actual_bits;
+
+	double		(*loc_pfun)(State *S, double min, double max,
+					double p1, double p2, double p3, double p4);
+	double		loc_pfun_p1;
+	double		loc_pfun_p2;
+	double		loc_pfun_p3;
+	double		loc_pfun_p4;
+
+	double		(*bit_pfun)(State *S, double min, double max,
+					double p1, double p2, double p3, double p4);
+	double		bit_pfun_p1;
+	double		bit_pfun_p2;
+	double		bit_pfun_p3;
+	double		bit_pfun_p4;
+
+	double		(*dur_pfun)(State *S, double min, double max,
+					double p1, double p2, double p3, double p4);
+	double		dur_pfun_p1;
+	double		dur_pfun_p2;
+	double		dur_pfun_p3;
+	double		dur_pfun_p4;
+} SEEstate;
+
+typedef struct
+{
+	double		*xloc;
+	double		*yloc;
+	double		*zloc;
+
+	double		*rho;
+	double		*theta;
+	double		*phi;
+
+	int		nlocations;
+	int		trajectory_rate;
+	int		looptrajectory;
+} Path;
+
 struct State
 {
 	/*								*/
@@ -331,6 +500,17 @@ struct State
 	Mem		*M;
 	int		nmems;
 
+	/*								*/
+	/*	Each State * CPU structure maintains a coroutine	*/
+	/*	'continuation'.  This is used to interrupt the 		*/
+	/*	simulation of CPU at points where we need to stop	*/
+	/*	doing the current cycle's duties and go simulate	*/
+	/*	other processors. E.g., if in the middle of simulating	*/
+	/*	an instruction (say, TAS), we must take a cache miss	*/
+	/*	before finishing the rest of the instruction, we	*/
+	/*	park the coroutine in the rack and return to that 	*/
+	/*	position when approapriate.				*/
+	/*								*/
 	jmp_buf		rack;
 
 
@@ -340,16 +520,26 @@ struct State
 
 
 	/*	Instruction-level power analysis	*/
-	EnergyInfo	E;
+	EnergyInfo	energyinfo;
 	double		scaledcurrents[OP_MAX];
 
+	/*		The operating voltage. 		*/
 	double		VDD;
+	/*	The default low operating voltage. 	*/
+
 	double		LOWVDD;			
-	double		SVDD;			
+	/*		Saved VDD. see pau.c		*/
+	double		SVDD;
+		
 	double		temperature;
 	double		voltscale_alpha;
 	double		voltscale_Vt;
 	double		voltscale_K;
+
+
+	int		ENABLE_BATT_LOW_INTR;
+	double		battery_alert_frac;
+	void		*BATT;
 
 	/*		Sensors for sensing physical phenomena		*/
 	Sensor		sensors[MAX_NODE_SENSORS];
@@ -404,19 +594,10 @@ struct State
 	uvlong		nfaults;
 	uvlong		faultthreshold;
 	int		ENABLE_TOO_MANY_FAULTS;
+	SEEstate*	SEEmodeling;	
 
 	/*			Division off SIM_GLOBAL_CLOCK		*/
 	int		clock_modulus;
-
-	
-	/*			Whether we accept low batt interrupts	*/
-	int		ENABLE_BATT_LOW_INTR;
-
-	/*			When are we scared ?			*/
-	double		battery_alert_frac;
-
-	/*			Our battery				*/
-	void		*BATT;
 
 
 	/*				Logging				*/
@@ -446,11 +627,16 @@ struct State
 
 
 	/*	    		Topology Information			*/
-	int		orbit;
-	double		velocity;
 	double		xloc;
 	double		yloc;
 	double		zloc;
+	double		rho;
+	double		theta;
+	double		phi;
+	Path		path;
+
+	/*			Trajectory/headings input		*/		
+	char		*trajfilename;
 
 
 	/*	Set if acting as a dummy from remote_seg_enqueue()	*/
@@ -463,51 +649,219 @@ struct State
 
 
 	/*	Pointer to function to relevant step() routine		*/
-	int 		(*step)(State *, int);
-	int 		(*cyclestep)(State *, int);
-	int 		(*faststep)(State *, int);
+	int 		(*step)(Engine *, State *, int);
+	int 		(*cyclestep)(Engine *, State *, int);
+	int 		(*faststep)(Engine *, State *, int);
 
 	/*	Pointer to function for failure prob dist		*/
-	uvlong 		(*pfun)(void *, char *, uvlong);
+	uvlong 		(*pfun)(void *, void *, char *, uvlong);
 
 	/*	The routines to handle the different interrupts		*/
-	int 		(*take_timer_intr)(State *S);
-	int 		(*take_nic_intr)(State *S);
-	int 		(*take_batt_intr)(State *S);
-	int 		(*check_nic_intr)(State *S);
-	int 		(*check_batt_intr)(State *S);
+	int 		(*take_timer_intr)(Engine *, State *S);
+	int 		(*take_nic_intr)(Engine *, State *S);
+	int 		(*take_batt_intr)(Engine *, State *S);
+	int 		(*check_nic_intr)(Engine *, State *S);
+	int 		(*check_batt_intr)(Engine *, State *S);
 
 	/*		Other misc machine specific actions		*/
-	void 		(*fatalaction)(State *S);
-	void 		(*dumpregs)(State *S);
-	void 		(*dumpsysregs)(State *S);
-	void 		(*resetcpu)(State *S);
-	void 		(*dumppipe)(State *S);
+	void 		(*fatalaction)(Engine *, State *S);
+	void 		(*dumpregs)(Engine *, State *S);
+	void 		(*dumpsysregs)(Engine *, State *S);
+	void 		(*resetcpu)(Engine *, State *S);
+	void 		(*dumppipe)(Engine *, State *S);
 	void 		(*pipeflush)(State *S);
 
 	/*	Memory mapped device register read/write functions	*/
-	uchar		(*devreadbyte)(State *S, ulong addr);
-	ushort		(*devreadword)(State *S, ulong addr);
-	ulong		(*devreadlong)(State *S, ulong addr);
-	void		(*devwritebyte)(State *S, ulong addr, uchar data);
-	void		(*devwriteword)(State *S, ulong addr, ushort data);
-	void		(*devwritelong)(State *S, ulong addr, ulong data);
+	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);
+	ushort		(*devreadword)(Engine *, State *S, ulong addr);
+	ulong		(*devreadlong)(Engine *, State *S, ulong addr);
+	void		(*devwritebyte)(Engine *, State *S, ulong addr, uchar data);
+	void		(*devwriteword)(Engine *, State *S, ulong addr, ushort data);
+	void		(*devwritelong)(Engine *, State *S, ulong addr, ulong data);
 
 	/*		Split CPU into 2 shared memory CPUs		*/
-	void		(*split)(State *S, ulong startpc, ulong stackaddr, ulong argaddr, char *idstr);
+	void		(*split)(Engine *, State *S, ulong startpc, ulong stackaddr, ulong argaddr, char *idstr);
 
 	/*		Address translation / MMU routines		*/
-	void		(*vmtranslate)(State *S, int op, TransAddr *transladdr);
+	void		(*vmtranslate)(Engine *, State *S, int op, TransAddr *transladdr);
 
 	/*	This is the function called on a cache miss		*/
-	void 		(*stallaction)(State *S, ulong addr, int type, int latency);
+	void 		(*stallaction)(Engine *, State *S, ulong addr, int type, int latency);
 
-	void 		(*settimerintrdelay)(State *S, int delay);
+	void 		(*settimerintrdelay)(Engine *, State *S, int delay);
 
-	int		(*cache_init)(State *S, int size, int blocksize, int assoc);
-	void 		(*cache_deactivate)(State *S);
-	void 		(*cache_printstats)(State *S);
-	void 		(*dumptlb)(State *S);
+	int		(*cache_init)(Engine *, State *S, int size, int blocksize, int assoc);
+	void 		(*cache_deactivate)(Engine *, State *S);
+	void 		(*cache_printstats)(Engine *, State *S);
+	void 		(*dumptlb)(Engine *, State *S);
 
-	void 		(*writebyte)(State *S, ulong addr, ulong data);
+	void 		(*writebyte)(Engine *, State *S, ulong addr, ulong data);
 };	
+
+typedef enum
+{
+	BPT_CYCLES,
+	BPT_GLOBALTIME,
+	BPT_INSTRS,
+	BPT_SENSORREADING,
+} Breaktype;
+
+typedef struct
+{
+	Breaktype	type;
+	int		valid;
+
+	union
+	{
+		struct
+		{
+			int	nodeid;
+			uvlong	dyncnt;
+		} instrsbpt;
+
+		struct
+		{
+			int	nodeid;
+			uvlong	cycles;
+		} cyclesbpt;
+
+		struct
+		{
+			int	nodeid;
+			int	sensor;
+			double	value;
+		} sensorreadingbpt;
+
+		Picosec	globaltime;
+	};	
+} Breakpoint;
+
+struct Engine
+{
+	/*		String supplied in devsunflower attach		*/
+	char		*attachspec;
+
+
+	/*			Parsed input stream			*/
+	Input 		istream;
+	Labels		labellist;
+
+	/*				Decode caches			*/
+	SuperHDCEntry	superHDC[1<<16];
+	MSP430DCEntry	msp430DC[1<<16];
+
+
+	/*		Do not spawn new thread on 'ON' command		*/
+	int		nodetach;
+
+
+	/*	Throttling simulation speed in distributed sim.		*/
+	ulong		throttlensec;
+	ulong		throttlewin;
+
+	/*		Random number generator per-node state		*/
+	uvlong		*randgen_mt;
+	int		randgen_mti;
+
+	/*		Table-based rnum generation			*/
+	RandTable	randtabs[MAX_RANDTABLEENTRIES];
+	int		nrandtabs;
+	Picosec		rvarsnextpsec;
+	Rvar*		rvars[MAX_RVARENTRIES];
+	int		validrvars[MAX_RVARENTRIES];	
+	int		nvalidrvars;
+	int		randsched[MAX_SIMNODES];
+
+
+	/*	The collection of modeled processors/systems		*/
+	int		baseid;			/*	base id for numbering	*/
+	State		*sp[MAX_SIMNODES];	/* 	array of node ptrs	*/
+	State 		*cp;			/*	pointer to current	*/
+	int		cn;			/*	current node id		*/
+
+	/*		Miscellaneous whole-simulation state		*/
+	int		quantum;		/*	sim quantum		*/
+	int		scanning;
+	int		nnodes;
+	int		on;
+	jmp_buf		jmpbuf;			/*	for managing main loop	*/
+	char            infobuf[MAX_SIM_INFO_BUFSZ];
+	int             infoh2o;
+	Picosec		globaltimepsec;
+	Picosec		mincycpsec;
+	Picosec		maxcycpsec;
+	uvlong		randseed;
+
+	/*				Behavior settings		*/
+	int		ignoredeaths;
+	SchedType	schedtype;
+
+
+	/*				Failure				*/
+	Picosec		fperiodpsec;
+	Picosec		flastpsec;
+
+	/*				Network				*/
+	Netsegment	netsegs[MAX_NETSEGMENTS];
+	int		nnetsegs;
+	int		activensegs[MAX_NETSEGMENTS];
+	int		nactivensegs;
+	uvlong		nicsimbytes;
+	char          	netiobuf[MAX_NETIO_NBUFS][MAX_SEGBUF_TEXT];
+	int           	netioh2o;
+
+	/*								*/
+	/*	At 8 Mb/s, each byte is transferred in 1 us, thus 	*/
+	/*	period of < 1us is OK for simulating network speeds	*/
+	/*	which are < 8 Mb/s. The period is set automatically	*/
+	/*	in network.c, based on the min netseg speed (that's	*/
+	/*	why we initialize to PICOSEC_MAX).			*/
+	/*								*/
+	Picosec		netperiodpsec;
+	Picosec		netlastpsec;
+
+	/*			Physical Phenomena			*/
+	Signalsrc	sigsrcs[MAX_SIGNAL_SRCS];
+	int		nsigsrcs;
+	Picosec		phylastpsec;
+	Picosec		phyperiodpsec;
+
+
+	/*			Node trajectory kickers			*/
+	Picosec		trajperiodpsec;
+	Picosec		trajlastpsec;
+
+	/*				Power/Batt.			*/
+	Batt		batts[MAX_BATTERIES];
+	int		nbatts;
+	int		curbatt;
+	Batt*		activebatts[MAX_BATTERIES];
+	int		nactivebatts;
+	int		ndepletedbatts;
+	int		verbose;
+	Picosec		battlastpsec;
+	Picosec		battperiodpsec;
+	Picosec		dumplastpsec;
+	Picosec		dumpperiodpsec;
+
+#ifdef LIBSF
+	int		sched_pid;
+#else
+	pthread_t	sched_handle;
+#endif
+
+
+
+	/*		Malloc accounting		*/
+	MMemblock	memblocks[MMALLOC_MAXALLOCBLOCKS];
+	int		nmemblocks;
+
+
+	/*		Breakpoint			*/
+	Breakpoint	bpts[MAX_BREAKPOINTS];
+	int		validbpts[MAX_BREAKPOINTS];
+	int		nvalidbpts;
+
+	char		*logfilename;
+};
+

@@ -33,7 +33,7 @@
 /*										*/	
 
 tuck ushort
-msp430regread(State *S, int n, MSP430Pipestage *p)
+msp430regread(Engine *E, State *S, int n, MSP430Pipestage *p)
 {
 	ushort	data = -1;
 
@@ -157,10 +157,10 @@ msp430regread(State *S, int n, MSP430Pipestage *p)
 					"realloc (*match)->values in regaccess.c");
 				if (tmp == NULL)
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"Resizing (*match)->values to %d entries failed\n",
 						(*match)->nvalues);
-					sfatal(S, 
+					sfatal(E, S, 
 						"realloc failed for (*match)->values in regaccess.c");
 				}
 				(*match)->values = tmp;
@@ -173,7 +173,7 @@ msp430regread(State *S, int n, MSP430Pipestage *p)
 
 
 tuck void
-msp430regset(State *S, int n, ushort data)
+msp430regset(Engine *E, State *S, int n, ushort data)
 {
 	if (SF_VALUETRACE_ANALYSIS)
 	{
@@ -222,10 +222,10 @@ msp430regset(State *S, int n, ushort data)
 					"realloc (*match)->values in regaccess.c");
 				if (tmp == NULL)
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"Resizing (*match)->values to %d entries failed\n",
 						(*match)->nvalues);
-					sfatal(S,
+					sfatal(E, S,
 						"realloc failed for (*match)->values in regaccess.c");
 				}
 				(*match)->values = tmp;

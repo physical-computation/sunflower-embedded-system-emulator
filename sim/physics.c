@@ -30,7 +30,9 @@
 /*	damage.									*/
 /*										*/
 /*	Contact: phillip Stanley-Marbell <pstanley@ece.cmu.edu>			*/
-/*										*/	
+/*										*/
+
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +40,7 @@
 #include "mextern.h"
 
 void
-physics_feed(void)
+physics_feed(Engine *E)
 {
 	int		i, j;
 	double		reading, lskew, hskew, idx_real, idx_low, idx_high;
@@ -46,16 +48,16 @@ physics_feed(void)
 	Signalsrc	*s;
 
 
-	for (i = 0; i < SIM_NUM_SIGSRCS; i++)
+	for (i = 0; i < E->nsigsrcs; i++)
 	{
-		s = &SIM_SIGSRCS[i];
+		s = &E->sigsrcs[i];
 
 		if (s->nsamples <= 0)
 		{
 			continue;
 		}
 
-		idx_real = SIM_GLOBAL_TIME * s->sample_rate;
+		idx_real = E->globaltimepsec * s->sample_rate;
 		if (s->nsamples > 1)
 		{
 			if (idx_real >= (double)s->nsamples)
@@ -83,7 +85,7 @@ physics_feed(void)
 			s->sample = s->samples[(int)ceil(idx_real)];
 		}
 		
-		idx_real = SIM_GLOBAL_TIME * s->trajectory_rate;
+		idx_real = E->globaltimepsec * s->trajectory_rate;
 		if (s->nlocations > 1)
 		{
 			if (idx_real >= (double) s->nlocations)
@@ -168,7 +170,7 @@ physics_propagation(Signalsrc *s, double dst_xloc, double dst_yloc, double dst_z
 
 
 void
-physics_newsigsrc(int type, char* descr, double tau, double propspeed,
+physics_newsigsrc(Engine *EE, int type, char* descr, double tau, double propspeed,
 	double A, double B, double C, double D, double E, double F,
 	double G, double H, double I, double K, double powm, double pown,
 	double powo, double powp, double powq, double powr, double pows, double powt,
@@ -183,24 +185,24 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 	int		tmpfd, linesread = 0;
 
 
-	if (SIM_NUM_SIGSRCS >= MAX_SIGNAL_SRCS)
+	if (EE->nsigsrcs >= MAX_SIGNAL_SRCS)
 	{
-		merror("Signal source creation limit reached.");
+		merror(EE, "Signal source creation limit reached.");
 		return;
 	}
 
-	s = &SIM_SIGSRCS[SIM_NUM_SIGSRCS++];
-	s->ID = SIM_NUM_SIGSRCS;
+	s = &EE->sigsrcs[EE->nsigsrcs++];
+	s->ID = EE->nsigsrcs;
 	s->numsubscribed = 0;
 	s->type = type;
 
 	if (strlen(descr) > 0)
 	{
-		s->description = mcalloc(strlen(descr)+1, sizeof(char),
+		s->description = mcalloc(EE, strlen(descr)+1, sizeof(char),
 			"s->description in shasm.y");			
 		if (s->description == NULL)
 		{
-			merror("Could not allocate memory for s->description.");
+			merror(EE, "Could not allocate memory for s->description.");
 			return;
 		}
 		strcpy(s->description, descr);
@@ -232,11 +234,11 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 
 	if (strlen(trajectoryfile) > 0)
 	{
-		s->trajectory_file = mcalloc(strlen(trajectoryfile)+1, sizeof(char),
+		s->trajectory_file = mcalloc(EE, strlen(trajectoryfile)+1, sizeof(char),
 				"s->trajectory_file in shasm.y");
 		if (s->trajectory_file == NULL)
 		{
-			merror("Could not allocate memory for s->trajectory_file.");
+			merror(EE, "Could not allocate memory for s->trajectory_file.");
 			return;
 		}
 		strcpy(s->trajectory_file, trajectoryfile);
@@ -254,37 +256,37 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 		val = strtod(buf, &ep);
 		if ((linesread == 0) && (*ep != '\0'))
 		{
-			merror("Invalid \"# of records\" field (\"%s\") in trajectory file.", buf);
+			merror(EE, "Invalid \"# of records\" field (\"%s\") in trajectory file.", buf);
 			continue;
 		}
 
 		if (linesread == 0)
 		{
-			s->xlocs = mcalloc((int)val, sizeof(double),
+			s->xlocs = mcalloc(EE, (int)val, sizeof(double),
 				"s->xlocs in shasm.y");
 			if (s->xlocs == NULL)
 			{
-				merror("Could not allocate memory for s->xlocs.");
+				merror(EE, "Could not allocate memory for s->xlocs.");
 				return;
 			}
 
-			s->ylocs = mcalloc((int)val, sizeof(double),
+			s->ylocs = mcalloc(EE, (int)val, sizeof(double),
 					"s->ylocs in shasm.y");
 			if (s->ylocs == NULL)
 			{
-				merror("Could not allocate memory for s->ylocs.");
+				merror(EE, "Could not allocate memory for s->ylocs.");
 				return;
 			}
 
-			s->zlocs = mcalloc((int)val, sizeof(double),
+			s->zlocs = mcalloc(EE, (int)val, sizeof(double),
 					"s->zlocs in shasm.y");
 			if (s->zlocs == NULL)
 			{
-				merror("Could not allocate memory for s->zlocs.");
+				merror(EE, "Could not allocate memory for s->zlocs.");
 				return;
 			}
 
-			mprint(NULL, siminfo,
+			mprint(EE, NULL, siminfo,
 				"[%d] records in trajectory file\n", (int)val);
 		}
 		else
@@ -302,7 +304,7 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 						s->xlocs[s->nlocations] = strtod(p, &ep);
 						if (*ep != '\0')
 						{
-							merror("Invalid xloc in trajectory file.");
+							merror(EE, "Invalid xloc in trajectory file.");
 						}
 
 						break;
@@ -313,7 +315,7 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 						s->ylocs[s->nlocations] = strtod(p, &ep);
 						if (*ep != '\0')
 						{
-							merror("Invalid yloc in trajectory file.");
+							merror(EE, "Invalid yloc in trajectory file.");
 						}
 
 						break;
@@ -324,7 +326,7 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 						s->zlocs[s->nlocations] = strtod(p, &ep);
 						if (*ep != '\0')
 						{
-							merror("Invalid zloc in trajectory file.");
+							merror(EE, "Invalid zloc in trajectory file.");
 						}
 
 						break;
@@ -332,7 +334,7 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 
 					default:
 					{
-						merror("Extra field in trajectory file.");
+						merror(EE, "Extra field in trajectory file.");
 					}
 
 				}
@@ -356,11 +358,11 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 
 	if (strlen(samplesfile) > 0)
 	{
-		s->samples_file = mcalloc(strlen(samplesfile)+1, sizeof(char),
+		s->samples_file = mcalloc(EE, strlen(samplesfile)+1, sizeof(char),
 				"s->description in shasm.y");
 		if (s->samples_file == NULL)
 		{
-			merror("Could not allocate memory for s->samples_file.");
+			merror(EE, "Could not allocate memory for s->samples_file.");
 			return;
 		}			
 		strcpy(s->samples_file, samplesfile);
@@ -371,10 +373,10 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 	if ((tmpfd = mopen(s->samples_file, M_OREAD)) < 0)
 	{
 		s->nsamples = 1;
-		s->samples = mcalloc(1, sizeof(double), "s->samples in shasm.y");
+		s->samples = mcalloc(EE, 1, sizeof(double), "s->samples in shasm.y");
 		if (s->samples == NULL)
 		{
-			merror("Could not allocate memory for s->samples.");
+			merror(EE, "Could not allocate memory for s->samples.");
 			return;
 		}
 		s->samples[0] = fixedsampleval;
@@ -389,17 +391,17 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 		val = strtod(buf, &ep);
 		if (*ep != '\0')
 		{
-			merror("Invalid data in signal samples file.");
+			merror(EE, "Invalid data in signal samples file.");
 			continue;
 		}
 
 		if (linesread == 0)
 		{
-			s->samples = mcalloc((int)val, sizeof(double),
+			s->samples = mcalloc(EE, (int)val, sizeof(double),
 				"s->samples in shasm.y");
 			if (s->samples == NULL)
 			{
-				merror("Could not allocate memory for s->samples.");
+				merror(EE, "Could not allocate memory for s->samples.");
 				return;
 			}
 		}
@@ -424,7 +426,7 @@ physics_newsigsrc(int type, char* descr, double tau, double propspeed,
 
 
 void
-physics_sensorsdbg(void)
+physics_sensorsdbg(Engine *E)
 {
 	int 		i, j;
 	double		r, sigpercent;
@@ -432,91 +434,91 @@ physics_sensorsdbg(void)
 	Signalsrc	*s;
 
 
-	for (i = 0; i < SIM_NUM_SIGSRCS; i++)
+	for (i = 0; i < E->nsigsrcs; i++)
 	{
-		s = &SIM_SIGSRCS[i];
+		s = &E->sigsrcs[i];
 
-		mprint(NULL, siminfo, "\n");
-		mprint(NULL, siminfo, "Signal Source \"%s\"\n",
+		mprint(E, NULL, siminfo, "\n");
+		mprint(E, NULL, siminfo, "Signal Source \"%s\"\n",
 			s->description);
-		mprint(NULL, siminfo, "\ttype = [%d]\n",
+		mprint(E, NULL, siminfo, "\ttype = [%d]\n",
 			s->type);
-		mprint(NULL, siminfo, "\tnumsubscribed = [%d]\n",
+		mprint(E, NULL, siminfo, "\tnumsubscribed = [%d]\n",
 			s->numsubscribed);
-		mprint(NULL, siminfo, "\tnsamples = [%d]\n",
+		mprint(E, NULL, siminfo, "\tnsamples = [%d]\n",
 			s->nsamples);
 
-		mprint(NULL, siminfo, "\tupdates_tau = [%E]\n",
+		mprint(E, NULL, siminfo, "\tupdates_tau = [%E]\n",
 			s->updates_tau);
-		mprint(NULL, siminfo, "\tpropagation_speed = [%E]\n",
+		mprint(E, NULL, siminfo, "\tpropagation_speed = [%E]\n",
 			s->propagation_speed);
-		mprint(NULL, siminfo, "\tconst_coeff_A = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_A = [%E]\n",
 			s->const_coeff_A);
-		mprint(NULL, siminfo, "\tconst_coeff_B = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_B = [%E]\n",
 			s->const_coeff_B);
-		mprint(NULL, siminfo, "\tconst_coeff_C = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_C = [%E]\n",
 			s->const_coeff_C);
-		mprint(NULL, siminfo, "\tconst_coeff_D = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_D = [%E]\n",
 			s->const_coeff_D);
-		mprint(NULL, siminfo, "\tconst_coeff_E = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_E = [%E]\n",
 			s->const_coeff_E);
-		mprint(NULL, siminfo, "\tconst_coeff_F = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_F = [%E]\n",
 			s->const_coeff_F);
-		mprint(NULL, siminfo, "\tconst_coeff_G = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_G = [%E]\n",
 			s->const_coeff_G);
-		mprint(NULL, siminfo, "\tconst_coeff_H = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_H = [%E]\n",
 			s->const_coeff_H);
-		mprint(NULL, siminfo, "\tconst_coeff_I = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_coeff_I = [%E]\n",
 			s->const_coeff_I);
-		mprint(NULL, siminfo, "\tconst_base_K = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_base_K = [%E]\n",
 			s->const_base_K);
 
-		mprint(NULL, siminfo, "\tconst_pow_m = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_m = [%E]\n",
 			s->const_pow_m);
-		mprint(NULL, siminfo, "\tconst_pow_n = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_n = [%E]\n",
 			s->const_pow_n);
-		mprint(NULL, siminfo, "\tconst_pow_o = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_o = [%E]\n",
 			s->const_pow_o);
-		mprint(NULL, siminfo, "\tconst_pow_p = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_p = [%E]\n",
 			s->const_pow_p);
-		mprint(NULL, siminfo, "\tconst_pow_q = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_q = [%E]\n",
 			s->const_pow_q);
-		mprint(NULL, siminfo, "\tconst_pow_r = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_r = [%E]\n",
 			s->const_pow_r);
-		mprint(NULL, siminfo, "\tconst_pow_s = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_s = [%E]\n",
 			s->const_pow_s);
-		mprint(NULL, siminfo, "\tconst_pow_t = [%E]\n",
+		mprint(E, NULL, siminfo, "\tconst_pow_t = [%E]\n",
 			s->const_pow_t);
 
-		mprint(NULL, siminfo, "\ttrajectory input file = [%s]\n",
+		mprint(E, NULL, siminfo, "\ttrajectory input file = [%s]\n",
 			s->trajectory_file);
-		mprint(NULL, siminfo, "\tnlocations = [%d]\n",
+		mprint(E, NULL, siminfo, "\tnlocations = [%d]\n",
 			s->nlocations);
-		mprint(NULL, siminfo, "\ttrajectory_rate = [%d]\n",
+		mprint(E, NULL, siminfo, "\ttrajectory_rate = [%d]\n",
 			s->trajectory_rate);
-		mprint(NULL, siminfo, "\txloc = [%E]\n",
+		mprint(E, NULL, siminfo, "\txloc = [%E]\n",
 			s->xloc);
-		mprint(NULL, siminfo, "\tyloc = [%E]\n",
+		mprint(E, NULL, siminfo, "\tyloc = [%E]\n",
 			s->yloc);
-		mprint(NULL, siminfo, "\tzloc = [%E]\n",
+		mprint(E, NULL, siminfo, "\tzloc = [%E]\n",
 			s->zloc);
-		mprint(NULL, siminfo, "\tlooptrajectory = [%d]\n",
+		mprint(E, NULL, siminfo, "\tlooptrajectory = [%d]\n",
 			s->looptrajectory);
 
-		mprint(NULL, siminfo, "\tsamples_file = [%s]\n",
+		mprint(E, NULL, siminfo, "\tsamples_file = [%s]\n",
 			s->samples_file);
-		mprint(NULL, siminfo, "\tsamples[0] = [%E]\n",
+		mprint(E, NULL, siminfo, "\tsamples[0] = [%E]\n",
 			s->samples[0]);
-		mprint(NULL, siminfo, "\tsample_rate = [%d]\n",
+		mprint(E, NULL, siminfo, "\tsample_rate = [%d]\n",
 			s->sample_rate);
-		mprint(NULL, siminfo, "\tloopsamples = [%d]\n",
+		mprint(E, NULL, siminfo, "\tloopsamples = [%d]\n",
 			s->loopsamples);
 
-		for (j = 0; j < SIM_SIGSRCS[i].numsubscribed; j++)
+		for (j = 0; j < E->sigsrcs[i].numsubscribed; j++)
 		{
 			dstnode = (State *)s->subscribed_sensors[j]->parent;
 
-			mprint(NULL, siminfo, "\t\tnode %d, sensor %d, ",
+			mprint(E, NULL, siminfo, "\t\tnode %d, sensor %d, ",
 				dstnode->NODE_ID,
 				s->subscribed_sensors[j]->which);
 
@@ -529,11 +531,11 @@ physics_sensorsdbg(void)
 				dstnode->xloc, dstnode->yloc, dstnode->zloc) / s->sample;
 			sigpercent *= 100;
 	
-			mprint(NULL, siminfo,
+			mprint(E, NULL, siminfo,
 				"distance %.2f units, signal strength %.2f%%.\n",
 				r, sigpercent);
 		}
-		mprint(NULL, siminfo, "\n\n");
+		mprint(E, NULL, siminfo, "\n\n");
 	}
 			
 	return;
@@ -541,17 +543,17 @@ physics_sensorsdbg(void)
 
 
 void
-physics_sigsubscr(State *S, int whichsensor, int whichsignal)
+physics_sigsubscr(Engine *E, State *S, int whichsensor, int whichsignal)
 {
 	if ((whichsensor >= MAX_NODE_SENSORS) || (whichsignal >= MAX_SIGNAL_SRCS))
 	{
-		merror("Sensor or Signal index out of range.");
+		merror(E, "Sensor or Signal index out of range.");
 		return;
 	}
 
 	S->sensors[whichsensor].which = whichsensor;
 	S->sensors[whichsensor].parent = S;
-	SIM_SIGSRCS[whichsignal].subscribed_sensors[SIM_SIGSRCS[whichsignal].numsubscribed++] =
+	E->sigsrcs[whichsignal].subscribed_sensors[E->sigsrcs[whichsignal].numsubscribed++] =
 		&S->sensors[whichsensor];
 			
 	return;

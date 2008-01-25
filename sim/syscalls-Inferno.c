@@ -38,9 +38,9 @@
 #include "mextern.h"
 
 
-static ulong	sys_write(State *, int, char *, int);
+static ulong	sys_write(Engine *, State *, int, char *, int);
 static ulong	sys_read(State *, int, void *, int);
-static ulong	sys_open(State *, const char *, int);
+static ulong	sys_open(Engine *, State *, const char *, int);
 static ulong	sys_close(State *, int);
 static ulong	sys_creat(State *, const char *, int);
 static ulong	sys_chmod(State *S, const char *, short);
@@ -53,7 +53,7 @@ static ulong	sys_pipe(State *S, int *);
 int	DEBUG = 0;
 
 ulong
-sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
+sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 {
 	switch (type)
 	{
@@ -61,28 +61,28 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_exit\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_exit\n");
 			}
 
 			S->ufinish = musercputimeusecs();
 			S->finishclk = S->ICLK;
-			mprint(S, nodeinfo, "Simulated Clock Cycles = " UVLONGFMT ".\n",
+			mprint(E, S, nodeinfo, "Simulated Clock Cycles = " UVLONGFMT ".\n",
 				S->finishclk - S->startclk);
-			mprint(S, nodeinfo, "User Time elapsed = %.6f seconds.\n",
+			mprint(E, S, nodeinfo, "User Time elapsed = %.6f seconds.\n",
 				((float)(S->ufinish - S->ustart))/1E6);
-			mprint(S, nodeinfo,
+			mprint(E, S, nodeinfo,
 				"Instruction Simulation Rate = %.6f K Cycles/Second.\n",
 				(((float)((ulong)S->finishclk - (ulong)S->startclk))/(((float)
 				(S->ufinish - S->ustart))/1E6))/1E3);
 			if (SF_POWER_ANALYSIS)
 			{
-				mprint(S, nodeinfo,
-					"Estimated CPU-only Energy = %.6LE\n", S->E.CPUEtot);
+				mprint(E, S, nodeinfo,
+					"Estimated CPU-only Energy = %.6LE\n", S->energyinfo.CPUEtot);
 			}
 				
-			mprint(S, nodeinfo, "\n\n");
+			mprint(E, S, nodeinfo, "\n\n");
 			S->runnable = 0;
-			SIM_ON = 0;
+			E->on = 0;
 
 			break;
 		}
@@ -92,7 +92,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_fork\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_fork\n");
 			}
 
 			break;
@@ -102,7 +102,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-			     mprint(S, nodeinfo, "SYSCALL: SYS_read fd=0x" UHLONGFMT " ptr=0x" UHLONGFMT " len=0x" UHLONGFMT "\n",
+			     mprint(E, S, nodeinfo, "SYSCALL: SYS_read fd=0x" UHLONGFMT " ptr=0x" UHLONGFMT " len=0x" UHLONGFMT "\n",
 			     arg1, arg2, arg3);
 			}
 			return sys_read(S, (int)arg1, (char *)arg2, (int)arg3);
@@ -114,10 +114,10 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-			    mprint(S, nodeinfo, "SYSCALL: SYS_write fd=0x" UHLONGFMT " ptr=0x" UHLONGFMT " len=0x" UHLONGFMT "\n",
+			    mprint(E, S, nodeinfo, "SYSCALL: SYS_write fd=0x" UHLONGFMT " ptr=0x" UHLONGFMT " len=0x" UHLONGFMT "\n",
 				arg1, arg2, arg3);
 			}
-			return sys_write(S, (int)arg1, (char *)arg2, (int)arg3);
+			return sys_write(E, S, (int)arg1, (char *)arg2, (int)arg3);
 
 			break;
 		}
@@ -126,10 +126,10 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_open path=0x" UHLONGFMT " flags=0x" UHLONGFMT "\n",
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_open path=0x" UHLONGFMT " flags=0x" UHLONGFMT "\n",
 				arg1, arg2);
 			}
-			return sys_open(S, (const char *)arg1, (int)arg2);
+			return sys_open(E, S, (const char *)arg1, (int)arg2);
 
 			break;
 		}
@@ -138,7 +138,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_close fd=0x" UHLONGFMT " \n", arg1);
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_close fd=0x" UHLONGFMT " \n", arg1);
 			}
 			return sys_close(S, (int)arg1);
 
@@ -150,7 +150,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_wait4\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_wait4\n");
 			}
 
 			break;
@@ -160,7 +160,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_creat path=0x" UHLONGFMT " mode=0x" UHLONGFMT "\n",
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_creat path=0x" UHLONGFMT " mode=0x" UHLONGFMT "\n",
 				arg1, arg2);
 			}
 			return sys_creat(S, (const char *)arg1, (int)arg2);
@@ -173,7 +173,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_link\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_link\n");
 			}
 
 			break;
@@ -184,7 +184,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_unlink\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_unlink\n");
 			}
 
 			break;
@@ -195,7 +195,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_execv\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_execv\n");
 			}
 
 			break;
@@ -206,7 +206,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_chdir\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_chdir\n");
 			}
 
 			break;
@@ -217,7 +217,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_mknod\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_mknod\n");
 			}
 
 			break;
@@ -227,7 +227,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_chmod path=0x" UHLONGFMT " mode=0x" UHLONGFMT "\n",
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_chmod path=0x" UHLONGFMT " mode=0x" UHLONGFMT "\n",
 				arg1, arg2);
 			}
 			return sys_chmod(S, (const char *)arg1, (short)arg2);
@@ -239,7 +239,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 				"SYSCALL: SYS_chown path=0x" UHLONGFMT " owner=0x" UHLONGFMT " grp=0x" UHLONGFMT "\n",
 				arg1, arg2, arg3);
 			}
@@ -252,7 +252,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 				"SYSCALL: SYS_lseek file=0x" UHLONGFMT " ptr=0x" UHLONGFMT " dir=0x" UHLONGFMT "\n",
 				arg1, arg2, arg3);
 			}
@@ -266,7 +266,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_getpid\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_getpid\n");
 			}
 			break;
 		}
@@ -276,7 +276,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_isatty\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_isatty\n");
 			}
 
 			break;
@@ -285,7 +285,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		case SYS_fstat:
 		{
 			/*	Handled in newlib's syscalls.c		*/
-			mprint(S, nodeinfo, "SYSCALL: SYS_fstat\n");
+			mprint(E, S, nodeinfo, "SYSCALL: SYS_fstat\n");
 
 			break;
 		}
@@ -295,7 +295,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_time\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_time\n");
 			}
 
 			break;
@@ -306,7 +306,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_ARG\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_ARG\n");
 			}
 
 			break;
@@ -316,7 +316,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				/*mprint(S, nodeinfo, "SYSCALL: SYS_stat path=0x" UHLONGFMT " st=0x" UHLONGFMT "\n",
+				/*mprint(E, S, nodeinfo, "SYSCALL: SYS_stat path=0x" UHLONGFMT " st=0x" UHLONGFMT "\n",
 				arg1, arg2);*/
 			}
 			//return sys_stat(S, (const char *)arg1, (struct stat *)arg2);
@@ -328,7 +328,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_pipe fd=0x" UHLONGFMT "\n", arg1);
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_pipe fd=0x" UHLONGFMT "\n", arg1);
 			}
 			return sys_pipe(S, (int *)arg1);
 
@@ -340,7 +340,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_execve\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_execve\n");
 			}
 			break;
 		}
@@ -349,7 +349,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		{
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_utime path=0x" UHLONGFMT " times=0x" UHLONGFMT "\n",
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_utime path=0x" UHLONGFMT " times=0x" UHLONGFMT "\n",
 				arg1, arg2);
 			}
 			//return sys_utime(S, (const char *)arg1, (const struct utimbuf *)arg2);
@@ -362,7 +362,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			/*	Not Implemented		*/
 			if (DEBUG)
 			{
-				mprint(S, nodeinfo, "SYSCALL: SYS_wait\n");
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_wait\n");
 			}
 
 			break;
@@ -370,7 +370,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 
 		default:
 		{
-			mprint(S, nodeinfo, "Unknown SYSCALL [%ld]!!!\n", type);
+			mprint(E, S, nodeinfo, "Unknown SYSCALL [%ld]!!!\n", type);
 
 			break;
 		}
@@ -380,7 +380,7 @@ sim_syscall(State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 } 
 
 ulong
-sys_write(State *S, int fd, char *ptr, int len)
+sys_write(Engine *E, State *S, int fd, char *ptr, int len)
 {
 	/*	This unfortunately will not catch dup(2)'s	*/
 
@@ -390,12 +390,12 @@ sys_write(State *S, int fd, char *ptr, int len)
 	/*	fd we haven't opened.				*/
 	if (fd == 1)
 	{
-		mprint(S, nodestdout, "%s", &S->MEM[(ulong)ptr - S->MEMBASE]);
+		mprint(E, S, nodestdout, "%s", &S->MEM[(ulong)ptr - S->MEMBASE]);
 		return 0;
 	}
 	else if (fd == 2)
 	{
-		mprint(S, nodestderr, "%s", &S->MEM[(ulong)ptr - S->MEMBASE]);
+		mprint(E, S, nodestderr, "%s", &S->MEM[(ulong)ptr - S->MEMBASE]);
 		return 0;
 	}
 
@@ -410,17 +410,17 @@ sys_read(State *S, int fd, void *buf, int len)
 }
 
 ulong
-sys_open(State *S, const char *path, int flags)
+sys_open(Engine *E, State *S, const char *path, int flags)
 {
 	/*	not complete, and a major hack... we dont even use supplied flags!	*/
 
 	/*	If O_CREATE bit is set, call kcreate	*/
 	if (flags & 0x0200)
 	{
-		mprint(S, nodeinfo, "O_CREATE bit is set, calling kcreate.\n");
+		mprint(E, S, nodeinfo, "O_CREATE bit is set, calling kcreate.\n");
 		if (kcreate((char *)&S->MEM[(ulong)path - S->MEMBASE], ORDWR, 0600) < 0)
 		{
-			mprint(S, nodeinfo, "kcreate failed.\n");
+			mprint(E, S, nodeinfo, "kcreate failed.\n");
 		
 			return -1;
 		}

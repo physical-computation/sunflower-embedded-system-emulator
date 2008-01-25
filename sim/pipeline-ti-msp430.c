@@ -37,7 +37,7 @@
 
 
 int
-msp430step(State *S)
+msp430step(Engine *E, State *S, int drain_pipe)
 {
 	/*								*/
 	/*	If ~RST/NMI pin is configured for reset, CPU stays	*/
@@ -49,7 +49,7 @@ msp430step(State *S)
 }
 
 int
-msp430faststep(State *S)
+msp430faststep(Engine *E, State *S, int drain_pipe)
 {
 	return -1;
 }
@@ -80,40 +80,40 @@ msp430pipeflush(State *S)
 }
 
 void
-msp430dumppipe(State *S)
+msp430dumppipe(Engine *E, State *S)
 {
-	mprint(S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
 		S->NODE_ID, S->PC, S->ICLK, S->sleep);
 
 
 	if (S->msp430->P.EX.valid)
 	{
-		mprint(S, nodeinfo, "EX: [%s],%d\n",
+		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
 			opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "EX: []\n");
+		mprint(E, S, nodeinfo, "EX: []\n");
 	}
 
 	if (S->msp430->P.ID.valid)
 	{
-		mprint(S, nodeinfo, "ID: [0x%x],%d\n",
+		mprint(E, S, nodeinfo, "ID: [0x%x],%d\n",
 			S->msp430->P.ID.instr, S->msp430->P.ID.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "ID: []\n");
+		mprint(E, S, nodeinfo, "ID: []\n");
 	}
 
 	if (S->msp430->P.IF.valid)
 	{
-		mprint(S, nodeinfo, "IF: [0x%x],%d\n\n",
+		mprint(E, S, nodeinfo, "IF: [0x%x],%d\n\n",
 			S->msp430->P.IF.instr, S->msp430->P.IF.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "IF: []\n\n");
+		mprint(E, S, nodeinfo, "IF: []\n\n");
 	}
 
 	return;

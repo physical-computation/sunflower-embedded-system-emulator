@@ -40,10 +40,8 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include "sf.h"
-#include "mmalloc.h"
 #include "mextern.h"
 
-pthread_t	sched_handle;
 
 void
 mstatelock(void)
@@ -103,27 +101,12 @@ mfgets(char *buf, int len, int fd)
 	return buf;
 }
 
-long
-mrandom(void)
-{
-	return random();
-}
-
-long
-mrandominit()
-{
-	long init = mwallclockusecs();
-	srandom(init);
-
-	return init;
-}
-
 void
-mexit(char *str, int status)
+mexit(Engine *E, char *str, int status)
 {	
 	printf("\n\n\tExiting: %s\n", str);
 	printf("\tWriting all node information to sunflower.out\n\n");
-	m_dumpall("sunflower.out");
+	m_dumpall(E, E->logfilename, M_OWRITE, "Exit", "");
 
 	exit(status);
 }
@@ -208,10 +191,10 @@ mwrite(int fd, char* buf, int len)
 }
 
 int
-mspawnscheduler(void)
+mspawnscheduler(Engine *E)
 {
-	int r = pthread_create(&sched_handle,\
-				NULL, (void *)scheduler, NULL);
+	int r = pthread_create(&E->sched_handle,\
+				NULL, (void *)scheduler, E);
 
 	if (r)
 	{
@@ -222,12 +205,12 @@ mspawnscheduler(void)
 }
 
 int
-mkillscheduler(void)
+mkillscheduler(Engine *E)
 {
-	if (SIM_NODETACH)
+	if (E->nodetach || !E->on)
 		return 0;
-	else
-		return pthread_cancel(sched_handle);
+		
+	return pthread_cancel(E->sched_handle);
 }
 
 int
@@ -279,12 +262,12 @@ mwallclockusecs(void)
 }
 
 void
-mlog(State *S, char *fmt, ...)
+mlog(Engine *E, State *S, char *fmt, ...)
 {
 	char	*buf;
 	va_list	arg;
 
-	if (!MYRMIGKI_SIMLOG)
+	if (!SF_SIMLOG)
 	{
 		return;
 	}
@@ -295,10 +278,10 @@ mlog(State *S, char *fmt, ...)
 		return;
 	}
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
 	}
 
 	va_start(arg, fmt);
@@ -306,28 +289,41 @@ mlog(State *S, char *fmt, ...)
 	va_end(arg);
 
 	write(S->logfd, buf, strlen(buf));
-	mfree(buf, "(char *)buf in arch-OpenBSD.c");
+	mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 	return;
 }
 
+int
+msnprint(char *dst, int size, char *fmt, ...)
+{
+	va_list		arg;
+	int		n;
+
+	va_start(arg, fmt);
+	n = vsnprintf(dst, size, fmt, arg);
+	va_end(arg);
+
+	return n;
+}
+
 void
-mprint(State *S, int out, char *fmt, ...)
+mprint(Engine *E, State *S, int out, char *fmt, ...)
 {
 	int	fmtlen;
 	char	*buf;
 	va_list	arg;
 
 
-	if (!SIM_VERBOSE && S != NULL)
+	if (!S->verbose && S != NULL)
 	{
 		return;
 	}
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
 	}
 
 	va_start(arg, fmt);
@@ -337,7 +333,7 @@ mprint(State *S, int out, char *fmt, ...)
 	if (fmtlen < 0)
 	{
 		fprintf(stderr, "vsnprintf() in mprint() failed.\n");
-		mfree(buf, "(char *)buf in arch-OpenBSD.c");
+		mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 		return;
 	}
@@ -348,20 +344,20 @@ mprint(State *S, int out, char *fmt, ...)
 		if (out != siminfo)
 		{
 			fprintf(stderr, "%s\n", Ebadsfout);
-			mfree(buf, "(char *)buf in arch-OpenBSD.c");
+			mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 			return;
 		}
 
 		fprintf(stdout, "%s", buf);
-		mfree(buf, "(char *)buf in arch-OpenBSD.c");
+		mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 		return;
 	}
 
 	if (out == nodestdout || out == nodestderr || out == nodeinfo)
 	{
-		if (S->NODE_ID == CUR_STATE->NODE_ID)
+		if (S->NODE_ID == E->cp->NODE_ID)
 		{
 			fprintf(stdout, "%s", buf);
 		}
@@ -392,17 +388,17 @@ mnsleep(ulong nsecs)
 
 
 void
-merror(char *fmt, ...)
+merror(Engine *E, char *fmt, ...)
 {
 	int	fmtlen;
 	char	*buf;
 	va_list	arg;
 
 
-	buf = mcalloc(1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-OpenBSD.c");
 	if (buf == NULL)
 	{
-		mexit("Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
+		mexit(E, "Could not allocate memory for (char *)buf in arch-OpenBSD.c", -1);
 	}
 
 	va_start(arg, fmt);
@@ -412,13 +408,13 @@ merror(char *fmt, ...)
 	if (fmtlen < 0)
 	{
 		fprintf(stderr, "mprint failed.\n");
-		mfree(buf, "(char *)buf in arch-OpenBSD.c");
+		mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 		return;
 	}
 
-	mprint(NULL, siminfo, "Error: %s\n", buf);
-	mfree(buf, "(char *)buf in arch-OpenBSD.c");
+	mprint(E, NULL, siminfo, "Error: %s\n", buf);
+	mfree(E, buf, "(char *)buf in arch-OpenBSD.c");
 
 	return;
 }

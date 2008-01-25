@@ -47,9 +47,8 @@
 /*								*/
 /*	The Type (i.e. Qctl, Qerrs, Qnew etc) is 		*/
 /*	encoded in the lower QSHIFT bits of the QID		*/
-/*	The SIM_NODE_ID is encoded with its LSB at 		*/
-/*	QSHIFT bits after the LSB of QID, and extending 	*/
-/*	upward.							*/
+/*	The node id is encoded with its LSB at SQHIFT		*/
+/*	bits after the LSB of QID, and extending upward.	*/
 /*								*/
 
 #define		QSHIFT		4
@@ -63,7 +62,7 @@ enum
 	MAX_MNAME = 1024,
 };
 
-static Segbuf	devmyrmigkisegbuf;
+static Segbuf	devsfsegbuf;
 static char	mname[MAX_MNAME];
 
 enum
@@ -85,26 +84,34 @@ enum
 	Qoutputrdy
 };
 
-static void	packnodeinfo(State *S, char buf[]);
+static void	packnodeinfo(Engine *, State *S, char buf[]);
 static void	debugnetin(Segbuf *segbuf);
 
-static char	Ebadmyrmigkicmd[]	=   "Invalid myrmigki command";
+static char	Ebadsfcmd[]		=   "Invalid Sunflowersim command";
 static char	Eoversizenetinwrite[]	=   "Write to netin too large";
 static char	Ebadnetindata[]		=   "Bad data received on netin";
 
 
 int
-devsfspawnscheduler(void)
+devsfspawnscheduler(Engine *E)
 {	
-	return kproc("scheduler", scheduler, nil, KPDUPFDG|KPDUPPG|KPDUPENVG);
+	return kproc("scheduler", scheduler, E, KPDUPFDG|KPDUPPG|KPDUPENVG);
 }
 
 int
-devmyrmigkigen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
+devsfkillscheduler(void)
+{	
+	return;
+}
+
+int
+devsfgen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
 {
-	int t;
-	Qid q;
-	ulong path;
+	int		t;
+	Qid		q;
+	ulong		path;
+	Engine		*E = (Engine *)c->aux;
+
 
 	USED(name);
 	USED(tab);
@@ -137,7 +144,7 @@ devmyrmigkigen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
         t = QID(c->qid);
 	if (t == Qtopdir)
 	{
-		snprint(mname, MAX_MNAME, "sunflower.%s", c->aux);
+		snprint(mname, MAX_MNAME, "sunflower.%s", E->attachspec);
 
 		switch(s)
 		{
@@ -178,7 +185,7 @@ devmyrmigkigen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
                 	break;
 
 		default:
-			if (s <= 2*SIM_NUM_NODES+3)
+			if (s <= 2*E->nnodes+3)
                 	{
 				int	n = s-4;
 				int	id = n >> 1;
@@ -186,12 +193,12 @@ devmyrmigkigen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
 				if (n & 1)
 				{
 					sprint(up->genbuf, "%d.%d",
-						(SIM_STATE_PTRS[id])->NODE_ID,
-						(SIM_STATE_PTRS[id])->runnable);
+						(E->sp[id])->NODE_ID,
+						(E->sp[id])->runnable);
 				}
 				else
 				{
-					sprint(up->genbuf, "%d", (SIM_STATE_PTRS[id])->NODE_ID);
+					sprint(up->genbuf, "%d", (E->sp[id])->NODE_ID);
 				}
 
 				mkqid(&q, (id << QSHIFT)|Qdir, 0, QTDIR);
@@ -250,17 +257,16 @@ devmyrmigkigen(Chan *c, char *name, Dirtab *tab, int x, int s, Dir *dp)
 }
 
 void
-devmyrmigkireset(void)
+devsfreset(void)
 {
 	return;
 }
 
 void
-devmyrmigkiinit(void)
+devsfinit(void)
 {
-	extern  int             gfltconv(Fmt*);
+	extern int	gfltconv(Fmt*);
 
-	m_init();
 	marchinit();
 	fmtinstall('E', gfltconv);
 
@@ -268,42 +274,76 @@ devmyrmigkiinit(void)
 }
 
 Chan*
-devmyrmigkiattach(char *spec)
+devsfattach(char *spec)
 {
+	Engine	*E;
 	Chan	*tmp;
+	int	match, engineid;
 
+
+print("devsf: new attach with spec [%s]\n", spec);
 
 
 	tmp = devattach('j', spec);
-	tmp->aux = smalloc(strlen(spec)+1);
-	sprint(tmp->aux, "%s", spec);
 
-	if (SIM_NUM_NODES == 0)
+	match = sscanf(spec, "%*.%uX", &engineid);
+	if (match)
 	{
-		superHnewstate(0, 0, 0, 0, 0);
+print("devsf: requested engine ID is [%d]\n", engineid);
+
+		tmp->aux = m_lookupengine(engineid);
+	}
+
+	if (tmp->aux == nil)
+	{
+		int	seed = (match ? engineid : -1);
+print("devsf: no match on requested engine ID. Allocating a new engine, seeding with [%d]...\n", seed);
+
+		tmp->aux = m_allocengine(seed);
+		if (tmp->aux == nil)
+		{
+			panic("allocengine failed");
+		}
+	}
+print("devsf: Done allocating a new engine...\n");
+	
+	E = (Engine *)tmp->aux;
+	E->attachspec = smalloc(strlen(spec)+1);
+	if (E->attachspec == nil)
+	{
+		panic("allocating memory for attachspec failed");
+	}
+
+	sprint(E->attachspec, "%s", spec);
+
+
+	/*	By default, create one Hitachi SH node	*/
+	if (E->nnodes == 0)
+	{
+		superHnewstate(E, 0, 0, 0, nil);
 	}
 
 	return tmp;
 }
 
 static Walkqid*
-devmyrmigkiwalk(Chan *c, Chan *nc, char **name, int nname)
+devsfwalk(Chan *c, Chan *nc, char **name, int nname)
 {
-	return devwalk(c, nc, name, nname, 0, 0, devmyrmigkigen);
+	return devwalk(c, nc, name, nname, 0, 0, devsfgen);
 }
 
 static int
-devmyrmigkistat(Chan *c, uchar *db, int n)
+devsfstat(Chan *c, uchar *db, int n)
 {
-	return devstat(c, db, n, 0, 0, devmyrmigkigen);
+	return devstat(c, db, n, 0, 0, devsfgen);
 }
 
 static Chan*
-devmyrmigkiopen(Chan *c, int omode)
+devsfopen(Chan *c, int omode)
 {
 	if(c->qid.type & QTDIR)
 	{
-		return devopen(c, omode, 0, 0, devmyrmigkigen);
+		return devopen(c, omode, 0, 0, devsfgen);
 	}
 
 	switch(QID(c->qid))
@@ -329,7 +369,7 @@ devmyrmigkiopen(Chan *c, int omode)
 }
 
 static void
-devmyrmigkiclose(Chan *c)
+devsfclose(Chan *c)
 {
 	switch(QID(c->qid))
 	{
@@ -357,16 +397,17 @@ devmyrmigkiclose(Chan *c)
 }
 
 long
-devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
+devsfread(Chan *c, void *a, long n, vlong offset)
 {
-	int	node_id;
+	int		node_id;
+	Engine		*E = (Engine *)c->aux;
 
 
 	USED(offset);
 
 	if(c->qid.type & QTDIR)
 	{
-		return devdirread(c, a, n, 0, 0, devmyrmigkigen);
+		return devdirread(c, a, n, 0, 0, devsfgen);
 	}
 
 	node_id = c->qid.path >> QSHIFT;
@@ -382,15 +423,15 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 			int	nread;
 
 			mstatelock();
-			if (SIM_NETIO_H2O == 0)
+			if (E->netioh2o == 0)
 			{
 				mstateunlock();
 				return 0;
 			}
 
 			nread = min(n, MAX_SEGBUF_TEXT);
-			memmove(a, &SIM_NETIO_BUF[SIM_NETIO_H2O - 1][0], nread);
-			SIM_NETIO_H2O--;
+			memmove(a, &E->netiobuf[E->netioh2o - 1][0], nread);
+			E->netioh2o--;
 			mstateunlock();
 	
 			return nread;
@@ -401,10 +442,10 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 			int	nread; 
 
 			mstatelock();
-			nread = min(n, SIM_INFO_H2O);
-			memmove(a, SIM_INFO_BUF, nread);
-			memmove(&SIM_INFO_BUF[0], &SIM_INFO_BUF[n], SIM_INFO_H2O - nread);
-			SIM_INFO_H2O -= nread;
+			nread = min(n, E->infoh2o);
+			memmove(a, E->infobuf, nread);
+			memmove(&E->infobuf[0], &E->infobuf[n], E->infoh2o - nread);
+			E->infoh2o -= nread;
 			mstateunlock();
 
 			return nread;
@@ -417,7 +458,7 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 
 			mstatelock();
 			snprint(buf, sizeof(buf), "n = %d, cur = %d",
-				SIM_NUM_NODES, CUR_STATE->NODE_ID);
+				E->nnodes, E->cp->NODE_ID);
 			nread = readstr(offset, a, n, buf);
 			mstateunlock();
 
@@ -427,11 +468,11 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 		case Qctl:
 		{
 			int	nread;
-			State	*S = SIM_STATE_PTRS[node_id];
+			State	*S = E->sp[node_id];
 			char	buf[8192];
 
 			mstatelock();
-			packnodeinfo(S, buf);
+			packnodeinfo(E, S, buf);
 			nread = readstr(offset, a, n, buf);
 			mstateunlock();
 
@@ -443,12 +484,12 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 			int	nread;
 
 			mstatelock();
-			nread = min(n, SIM_STATE_PTRS[node_id]->nodeinfo_h2o);
-			memmove(a, SIM_STATE_PTRS[node_id]->nodeinfo_buf, nread);
-			memmove(&SIM_STATE_PTRS[node_id]->nodeinfo_buf[0],
-				&SIM_STATE_PTRS[node_id]->nodeinfo_buf[nread],
-				SIM_STATE_PTRS[node_id]->nodeinfo_h2o - nread);
-			SIM_STATE_PTRS[node_id]->nodeinfo_h2o -= nread;
+			nread = min(n, E->sp[node_id]->nodeinfo_h2o);
+			memmove(a, E->sp[node_id]->nodeinfo_buf, nread);
+			memmove(&E->sp[node_id]->nodeinfo_buf[0],
+				&E->sp[node_id]->nodeinfo_buf[nread],
+				E->sp[node_id]->nodeinfo_h2o - nread);
+			E->sp[node_id]->nodeinfo_h2o -= nread;
 			mstateunlock();
 
 			return nread;
@@ -459,12 +500,12 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 			int	nread;
 
 			mstatelock();
-			nread = min(n, SIM_STATE_PTRS[node_id]->stdout_h2o);
-			memmove(a, SIM_STATE_PTRS[node_id]->stdout_buf, nread);
-			memmove(&SIM_STATE_PTRS[node_id]->stdout_buf[0],
-				&SIM_STATE_PTRS[node_id]->stdout_buf[nread],
-				SIM_STATE_PTRS[node_id]->stdout_h2o - nread);
-			SIM_STATE_PTRS[node_id]->stdout_h2o -= nread;
+			nread = min(n, E->sp[node_id]->stdout_h2o);
+			memmove(a, E->sp[node_id]->stdout_buf, nread);
+			memmove(&E->sp[node_id]->stdout_buf[0],
+				&E->sp[node_id]->stdout_buf[nread],
+				E->sp[node_id]->stdout_h2o - nread);
+			E->sp[node_id]->stdout_h2o -= nread;
 			mstateunlock();
 
 			return nread;
@@ -475,12 +516,12 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 			int	nread;
 
 			mstatelock();
-			nread = min(n, SIM_STATE_PTRS[node_id]->stderr_h2o);
-			memmove(a, SIM_STATE_PTRS[node_id]->stderr_buf, nread);
-			memmove(&SIM_STATE_PTRS[node_id]->stderr_buf[0],
-				&SIM_STATE_PTRS[node_id]->stderr_buf[nread],
-				SIM_STATE_PTRS[node_id]->stderr_h2o - nread);
-			SIM_STATE_PTRS[node_id]->stderr_h2o -= nread;
+			nread = min(n, E->sp[node_id]->stderr_h2o);
+			memmove(a, E->sp[node_id]->stderr_buf, nread);
+			memmove(&E->sp[node_id]->stderr_buf[0],
+				&E->sp[node_id]->stderr_buf[nread],
+				E->sp[node_id]->stderr_h2o - nread);
+			E->sp[node_id]->stderr_h2o -= nread;
 			mstateunlock();
 
 			return nread;
@@ -504,10 +545,13 @@ devmyrmigkiread(Chan *c, void *a, long n, vlong offset)
 }
 
 long
-devmyrmigkiwrite(Chan *c, void *a, long n, vlong offset)
+devsfwrite(Chan *c, void *a, long n, vlong offset)
 {
 	int 		node_id = c->qid.path >> QSHIFT;
+	Engine		*E = (Engine *)c->aux;
 
+
+	USED(offset);
 	switch(QID(c->qid))
 	{
 		case Qmctl:
@@ -516,16 +560,17 @@ devmyrmigkiwrite(Chan *c, void *a, long n, vlong offset)
 
 			if (strlen(a) <= 0)
 			{
-				error(Ebadmyrmigkicmd);
+				error(Ebadsfcmd);
 				return -1;
 			}
 
 			mstatelock();
-			munchinput(a);
+			munchinput(E, a);
 			if (((char *)a)[n-1] != '\n')
 			{
-				munchinput("\n");
+				munchinput(E, "\n");
 			}
+			yyengine = E;
 			yyparse();
 			mstateunlock();
 
@@ -538,20 +583,21 @@ devmyrmigkiwrite(Chan *c, void *a, long n, vlong offset)
 
 			if (strlen(a) <= 0)
 			{
-				error(Ebadmyrmigkicmd);
+				error(Ebadsfcmd);
 				return -1;
 			}
 
 
 			mstatelock();
-			CUR_STATE = SIM_STATE_PTRS[node_id];
-			munchinput(a);
+			E->cp = E->sp[node_id];
+			munchinput(E, a);
 			if (((char *)a)[n-1] != '\n')
 			{
-				munchinput("\n");
+				munchinput(E, "\n");
 			}
 			//streamchk();
                         //print("before yyparse...\n");
+			yyengine = E;
 			yyparse();
                         //print("after yyparse...\n");
 			mstateunlock();
@@ -572,15 +618,15 @@ devmyrmigkiwrite(Chan *c, void *a, long n, vlong offset)
 				int	len;
 
 				mstatelock();
-				len = parsenetsegdump(a, &devmyrmigkisegbuf);
+				len = parsenetsegdump(E, a, &devsfsegbuf);
 				if (len >= MAX_SEGBUF_TEXT)
 				{
 					mstateunlock();
 					error(Ebadnetindata);
 					return -1;
 				}
-				debugnetin(&devmyrmigkisegbuf);
-				remote_seg_enqueue(&devmyrmigkisegbuf);
+				debugnetin(&devsfsegbuf);
+				remote_seg_enqueue(E, &devsfsegbuf);
 				mstateunlock();
 
 			}
@@ -597,11 +643,18 @@ devmyrmigkiwrite(Chan *c, void *a, long n, vlong offset)
 }
 
 void
+devsfshutdown(void)
+{
+	//TODO: implement m_shutdown() in main simulator dist
+	//TODO: call m_shutdown to cleanly shutdown engine
+}
+
+static void
 debugnetin(Segbuf *segbuf)
 {
 	int i;
 
-	print("[debugnetin in devmyrmigki.c] Timestamp: %E\n", segbuf->timestamp);
+	print("[debugnetin in devsf.c] Timestamp: %E\n", segbuf->timestamp);
 			
 	print("Data: ");
 	for (i = 0; i < segbuf->bits_left/8; i++)
@@ -614,52 +667,52 @@ debugnetin(Segbuf *segbuf)
 	}
 	print(".\n");
 
-	print("[debugnetin in devmyrmigki.c] Bits left: 0x%08X\n",
+	print("[debugnetin in devsf.c] Bits left: 0x%08X\n",
 		segbuf->bits_left);
 
-	if ((State *)segbuf->src_node != NULL)
+	if ((State *)segbuf->src_node != nil)
 	{
-		print("[debugnetin in devmyrmigki.c] Src node: 0x%08X\n",
+		print("[debugnetin in devsf.c] Src node: 0x%08X\n",
 			((State *)segbuf->src_node)->NODE_ID);
 	}
 	else
 	{
-		mexit("segbuf->src_node is NULL in debugnetin", -1);
+		panic("segbuf->src_node is nil in debugnetin");
 	}
 
-	if ((State *)segbuf->dst_node == NULL && !segbuf->bcast)
+	if ((State *)segbuf->dst_node == nil && !segbuf->bcast)
 	{
-		mexit("segbuf->dst_node is NULL, and segbuf not bcast, in debugnetin", -1);
+		panic("segbuf->dst_node is nil, and segbuf not bcast, in debugnetin");
 	}
 	else
 	{
-		print("[debugnetin in devmyrmigki.c] Dst node: 0x%08X\n",
-			((State *)segbuf->dst_node == NULL ? -2 : ((State *)segbuf->dst_node)->NODE_ID));
+		print("[debugnetin in devsf.c] Dst node: 0x%08X\n",
+			((State *)segbuf->dst_node == nil ? -2 : ((State *)segbuf->dst_node)->NODE_ID));
 	}
 
-	print("[debugnetin in devmyrmigki.c] Bcast flag: 0x%08X\n",
+	print("[debugnetin in devsf.c] Bcast flag: 0x%08X\n",
 		segbuf->bcast);
-	print("[debugnetin in devmyrmigki.c] Src ifc: 0x%08X\n",
+	print("[debugnetin in devsf.c] Src ifc: 0x%08X\n",
 		segbuf->src_ifc);
-	print("[debugnetin in devmyrmigki.c] Parent netseg ID: 0x%08X\n",
+	print("[debugnetin in devsf.c] Parent netseg ID: 0x%08X\n",
 		segbuf->parent_netsegid);
-	print("[debugnetin in devmyrmigki.c] from_remote flag: 0x%08X\n",
+	print("[debugnetin in devsf.c] from_remote flag: 0x%08X\n",
 		segbuf->from_remote);
 	print("\n\n\n\n");
 
 	return;
 }
 
-void
-packnodeinfo(State *S, char buf[])
+static void
+packnodeinfo(Engine *E, State *S, char buf[])
 {
-	char	*ptr = &buf[0];
-	int	sim_rate = 0, sim_rate_mavg = 0;
-	ulong	now, delta;
+	char		*ptr = &buf[0];
+	int		sim_rate = 0, sim_rate_mavg = 0;
+	ulong		now, delta;
 
 
 	/*	Time average of sim rate over all time		*/
-	if (SIM_ON)
+	if (E->on)
 	{
 		now = mcputimeusecs();
 		delta = now - S->ustart;
@@ -687,8 +740,8 @@ packnodeinfo(State *S, char buf[])
 	ptr = &buf[strlen(buf)];
 
 	sprint(ptr, "%8s = %-1.2E\t%8s = %-1.2E\n",
-		"ntrans", (double)S->E.ntrans,
-		"Ecpu", S->E.CPUEtot);
+		"ntrans", (double)S->energyinfo.ntrans,
+		"Ecpu", S->energyinfo.CPUEtot);
 	ptr = &buf[strlen(buf)];
 
 	sprint(ptr, "%8s = %-1.2E\t%8s = %-1.2E\n",
@@ -726,7 +779,7 @@ packnodeinfo(State *S, char buf[])
 	ptr = &buf[strlen(buf)];
 
 	sprint(ptr, "%8s = %-8d\t%8s = %1.6f\n",
-		"Throttle", SIM_THROTTLE_NANOSEC,
+		"Throttle", E->throttlensec,
 		"R_active", (S->ICLK > 0 ? (double)S->CLK/(double)S->ICLK : 0.0));
 	ptr = &buf[strlen(buf)];
 
@@ -742,16 +795,22 @@ Dev sunflowerdevtab =
 	'j',
 	"sunflower",
 
-	devmyrmigkiinit,
-	devmyrmigkiattach,
-	devmyrmigkiwalk,
-	devmyrmigkistat,
-	devmyrmigkiopen,
+#ifndef EMU
+	devreset
+#endif
+	devsfinit,
+#ifndef EMU
+	devshutdown
+#endif
+	devsfattach,
+	devsfwalk,
+	devsfstat,
+	devsfopen,
 	devcreate,
-	devmyrmigkiclose,
-	devmyrmigkiread,
+	devsfclose,
+	devsfread,
 	devbread,
-	devmyrmigkiwrite,
+	devsfwrite,
 	devbwrite,
 	devremove,
 	devwstat

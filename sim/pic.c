@@ -33,24 +33,23 @@
 /*										*/	
 #include <stdio.h>
 #include "sf.h"
-#include "mmalloc.h"
 
 /*									*/
 /*	Programmable Interrupt Controller. Provides queued intrs.	*/
 /*									*/
 
 void
-pic_intr_enqueue(State *S, InterruptQ *q, int type, int value, int misc)
+pic_intr_enqueue(Engine *E, State *S, InterruptQ *q, int type, int value, int misc)
 {
 	Interrupt	*tmp;
 
 
-	tmp = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	tmp = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt structure in pic_intr_enqueue");
 
 	if (tmp == NULL)
 	{
-		sfatal(S, "Could not allocate memory for (Interrupt *)tmp");
+		mexit(E, "Could not allocate memory for (Interrupt *)tmp", -1);
 		return;
 	}
 
@@ -80,7 +79,7 @@ pic_intr_enqueue(State *S, InterruptQ *q, int type, int value, int misc)
 }
 
 void *
-pic_intr_dequeue(State *S, InterruptQ *q)
+pic_intr_dequeue(Engine *E, State *S, InterruptQ *q)
 {
 	Interrupt	*ptr;
 
@@ -100,7 +99,7 @@ pic_intr_dequeue(State *S, InterruptQ *q)
 }
 
 void
-pic_intr_clear(State *S, InterruptQ *q, int type, int clear_all)
+pic_intr_clear(Engine *E, State *S, InterruptQ *q, int type, int clear_all)
 {
 	int		i;
 	Interrupt	*p;
@@ -111,15 +110,15 @@ pic_intr_clear(State *S, InterruptQ *q, int type, int clear_all)
 	/*	Rewrite to reorder list w/o doing all	*/
 	/*	these malloc/frees			*/
 	/*						*/
-	while ((p = (Interrupt *) pic_intr_dequeue(S, q)) != NULL)
+	while ((p = (Interrupt *) pic_intr_dequeue(E, S, q)) != NULL)
 	{
 		if (p->type != type)
 		{
-			pic_intr_enqueue(S, q, p->type, p->value, p->misc);
+			pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
 		}
 		else
 		{
-			mfree(p, "Interrupt *p");
+			mfree(E, p, "Interrupt *p");
 			
 			if (!clear_all)
 			{
@@ -131,9 +130,9 @@ pic_intr_clear(State *S, InterruptQ *q, int type, int clear_all)
 	/*	Now, need to reorder the queue		*/
 	for (i = 0; i < q->nqintrs; i++)
 	{
-		p = (Interrupt *) pic_intr_dequeue(S, q);
-		pic_intr_enqueue(S, q, p->type, p->value, p->misc);
-		mfree(p, "Interrupt *p");
+		p = (Interrupt *) pic_intr_dequeue(E, S, q);
+		pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
+		mfree(E, p, "Interrupt *p");
 	}
 
 	return;

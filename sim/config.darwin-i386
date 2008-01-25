@@ -1,11 +1,14 @@
 CC			= gcc
 GAWK			= gawk
 LINT			= echo 
-LD			= ld
+LD			= gcc -arch i386
 CC			= gcc
 BISON			= bison
-ENDIAN		= SF_L_ENDIAN
-PLATFORM_CFLAGS = -no-cpp-precomp -Wno-long-double -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -pipe -multiply_defined suppress -malign-natural -D$(ENDIAN)
-PLATFORM_LFLAGS = -lpthread 
-PLATFORM_OPTFLAGS=
-OPTFLAGS	= -O0 ##-O3 -funroll-loops -finline-functions -fomit-frame-pointer $(OPTFLAGS)
+ENDIAN			= SF_L_ENDIAN
+PLATFORM_CFLAGS 	= -arch i386 -mmacosx-version-min=10.4 -no-cpp-precomp -mno-fused-madd -pipe -multiply_defined suppress -malign-natural -Wno-long-double -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -Wno-deprecated-declarations -Wunused -Wreturn-type -Wimplicit -D$(ENDIAN)
+PLATFORM_LFLAGS 	= -mmacosx-version-min=10.4 -multiply_defined suppress -lpthread 
+PLATFORM_OPTFLAGS	=
+OPTFLAGS		= -O0 ## -Wuninitialized -O2 -funroll-loops -finline-functions
+DBGFLAGS		= -g
+CCFLAGS			= $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
+LDFLAGS 		= -lm $(PLATFORM_LFLAGS)

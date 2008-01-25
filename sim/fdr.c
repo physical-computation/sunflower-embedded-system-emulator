@@ -35,6 +35,14 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
+	TODO:
+	Need to add general scanf in addition to mprintf to m* functions 
+	into arch-*, so we use them
+	here instead of scanf. This will then let us integrate many things
+	nicer into native inferno.
+*/
+
 /*										*/
 /*	This file contains routines to parse a file in the format output	*/
 /*	by 'objdump --stabs'.  Binaries must be compiled with the flags		*/
@@ -102,6 +110,11 @@ enum
 	STAB_X,
 };
 
+/*
+	TODO: currently only do enough to support pdist analysis on pointers 
+	and non-aggregate data types.
+*/
+
 typedef struct Type Type;
 struct Type
 {
@@ -132,10 +145,10 @@ typedef struct
 	int		descrtype;
 } Stab;
 
-static void	parse_stabstr(State *S, char *stabstr, char **name, int *descrtype, Type *type);
-static void	parse_type(State *S, char *stabstr, int *a, int *b, int *ispointer);
-static void	add_type(State *S, Type type);
-static void	reset_types(void);
+static void	parse_stabstr(Engine *E, State *S, char *stabstr, char **name, int *descrtype, Type *type);
+static void	parse_type(Engine *E, State *S, char *stabstr, int *a, int *b, int *ispointer);
+static void	add_type(Engine *E, State *S, Type type);
+static void	reset_types(Engine *E);
 static char *	lookuptype(int a, int b);
 static int	typename2size(char *typename);
 
@@ -177,14 +190,14 @@ lookuptype(int a, int b)
 }
 
 void
-add_type(State *S, Type type)
+add_type(Engine *E, State *S, Type type)
 {
 	Type *t;
 
-	t = mmalloc(sizeof(Type), "Type *t in add_type()");
+	t = mmalloc(E, sizeof(Type), "Type *t in add_type()");
 	if (t == NULL)
 	{
-		sfatal(S, "Malloc failed for Type *t in add_type()");
+		sfatal(E, S, "Malloc failed for Type *t in add_type()");
 	}
 
 	*t = type;
@@ -205,7 +218,7 @@ add_type(State *S, Type type)
 }
 
 void
-reset_types(void)
+reset_types(Engine *E)
 {
 	Type	*t = typeshd, *d;
 
@@ -213,7 +226,7 @@ reset_types(void)
 	{
 		d = t;
 		t = t->next;
-		mfree(d, "Type *d in reset_types()");
+		mfree(E, d, "Type *d in reset_types()");
 	}
 	typeshd = NULL;
 	typestl = NULL;
@@ -222,8 +235,10 @@ reset_types(void)
 }
 
 void
-parse_type(State *S, char *stabstr, int *a, int *b, int *ispointer)
+parse_type(Engine *E, State *S, char *stabstr, int *a, int *b, int *ispointer)
 {
+	//TODO:		lookup the aliases and add them to our alias list
+
 	*ispointer = 0;
 
 	/*	Skip the initial 't/p/etc'	*/
@@ -233,7 +248,7 @@ parse_type(State *S, char *stabstr, int *a, int *b, int *ispointer)
 	}
 	if (stabstr == NULL || stabstr[0] != '(')
 	{
-		sfatal(S, "Badly formatted stabstring in parse_type()");
+		sfatal(E, S, "Badly formatted stabstring in parse_type()");
 	}
 	sscanf(stabstr, "(%d,%d)", a, b);
 	mstrsep(&stabstr, "=");
@@ -254,7 +269,7 @@ parse_type(State *S, char *stabstr, int *a, int *b, int *ispointer)
 
 		if (stabstr == NULL || stabstr[0] != '(')
 		{
-			sfatal(S, "Badly formatted stabstring in parse_type()");
+			sfatal(E, S, "Badly formatted stabstring in parse_type()");
 		}
 		sscanf(stabstr, "(%d,%d)", a, b);
 		mstrsep(&stabstr, "=");
@@ -265,7 +280,7 @@ parse_type(State *S, char *stabstr, int *a, int *b, int *ispointer)
 }
 
 void
-parse_stabstr(State *S, char *stabstr, char **name, int *descrtype, Type *type)
+parse_stabstr(Engine *E, State *S, char *stabstr, char **name, int *descrtype, Type *type)
 {
 	/*	Type of the stabstr is determined by the char after the ':'	*/
 	*name = mstrsep(&stabstr, ":");
@@ -277,7 +292,7 @@ parse_stabstr(State *S, char *stabstr, char **name, int *descrtype, Type *type)
 		return;
 	}
 
-	parse_type(S, stabstr, &type->a, &type->b, &type->ispointer);
+	parse_type(E, S, stabstr, &type->a, &type->b, &type->ispointer);
 	if ((stabstr[0] >= '0') && (stabstr[0] <= '9'))
 	{
 		*descrtype = STAB_STACKVAR;
@@ -402,6 +417,7 @@ parse_stabstr(State *S, char *stabstr, char **name, int *descrtype, Type *type)
 		}
 		case 't':
 		{
+			//TODO:	we currently only parse enough to tell type and if its a pointer
 			*descrtype = STAB_t;
 
 			/*							*/
@@ -519,7 +535,7 @@ typename2size(char *typename)
 }
 
 void
-m_readstabs(State *S, char *filename)
+m_readstabs(Engine *E, State *S, char *filename)
 {
 	FILE	*fp;
 	int	scope, nlines = 0;
@@ -534,16 +550,16 @@ m_readstabs(State *S, char *filename)
 
 
 
-	stab.name = (char *)mmalloc(MAX_STAB_VARNAMELEN, "(char *)stab.name in m_readstabs()");
+	stab.name = (char *)mmalloc(E, MAX_STAB_VARNAMELEN, "(char *)stab.name in m_readstabs()");
 	if (stab.name == NULL)
 	{
-		sfatal(S, "Malloc failed for (char *)stab.name in m_readstabs()");
+		sfatal(E, S, "Malloc failed for (char *)stab.name in m_readstabs()");
 	}
 
 	fp = fopen(filename, "r");
 	if (fp == NULL)
 	{
-		sfatal(S, "Could not open STABS file");
+		sfatal(E, S, "Could not open STABS file");
 	}
 
 	scope = SCOPE_GLOBAL;
@@ -583,7 +599,7 @@ m_readstabs(State *S, char *filename)
 		if (!strcmp(stab.ntype, "SO"))
 		{
 			/*	New source file. Delete old type descriptor table	*/
-			reset_types();
+			reset_types(E);
 			continue;
 		}
 		else if (!strcmp(stab.ntype, "FUN"))
@@ -601,7 +617,7 @@ m_readstabs(State *S, char *filename)
 		{
 			if (scopedepth == 0)
 			{
-				sfatal(S,
+				sfatal(E, S,
 				"Badly formatted stabs file: RBRAC when scope depth is zero!");
 			}
 			scopedepth--;
@@ -614,7 +630,7 @@ m_readstabs(State *S, char *filename)
 		}
 
 
-		parse_stabstr(S, cleanbuf, &stab.name, &stab.descrtype, &stab.type);
+		parse_stabstr(E, S, cleanbuf, &stab.name, &stab.descrtype, &stab.type);
 		if (	(stab.descrtype != STAB_STACKVAR) &&
 			(stab.descrtype != STAB_G) &&
 			(stab.descrtype != STAB_p) &&
@@ -632,7 +648,7 @@ m_readstabs(State *S, char *filename)
 		{
 			if (stab.descrtype == STAB_t)
 			{
-				add_type(S, stab.type);
+				add_type(E, S, stab.type);
 				continue;
 			}
 
@@ -642,7 +658,7 @@ m_readstabs(State *S, char *filename)
 			/*								*/
 			if (scope != SCOPE_FUNCTION)
 			{
-				mprint(NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
+				mprint(E, NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
 				continue;
 			}
 
@@ -655,16 +671,16 @@ m_readstabs(State *S, char *filename)
 				/*	Not one of the basic types. Dont register it	*/
 				continue;
 			}
-			snprintf(vdefn, MAX_STAB_TYPENAMELEN, "%s %s %s",
+			msnprint(vdefn, MAX_STAB_TYPENAMELEN, "%s %s %s",
 				t, (stab.type.ispointer ? "*" : ""), stab.name);
 		
-			m_addvaluetrace(S, vdefn, 0, size, 1, fnaddr, stab.nvalue, stab.type.ispointer);
+			m_addvaluetrace(E, S, vdefn, 0, size, 1, fnaddr, stab.nvalue, stab.type.ispointer);
 		}
 		else if (!strcmp(stab.ntype, "GSYM"))
 		{
 			if (scope != SCOPE_GLOBAL)
 			{
-				mprint(NULL, siminfo, "\tFound GSYM in non-global scope on line %d\n", nlines);
+				mprint(E, NULL, siminfo, "\tFound GSYM in non-global scope on line %d\n", nlines);
 				continue;
 			}
 
@@ -679,7 +695,7 @@ m_readstabs(State *S, char *filename)
 		{
 			if (scope != SCOPE_FUNCTION)
 			{
-				mprint(NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
+				mprint(E, NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
 				continue;
 			}
 
@@ -696,20 +712,20 @@ m_readstabs(State *S, char *filename)
 					/*	Not one of the basic types. Dont register it	*/
 					continue;
 				}
-				snprintf(vdefn, MAX_STAB_TYPENAMELEN, "%s %s %s",
+				msnprint(vdefn, MAX_STAB_TYPENAMELEN, "%s %s %s",
 					t, (stab.type.ispointer ? "*" : ""), stab.name);
-				m_addvaluetrace(S, vdefn, 0, size, 1, fnaddr, stab.nvalue, stab.type.ispointer);
+				m_addvaluetrace(E, S, vdefn, 0, size, 1, fnaddr, stab.nvalue, stab.type.ispointer);
 			}
 			else
 			{
-				sfatal(S, "Unknown function parameter type");
+				sfatal(E, S, "Unknown function parameter type");
 			}
 		}
 		else if (!strcmp(stab.ntype, "RSYM"))
 		{
 			if (scope != SCOPE_FUNCTION)
 			{
-				mprint(NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
+				mprint(E, NULL, siminfo, "\tFound a stack variable outside a function on line %d\n", nlines);
 				continue;
 			}
 
@@ -731,7 +747,7 @@ m_readstabs(State *S, char *filename)
 			}
 			else
 			{
-				sfatal(S, "Unknown RSYM type");
+				sfatal(E, S, "Unknown RSYM type");
 			}
 
 			if ((size = typename2size(t)) < 0)
@@ -739,11 +755,30 @@ m_readstabs(State *S, char *filename)
 				/*	Not one of the basic types. Dont register it	*/
 				continue;
 			}
-			snprintf(vdefn, MAX_STAB_TYPENAMELEN, "register %s %s %s",
+			msnprint(vdefn, MAX_STAB_TYPENAMELEN, "register %s %s %s",
 				t, (stab.type.ispointer ? "*" : ""), stab.name);
-			m_regtracer(S, vdefn, fnaddr, stab.nvalue, size, stab.type.ispointer);
+			m_regtracer(E, S, vdefn, fnaddr, stab.nvalue, size, stab.type.ispointer);
 		}
 	}
 
 	return;
+}
+
+void
+m_readdwarf(State *S, char *filename)
+{
+	/*									*/
+	/*	I've decided that the easiest way to deal with DWARF is to	*/
+	/*	parse the output of 'readelf -w', which outputs the DWARF	*/
+	/*	sections, rather than directly reading the ELF binary, or	*/
+	/*	using libdwarf (which needs lib(read)elf).  This will enable	*/
+	/*	the infrastructure to remain self-contained.			*/
+	/*									*/
+	/*	An example benchmark setup to be compiled to elf (via the	*/
+	/*	appropriate ARCH-elf-gcc and a suitably-modified ARCH.ld	*/
+	/*	linker script file, is in 					*/
+	/*		Hg/privatesflrbenchmarks/misc/dwarf-debug		*/
+	/*	The debug.readelf.O0 and debug.readelf.O3 are the output of	*/
+	/*	sh-elf-readelf -w, on the source compiled with -O0 and -O3.	*/
+	/*									*/
 }

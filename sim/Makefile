@@ -4,12 +4,8 @@ include config.$(OSTYPE)-$(MACHTYPE)
 TARGET		= sf
 
 BFLAGS		= -t -v
-WFLAGS		= ##-Wmissing-prototypes ##-Wall ##-Werror -Winline 
+WFLAGS		= -Wall ##-Wmissing-prototypes ##-Wall ##-Werror -Winline -Wunreachable-code
 INCLUDDIRS	= -I.
-OPTFLAGS	= -O0 ##-O3 -funroll-loops -finline-functions
-DBGFLAGS	= -g
-CCFLAGS		= $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
-LDFLAGS 	= -lm $(PLATFORM_LFLAGS)
 
 DEL		= /bin/rm -f
 
@@ -45,13 +41,10 @@ HEADERS =\
 	regs-ti-msp430.h\
 	sf.h\
 	syscalls.h\
+	listutils.h\
 
 OBJS	=\
-	decode-ti-msp430.o\
-	dev430x1xx.o\
-	machine-ti-msp430.o\
-	op-ti-msp430.o\
-	pipeline-ti-msp430.o\
+	randgen.o\
 	arch-$(OSTYPE).o\
 	batt.o\
 	bit-utils.o\
@@ -72,9 +65,15 @@ OBJS	=\
 	pic.o\
 	pipeline-hitachi-sh.o\
 	power.o\
-	sf.o\
 	syscalls.o\
 	tokenhandling.o\
+	sf.o\
+#	decode-ti-msp430.o\
+#	dev430x1xx.o\
+#	machine-ti-msp430.o\
+#	op-ti-msp430.o\
+#	pipeline-ti-msp430.o\
+#	devsim430x1xx.o\
 
 %.o: %.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c $<

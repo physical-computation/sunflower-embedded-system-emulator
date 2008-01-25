@@ -37,8 +37,17 @@
 #include "endian-hitachi-sh.h"
 #include "sf.h"
 
+/*
+		TODO:
+
+		At some point in the past (circa 2000), we were setting
+		stage->cycles wrong for some instrs. Check all again and
+		remove this message. See the BX's in particular. Fixed BF
+		back then.
+*/
+
 void
-superHdecode (ushort instr, SuperHPipestage *stage)
+superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 {
 	/*								*/
 	/*	Must declare volatile to guarantee cookie cutting 	*/
@@ -2195,8 +2204,8 @@ superHdecode (ushort instr, SuperHPipestage *stage)
 
 		default:
 		{
-			mprint(NULL, siminfo, "\nUNKNOWN INSTRUCTION !!!!\n\n");
-			mexit("See above messages", -1);
+			mprint(E, NULL, siminfo, "\nUnknown instruction seen in superHdecode()!\n\n");
+			mexit(E, "See above messages", -1);
 
 			break;
 		}

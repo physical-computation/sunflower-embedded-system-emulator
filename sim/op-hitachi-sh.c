@@ -47,7 +47,22 @@
 #include "endian-hitachi-sh.h"
 #include "mextern.h"
 
-static tuck void	delayslot(State *S, ulong dPC);
+static tuck void	delayslot(Engine *E, State *S, ulong dPC);
+
+/*
+*		TODO:
+*			system registers are currently read
+*	 		manually. Put them all in a sysreg_read,
+*			and add bitflip analysis for that
+*		OR (better)
+*			integrate reading system registers, 
+*			using S_R0 ... S_GBR etc to identify
+*	TODO: We are not correctly taking care of preventing excepting instrs
+*	from dirtying machine state: when trans.error is set, we get returned
+*	0 on reads, which in some cases gets put into regs. Also, e.g., load w/ predecrement
+*	leaves the machine state change if the load was excepting. Identify all potentially
+*	excepting instructions and handle them correctly!
+*/
 
 /*									*/
 /*			Remember, we are BIG ENDIAN			*/
@@ -61,7 +76,7 @@ static tuck void	delayslot(State *S, ulong dPC);
 
 
 tuck void	
-delayslot(State *S, ulong dPC)
+delayslot(Engine *E, State *S, ulong dPC)
 {
 	USED(dPC);
 
@@ -69,10 +84,10 @@ delayslot(State *S, ulong dPC)
 	/* 	At this point in simulation, instruction in ID has 	*/
 	/*	not yet been decoded. Decode it (not harmful to do so)	*/
 	/*								*/
-	S->superH->P.ID.fptr 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
-	S->superH->P.ID.op 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
-	S->superH->P.ID.format 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-	S->superH->P.ID.cycles 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
+	S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
+	S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
+	S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
+	S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
 
 	switch (S->superH->P.ID.op)
 	{
@@ -90,7 +105,7 @@ delayslot(State *S, ulong dPC)
 		case OP_BRAF:
 		case OP_BSRF:
 		{
-			sfatal(S, "Illegal slot instruction !\n");
+			sfatal(E, S, "Illegal slot instruction !\n");
 			break;
 		}
 
@@ -119,7 +134,7 @@ delayslot(State *S, ulong dPC)
 				case INSTR_D8:
 				{
 					instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(S, tmp->disp);
+					(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
 					break;
 				}
@@ -127,7 +142,7 @@ delayslot(State *S, ulong dPC)
 				case INSTR_ND8:
 				{
 					instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(S, tmp->disp, tmp->dst);
+					(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 				
 					break;
 				}
@@ -135,14 +150,14 @@ delayslot(State *S, ulong dPC)
 				case INSTR_NI:
 				{
 					instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(S, tmp->imm, tmp->dst);
+					(*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
 				
 					break;
 				}
 
 				default:
 				{
-					sfatal(S, "unknown instr fmt in delay slot !");
+					sfatal(E, S, "unknown instr fmt in delay slot !");
 					break;
 				}
 			}
@@ -158,7 +173,7 @@ delayslot(State *S, ulong dPC)
 	{
 		case INSTR_0:
 		{
-			(*(S->superH->P.ID.fptr))(S);
+			(*(S->superH->P.ID.fptr))(E, S);
 					
 			break;
 		}
@@ -166,7 +181,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_N:
 		{
 			instr_n *tmp = (instr_n *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->dst);
 		
 			break;
 		}
@@ -174,7 +189,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_M:
 		{
 			instr_m *tmp = (instr_m *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->src);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->src);
 		
 			break;
 		}
@@ -182,7 +197,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_MBANK:
 		{
 			instr_mbank *tmp = (instr_mbank *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->reg, tmp->src);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->src);
 		
 			break;
 		}
@@ -190,7 +205,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_NBANK:
 		{
 			instr_nbank *tmp = (instr_nbank *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->reg, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->dst);
 
 			break;
 		}
@@ -198,7 +213,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_NM:
 		{
 			instr_nm *tmp = (instr_nm *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->src, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->dst);
 
 			break;
 		}
@@ -206,7 +221,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_MD:
 		{
 			instr_md *tmp = (instr_md *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->src, tmp->disp);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp);
 
 			break;
 		}
@@ -214,7 +229,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_NMD:
 		{
 			instr_nmd *tmp = (instr_nmd *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->src, tmp->disp, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp, tmp->dst);
 
 			break;
 		}
@@ -222,7 +237,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_D8:
 		{
 			instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->disp);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
 			break;
 		}
@@ -230,7 +245,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_D12:
 		{
 			instr_d12 *tmp = (instr_d12 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->disp);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
 			break;
 		}
@@ -238,7 +253,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_ND4:
 		{
 			instr_nd4 *tmp = (instr_nd4 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->disp, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 
 			break;
 		}
@@ -246,7 +261,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_ND8:
 		{
 			instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->disp, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 
 			break;
 		}
@@ -255,7 +270,7 @@ delayslot(State *S, ulong dPC)
 		case INSTR_I:
 		{
 			instr_i *tmp = (instr_i *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->imm);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->imm);
 
 			break;
 		}
@@ -263,14 +278,14 @@ delayslot(State *S, ulong dPC)
 		case INSTR_NI:
 		{
 			instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(S, tmp->imm, tmp->dst);
+			(*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
 
 			break;
 		}
 
 		default:
 		{
-			sfatal(S, "unknown instruction format in delay slot !");
+			sfatal(E, S, "unknown instruction format in delay slot !");
 			break;
 		}
 	}
@@ -294,23 +309,23 @@ delayslot(State *S, ulong dPC)
 /*   immediate data.							*/
 /*									*/
 void
-superH_add(State *S, ulong m, ulong n)
+superH_add(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, n)+reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_addi(State *S, long i, ulong n)
+superH_addi(Engine *E, State *S, long i, ulong n)
 {
 	if ((i&0x80)==0)
 	{
-		reg_set(S, n, reg_read(S, n)+(0x000000FF&(long)i));
+		reg_set(E, S, n, reg_read(E, S, n)+(0x000000FF&(long)i));
 	}
 	else 
 	{
-		reg_set(S, n, reg_read(S, n)+(0xFFFFFF00 | (long)i));
+		reg_set(E, S, n, reg_read(E, S, n)+(0xFFFFFF00 | (long)i));
 	}
 
 	return;
@@ -330,13 +345,13 @@ superH_addi(State *S, long i, ulong n)
 /*   has more than 32 bits.						*/
 /*									*/
 void
-superH_addc(State *S, ulong m, ulong n)
+superH_addc(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong tmp0, tmp1;
 
-	tmp1 = reg_read(S, n)+reg_read(S, m);
-	tmp0 = reg_read(S, n);
-	reg_set(S, n, tmp1 + S->superH->SR.T);
+	tmp1 = reg_read(E, S, n)+reg_read(E, S, m);
+	tmp0 = reg_read(E, S, n);
+	reg_set(E, S, n, tmp1 + S->superH->SR.T);
 
 	if (tmp0 > tmp1)
 	{
@@ -346,7 +361,7 @@ superH_addc(State *S, ulong m, ulong n)
 	{
 		S->superH->SR.T = 0;
 	}
-	if (tmp1 > reg_read(S, n))
+	if (tmp1 > reg_read(E, S, n))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -366,11 +381,11 @@ superH_addc(State *S, ulong m, ulong n)
 /*   the result in Rn. If an overflow occurs, the T bit is set to 1.	*/
 /*									*/
 void
-superH_addv(State *S, ulong m, ulong n)
+superH_addv(Engine *E, State *S, ulong m, ulong n)
 {
 	long dest, src, ans;
 
-	if ((long)reg_read(S, n) >= 0)
+	if ((long)reg_read(E, S, n) >= 0)
 	{
 		dest = 0;
 	}
@@ -379,7 +394,7 @@ superH_addv(State *S, ulong m, ulong n)
 		dest = 1;
 	}
 
-	if ((long)reg_read(S, m) >= 0)
+	if ((long)reg_read(E, S, m) >= 0)
 	{
 		src = 0;
 	}
@@ -389,9 +404,9 @@ superH_addv(State *S, ulong m, ulong n)
 	}
 
 	src += dest;
-	reg_set(S, n, reg_read(S, n)+reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
 
-	if ((long)reg_read(S, n) >= 0)
+	if ((long)reg_read(E, S, n) >= 0)
 	{
 		ans = 0;
 	}
@@ -441,29 +456,29 @@ superH_addv(State *S, ulong m, ulong n)
 /*   executed and the upper 24 bits of R0 are always cleared to 0.	*/
 /*									*/
 void
-superH_and(State *S, ulong m, ulong n)
+superH_and(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, n)&reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n)&reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_andi(State *S, long i)
+superH_andi(Engine *E, State *S, long i)
 {
-	reg_set(S, 0, reg_read(S, 0)&(0x000000FF&(long)i));
+	reg_set(E, S, 0, reg_read(E, S, 0)&(0x000000FF&(long)i));
 
 	return;
 }
 
 void
-superH_andm(State *S, long i)
+superH_andm(Engine *E, State *S, long i)
 {
 	long temp;
 
-	temp = (long)superHreadbyte(S, S->superH->GBR+reg_read(S, 0));
+	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
 	temp &= (0x000000FF & (long)i);
-	superHwritebyte(S, S->superH->GBR+reg_read(S, 0),temp);
+	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0),temp);
 
 	return;
 }
@@ -489,7 +504,7 @@ superH_andm(State *S, long i)
 /*   not branching, one cycle.						*/
 /*									*/
 void
-superH_bf(State *S, long d)
+superH_bf(Engine *E, State *S, long d)
 {
 	long disp;
 
@@ -560,7 +575,7 @@ superH_bf(State *S, long d)
 /*   not recognized as an illegal slot instruction.			*/
 /*									*/
 void
-superH_bfs(State *S, long d)
+superH_bfs(Engine *E, State *S, long d)
 {
 	long disp;
 	ulong temp;
@@ -594,7 +609,7 @@ superH_bfs(State *S, long d)
 		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
 		
 		/* 	Exec instr in delay slot before flushing IF/ID		*/
-		delayslot(S, temp+2);
+		delayslot(E, S, temp+2);
 		superHifidflush(S);
 	}
 	else
@@ -631,7 +646,7 @@ superH_bfs(State *S, long d)
 /*   instruction.							*/
 /*									*/
 void
-superH_bra(State *S, long d)
+superH_bra(Engine *E, State *S, long d)
 {
 	ulong temp;
 	long disp;
@@ -663,7 +678,7 @@ superH_bra(State *S, long d)
 	S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, temp+2);
+	delayslot(E, S, temp+2);
 	superHifidflush(S);
 
 
@@ -689,7 +704,7 @@ superH_bra(State *S, long d)
 /*   is acknowledged as an illegal slot instruction.			*/
 /*									*/
 void
-superH_braf(State *S, ulong n)
+superH_braf(Engine *E, State *S, ulong n)
 {
 	ulong temp;
 
@@ -697,10 +712,10 @@ superH_braf(State *S, ulong n)
 	temp = (S->superH->P.EX.fetchedpc);
 
 	/*	PC used in calculation is PC of 2nd instr after us.	*/
-	S->PC += 4 + reg_read(S, n);
+	S->PC += 4 + reg_read(E, S, n);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, temp+2);
+	delayslot(E, S, temp+2);
 	superHifidflush(S);
 
 		
@@ -735,7 +750,7 @@ superH_braf(State *S, ulong n)
 /*   is acknowledged as an illegal slot instruction.			*/
 /* 									*/
 void
-superH_bsr(State *S, long d)
+superH_bsr(Engine *E, State *S, long d)
 {
 	long disp;
 
@@ -754,7 +769,7 @@ superH_bsr(State *S, long d)
 	S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, S->superH->PR+2);
+	delayslot(E, S, S->superH->PR+2);
 	superHifidflush(S);
 	
 	/*								*/
@@ -762,7 +777,7 @@ superH_bsr(State *S, long d)
 	/*								*/
 	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
 	{
-		sfatal(S, "Internal simulator error: PC stack overflow");
+		sfatal(E, S, "Internal simulator error: PC stack overflow");
 	}
 
 	/*								*/
@@ -802,16 +817,16 @@ superH_bsr(State *S, long d)
 /*   illegal slot instruction.						*/
 /* 									*/
 void
-superH_bsrf(State *S, ulong n)
+superH_bsrf(Engine *E, State *S, ulong n)
 {
 	/*	B'cos PC has been inc. 2x since we were fetched		*/
 	S->superH->PR = S->superH->P.EX.fetchedpc;
 
 	/*	PC used to calc dst addr is PC of 2nd instr after us	*/
-	S->PC += 4 + reg_read(S, n);
+	S->PC += 4 + reg_read(E, S, n);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, S->superH->PR+2);
+	delayslot(E, S, S->superH->PR+2);
 	superHifidflush(S);
 
 	/*								*/
@@ -819,7 +834,7 @@ superH_bsrf(State *S, ulong n)
 	/*								*/
 	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
 	{
-		sfatal(S, "Internal simulator error: PC stack overflow");
+		sfatal(E, S, "Internal simulator error: PC stack overflow");
 	}
 
 	/*								*/
@@ -858,7 +873,7 @@ superH_bsrf(State *S, ulong n)
 /*   cycles; when not branching, one cycle.				*/
 /* 									*/
 void
-superH_bt(State *S, long d)
+superH_bt(Engine *E, State *S, long d)
 {
 	long disp;
 
@@ -914,7 +929,7 @@ superH_bt(State *S, long d)
 /*   instruction, it is not recognized as an illegal slot instruction.	*/
 /*									*/
 void
-superH_bts(State *S, long d)
+superH_bts(Engine *E, State *S, long d)
 {
 	long disp;
 	ulong temp;
@@ -936,7 +951,7 @@ superH_bts(State *S, long d)
 		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
 
 		/* 	Exec instr in delay slot before flushing IF/ID		*/
-		delayslot(S, temp+2);
+		delayslot(E, S, temp+2);
 		superHifidflush(S);
 	}
 	else
@@ -958,7 +973,7 @@ superH_bts(State *S, long d)
 /*   Description: Clears the MACH and MACL registers.			*/
 /*									*/
 void
-superH_clrmac(State *S)
+superH_clrmac(Engine *E, State *S)
 {
 	S->superH->MACH = 0;
 	S->superH->MACL = 0;
@@ -977,7 +992,7 @@ superH_clrmac(State *S)
 /*   Description: Clears the S bit.					*/
 /*									*/
 void
-superH_clrs(State *S)
+superH_clrs(Engine *E, State *S)
 {
 	S->superH->SR.S = 0;
 
@@ -995,7 +1010,7 @@ superH_clrs(State *S)
 /*   Description: Clears the T bit.					*/
 /*									*/
 void
-superH_clrt(State *S)
+superH_clrt(Engine *E, State *S)
 {
 	S->superH->SR.T = 0;
 
@@ -1032,9 +1047,9 @@ superH_clrt(State *S)
 /*   LEGEND ;)- sgd && = "when signed,  and" etc.			*/
 /*									*/
 void
-superH_cmpeq(State *S, ulong m, ulong n)
+superH_cmpeq(Engine *E, State *S, ulong m, ulong n)
 {
-	if (reg_read(S, n) == reg_read(S, m))
+	if (reg_read(E, S, n) == reg_read(E, S, m))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1047,9 +1062,9 @@ superH_cmpeq(State *S, ulong m, ulong n)
 }
 
 void
-superH_cmpge(State *S, ulong m, ulong n)
+superH_cmpge(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((long)reg_read(S, n) >= (long)reg_read(S, m))
+	if ((long)reg_read(E, S, n) >= (long)reg_read(E, S, m))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1062,9 +1077,9 @@ superH_cmpge(State *S, ulong m, ulong n)
 }
 
 void
-superH_cmpgt(State *S, ulong m, ulong n)
+superH_cmpgt(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((long)reg_read(S, n) > (long)reg_read(S, m))
+	if ((long)reg_read(E, S, n) > (long)reg_read(E, S, m))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1077,40 +1092,9 @@ superH_cmpgt(State *S, ulong m, ulong n)
 }
 
 void
-superH_cmphi(State *S, ulong m, ulong n)
+superH_cmphi(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((ulong)reg_read(S, n) > (ulong)reg_read(S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
-}
-
-
-void
-superH_cmphs(State *S, ulong m, ulong n)
-{
-	if ((ulong)reg_read(S, n) >= (ulong)reg_read(S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
-}
-
-void
-superH_cmppl(State *S, ulong n)
-{
-	if ((long)reg_read(S, n) > 0)
+	if ((ulong)reg_read(E, S, n) > (ulong)reg_read(E, S, m))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1124,9 +1108,24 @@ superH_cmppl(State *S, ulong n)
 
 
 void
-superH_cmppz(State *S, ulong n)
+superH_cmphs(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((long)reg_read(S, n) >= 0)
+	if ((ulong)reg_read(E, S, n) >= (ulong)reg_read(E, S, m))
+	{
+		S->superH->SR.T = 1;
+	}
+	else
+	{
+		S->superH->SR.T = 0;
+	}
+
+	return;
+}
+
+void
+superH_cmppl(Engine *E, State *S, ulong n)
+{
+	if ((long)reg_read(E, S, n) > 0)
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1140,12 +1139,28 @@ superH_cmppz(State *S, ulong n)
 
 
 void
-superH_cmpstr(State *S, ulong m, ulong n)
+superH_cmppz(Engine *E, State *S, ulong n)
+{
+	if ((long)reg_read(E, S, n) >= 0)
+	{
+		S->superH->SR.T = 1;
+	}
+	else
+	{
+		S->superH->SR.T = 0;
+	}
+
+	return;
+}
+
+
+void
+superH_cmpstr(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong temp;
 	long HH,HL,LH,LL;
 
-	temp = reg_read(S, n) ^ reg_read(S, m);
+	temp = reg_read(E, S, n) ^ reg_read(E, S, m);
 	HH = (temp&0xFF000000) >> 12;
 	HL = (temp&0x00FF0000) >> 8;
 	LH = (temp&0x0000FF00) >> 4; 
@@ -1166,7 +1181,7 @@ superH_cmpstr(State *S, ulong m, ulong n)
 
 
 void
-superH_cmpim(State *S, long i)
+superH_cmpim(Engine *E, State *S, long i)
 {
 	long imm;
 
@@ -1178,7 +1193,7 @@ superH_cmpim(State *S, long i)
 	{
 		imm = (0xFFFFFF00 | i);
 	}
-	if (reg_read(S, 0) == imm)
+	if (reg_read(E, S, 0) == imm)
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1207,9 +1222,9 @@ superH_cmpim(State *S, long i)
 /*   DIV1 for more information.						*/
 /* 									*/
 void
-superH_div0s(State *S, ulong m, ulong n)
+superH_div0s(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((reg_read(S, n)&0x80000000) == 0)
+	if ((reg_read(E, S, n)&0x80000000) == 0)
 	{
 		S->superH->SR.Q = 0;
 	}
@@ -1217,7 +1232,7 @@ superH_div0s(State *S, ulong m, ulong n)
 	{
 		S->superH->SR.Q = 1;
 	}
-	if ((reg_read(S, m)&0x80000000) == 0)
+	if ((reg_read(E, S, m)&0x80000000) == 0)
 	{
 		S->superH->SR.M = 0;
 	}
@@ -1247,7 +1262,7 @@ superH_div0s(State *S, ulong m, ulong n)
 /*   DIV1 for more information.						*/
 /* 									*/
 void
-superH_div0u(State *S)
+superH_div0u(Engine *E, State *S)
 {
 	S->superH->SR.M = S->superH->SR.Q = S->superH->SR.T = 0;
 
@@ -1280,15 +1295,15 @@ superH_div0u(State *S)
 /*   DIV1. For the division sequence, see the following examples.	*/
 /* 									*/
 void
-superH_div1(State *S, ulong m, ulong n)
+superH_div1(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong tmp0;
 	uchar old_q,tmp1;
 
 	old_q = S->superH->SR.Q;
-	S->superH->SR.Q = (uchar)((0x80000000 & reg_read(S, n))!=0);
-	reg_set(S, n, reg_read(S, n) << 1);
-	reg_set(S, n, reg_read(S, n)|(long)S->superH->SR.T);
+	S->superH->SR.Q = (uchar)((0x80000000 & reg_read(E, S, n))!=0);
+	reg_set(E, S, n, reg_read(E, S, n) << 1);
+	reg_set(E, S, n, reg_read(E, S, n)|(long)S->superH->SR.T);
 
 	switch (old_q)
 	{
@@ -1296,9 +1311,9 @@ superH_div1(State *S, ulong m, ulong n)
 			switch(S->superH->SR.M)
 			{
 				case 0:
-					tmp0 = reg_read(S, n);
-					reg_set(S, n, reg_read(S, n)-reg_read(S, m));
-					tmp1 = (reg_read(S, n) > tmp0);
+					tmp0 = reg_read(E, S, n);
+					reg_set(E, S, n, reg_read(E, S, n)-reg_read(E, S, m));
+					tmp1 = (reg_read(E, S, n) > tmp0);
 					switch(S->superH->SR.Q)
 					{
 						case 0:
@@ -1312,9 +1327,9 @@ superH_div1(State *S, ulong m, ulong n)
 					break;
 
 				case 1:
-					tmp0 = reg_read(S, n);
-					reg_set(S, n, reg_read(S, n)+reg_read(S, m));
-					tmp1 = (reg_read(S, n) < tmp0);
+					tmp0 = reg_read(E, S, n);
+					reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
+					tmp1 = (reg_read(E, S, n) < tmp0);
 					switch(S->superH->SR.Q)
 					{
 						case 0:
@@ -1332,9 +1347,9 @@ superH_div1(State *S, ulong m, ulong n)
 			switch(S->superH->SR.M)
 			{
 				case 0:
-					tmp0 = reg_read(S, n);
-					reg_set(S, n, reg_read(S, n)+reg_read(S, m));
-					tmp1 = (reg_read(S, n) < tmp0);
+					tmp0 = reg_read(E, S, n);
+					reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
+					tmp1 = (reg_read(E, S, n) < tmp0);
 					switch(S->superH->SR.Q)
 					{
 						case 0:
@@ -1347,9 +1362,9 @@ superH_div1(State *S, ulong m, ulong n)
 					break;
 
 				case 1:
-					tmp0 = reg_read(S, n);
-					reg_set(S, n, reg_read(S, n)-reg_read(S, m));
-					tmp1 = (reg_read(S, n) > tmp0);
+					tmp0 = reg_read(E, S, n);
+					reg_set(E, S, n, reg_read(E, S, n)-reg_read(E, S, m));
+					tmp1 = (reg_read(E, S, n) > tmp0);
 					switch(S->superH->SR.Q)
 					{
 						case 0:
@@ -1384,14 +1399,14 @@ superH_div1(State *S, ulong m, ulong n)
 /*   operation.								*/
 /* 									*/
 void
-superH_dmuls(State *S, ulong m, ulong n)
+superH_dmuls(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong RnL,RnH,RmL,RmH,Res0,Res1,Res2;
 	ulong temp0,temp1,temp2,temp3;
 	long tempm,tempn,fnLmL;
 
-	tempn = (long)reg_read(S, n);
-	tempm = (long)reg_read(S, m);
+	tempn = (long)reg_read(E, S, n);
+	tempm = (long)reg_read(E, S, m);
 
 	if (tempn < 0)
 	{
@@ -1401,7 +1416,7 @@ superH_dmuls(State *S, ulong m, ulong n)
 	{
 		tempm = 0-tempm;
 	}
-	if ((long)(reg_read(S, n)^reg_read(S, m)) < 0)
+	if ((long)(reg_read(E, S, n)^reg_read(E, S, m)) < 0)
 	{
 		fnLmL = -1;
 	}
@@ -1472,15 +1487,15 @@ superH_dmuls(State *S, ulong m, ulong n)
 /*   operation.								*/
 /* 									*/
 void
-superH_dmulu(State *S, ulong m, ulong n)
+superH_dmulu(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
 	ulong temp0, temp1, temp2, temp3;
 
-	RnL = reg_read(S, n) & 0x0000FFFF;
-	RnH = (reg_read(S, n) >> 16) & 0x0000FFFF;
-	RmL = reg_read(S, m) & 0x0000FFFF;
-	RmH = (reg_read(S, m) >> 16) & 0x0000FFFF;
+	RnL = reg_read(E, S, n) & 0x0000FFFF;
+	RnH = (reg_read(E, S, n) >> 16) & 0x0000FFFF;
+	RmL = reg_read(E, S, m) & 0x0000FFFF;
+	RmH = (reg_read(E, S, m) >> 16) & 0x0000FFFF;
 	temp0 = RmL*RnL;
 	temp1 = RmH*RnL;
 	temp2 = RmL*RnH;
@@ -1524,11 +1539,11 @@ superH_dmulu(State *S, ulong m, ulong n)
 /*   bit is set to 1. When the result isnt zero, the T bit is set to 0. */
 /*									*/
 void
-superH_dt(State *S, ulong n)
+superH_dt(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n)-1);
+	reg_set(E, S, n, reg_read(E, S, n)-1);
 
-	if (reg_read(S, n) == 0)
+	if (reg_read(E, S, n) == 0)
 	{
 		S->superH->SR.T = 1;
 	}
@@ -1555,34 +1570,34 @@ superH_dt(State *S, ulong n)
 /*   , the bit 15 value of Rm is copied into bits 16 to 31 of Rn.	*/
 /*									*/
 void
-superH_extsb(State *S, ulong m, ulong n)
+superH_extsb(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, m));
 
-	if ((reg_read(S, m) & 0x00000080) == 0)
+	if ((reg_read(E, S, m) & 0x00000080) == 0)
 	{
-		reg_set(S, n, reg_read(S, n)&0x000000FF);
+		reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n)|0xFFFFFF00);
+		reg_set(E, S, n, reg_read(E, S, n)|0xFFFFFF00);
 	}
 
 	return;
 }
 
 void
-superH_extsw(State *S, ulong m, ulong n)
+superH_extsw(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, m));
 
-	if ((reg_read(S, m)&0x00008000) == 0)
+	if ((reg_read(E, S, m)&0x00008000) == 0)
 	{
-		reg_set(S, n, reg_read(S, n)&0x0000FFFF);
+		reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n)|0xFFFF0000);
+		reg_set(E, S, n, reg_read(E, S, n)|0xFFFF0000);
 	}
 
 	return;
@@ -1603,19 +1618,19 @@ superH_extsw(State *S, ulong m, ulong n)
 /*   in bits 16 to 31 of Rn.						*/
 /* 									*/
 void
-superH_extub(State *S, ulong m, ulong n)
+superH_extub(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, m));
-	reg_set(S, n, reg_read(S, n)&0x000000FF);
+	reg_set(E, S, n, reg_read(E, S, m));
+	reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
 
 	return;
 }
 
 void
-superH_extuw(State *S, ulong m, ulong n)
+superH_extuw(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, m));
-	reg_set(S, n, reg_read(S, n)&0x0000FFFF);
+	reg_set(E, S, n, reg_read(E, S, m));
+	reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
 
 	return;
 }
@@ -1639,18 +1654,18 @@ superH_extuw(State *S, ulong m, ulong n)
 /*   illegal slot instruction.						*/
 /* 									*/
 void
-superH_jmp(State *S, ulong n)
+superH_jmp(Engine *E, State *S, ulong n)
 {
 	ulong temp;
 
 	/*	B'cos PC has been inc'd 2x since we were fetched	*/
 	temp = S->superH->P.EX.fetchedpc;
 
-	/*	XXX/BUG ? The spec does PC = reg_read(S, n)+4, but that makes no sense	*/
-	S->PC = reg_read(S, n);
+	/*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
+	S->PC = reg_read(E, S, n);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, temp+2);
+	delayslot(E, S, temp+2);
 	superHifidflush(S);
 
 	return;
@@ -1678,16 +1693,16 @@ superH_jmp(State *S, ulong n)
 /*   instruction, it is acknowledged as an illegal slot instruction.	*/
 /* 									*/
 void
-superH_jsr(State *S, ulong n)
+superH_jsr(Engine *E, State *S, ulong n)
 {
 	/*	B'cos PC has been inc'd 2x since we were fetched	*/
 	S->superH->PR = S->superH->P.EX.fetchedpc;
 
-	/*	XXX/BUG ? The spec does PC = reg_read(S, n)+4, but that makes no sense	*/
-	S->PC = reg_read(S, n);
+	/*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
+	S->PC = reg_read(E, S, n);
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, S->superH->PR+2);
+	delayslot(E, S, S->superH->PR+2);
 	superHifidflush(S);
 
 	/*								*/
@@ -1695,7 +1710,7 @@ superH_jsr(State *S, ulong n)
 	/*								*/
 	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
 	{
-		sfatal(S, "Internal simulator error: PC stack overflow");
+		sfatal(E, S, "Internal simulator error: PC stack overflow");
 	}
 
 	/*								*/
@@ -1765,9 +1780,9 @@ superH_jsr(State *S, ulong n)
 /*   instructions.							*/
 /* 									*/
 void
-superH_ldcsr(State *S, ulong m)
+superH_ldcsr(Engine *E, State *S, ulong m)
 {
-	long tmp = reg_read(S, m) & 0x700003F3;
+	long tmp = reg_read(E, S, m) & 0x700003F3;
 
 	memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
 	
@@ -1775,40 +1790,40 @@ superH_ldcsr(State *S, ulong m)
 }
 
 void
-superH_ldcgbr(State *S, ulong m)
+superH_ldcgbr(Engine *E, State *S, ulong m)
 {
-	S->superH->GBR = reg_read(S, m);
+	S->superH->GBR = reg_read(E, S, m);
 
 	return;
 }
 
 void
-superH_ldcvbr(State *S, ulong m)
+superH_ldcvbr(Engine *E, State *S, ulong m)
 {
-	S->superH->VBR = reg_read(S, m);
+	S->superH->VBR = reg_read(E, S, m);
 
 	return;
 }
 
 void
-superH_ldcssr(State *S, ulong m)
+superH_ldcssr(Engine *E, State *S, ulong m)
 {
-	long 	tmp = reg_read(S, m) & 0x700003F3;
+	long 	tmp = reg_read(E, S, m) & 0x700003F3;
 	memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
 
 	return;
 }
 
 void
-superH_ldcspc(State *S, ulong m)
+superH_ldcspc(Engine *E, State *S, ulong m)
 {
-	S->superH->SPC = reg_read(S, m);
+	S->superH->SPC = reg_read(E, S, m);
 
 	return;
 }
 
 void
-superH_ldcr_bank(State *S, int reg, ulong m)
+superH_ldcr_bank(Engine *E, State *S, int reg, ulong m)
 {	
 	if (S->superH->SR.RB == 0)
 	{
@@ -1823,62 +1838,62 @@ superH_ldcr_bank(State *S, int reg, ulong m)
 }
 
 void
-superH_ldcmsr(State *S, ulong m)
+superH_ldcmsr(Engine *E, State *S, ulong m)
 {
-	long tmp = superHreadlong(S, reg_read(S, m)) & 0x700003F3;
+	long tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
 	memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
-	reg_set(S, m, reg_read(S, m)+4);
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldcmgbr(State *S, ulong m)
+superH_ldcmgbr(Engine *E, State *S, ulong m)
 {
-	S->superH->GBR = superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	S->superH->GBR = superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldcmvbr(State *S, ulong m)
+superH_ldcmvbr(Engine *E, State *S, ulong m)
 {
-	S->superH->VBR = superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	S->superH->VBR = superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldcmssr(State *S, ulong m)
+superH_ldcmssr(Engine *E, State *S, ulong m)
 {
-	long	tmp = superHreadlong(S, reg_read(S, m)) & 0x700003F3;
+	long	tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
 	memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
-	reg_set(S, m, reg_read(S, m)+4);
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldcmspc(State *S, ulong m)
+superH_ldcmspc(Engine *E, State *S, ulong m)
 {
-	S->superH->SPC = superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	S->superH->SPC = superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldcmr_bank(State *S, int reg, ulong m)
+superH_ldcmr_bank(Engine *E, State *S, int reg, ulong m)
 {
 	if (S->superH->SR.RB == 0)
 	{
-		S->superH->R_BANK[reg] = superHreadlong(S, S->superH->R[m]);
+		S->superH->R_BANK[reg] = superHreadlong(E, S, S->superH->R[m]);
 	}
 	else
 	{
-		S->superH->R[reg] = superHreadlong(S, S->superH->R[m]);
+		S->superH->R[reg] = superHreadlong(E, S, S->superH->R[m]);
 	}
 	S->superH->R[m] += 4;
 
@@ -1902,9 +1917,9 @@ superH_ldcmr_bank(State *S, int reg, ulong m)
 /*   MACH, MACL, or PR.							*/
 /*									*/
 void
-superH_ldsmach(State *S, ulong m)
+superH_ldsmach(Engine *E, State *S, ulong m)
 {
-	S->superH->MACH = reg_read(S, m);
+	S->superH->MACH = reg_read(E, S, m);
 	if ((S->superH->MACH&0x00000200) == 0)
 	{
 		S->superH->MACH &= 0x000003FF;
@@ -1918,25 +1933,25 @@ superH_ldsmach(State *S, ulong m)
 }
 
 void
-superH_ldsmacl(State *S, ulong m)
+superH_ldsmacl(Engine *E, State *S, ulong m)
 {
-	S->superH->MACL = reg_read(S, m);
+	S->superH->MACL = reg_read(E, S, m);
 
 	return;
 }
 
 void
-superH_ldspr(State *S, ulong m)
+superH_ldspr(Engine *E, State *S, ulong m)
 {
-	S->superH->PR = reg_read(S, m);
+	S->superH->PR = reg_read(E, S, m);
 
 	return;
 }
 
 void
-superH_ldsmmach(State *S, ulong m)
+superH_ldsmmach(Engine *E, State *S, ulong m)
 {
-	S->superH->MACH = superHreadlong(S, reg_read(S, m));
+	S->superH->MACH = superHreadlong(E, S, reg_read(E, S, m));
 
 	if ((S->superH->MACH&0x00000200) == 0)
 	{
@@ -1946,25 +1961,25 @@ superH_ldsmmach(State *S, ulong m)
 	{
 		S->superH->MACH |= 0xFFFFFC00;
 	}
-	reg_set(S, m, reg_read(S, m)+4);
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldsmmacl(State *S, ulong m)
+superH_ldsmmacl(Engine *E, State *S, ulong m)
 {
-	S->superH->MACL = superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	S->superH->MACL = superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
 
 void
-superH_ldsmpr(State *S, ulong m)
+superH_ldsmpr(Engine *E, State *S, ulong m)
 {
-	S->superH->PR = superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	S->superH->PR = superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	return;
 }
@@ -1993,7 +2008,7 @@ superH_ldsmpr(State *S, ulong m)
 /*   instruction that terminates the handler.				*/
 /* 									*/
 void
-superH_ldtlb(State *S)
+superH_ldtlb(Engine *E, State *S)
 {
 	int	i;
 
@@ -2022,7 +2037,7 @@ superH_ldtlb(State *S)
 	S->superH->TLB->blocks[i].data = tlbentry_data_pack(ppn, pr, sz, c, d, sh);
 	S->superH->TLB->blocks[i].tag = tlbentry_addr_pack(vpn31_17, vpn11_10, asid, v);
 
-fprintf(stderr, "\n\nsunflower: ldtlb instr\n\n");
+//	fprintf(stderr, "\n\nsunflower: ldtlb instr\n\n");
 	return;
 }
 
@@ -2049,16 +2064,16 @@ fprintf(stderr, "\n\nsunflower: ldtlb instr\n\n");
 /*   H'00007FFFFFFFFFFF (maximum).					*/
 /*									*/
 void
-superH_macl(State *S, ulong m, ulong n)
+superH_macl(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
 	ulong temp0, temp1, temp2, temp3;
 	long tempm, tempn, fnLmL;
 
-	tempn = (long)superHreadlong(S, reg_read(S, n));
-	reg_set(S, n, reg_read(S, n)+4);
-	tempm = (long)superHreadlong(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+4);
+	tempn = (long)superHreadlong(E, S, reg_read(E, S, n));
+	reg_set(E, S, n, reg_read(E, S, n)+4);
+	tempm = (long)superHreadlong(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+4);
 
 	if ((long)(tempn^tempm) < 0)
 	{
@@ -2187,15 +2202,15 @@ superH_macl(State *S, ulong m, ulong n)
 /*   in two cycles.							*/
 /* 									*/
 void
-superH_macw(State *S, ulong m, ulong n)
+superH_macw(Engine *E, State *S, ulong m, ulong n)
 {
 	long tempm,tempn,dest,src,ans;
 	ulong templ;
 
-	tempn = (long)superHreadword(S, reg_read(S, n));
-	reg_set(S, n, reg_read(S, n)+2);
-	tempm = (long)superHreadword(S, reg_read(S, m));
-	reg_set(S, m, reg_read(S, m)+2);
+	tempn = (long)superHreadword(E, S, reg_read(E, S, n));
+	reg_set(E, S, n, reg_read(E, S, n)+2);
+	tempm = (long)superHreadword(E, S, reg_read(E, S, m));
+	reg_set(E, S, m, reg_read(E, S, m)+2);
 	templ = S->superH->MACL;
 	tempm = ((long)(short)tempn*(long)(short)tempm);
 
@@ -2303,223 +2318,223 @@ superH_macw(State *S, ulong m, ulong n)
 /*   register after it is sign-extended to a longword.			*/
 /* 									*/
 void
-superH_mov(State *S, ulong m, ulong n)
+superH_mov(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movbs(State *S, ulong m, ulong n)
+superH_movbs(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwritebyte(S, reg_read(S, n), reg_read(S, m));
+	superHwritebyte(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movws(State *S, ulong m, ulong n)
+superH_movws(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwriteword(S, reg_read(S, n), reg_read(S, m));
+	superHwriteword(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movls(State *S, ulong m, ulong n)
+superH_movls(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwritelong(S, reg_read(S, n), reg_read(S, m));
+	superHwritelong(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movbl(State *S, ulong m, ulong n)
+superH_movbl(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, (long)superHreadbyte(S, reg_read(S, m)));
+	reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(S, n) & 0x80) == 0)
+	if ((reg_read(E, S, n) & 0x80) == 0)
 	{
-		reg_set(S, n, reg_read(S, n)&0x000000FF);
+		reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
 	}
 	else
  	{
-		reg_set(S, n, reg_read(S, n)|0xFFFFFF00);
+		reg_set(E, S, n, reg_read(E, S, n)|0xFFFFFF00);
 	}
 
 	return;
 }
 
 void
-superH_movwl(State *S, ulong m, ulong n)
+superH_movwl(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, (long)superHreadword(S, reg_read(S, m)));
+	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(S, n) & 0x8000) == 0)
+	if ((reg_read(E, S, n) & 0x8000) == 0)
 	{
-		reg_set(S, n, reg_read(S, n)&0x0000FFFF);
-	}
-	else
-	{
-		reg_set(S, n, reg_read(S, n)|0xFFFF0000);
-	}
-
-	return;
-}
-
-void
-superH_movll(State *S, ulong m, ulong n)
-{
-	reg_set(S, n, superHreadlong(S, reg_read(S, m)));
-
-	return;
-}
-
-void
-superH_movbm(State *S, ulong m, ulong n)
-{
-	superHwritebyte(S, reg_read(S, n)-1, reg_read(S, m));
-	reg_set(S, n, reg_read(S, n)-1);
-
-	return;
-}
-
-void
-superH_movwm(State *S, ulong m, ulong n)
-{
-	superHwriteword(S, reg_read(S, n)-2, reg_read(S, m));
-	reg_set(S, n, reg_read(S, n)-2);
-
-	return;
-}
-
-void
-superH_movlm(State *S, ulong m, ulong n)
-{
-	superHwritelong(S, reg_read(S, n)-4, reg_read(S, m));
-	reg_set(S, n, reg_read(S, n)-4);
-
-	return;
-}
-
-void
-superH_movbp(State *S, ulong m, ulong n)
-{
-	reg_set(S, n,  (long)superHreadbyte(S, reg_read(S, m)));
-
-	if ((reg_read(S, n) & 0x80) == 0)
-	{
-		reg_set(S, n, reg_read(S, n) & 0x000000FF);
+		reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFFFF00);
+		reg_set(E, S, n, reg_read(E, S, n)|0xFFFF0000);
+	}
+
+	return;
+}
+
+void
+superH_movll(Engine *E, State *S, ulong m, ulong n)
+{
+	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
+
+	return;
+}
+
+void
+superH_movbm(Engine *E, State *S, ulong m, ulong n)
+{
+	superHwritebyte(E, S, reg_read(E, S, n)-1, reg_read(E, S, m));
+	reg_set(E, S, n, reg_read(E, S, n)-1);
+
+	return;
+}
+
+void
+superH_movwm(Engine *E, State *S, ulong m, ulong n)
+{
+	superHwriteword(E, S, reg_read(E, S, n)-2, reg_read(E, S, m));
+	reg_set(E, S, n, reg_read(E, S, n)-2);
+
+	return;
+}
+
+void
+superH_movlm(Engine *E, State *S, ulong m, ulong n)
+{
+	superHwritelong(E, S, reg_read(E, S, n)-4, reg_read(E, S, m));
+	reg_set(E, S, n, reg_read(E, S, n)-4);
+
+	return;
+}
+
+void
+superH_movbp(Engine *E, State *S, ulong m, ulong n)
+{
+	reg_set(E, S, n,  (long)superHreadbyte(E, S, reg_read(E, S, m)));
+
+	if ((reg_read(E, S, n) & 0x80) == 0)
+	{
+		reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
+	}
+	else
+	{
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
 	}
 	if (n != m)
 	{
-		reg_set(S, m, reg_read(S, m) + 1);
+		reg_set(E, S, m, reg_read(E, S, m) + 1);
 	}
 
 	return;
 }
 
 void
-superH_movwp(State *S, ulong m, ulong n)
+superH_movwp(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, (long)superHreadword(S, reg_read(S, m)));
+	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(S, n) & 0x8000) == 0)
+	if ((reg_read(E, S, n) & 0x8000) == 0)
 	{
-		reg_set(S, n, reg_read(S, n) & 0x0000FFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFF0000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
 	}
 	if (n != m)
 	{
-		reg_set(S, m, reg_read(S, m) + 2);
+		reg_set(E, S, m, reg_read(E, S, m) + 2);
 	}
 
 	return;
 }
 
 void
-superH_movlp(State *S, ulong m, ulong n)
+superH_movlp(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, superHreadlong(S, reg_read(S, m)));
+	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
 
 	if (n != m)
 	{
-		reg_set(S, m, reg_read(S, m) + 4);
+		reg_set(E, S, m, reg_read(E, S, m) + 4);
 	}
 
 	return;
 }
 
 void
-superH_movbs0(State *S, ulong m, ulong n)
+superH_movbs0(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwritebyte(S, reg_read(S, n)+reg_read(S, 0), reg_read(S, m));
+	superHwritebyte(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movws0(State *S, ulong m, ulong n)
+superH_movws0(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwriteword(S, reg_read(S, n)+reg_read(S, 0), reg_read(S, m));
+	superHwriteword(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movls0(State *S, ulong m, ulong n)
+superH_movls0(Engine *E, State *S, ulong m, ulong n)
 {
-	superHwritelong(S, reg_read(S, n)+reg_read(S, 0), reg_read(S, m));
+	superHwritelong(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movbl0(State *S, ulong m, ulong n)
+superH_movbl0(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, (long)superHreadbyte(S, reg_read(S, m)+reg_read(S, 0)));
+	reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
 
-	if ((reg_read(S, n) & 0x80) == 0)
+	if ((reg_read(E, S, n) & 0x80) == 0)
 	{
-		reg_set(S, n, reg_read(S, n) & 0x000000FF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFFFF00);
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
 	}
 
 	return;
 }
 
 void
-superH_movwl0(State *S, ulong m, ulong n)
+superH_movwl0(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, (long)superHreadword(S, reg_read(S, m)+reg_read(S, 0)));
+	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
 
-	if ((reg_read(S, n) & 0x8000) == 0)
+	if ((reg_read(E, S, n) & 0x8000) == 0)
 	{
-		reg_set(S, n, reg_read(S, n) & 0x0000FFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFF0000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
 	}
 
 	return;
 }
 
 void
-superH_movll0(State *S, ulong m, ulong n)
+superH_movll0(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, superHreadlong(S, reg_read(S, m)+reg_read(S, 0)));
+	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
 
 	return;
 }
@@ -2560,22 +2575,22 @@ superH_movll0(State *S, ulong m, ulong n)
 /*   branch destination) + 2.						*/
 /*									*/
 void
-superH_movi(State *S, long i, ulong n)
+superH_movi(Engine *E, State *S, long i, ulong n)
 {
 	if ((i & 0x80) == 0)
 	{
-		reg_set(S, n, (0x000000FF & (long)i));
+		reg_set(E, S, n, (0x000000FF & (long)i));
 	}
 	else
 	{
-		reg_set(S, n, (0xFFFFFF00 | (long)i));
+		reg_set(E, S, n, (0xFFFFFF00 | (long)i));
 	}
 
 	return;
 }
 
 void
-superH_movwi(State *S, long d, ulong n)
+superH_movwi(Engine *E, State *S, long d, ulong n)
 {
 	long disp;
 
@@ -2584,22 +2599,22 @@ superH_movwi(State *S, long d, ulong n)
 	/*										*/
 	/*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/
 	/*										*/
-	reg_set(S, n, (long)superHreadword(S, (S->superH->P.EX.fetchedpc+4)+(disp<<1)));
+	reg_set(E, S, n, (long)superHreadword(E, S, (S->superH->P.EX.fetchedpc+4)+(disp<<1)));
 
-	if ((reg_read(S, n) & 0x8000) == 0)
+	if ((reg_read(E, S, n) & 0x8000) == 0)
 	{
-		reg_set(S, n, reg_read(S, n) & 0x0000FFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFF0000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
 	}
 
 	return;
 }
 
 void
-superH_movli(State *S, long d, ulong n)
+superH_movli(Engine *E, State *S, long d, ulong n)
 {
 	long disp;
 
@@ -2608,7 +2623,7 @@ superH_movli(State *S, long d, ulong n)
 
 	/*										*/
 	/*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/						
-	reg_set(S, n, superHreadlong(S, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2)));
+	reg_set(E, S, n, superHreadlong(E, S, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2)));
 
 	return;
 }
@@ -2651,84 +2666,84 @@ superH_movli(State *S, long d, ulong n)
 /*   give better results.						*/
 /*									*/
 void
-superH_movblg(State *S, long d)
+superH_movblg(Engine *E, State *S, long d)
 {
 	long disp;
 	disp = (0x000000FF & (long)d);
-	reg_set(S, 0, (long)superHreadbyte(S, S->superH->GBR+disp));
+	reg_set(E, S, 0, (long)superHreadbyte(E, S, S->superH->GBR+disp));
 
-	if ((reg_read(S, 0) & 0x80) == 0)
+	if ((reg_read(E, S, 0) & 0x80) == 0)
 	{
-		reg_set(S, 0, reg_read(S, 0) & 0x000000FF);
+		reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
 	}
 	else
 	{
-		reg_set(S, 0, reg_read(S, 0) | 0xFFFFFF00);
+		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
 	}
 
 	return;
 }
 
 void
-superH_movwlg(State *S, long d)
+superH_movwlg(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
-	reg_set(S, 0, (long)superHreadword(S, S->superH->GBR+(disp<<1)));
+	reg_set(E, S, 0, (long)superHreadword(E, S, S->superH->GBR+(disp<<1)));
 
-	if ((reg_read(S, 0) & 0x8000) == 0)
+	if ((reg_read(E, S, 0) & 0x8000) == 0)
 	{
-		reg_set(S, 0, reg_read(S, 0) & 0x0000FFFF);
+		reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF);
 	}
 	else
 	{
-		reg_set(S, 0, reg_read(S, 0) | 0xFFFF0000);
+		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
 	}
 
 	return;
 }
 
 void
-superH_movllg(State *S, long d)
+superH_movllg(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
-	reg_set(S, 0, superHreadlong(S, S->superH->GBR+(disp<<2)));
+	reg_set(E, S, 0, superHreadlong(E, S, S->superH->GBR+(disp<<2)));
 
 	return;
 }
 
 void
-superH_movbsg(State *S, long d)
+superH_movbsg(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
-	superHwritebyte(S, S->superH->GBR+disp,reg_read(S, 0));
+	superHwritebyte(E, S, S->superH->GBR+disp,reg_read(E, S, 0));
 
 	return;
 }
 
 void
-superH_movwsg(State *S, long d)
+superH_movwsg(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
-	superHwriteword(S, S->superH->GBR+(disp<<1),reg_read(S, 0));
+	superHwriteword(E, S, S->superH->GBR+(disp<<1),reg_read(E, S, 0));
 
 	return;
 }
 
 void
-superH_movlsg(State *S, long d)
+superH_movlsg(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
-	superHwritelong(S, S->superH->GBR+(disp<<2),reg_read(S, 0));
+	superHwritelong(E, S, S->superH->GBR+(disp<<2),reg_read(E, S, 0));
 
 	return;
 }
@@ -2769,85 +2784,85 @@ superH_movlsg(State *S, long d)
 /*   give better results.						*/
 /* 									*/
 void
-superH_movbs4(State *S, long d, ulong n)
+superH_movbs4(Engine *E, State *S, long d, ulong n)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	superHwritebyte(S, reg_read(S, n)+disp, reg_read(S, 0));
+	superHwritebyte(E, S, reg_read(E, S, n)+disp, reg_read(E, S, 0));
 
 	return;
 }
 
 void
-superH_movws4(State *S, long d, ulong n)
+superH_movws4(Engine *E, State *S, long d, ulong n)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	superHwriteword(S, reg_read(S, n)+(disp<<1), reg_read(S, 0));
+	superHwriteword(E, S, reg_read(E, S, n)+(disp<<1), reg_read(E, S, 0));
 
 	return;
 }
 
 void
-superH_movls4(State *S, ulong m, long d, ulong n)
+superH_movls4(Engine *E, State *S, ulong m, long d, ulong n)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	superHwritelong(S, reg_read(S, n)+(disp<<2), reg_read(S, m));
+	superHwritelong(E, S, reg_read(E, S, n)+(disp<<2), reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_movbl4(State *S, ulong m, long d)
+superH_movbl4(Engine *E, State *S, ulong m, long d)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	reg_set(S, 0, superHreadbyte(S, reg_read(S, m)+disp));
+	reg_set(E, S, 0, superHreadbyte(E, S, reg_read(E, S, m)+disp));
 
-	if ((reg_read(S, 0) & 0x80) == 0)
+	if ((reg_read(E, S, 0) & 0x80) == 0)
 	{
-		reg_set(S, 0, reg_read(S, 0) & 0x000000FF);
+		reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
 	}
 	else
 	{
-		reg_set(S, 0, reg_read(S, 0) | 0xFFFFFF00);
+		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
 	}
 
 	return;
 }
 
 void
-superH_movwl4(State *S, ulong m, long d)
+superH_movwl4(Engine *E, State *S, ulong m, long d)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	reg_set(S, 0, superHreadword(S, reg_read(S, m)+(disp<<1)));
+	reg_set(E, S, 0, superHreadword(E, S, reg_read(E, S, m)+(disp<<1)));
 
-	if ((reg_read(S, 0) & 0x8000) == 0)
+	if ((reg_read(E, S, 0) & 0x8000) == 0)
 	{
-		reg_set(S, 0, reg_read(S, 0) & 0x0000FFFF); 
+		reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF); 
 	}
 	else
 	{
-		reg_set(S, 0, reg_read(S, 0) | 0xFFFF0000);
+		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
 	}
 
 	return;
 }
 
 void
-superH_movll4(State *S, ulong m, long d, ulong n)
+superH_movll4(Engine *E, State *S, ulong m, long d, ulong n)
 {
 	long disp;
 
 	disp = (0x0000000F & (long)d);
-	reg_set(S, n, superHreadlong(S, reg_read(S, m)+(disp << 2)));
+	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)+(disp << 2)));
 
 	return;
 }
@@ -2871,14 +2886,14 @@ superH_movll4(State *S, ulong m, long d, ulong n)
 /*   starting address of the branch destination) + 2.			*/
 /*									*/
 void
-superH_mova(State *S, long d)
+superH_mova(Engine *E, State *S, long d)
 {
 	long disp;
 
 	disp = (0x000000FF & (long)d);
 
 	/*	P.EX.fetchedpc B'cos PC has been inc'd 2x since we were fetched	*/
-	reg_set(S, 0, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2));
+	reg_set(E, S, 0, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2));
 
 	return;
 }
@@ -2895,12 +2910,12 @@ superH_mova(State *S, long d)
 /*   When T = 1, 1 is stored in Rn, and when T = 0, 0 is stored in Rn.	*/
 /*									*/
 void
-superH_movt(State *S, ulong n)
+superH_movt(Engine *E, State *S, ulong n)
 {
 	long tmp;
 	memmove(&tmp, &S->superH->SR, sizeof(tmp));
 
-	reg_set(S, n, (0x00000001 & tmp));
+	reg_set(E, S, n, (0x00000001 & tmp));
 
 	return;
 }
@@ -2919,9 +2934,9 @@ superH_movt(State *S, ulong n)
 /*   change.								*/
 /*									*/
 void
-superH_mull(State *S, ulong m, ulong n)
+superH_mull(Engine *E, State *S, ulong m, ulong n)
 {
-	S->superH->MACL = reg_read(S, n)*reg_read(S, m);
+	S->superH->MACL = reg_read(E, S, n)*reg_read(E, S, m);
 
 	return;
 }
@@ -2942,9 +2957,9 @@ superH_mull(State *S, ulong m, ulong n)
 /*   does not change.							*/
 /*									*/
 void
-superH_muls(State *S, ulong m, ulong n)
+superH_muls(Engine *E, State *S, ulong m, ulong n)
 {
-	S->superH->MACL = ((long)(short)reg_read(S, n)*(long)(short)reg_read(S, m));
+	S->superH->MACL = ((long)(short)reg_read(E, S, n)*(long)(short)reg_read(E, S, m));
 
 	return;
 }
@@ -2964,10 +2979,10 @@ superH_muls(State *S, ulong m, ulong n)
 /*   data does not change.						*/
 /*									*/
 void
-superH_mulu(State *S, ulong m, ulong n)
+superH_mulu(Engine *E, State *S, ulong m, ulong n)
 {
-	S->superH->MACL = ((ulong)(ushort)reg_read(S, n)
-	*(ulong)(ushort)reg_read(S, m));
+	S->superH->MACL = ((ulong)(ushort)reg_read(E, S, n)
+	*(ulong)(ushort)reg_read(E, S, m));
 
 	return;
 }
@@ -2985,9 +3000,9 @@ superH_mulu(State *S, ulong m, ulong n)
 /*   subtracts Rm data from 0, and stores the result in Rn.		*/
 /*									*/
 void
-superH_neg(State *S, ulong m, ulong n)
+superH_neg(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, 0 - reg_read(S, m));
+	reg_set(E, S, n, 0 - reg_read(E, S, m));
 
 	return;
 }
@@ -3006,12 +3021,12 @@ superH_neg(State *S, ulong m, ulong n)
 /*   sign of a value that has more than 32 bits.			*/
 /*									*/
 void
-superH_negc(State *S, ulong m, ulong n)
+superH_negc(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong temp;
 
-	temp = 0 - reg_read(S, m);
-	reg_set(S, n, temp - S->superH->SR.T);
+	temp = 0 - reg_read(E, S, m);
+	reg_set(E, S, n, temp - S->superH->SR.T);
 
 	if (0 < temp)
 	{
@@ -3021,7 +3036,7 @@ superH_negc(State *S, ulong m, ulong n)
 	{
 		S->superH->SR.T = 0;
 	}
-	if (temp < reg_read(S, n))
+	if (temp < reg_read(E, S, n))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -3040,7 +3055,7 @@ superH_negc(State *S, ulong m, ulong n)
 /*   Description: Increments the PC to execute the next instruction.	*/
 /*									*/
 void
-superH_nop(State *S)
+superH_nop(Engine *E, State *S)
 {
 	return;
 }
@@ -3058,9 +3073,9 @@ superH_nop(State *S)
 /*   bit of Rm data and stores the result in Rn.			*/
 /*									*/
 void
-superH_not(State *S, ulong m, ulong n)
+superH_not(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, ~ reg_read(S, m));
+	reg_set(E, S, n, ~ reg_read(E, S, m));
 
 	return;
 }
@@ -3083,29 +3098,29 @@ superH_not(State *S, ulong m, ulong n)
 /*   addressing can be ORed with 8-bit immediate data.			*/
 /*									*/
 void
-superH_or(State *S, ulong m, ulong n)
+superH_or(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) | reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n) | reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_ori(State *S, long i)
+superH_ori(Engine *E, State *S, long i)
 {
-	reg_set(S, 0, reg_read(S, 0) | (0x000000FF & (long)i));
+	reg_set(E, S, 0, reg_read(E, S, 0) | (0x000000FF & (long)i));
 
 	return;
 }
 
 void
-superH_orm(State *S, long i)
+superH_orm(Engine *E, State *S, long i)
 {
 	long temp;
 
-	temp = (long)superHreadbyte(S, S->superH->GBR+reg_read(S, 0));
+	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
 	temp |= (0x000000FF & (long)i);
-	superHwritebyte(S, S->superH->GBR+reg_read(S, 0), temp);
+	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0), temp);
 
 	return;
 }
@@ -3131,7 +3146,7 @@ superH_orm(State *S, long i)
 /*   processor status.							*/
 /*									*/
 void
-superH_pref(State *S, ulong n)
+superH_pref(Engine *E, State *S, ulong n)
 {
 	return;
 }
@@ -3145,7 +3160,7 @@ superH_pref(State *S, ulong n)
 /*   NOTE: The XXXX bits are currently unused, and can have any value.	*/
 /*									*/
 void
-superH_rfg(State *S, long i)
+superH_rfg(Engine *E, State *S, long i)
 {
 	return;
 }
@@ -3164,11 +3179,11 @@ superH_rfg(State *S, long i)
 /*   bit (see figure 6.3 of programming manual).			*/
 /*									*/
 void
-superH_rotcl(State *S, ulong n)
+superH_rotcl(Engine *E, State *S, ulong n)
 {
 	long temp;
 
-	if ((reg_read(S, n) & 0x80000000) == 0)
+	if ((reg_read(E, S, n) & 0x80000000) == 0)
 	{
 		temp = 0;
 	}
@@ -3177,15 +3192,15 @@ superH_rotcl(State *S, ulong n)
 		temp = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) << 1);
+	reg_set(E, S, n, reg_read(E, S, n) << 1);
 
 	if (S->superH->SR.T == 1)
 	{
-		reg_set(S, n, reg_read(S, n) | 0x00000001);
+		reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) & 0xFFFFFFFE);
+		reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
 	}
 	if (temp == 1)
 	{
@@ -3213,11 +3228,11 @@ superH_rotcl(State *S, ulong n)
 /*   bit (see figure 6.4 of programming manual).			*/
 /*									*/
 void
-superH_rotcr(State *S, ulong n)
+superH_rotcr(Engine *E, State *S, ulong n)
 {
 	long temp;
 
-	if ((reg_read(S, n) & 0x00000001) == 0)
+	if ((reg_read(E, S, n) & 0x00000001) == 0)
 	{
 		temp = 0;
 	}
@@ -3226,15 +3241,15 @@ superH_rotcr(State *S, ulong n)
 		temp = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) >> 1);
+	reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
 	if (S->superH->SR.T == 1)
 	{
-		reg_set(S, n, reg_read(S, n) | 0x80000000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) & 0x7FFFFFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
 	}
 	if (temp == 1)
 	{
@@ -3262,9 +3277,9 @@ superH_rotcr(State *S, ulong n)
 /*   bit.								*/
 /*									*/
 void
-superH_rotl(State *S, ulong n)
+superH_rotl(Engine *E, State *S, ulong n)
 {
-	if ((reg_read(S, n) & 0x80000000) == 0)
+	if ((reg_read(E, S, n) & 0x80000000) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3273,15 +3288,15 @@ superH_rotl(State *S, ulong n)
 		S->superH->SR.T = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) << 1);
+	reg_set(E, S, n, reg_read(E, S, n) << 1);
 
 	if (S->superH->SR.T == 1)
 	{
-		reg_set(S, n, reg_read(S, n) | 0x00000001);
+		reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) & 0xFFFFFFFE);
+		reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
 	}
 
 	return;
@@ -3301,9 +3316,9 @@ superH_rotl(State *S, ulong n)
 /*   T bit.								*/
 /*									*/			
 void
-superH_rotr(State *S, ulong n)
+superH_rotr(Engine *E, State *S, ulong n)
 {
-	if ((reg_read(S, n) & 0x00000001) == 0)
+	if ((reg_read(E, S, n) & 0x00000001) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3312,15 +3327,15 @@ superH_rotr(State *S, ulong n)
 		S->superH->SR.T = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) >> 1);
+	reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
 	if (S->superH->SR.T == 1)
 	{
-		reg_set(S, n, reg_read(S, n) | 0x80000000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) & 0x7FFFFFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
 	}
 
 	return;
@@ -3350,7 +3365,7 @@ superH_rotr(State *S, ulong n)
 /*   RTE.								*/
 /*									*/
 void
-superH_rte(State *S)
+superH_rte(Engine *E, State *S)
 {
 	ulong temp;
 	
@@ -3361,7 +3376,7 @@ superH_rte(State *S)
 	S->superH->SR = S->superH->SSR;
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, temp+2);
+	delayslot(E, S, temp+2);
 	superHifidflush(S);
 
 	return;
@@ -3390,7 +3405,7 @@ superH_rte(State *S)
 /*   slot of the RTS.							*/
 /*									*/
 void
-superH_rts(State *S)
+superH_rts(Engine *E, State *S)
 {
 	ulong temp;
 
@@ -3400,7 +3415,7 @@ superH_rts(State *S)
 	S->PC = S->superH->PR+4;
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(S, temp+2);
+	delayslot(E, S, temp+2);
 	superHifidflush(S);
 
 	/*								*/
@@ -3408,7 +3423,7 @@ superH_rts(State *S)
 	/*								*/
 	if (S->pcstackheight == 0)
 	{
-		sfatal(S, "Internal simulator error: PC stack underflow");
+		sfatal(E, S, "Internal simulator error: PC stack underflow");
 	}
 	S->pcstackheight--;
 	S->fpstackheight--;
@@ -3427,7 +3442,7 @@ superH_rts(State *S)
 /*   Description: Sets the S bit to 1.					*/
 /*									*/
 void
-superH_sets(State *S)
+superH_sets(Engine *E, State *S)
 {
 	S->superH->SR.S = 1;
 
@@ -3445,7 +3460,7 @@ superH_sets(State *S)
 /*   Description: Sets the T bit to 1.					*/
 /*									*/
 void
-superH_sett(State *S)
+superH_sett(Engine *E, State *S)
 {
 	S->superH->SR.T = 1;
 
@@ -3475,20 +3490,20 @@ superH_sett(State *S)
 /*   The maximum magnitude of the right shift count is 32 (1-32).	*/
 /*									*/
 void
-superH_shad(State *S, ulong m, ulong n)
+superH_shad(Engine *E, State *S, ulong m, ulong n)
 {
 	long cnt, sgn;
 
-	sgn = reg_read(S, m) & 0x80000000;
-	cnt = reg_read(S, m) & 0x0000001F;
+	sgn = reg_read(E, S, m) & 0x80000000;
+	cnt = reg_read(E, S, m) & 0x0000001F;
 
 	if (sgn == 0)
 	{
-		reg_set(S, n, reg_read(S, n) << cnt);
+		reg_set(E, S, n, reg_read(E, S, n) << cnt);
 	}
 	else
 	{
-		reg_set(S, n, (signed long)reg_read(S, n) >> ((~cnt+1) & 0x1F));
+		reg_set(E, S, n, (signed long)reg_read(E, S, n) >> ((~cnt+1) & 0x1F));
 	}
 
 	return;
@@ -3508,9 +3523,9 @@ superH_shad(State *S, ulong m, ulong n)
 /*   T bit (see figure 6.8 of programming manaul).			*/
 /*									*/
 void
-superH_shal(State *S, ulong n)
+superH_shal(Engine *E, State *S, ulong n)
 {
-	if ((reg_read(S, n) & 0x80000000) == 0)
+	if ((reg_read(E, S, n) & 0x80000000) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3519,7 +3534,7 @@ superH_shal(State *S, ulong n)
 		S->superH->SR.T = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) << 1);
+	reg_set(E, S, n, reg_read(E, S, n) << 1);
 
 	return;
 }
@@ -3538,11 +3553,11 @@ superH_shal(State *S, ulong n)
 /*   T bit (see figure 6.9 of programming manual).			*/
 /*									*/
 void
-superH_shar(State *S, ulong n)
+superH_shar(Engine *E, State *S, ulong n)
 {
 	long temp;
 
-	if ((reg_read(S, n) & 0x00000001) == 0)
+	if ((reg_read(E, S, n) & 0x00000001) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3550,7 +3565,7 @@ superH_shar(State *S, ulong n)
 	{
 		S->superH->SR.T = 1;
 	}
-	if ((reg_read(S, n) & 0x80000000) == 0)
+	if ((reg_read(E, S, n) & 0x80000000) == 0)
 	{
 		temp = 0;
 	}
@@ -3559,15 +3574,15 @@ superH_shar(State *S, ulong n)
 		temp = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) >> 1);
+	reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
 	if (temp == 1)
 	{
-		reg_set(S, n, reg_read(S, n) | 0x80000000);
+		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) & 0x7FFFFFFF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
 	}
 
 	return;
@@ -3597,20 +3612,20 @@ superH_shar(State *S, ulong n)
 /*   The maximum magnitude of the right shift count is 32 (1-32).	*/
 /*									*/
 void
-superH_shld(State *S, ulong m, ulong n)
+superH_shld(Engine *E, State *S, ulong m, ulong n)
 {
 	long cnt, sgn;
 
-	sgn = reg_read(S, m) & 0x80000000;
-	cnt = reg_read(S, m) & 0x0000001F;
+	sgn = reg_read(E, S, m) & 0x80000000;
+	cnt = reg_read(E, S, m) & 0x0000001F;
 
 	if (sgn == 0)
 	{
-		reg_set(S, n, reg_read(S, n) << cnt);
+		reg_set(E, S, n, reg_read(E, S, n) << cnt);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) >> ((~cnt+1)&0x1F));
+		reg_set(E, S, n, reg_read(E, S, n) >> ((~cnt+1)&0x1F));
 	}
 
 	return;
@@ -3630,9 +3645,9 @@ superH_shld(State *S, ulong m, ulong n)
 /*   (see figure 6.11 of the programming manual).			*/
 /*									*/
 void
-superH_shll(State *S, ulong n)
+superH_shll(Engine *E, State *S, ulong n)
 {
-	if ((reg_read(S, n) & 0x80000000) == 0)
+	if ((reg_read(E, S, n) & 0x80000000) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3641,7 +3656,7 @@ superH_shll(State *S, ulong n)
 		S->superH->SR.T = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) << 1);
+	reg_set(E, S, n, reg_read(E, S, n) << 1);
 
 	return;
 }
@@ -3662,25 +3677,25 @@ superH_shll(State *S, ulong n)
 /*   (see figure 6.12 of programming manual).				*/
 /*									*/
 void
-superH_shll2(State *S, ulong n)
+superH_shll2(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) << 2);
+	reg_set(E, S, n, reg_read(E, S, n) << 2);
 
 	return;
 }
 
 void
-superH_shll8(State *S, ulong n)
+superH_shll8(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) << 8);
+	reg_set(E, S, n, reg_read(E, S, n) << 8);
 
 	return;
 }
 
 void
-superH_shll16(State *S, ulong n)
+superH_shll16(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) << 16);
+	reg_set(E, S, n, reg_read(E, S, n) << 16);
 
 	return;
 }
@@ -3699,9 +3714,9 @@ superH_shll16(State *S, ulong n)
 /*   (see figure 6.13 of programming manual).				*/
 /*									*/
 void
-superH_shlr(State *S, ulong n)
+superH_shlr(Engine *E, State *S, ulong n)
 {
-	if ((reg_read(S, n) & 0x00000001) == 0)
+	if ((reg_read(E, S, n) & 0x00000001) == 0)
 	{
 		S->superH->SR.T = 0;
 	}
@@ -3710,8 +3725,8 @@ superH_shlr(State *S, ulong n)
 		S->superH->SR.T = 1;
 	}
 
-	reg_set(S, n, reg_read(S, n) >> 1);
-	reg_set(S, n, reg_read(S, n) & 0x7FFFFFFF);
+	reg_set(E, S, n, reg_read(E, S, n) >> 1);
+	reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
 
 	return;
 }
@@ -3732,28 +3747,28 @@ superH_shlr(State *S, ulong n)
 /*  (see figure 6.14 of programming manual).				*/
 /*									*/
 void
-superH_shlr2(State *S, ulong n)
+superH_shlr2(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) >> 2);
-	reg_set(S, n, reg_read(S, n) & 0x3FFFFFFF);
+	reg_set(E, S, n, reg_read(E, S, n) >> 2);
+	reg_set(E, S, n, reg_read(E, S, n) & 0x3FFFFFFF);
 
 	return;
 }
 
 void
-superH_shlr8(State *S, ulong n)
+superH_shlr8(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) >> 8);
-	reg_set(S, n, reg_read(S, n) & 0x00FFFFFF);
+	reg_set(E, S, n, reg_read(E, S, n) >> 8);
+	reg_set(E, S, n, reg_read(E, S, n) & 0x00FFFFFF);
 
 	return;
 }
 
 void
-superH_shlr16(State *S, ulong n)
+superH_shlr16(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) >> 16);
-	reg_set(S, n, reg_read(S, n) & 0x0000FFFF);
+	reg_set(E, S, n, reg_read(E, S, n) >> 16);
+	reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 
 	return;
 }
@@ -3776,7 +3791,7 @@ superH_shlr16(State *S, ulong n)
 /*   cycles given is for the transition to sleep mode.			*/
 /*									*/
 void
-superH_sleep(State *S)
+superH_sleep(Engine *E, State *S)
 {
 	S->sleep = 1;
 
@@ -3841,47 +3856,47 @@ superH_sleep(State *S)
 /*   accessed by STC/STC.L instructions.				*/
 /*									*/
 void
-superH_stcsr(State *S, ulong n)
+superH_stcsr(Engine *E, State *S, ulong n)
 {
 	ulong tmp;
 
 	memmove(&tmp, &S->superH->SR, sizeof(tmp));
-	reg_set(S, n, tmp);
+	reg_set(E, S, n, tmp);
 
 	return;
 }
 
 void
-superH_stcgbr(State *S, ulong n)
+superH_stcgbr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->GBR);
+	reg_set(E, S, n, S->superH->GBR);
 
 	return;
 }
 
 void
-superH_stcvbr(State *S, ulong n)
+superH_stcvbr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->VBR);
+	reg_set(E, S, n, S->superH->VBR);
 
 	return;
 }
 
 void
-superH_stcssr(State *S, ulong n)
+superH_stcssr(Engine *E, State *S, ulong n)
 {
 	ulong tmp;
 
 	memmove(&tmp, &S->superH->SSR, sizeof(tmp));
-	reg_set(S, n, tmp);
+	reg_set(E, S, n, tmp);
 
 	return;
 }
 
 void
-superH_stcspc(State *S, ulong n)
+superH_stcspc(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->SPC);
+	reg_set(E, S, n, S->superH->SPC);
 
 	return;
 }
@@ -3893,7 +3908,7 @@ superH_stcspc(State *S, ulong n)
 /*    	array of longs, and R is a 1x7 array of longs.	 		*/
 /*									*/
 void
-superH_stcr_bank(State *S, int reg, ulong n)
+superH_stcr_bank(Engine *E, State *S, int reg, ulong n)
 {
 	if (S->superH->SR.RB == 0)
 	{
@@ -3908,68 +3923,68 @@ superH_stcr_bank(State *S, int reg, ulong n)
 }
 
 void
-superH_stcmsr(State *S, ulong n)
+superH_stcmsr(Engine *E, State *S, ulong n)
 {
 	ulong	tmp;
 
 	memmove(&tmp, &S->superH->SR, sizeof(tmp));
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), tmp);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), tmp);
 
 	return;
 }
 
 void
-superH_stcmgbr(State *S, ulong n)
+superH_stcmgbr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), S->superH->GBR);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), S->superH->GBR);
 
 	return;
 }
 
 void
-superH_stcmvbr(State *S, ulong n)
+superH_stcmvbr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), S->superH->VBR);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), S->superH->VBR);
 
 	return;
 }
 
 void
-superH_stcmssr(State *S, ulong n)
+superH_stcmssr(Engine *E, State *S, ulong n)
 {
 	ulong	tmp;
 
 	memmove(&tmp, &S->superH->SSR, sizeof(tmp));
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), tmp);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), tmp);
 
 	return;
 }
 
 void
-superH_stcmspc(State *S, ulong n)
+superH_stcmspc(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), S->superH->SPC);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), S->superH->SPC);
 
 	return;
 }
 
 void
-superH_stcmr_bank(State *S, int reg, ulong n)
+superH_stcmr_bank(Engine *E, State *S, int reg, ulong n)
 {
 	S->superH->R[n] -= 4;
 
 	if (S->superH->SR.RB == 0)
 	{
-		superHwritelong(S, S->superH->R[n], S->superH->R_BANK[reg]);
+		superHwritelong(E, S, S->superH->R[n], S->superH->R_BANK[reg]);
 	}
 	else
 	{
-		superHwritelong(S, S->superH->R[n], S->superH->R[reg]);
+		superHwritelong(E, S, S->superH->R[n], S->superH->R[reg]);
 	}
 
 	return;
@@ -3992,68 +4007,68 @@ superH_stcmr_bank(State *S, int reg, ulong n)
 /*   a specified destination.						*/
 /*									*/
 void
-superH_stsmach(State *S, ulong n)
+superH_stsmach(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->MACH);
+	reg_set(E, S, n, S->superH->MACH);
 
-	if ((reg_read(S, n) & 0x00000200) == 0)
+	if ((reg_read(E, S, n) & 0x00000200) == 0)
 	{
-		reg_set(S, n, reg_read(S, n) & 0x000003FF);
+		reg_set(E, S, n, reg_read(E, S, n) & 0x000003FF);
 	}
 	else
 	{
-		reg_set(S, n, reg_read(S, n) | 0xFFFFFC00);
+		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFC00);
 	}
 
 	return;
 }
 
 void
-superH_stsmacl(State *S, ulong n)
+superH_stsmacl(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->MACL);
+	reg_set(E, S, n, S->superH->MACL);
 
 	return;
 }
 
 void
-superH_stspr(State *S, ulong n)
+superH_stspr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, S->superH->PR);
+	reg_set(E, S, n, S->superH->PR);
 
 	return;
 }
 
 void
-superH_stsmmach(State *S, ulong n)
+superH_stsmmach(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
 	if ((S->superH->MACH&0x00000200) == 0)
 	{
-		superHwritelong(S, reg_read(S, n), S->superH->MACH & 0x000003FF);
+		superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH & 0x000003FF);
 	}
 	else
 	{
-		superHwritelong(S, reg_read(S, n), S->superH->MACH | 0xFFFFFC00);
+		superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH | 0xFFFFFC00);
 	}
 
 	return;
 }
 
 void
-superH_stsmmacl(State *S, ulong n)
+superH_stsmmacl(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), S->superH->MACL);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), S->superH->MACL);
 
 	return;
 }
 
 void
-superH_stsmpr(State *S, ulong n)
+superH_stsmpr(Engine *E, State *S, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - 4);
-	superHwritelong(S, reg_read(S, n), S->superH->PR);
+	reg_set(E, S, n, reg_read(E, S, n) - 4);
+	superHwritelong(E, S, reg_read(E, S, n), S->superH->PR);
 
 	return;
 }
@@ -4071,9 +4086,9 @@ superH_stsmpr(State *S, ulong n)
 /*   #imm,Rn.								*/
 /*									*/
 void
-superH_sub(State *S, ulong m, ulong n)
+superH_sub(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) - reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
 
 	return;
 }
@@ -4094,13 +4109,13 @@ superH_sub(State *S, ulong m, ulong n)
 /*   of data that has more than 32 bits.				*/
 /*									*/
 void
-superH_subc(State *S, ulong m, ulong n)
+superH_subc(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong tmp0, tmp1;
 
-	tmp1 = reg_read(S, n) - reg_read(S, m);
-	tmp0 = reg_read(S, n);
-	reg_set(S, n, tmp1 - S->superH->SR.T);
+	tmp1 = reg_read(E, S, n) - reg_read(E, S, m);
+	tmp0 = reg_read(E, S, n);
+	reg_set(E, S, n, tmp1 - S->superH->SR.T);
 
 	if (tmp0 < tmp1)
 	{
@@ -4110,7 +4125,7 @@ superH_subc(State *S, ulong m, ulong n)
 	{
 		S->superH->SR.T = 0;
 	}
-	if (tmp1 < reg_read(S, n))
+	if (tmp1 < reg_read(E, S, n))
 	{
 		S->superH->SR.T = 1;
 	}
@@ -4131,11 +4146,11 @@ superH_subc(State *S, ulong m, ulong n)
 /*   to 1.								*/
 /*									*/
 void
-superH_subv(State *S, ulong m, ulong n)
+superH_subv(Engine *E, State *S, ulong m, ulong n)
 {
 	long dest, src, ans;
 
-	if ((long)reg_read(S, n) >= 0)
+	if ((long)reg_read(E, S, n) >= 0)
 	{
 		dest = 0;
 	}
@@ -4143,7 +4158,7 @@ superH_subv(State *S, ulong m, ulong n)
 	{
 		dest = 1;
 	}
-	if ((long)reg_read(S, m) >= 0)
+	if ((long)reg_read(E, S, m) >= 0)
 	{
 		src = 0;
 	}
@@ -4153,9 +4168,9 @@ superH_subv(State *S, ulong m, ulong n)
 	}
 
 	src += dest;
-	reg_set(S, n, reg_read(S, n) - reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
 
-	if ((long)reg_read(S, n) >= 0)
+	if ((long)reg_read(E, S, n) >= 0)
 	{
 		ans = 0;
 	}
@@ -4206,25 +4221,25 @@ superH_subv(State *S, ulong m, ulong n)
 /*   bits 16 to 31.							*/
 /*									*/
 void
-superH_swapb(State *S, ulong m, ulong n)
+superH_swapb(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong temp0, temp1;
 
-	temp0 = reg_read(S, m) & 0xffff0000;
-	temp1 = (reg_read(S, m) & 0x000000ff)<<8;
-	reg_set(S, n, (reg_read(S, m) & 0x0000ff00)>>8);
-	reg_set(S, n, reg_read(S, n) | temp1 | temp0);
+	temp0 = reg_read(E, S, m) & 0xffff0000;
+	temp1 = (reg_read(E, S, m) & 0x000000ff)<<8;
+	reg_set(E, S, n, (reg_read(E, S, m) & 0x0000ff00)>>8);
+	reg_set(E, S, n, reg_read(E, S, n) | temp1 | temp0);
 	
 	return;
 }
 
 void
-superH_swapw(State *S, ulong m, ulong n)
+superH_swapw(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong temp;
-	temp=(reg_read(S, m)>>16)&0x0000FFFF;
-	reg_set(S, n, reg_read(S, m) << 16);
-	reg_set(S, n, reg_read(S, n) | temp);
+	temp=(reg_read(E, S, m)>>16)&0x0000FFFF;
+	reg_set(E, S, n, reg_read(E, S, m) << 16);
+	reg_set(E, S, n, reg_read(E, S, n) | temp);
 
 	return;
 }
@@ -4247,11 +4262,11 @@ superH_swapw(State *S, ulong m, ulong n)
 /*   the cache is enabled.						*/
 /*									*/
 void
-superH_tas(State *S, ulong n)
+superH_tas(Engine *E, State *S, ulong n)
 {
 	long temp;
 
-	temp = (long)superHreadbyte(S, reg_read(S, n)); /* Bus Lock enable */
+	temp = (long)superHreadbyte(E, S, reg_read(E, S, n)); /* Bus Lock enable */
 	if (temp == 0)
 	{
 		S->superH->SR.T = 1;
@@ -4262,7 +4277,7 @@ superH_tas(State *S, ulong n)
 	}
 
 	temp |= 0x00000080;
-	superHwritebyte(S, reg_read(S, n), temp); /* Bus Lock disable */
+	superHwritebyte(E, S, reg_read(E, S, n), temp); /* Bus Lock disable */
 
 	return;
 }
@@ -4289,7 +4304,7 @@ superH_tas(State *S, ulong n)
 /*   branches to an address (VBR+H'00000100).				*/
 /*									*/
 void
-superH_trapa(State *S, long i)
+superH_trapa(Engine *E, State *S, long i)
 {
 	long imm;
 
@@ -4304,8 +4319,8 @@ superH_trapa(State *S, long i)
 		/*	First 4 words are in R4-R7, rest on stack	*/
 		/*	fortunately, we only need 1st 4 args.		*/
 		/*							*/
-		reg_set(S, 0, sim_syscall(S, reg_read(S, 4),
-			reg_read(S, 5), reg_read(S, 6), reg_read(S, 7)));
+		reg_set(E, S, 0, sim_syscall(E, S, reg_read(E, S, 4),
+			reg_read(E, S, 5), reg_read(E, S, 6), reg_read(E, S, 7)));
 
 		return;
 	}
@@ -4355,9 +4370,9 @@ superH_trapa(State *S, long i)
 /*   with 8-bit immediate data. The R0 and memory data do not change.	*/
 /*									*/
 void
-superH_tst(State *S, ulong m, ulong n)
+superH_tst(Engine *E, State *S, ulong m, ulong n)
 {
-	if ((reg_read(S, n) & reg_read(S, m)) == 0)
+	if ((reg_read(E, S, n) & reg_read(E, S, m)) == 0)
 	{
 		S->superH->SR.T = 1;
 	}
@@ -4370,11 +4385,11 @@ superH_tst(State *S, ulong m, ulong n)
 }
 
 void
-superH_tsti(State *S, long i)
+superH_tsti(Engine *E, State *S, long i)
 {
 	long temp;
 
-	temp = reg_read(S, 0) & (0x000000FF & (long)i);
+	temp = reg_read(E, S, 0) & (0x000000FF & (long)i);
 	if (temp == 0)
 	{
 		S->superH->SR.T = 1;
@@ -4388,11 +4403,11 @@ superH_tsti(State *S, long i)
 }
 
 void
-superH_tstm(State *S, long i)
+superH_tstm(Engine *E, State *S, long i)
 {
 	long temp;
 
-	temp = (long)superHreadbyte(S, S->superH->GBR+reg_read(S, 0));
+	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
 	temp &= (0x000000FF & (long)i);
 
 	if (temp == 0)
@@ -4425,29 +4440,29 @@ superH_tstm(State *S, long i)
 /*   addressing can be exclusive ORed with 8-bit immediate data.	*/
 /* 									*/
 void
-superH_xor(State *S, ulong m, ulong n)
+superH_xor(Engine *E, State *S, ulong m, ulong n)
 {
-	reg_set(S, n, reg_read(S, n) ^ reg_read(S, m));
+	reg_set(E, S, n, reg_read(E, S, n) ^ reg_read(E, S, m));
 
 	return;
 }
 
 void
-superH_xori(State *S, long i)
+superH_xori(Engine *E, State *S, long i)
 {
-	reg_set(S, 0, reg_read(S, 0) ^ (0x000000FF & (long)i));
+	reg_set(E, S, 0, reg_read(E, S, 0) ^ (0x000000FF & (long)i));
 
 	return;
 }
 
 void
-superH_xorm(State *S, long i)
+superH_xorm(Engine *E, State *S, long i)
 {
 	long temp;
 
-	temp = (long)superHreadbyte(S, S->superH->GBR+reg_read(S, 0));
+	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
 	temp ^= (0x000000FF & (long)i);
-	superHwritebyte(S, S->superH->GBR+reg_read(S, 0),temp);
+	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0),temp);
 
 	return;
 }
@@ -4466,13 +4481,13 @@ superH_xorm(State *S, long i)
 /*   (see figure 6.15 of programming manual)				*/
 /*									*/
 void
-superH_xtrct(State *S, ulong m, ulong n)
+superH_xtrct(Engine *E, State *S, ulong m, ulong n)
 {
 	ulong temp;
 
-	temp = (reg_read(S, m) << 16) & 0xFFFF0000;
-	reg_set(S, n, (reg_read(S, n)>>16)&0x0000FFFF);
-	reg_set(S, n, reg_read(S, n) | temp);
+	temp = (reg_read(E, S, m) << 16) & 0xFFFF0000;
+	reg_set(E, S, n, (reg_read(E, S, n)>>16)&0x0000FFFF);
+	reg_set(E, S, n, reg_read(E, S, n) | temp);
 
 	return;
 }

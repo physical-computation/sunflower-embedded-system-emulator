@@ -35,467 +35,642 @@ int	yylex(void);
 int	yyerror(char *);
 int	yyparse(void);
 
-ulong	reg_read(State *S, int n);
-void	reg_set(State *S, int n, ulong data);
 
-void	mfree(void *ptr, char *ID);
-void	mmblocksdisplay(void);
-void*	mcalloc(int nelem, int size, char *ID);
-void*	mmalloc(int size, char *ID);
-void*	mrealloc(void *oldptr, int size, char *ID);
-void	mstatelock(void);
-void	mstateunlock(void);
-
-void	network_netseg2file(int which, char *filename);
-void	network_file2netseg(char *file, int whichseg);
-void	network_netsegpropmodel(int whichseg, int whichmodel, double minsnr);
-void	network_netnewseg(int which, int framebits, int pgnspeed, int bitrate, int width, 
+/*											*/
+/*					Network modeling				*/
+/*											*/
+void	network_netseg2file(Engine *E, int which, char *filename);
+void	network_file2netseg(Engine *E, char *file, int whichseg);
+void	network_netsegpropmodel(Engine *, int whichseg, int whichmodel, double minsnr);
+void	network_netnewseg(Engine *, int which, int framebits, int pgnspeed, int bitrate, int width, 
 		int fpdist, double fpdistmu, double fpdistsigma, double fpdistlambda,
 		int fddist, double fddistmu, double fddistsigma, double fddistlambda);
-void	network_netsegnicattach(State *S, int whichifc, int whichseg);
+void	network_netsegnicattach(Engine *, State *S, int whichifc, int whichseg);
 void	network_netnodenewifc(
-	State *S, int which, double txpwr, double rxpwr, double idlepwr,
-	int fpdist, int fpdistmu, int fpdistsigma, int fpdistlambda,
-	int txfifosz, int rxfifosz);
-void	network_netsegdelete(int whichseg);
-void	network_netdebug(State *S);
-void	network_setretryalg(State *S, int which, char *alg);
-
-void	m_init(void);
-void	m_dumpall(char *filename);
-void	m_version(void);
-void	m_newnode(char *type, double x, double y, double z, double orbit, double velocity);
-void	m_powertotal(void);
-void	m_renumbernodes(void);
-void	m_run(State *S, char *args);
-void	m_on(State *S);
-void	m_off(State *S);
-void	m_sizemem(State *S, int size);
-void	m_numaregion(char *name, ulong start, ulong end, 
-		long lrlat, long lwlat,
-		long rrlat, long rwlat,
-		int mapid, ulong mapbase, int private);
-void	m_numastats(State *S);
-void	m_numastatsall(void);
-void	m_numasetmapid(int whichmap, int cpuid);
-void	m_parseobjdump(State *S, char *filename);
-void	m_sharebus(State *S, int donorid);
-void	m_addvaluetrace(State *S, char *tag, ulong addr, int size, int onstack, ulong pcstart, int frameoffset, int ispointer);
-void	m_delvaluetrace(State *S, char *tag, ulong addr, int size, int onstack, ulong pcstart, int frameoffset, int ispointer);
-void	m_valuestats(State *s);
-void	m_readstabs(State *S, char *filename);
-void	m_regtracer(State *S, char *name, ulong pcstart, int regnum, int size, int ispointer);
-void	m_regtracerstats(State *S);
-int	m_sort_numaregions_comp(const void *a, const void *b);
-int	m_sort_regtracers_comp(const void *a, const void *b);
-int	m_find_numa(ulong vaddr, Numa *N, int start, int count);
-int 	m_find_numastack(ulong curfn, ulong curframe, ulong vaddr,
-			Numa *N, int start, int count);
+		Engine *, State *S, int which, double txpwr, double rxpwr, double idlepwr, double listenpwr,
+		int fpdist, int fpdistmu, int fpdistsigma, int fpdistlambda,
+		int txfifosz, int rxfifosz);
+void	network_netsegdelete(Engine *, int whichseg);
+void	network_netdebug(Engine *, State *S);
+void	network_setretryalg(Engine *, State *S, int which, char *alg);
+void	tx_retryalg_asap(void *, void *S, int whichifc);
+void	tx_retryalg_binexp(void *, void *S, int whichifc);
+void	tx_retryalg_linear(void *, void *S, int whichifc);
+void	tx_retryalg_random(void *, void *S, int whichifc);
+void	tx_retryalg_none(void *, void *S, int whichifc);
+int	fifo_enqueue(Engine *, State *S, Fifo fifo_name, int whichifc);
+void	netsegdump(Engine *, char *dumpname, Segbuf *segbuf);
+void	network_clock(Engine *);
+uchar	nic_rx_dequeue(Engine *, State *S, int whichifc);
+void	nic_tx_enqueue(Engine *, State *S, uchar, int whichifc);
+double	check_snr(Engine *, Netsegment *curseg, State *src_node, State *dst_node);
+void	remote_seg_enqueue(Engine *, Segbuf *segbuf);
+int	parsenetsegdump(Engine *, char *buf, Segbuf *segbuf);
 
 
-void	physics_newsigsrc(int type, char* descr, double tau, double propspeed,
-	double A, double B, double C, double D, double E, double F,
-	double G, double H, double I, double K, double m, double n,
-	double o, double p, double q, double r, double s, double t,
-	char * trajectoryfile, int trajectoryrate, double fixedx,
-	double fixedy, double fixedz, int looptrajectory, char *samplesfile,
-	int samplerate, double fixedsampleval, int loopsamples);
-void	physics_sensorsdbg(void);
-void	physics_sigsubscr(State *S, int whichsensor, int whichsignal);
 
 
-void	pau_printstats(State *S);
-void	power_printstats(State *S);
-void	tag_settag(State *S, int whichtag, char *tag, char *whohas, int confidence, ulong ttl);
-void	tag_showtags(State *S);
 
-
-void	fault_setnodepfun(State *S, char *alg);
-void	fault_setnetsegpfun(Netsegment *tptr, char *alg);
-
-void	batt_newbatt(int ID, double capacity_mAh);
-void	batt_nodeattach(State *S, int which);
-void	batt_printstats(State *S, int which);
-char*	mstrsep(char **, const char *);
-int	bit_flips_32(ulong w1, ulong w2);
-int	bit_flips_n(int n, ulong w1, ulong w2);
-int	parsenetsegdump(char *buf, Segbuf *segbuf);
-int	superHcheck_batt_intr(State *S);
-int	superHcheck_nic_intr(State *S);
-uchar	dev7708read(State *S, ulong);
-uchar	nic_rx_dequeue(State *S, int whichifc);
-
-ulong	checksum(uchar *data, int datalen);
-uvlong	exponential(void *, char *, uvlong);
-uvlong	uniform_random(void *, char *, uvlong);
-void	Delay_Slot(State *S, ulong);
-void	battery_dumpall(State *);
-void	battery_feed(double);
-void	clearistream(void);
-void	cont(State *S, ulong);
-void	dbg(char *);
-void	dev7708write(State *S, ulong, uchar);
-void	m_dumpmem(State *S, long, long);
-void	error(char *);
-void	fault_feed(void);
-void	go(State *S, int);
-void	help(void);
-void	load_srec(State *S, char *);
-void	loadcmds(char *filename);
-void	man(char *cmd);
-void	mbitprint(State *S, short, ulong);
-void	mprint(State *S, int out, char *fmt, ...);
-void	mprintout(char *s);
-void	munchinput(char *buf);
-void	myrmigkiinit(void);
-void	netsegdump(char *dumpname, Segbuf *segbuf);
-void	network_clock(void);
-void	newbatt(int type, double capacity);
-void	nic_tx_enqueue(State *S, uchar, int whichifc);
-void	pau_clk(State *S);
-void	pau_feed(State *S, int type, ulong addr);
-void	pau_lvdd(State *S, int pauentry);
-void	pau_init(State *S, int nentries);
-void	physics_feed(void);
-double	physics_propagation(Signalsrc *s, double xloc, double yloc, double zloc);
-void	pic_intr_clear(State *S, InterruptQ *q, int type, int clear_all);
-void	pic_intr_enqueue(State *dptr, InterruptQ *q, int type, int value, int misc);
-void* 	pic_intr_dequeue(State *S, InterruptQ *q);
-void	power_scaledelay(State *S, double Vdd);
-void	power_scalevdd(State *S, double freq);
-void	remote_seg_enqueue(Segbuf *segbuf);
-void	run(State *S);
-void	savemem(State *, ulong, ulong, char *);
-void	sched_step(void);
-void	scheduler(void*);
-void	m_setnode(int);
-void	sfatal(State *, char *);
-void	streamchk(void);
-void	superHdecode(ushort, SuperHPipestage *);
-void	superHdumppipe(State *S);
-void	superHdumpregs(State *S);
-void	superHdumpsysregs(State *S);
-int	superHfaststep(State *S, int drain_pipeline);
-void	superHfatalaction(State *S);
-void	superHifidflush(State *S);
-State*	superHnewstate(double, double, double, int, double);
-void	superHpipeflush(State *S);
-void	superHresetcpu(State *S);
-void	superHsetfreq(State *, int);
-void	superHsetvdd(State *, double);
-void	superHstallaction(State *S, ulong addr, int type, int latency);
-int	superHstep(State *S, int drain_pipeline);
-int	superHtake_batt_intr(State *S);
-int	superHtake_nic_intr(State *S);
-int	superHtake_timer_intr(State *S);
-void	superHtake_exception(State *S);
-void	superHsplit(State *S, ulong startpc, ulong stackaddr, ulong argaddr, char *idstr);
-int	superHtouchesmem(int op);
-int	superHEXtouchesmem(State *S);
-void	superHsettimerintrdelay(State *S, int delay);
-void	superHcache_deactivate(State *S);
-void	superHcache_printstats(State *S);
-int	superHcache_init(State *S, int size, int blocksize, int assoc);
-void	superHdumpall(char *filename);
-
-uchar 	superHreadbyte(State *S, ulong addr);
-ulong 	superHreadlong(State *S, ulong addr);
-ushort 	superHreadword(State *S, ulong addr);
-void 	superHwritelong(State *S, ulong addr, ulong data);
-void 	superHwriteword(State *S, ulong addr, ulong data);
-void	superHwritebyte(State *S, ulong addr, ulong data);
-
-void	tx_retryalg_asap(void *S, int whichifc);
-void	tx_retryalg_binexp(void *S, int whichifc);
-void	tx_retryalg_linear(void *S, int whichifc);
-void	tx_retryalg_random(void *S, int whichifc);
-
-ulong	devportreadlong(State *S, ulong addr);
-ushort	devportreadword(State *S, ulong addr);
-uchar	devportreadbyte(State *S, ulong addr);
-void	devportwritelong(State *S, ulong addr, ulong data);
-void	devportwriteword(State *S, ulong addr, ushort data);
-void	devportwritebyte(State *S, ulong addr, uchar data);
-
-ulong	dev7708readlong(State *S, ulong addr);
-ushort	dev7708readword(State *S, ulong addr);
-uchar	dev7708readbyte(State *S, ulong addr);
-void	dev7708writelong(State *S, ulong addr, ulong data);
-void	dev7708writeword(State *S, ulong addr, ushort data);
-void	dev7708writebyte(State *S, ulong addr, uchar data);
-
-int	superHtlb_init(State *S, int size, int blocksize, int assoc);
-void	superHvmtranslate(State *S, int op, TransAddr *transladdr);
-void	superHtlb_exception(State *S, int code, ulong vaddr);
-ulong	superHtlb_addrarray_read(State *S, ulong addr);
-void	superHtlb_addrarray_write(State *S, ulong addr, ulong data);
-ulong	superHtlb_dataarray_read(State *S, ulong addr);
-void	superHtlb_dataarray_write(State *S, ulong addr, ulong data);
-void	superHdumptlb(State *S);
-void	superHtlbflush(State *S);
-
-void	msp430decode(State *S, ushort instr, MSP430Pipestage *p);
-void	msp430dumpregs(State *S);
-void	msp430dumpsysregs(State *S);
-void	msp430fatalaction(State *S);
-void	msp430stallaction(State *S);
-void	msp430take_timer_intr(State *S);
-void	msp430resetcpu(State *S);
-State*	msp430newstate(double xloc, double yloc, double zloc, int orbit, double velocity);
-ushort	msp430regread(State *S, int n, MSP430Pipestage *p);
-void	msp430regset(State *S, int n, ushort data);
-void	msp430writebyte(State *S, ushort addr, uchar data);
-void	msp430peripheralwritebyte(State *S, ushort addr, uchar data);
-void	msp430writeword(State *S, ushort addr, ushort data);
-void	msp430peripheralwriteword(State *S, ushort addr, ushort data);
-uchar	msp430readbyte(State *S, ushort addr);
-uchar	msp430peripheralreadbyte(State *S, ushort addr);
-ushort	msp430readword(State *S, ushort addr);
-ushort	msp430peripheralreadword(State *S, ushort addr);
-void	msp430pipeflush(State *S);
-int	msp430step(State *S);
-uchar	dev430x1xxreadbyte(State *S, ushort addr);
-void	dev430x1xxwritebyte(State *S, ushort addr, uchar data);
-ushort	dev430x1xxreadword(State *S, ushort addr);
-void	dev430x1xxwriteword(State *S, ushort addr, ushort data);
-int	msp430step(State *S);
-int	msp430faststep(State *S);
-void	msp430pipeflush(State *S);
-void	msp430dumppipe(State *S);
-void	msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr);
-
+/*											*/
+/*					Emulated system calls				*/
+/*											*/
 int	mchdir(char *);
 int	mclose(int);
 int	mcreate(char *path, int mode);
 char*	mfgets(char *buf, int len, int fd);
 int	mfsize(int fd);
-int	mkillscheduler(void);
 int	mopen(char *path, int mode);
 int	mread(int fd, char* buf, int len);
-int	mspawnscheduler(void);
 int	mwrite(int fd, char* buf, int len);
-long	mrandom(void);
+char*	mgetpwd(void);
+ulong	sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
+
+
+/*											*/
+/*				Miscellaneous helper routines				*/
+/*											*/
+void	mexit(Engine *, char *, int);
+void	marchinit();
+void	mlog(Engine *, State *S, char *fmt, ...);
+void	merror(Engine *, char *fmt, ...);
+void	mprintfd(int fd, char* buf);
+int	msnprint(char *dst, int size, char *fmt, ...);
+int	mkillscheduler(Engine *);
+int	mspawnscheduler(Engine *);
+uvlong	mrandom(Engine *);
+uvlong	mrandominit(Engine *, uvlong);
 ulong	mcputimeusecs(void);
 ulong	musercputimeusecs(void);
 void	mnsleep(ulong);
 ulong	mwallclockusecs(void);
-ulong	sim_syscall(State *, ulong, ulong, ulong, ulong);
-void	mexit(char *, int);
-void	marchinit(void);
-void	mlog(State *S, char *fmt, ...);
-void	merror(char *fmt, ...);
-void	mprintfd(int fd, char* buf);
-char*	mgetpwd(void);
-long	mrandominit(void);
+void	m_dumpall(Engine *, char *filename, int mode, char *tag, char *pre);
+void	m_dumpnode(Engine *, int i, char *filename, int mode, char *tag, char *pre);
+void	m_version(Engine *E);
+void	m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilename, int looptrajectory);
+void	m_powertotal(Engine *);
+void	m_renumbernodes(Engine *);
+void	m_run(Engine *, State *S, char *args);
+void	m_on(Engine *, State *S);
+void	m_off(Engine *, State *S);
+void	m_sizemem(Engine *, State *S, int size);
+void	m_numaregion(Engine *, char *name, ulong start, ulong end, 
+		long lrlat, long lwlat,
+		long rrlat, long rwlat,
+		int mapid, ulong mapbase, int private);
+void	m_numastats(Engine *, State *S);
+void	m_numastatsall(Engine *);
+void	m_numasetmapid(Engine *, int whichmap, int cpuid);
+void	m_parseobjdump(Engine *, State *S, char *filename);
+void	m_sharebus(Engine *, State *S, int donorid);
+void	m_addvaluetrace(Engine *E, State *S, char *tag, ulong addr, int size, int onstack, ulong pcstart, int frameoffset, int ispointer);
+void	m_delvaluetrace(Engine *E, State *S, char *tag, ulong addr, int size, int onstack, ulong pcstart, int frameoffset, int ispointer);
+void	m_valuestats(Engine *E, State *s);
+void	m_readstabs(Engine *E, State *S, char *filename);
+void	m_regtracer(Engine *E, State *S, char *name, ulong pcstart, int regnum, int size, int ispointer);
+void	m_regtracerstats(Engine *E, State *S);
+int	m_sort_numaregions_comp(const void *a, const void *b);
+int	m_sort_regtracers_comp(const void *a, const void *b);
+int	m_find_numa(ulong vaddr, Numa *N, int start, int count);
+int 	m_find_numastack(ulong curfn, ulong curframe, ulong vaddr,
+			Numa *N, int start, int count);
+void	m_pcbacktrace(Engine *E, State *S);
+void	input(Engine *E, char *);
+void	load(Engine *E, char *);
+void	scan_labels_and_globalvars(Engine *E);
+void	streamchk(Engine *);
+void	mfree(Engine *E, void *ptr, char *ID);
+void	mmblocksdisplay(Engine *E);
+void*	mcalloc(Engine *E, int nelem, int size, char *ID);
+void*	mmalloc(Engine *E, int size, char *ID);
+void*	mrealloc(Engine *E, void *oldptr, int size, char *ID);
+void	mstatelock();
+void	mstateunlock();
+void	run(Engine *, State *S);
+void	savemem(Engine *, State *, ulong, ulong, char *);
+void	scheduler(Engine *);
+void	m_setnode(Engine *, int);
+void	sfatal(Engine *E, State *, char *);
+void	clearistream(Engine *);
+void	dbg(char *);
+void	m_dumpmem(Engine *, State *S, long, long);
+void	error(char *);
+void	help(Engine *);
+void	load_srec(Engine *, State *S, char *);
+void	loadcmds(Engine *, char *filename);
+void	man(Engine *, char *cmd);
+void	mbitprint(Engine *, State *S, short, ulong);
+void	mprint(Engine *, State *S, int out, char *fmt, ...);
+void	mprintout(char *s);
+void	munchinput(Engine *, char *buf);
+char*	mstrsep(char **, const char *);
+ulong	checksum(uchar *data, int datalen);
+void	m_setloc(Engine *, State *, double, double, double);
+void	m_locstats(Engine *E, State *S);
+Engine*	m_allocengine(uvlong);
+Engine* m_lookupengine(uvlong);
+void	traj_feed(Engine *E);
+
+
+
+/*												*/
+/*					Physical signal modeling				*/
+/*												*/
+void	physics_newsigsrc(Engine *, int type, char* descr, double tau, double propspeed,
+		double A, double B, double C, double D, double E, double F,
+		double G, double H, double I, double K, double m, double n,
+		double o, double p, double q, double r, double s, double t,
+		char * trajectoryfile, int trajectoryrate, double fixedx,
+		double fixedy, double fixedz, int looptrajectory, char *samplesfile,
+		int samplerate, double fixedsampleval, int loopsamples);
+void	physics_sensorsdbg(Engine *);
+void	physics_sigsubscr(Engine *, State *S, int whichsensor, int whichsignal);
+void	physics_feed(Engine *);
+double	physics_propagation(Signalsrc *s, double xloc, double yloc, double zloc);
+
+
+
+
+/*											*/
+/*						PAU					*/
+/*											*/	
+void	pau_printstats(Engine *, State *S);
+void	pau_clk(Engine *, State *S);
+void	pau_feed(Engine *, State *S, int type, ulong addr);
+void	pau_lvdd(Engine *, State *S, int pauentry);
+void	pau_init(Engine *, State *S, int nentries);
+
+
+
+/*											*/
+/*				Power estimation nd batteries				*/
+/*											*/	
+void	power_printstats(Engine *, State *S);
+void	power_scaledelay(Engine *, State *S, double Vdd);
+void	power_scalevdd(Engine *, State *S, double freq);
+int	bit_flips_32(ulong w1, ulong w2);
+int	bit_flips_n(int n, ulong w1, ulong w2);
+void	newbatt(int type, double capacity);
+void	batt_newbatt(Engine *, int ID, double capacity_mAh);
+void	batt_nodeattach(Engine *, State *S, int which);
+void	batt_printstats(Engine *, State *S, int which);
+void	battery_dumpall(Engine *, State *);
+void	battery_feed(Engine *, double);
+
+
+/*				Breakpoint management					*/
+void	m_setbptglobaltime(Engine *, Picosec);
+void	m_setbptcycles(Engine *, State *, uvlong);
+void	m_setbptinstrs(Engine *, State *, uvlong);
+void	m_setbptsensorreading(Engine *, State *, int, double);
+void	m_bptls(Engine *);
+void	m_bptdel(Engine *, int);
+
+
+
+
+/*											*/
+/*				Old "Tag" infrastructure				*/
+/*											*/	
+void	tag_settag(Engine *, State *S, int whichtag, char *tag, char *whohas, int confidence, ulong ttl);
+void	tag_showtags(Engine *E, State *S);
+
+
+
+/*											*/
+/*				Old fault modeling infrastructure			*/
+/*											*/	
+void	fault_setnodepfun(Engine *E, State *S, char *alg);
+void	fault_setnetsegpfun(Engine *E, Netsegment *tptr, char *alg);
+//uvlong	pfunexp(void *ptr, char *type, uvlong modulo);
+//uvlong	pfunrnd(void *ptr, char *type, uvlong modulo);
+void	fault_feed(Engine *E);
+uvlong	exponential(void *, char *, uvlong);
+uvlong	uniform_random(void *, char *, uvlong);
+
+
+
+
+
+
+
+
+
+
+/*											*/
+/*				Handling probability distributions			*/
+/*											*/
+void	m_defndist(Engine *, char *distname, DoubleList *support, DoubleList *prob);
+void	m_initrandtable(Engine *, char *distname, char *pfunname, double basis_start,
+		double basis_end, double granularity, double p1, double p2, double p3, double p4);
+double	m_randgen(Engine *, char *distname, double min, double max, double p1, double p2, double p3, double p4);
+void	m_randprint(Engine *, char *distname, double min, double max, double p1, double p2, double p3, double p4);
+void	m_registerrvar(Engine *, State *, char *name, int idx,
+		char *valdistname, double v_p1, double v_p2, double v_p3, double v_p4,
+		char *durdistname, double d_p1, double d_p2, double d_p3, double d_p4,
+		char *mode);
+void	m_updatervars(Engine *);
+void	m_listrvars(Engine *E);
+
+double	m_pfun_bathtub(Engine*, double, double, double, double, double, double);
+double	m_pfun_beta(Engine*, double, double, double, double, double, double);
+double	m_pfun_betaprime(Engine*, double, double, double, double, double, double);
+double	m_pfun_cauchy(Engine*, double, double, double, double, double, double);
+double	m_pfun_erlang(Engine*, double, double, double, double, double, double);
+double	m_pfun_exp(Engine*, double, double, double, double, double, double);
+double	m_pfun_extremeval(Engine*, double, double, double, double, double, double);
+double	m_pfun_f(Engine*, double, double, double, double, double, double);
+double	m_pfun_fermidirac(Engine*, double, double, double, double, double, double);
+double	m_pfun_fisherz(Engine*, double, double, double, double, double, double);
+double	m_pfun_gamma(Engine*, double, double, double, double, double, double);
+double	m_pfun_gauss(Engine*, double, double, double, double, double, double);
+double	m_pfun_gibrat(Engine*, double, double, double, double, double, double);
+double	m_pfun_gumbel(Engine*, double, double, double, double, double, double);
+double	m_pfun_halfnormal(Engine*, double, double, double, double, double, double);
+double	m_pfun_laplace(Engine*, double, double, double, double, double, double);
+double	m_pfun_logistic(Engine*, double, double, double, double, double, double);
+double	m_pfun_lognorm(Engine*, double, double, double, double, double, double);
+double	m_pfun_logseries(Engine*, double, double, double, double, double, double);
+double	m_pfun_maxwell(Engine*, double, double, double, double, double, double);
+double	m_pfun_negbinomial(Engine*, double, double, double, double, double, double);
+double	m_pfun_pareto(Engine*, double, double, double, double, double, double);
+double	m_pfun_pearsontype3(Engine*, double, double, double, double, double, double);
+double	m_pfun_poisson(Engine*, double, double, double, double, double, double);
+double	m_pfun_rayleigh(Engine*, double, double, double, double, double, double);
+double	m_pfun_studentst(Engine*, double, double, double, double, double, double);
+double	m_pfun_studentsz(Engine*, double, double, double, double, double, double);
+double	m_pfun_uniform(Engine*, double, double, double, double, double, double);
+double	m_pfun_weibull(Engine*, double, double, double, double, double, double);
+double	m_pfun_xi(Engine*, double, double, double, double, double, double);
+double	m_pfun_xi2(Engine*, double, double, double, double, double, double);
+
+double	m_pr_bathtub(Engine*, double, double, double, double, double);
+double	m_pr_beta(Engine*, double, double, double, double, double);
+double	m_pr_betaprime(Engine*, double, double, double, double, double);
+double	m_pr_cauchy(Engine*, double, double, double, double, double);
+double	m_pr_erlang(Engine*, double, double, double, double, double);
+double	m_pr_exp(Engine*, double, double, double, double, double);
+double	m_pr_extremeval(Engine*, double, double, double, double, double);
+double	m_pr_f(Engine*, double, double, double, double, double);
+double	m_pr_fermidirac(Engine*, double, double, double, double, double);
+double	m_pr_fisherz(Engine*, double, double, double, double, double);
+double	m_pr_gamma(Engine*, double, double, double, double, double);
+double	m_pr_gauss(Engine*, double, double, double, double, double);
+double	m_pr_gibrat(Engine*, double, double, double, double, double);
+double	m_pr_gumbel(Engine*, double, double, double, double, double);
+double	m_pr_halfnormal(Engine*, double, double, double, double, double);
+double	m_pr_laplace(Engine*, double, double, double, double, double);
+double	m_pr_logistic(Engine*, double, double, double, double, double);
+double	m_pr_lognorm(Engine*, double, double, double, double, double);
+double	m_pr_logseries(Engine*, double, double, double, double, double);
+double	m_pr_maxwell(Engine*, double, double, double, double, double);
+double	m_pr_negbinomial(Engine*, double, double, double, double, double);
+double	m_pr_pareto(Engine*, double, double, double, double, double);
+double	m_pr_pearsontype3(Engine*, double, double, double, double, double);
+double	m_pr_poisson(Engine*, double, double, double, double, double);
+double	m_pr_rayleigh(Engine*, double, double, double, double, double);
+double	m_pr_studentst(Engine*, double, double, double, double, double);
+double	m_pr_studentsz(Engine*, double, double, double, double, double);
+double	m_pr_uniform(Engine*, double, double, double, double, double);
+double	m_pr_weibull(Engine*, double, double, double, double, double);
+double	m_pr_xi(Engine*, double, double, double, double, double);
+double	m_pr_xi2(Engine*, double, double, double, double, double);
+
+
+
+/*											*/
+/*			Microarchitecture  modeling: general				*/
+/*											*/			
+ulong	reg_read(Engine *, State *S, int n);
+void	reg_set(Engine *, State *S, int n, ulong data);
+void	sched_step(Engine *);
+void	Delay_Slot(State *S, ulong);
+void	go(Engine *, State *S, int);
+void	cont(Engine *, State *S, ulong);
+void	pic_intr_clear(Engine *, State *S, InterruptQ *q, int type, int clear_all);
+void	pic_intr_enqueue(Engine *, State *dptr, InterruptQ *q, int type, int value, int misc);
+void* 	pic_intr_dequeue(Engine *, State *S, InterruptQ *q);
+
+
+
+
+/*											*/
+/*			Microarchitecture  modeling: Hitachi SH				*/
+/*											*/			
+void	superHdecode(Engine *, ushort, SuperHPipestage *);
+void	superHdumppipe(Engine *, State *S);
+void	superHdumpregs(Engine *E, State *S);
+void	superHdumpsysregs(Engine *E, State *S);
+int	superHfaststep(Engine *, State *S, int drain_pipeline);
+void	superHfatalaction(Engine *, State *S);
+void	superHifidflush(State *S);
+State*	superHnewstate(Engine *E, double, double, double, char *);
+void	superHpipeflush(State *S);
+void	superHresetcpu(Engine *, State *S);
+void	superHsetfreq(State *, int);
+void	superHsetvdd(State *, double);
+void	superHstallaction(Engine *, State *S, ulong addr, int type, int latency);
+int	superHstep(Engine *, State *S, int drain_pipeline);
+int	superHtake_batt_intr(Engine *, State *S);
+int	superHtake_nic_intr(Engine *, State *S);
+int	superHtake_timer_intr(Engine *, State *S);
+void	superHtake_exception(Engine *, State *S);
+void	superHsplit(Engine *E, State *S, ulong startpc, ulong stackaddr, ulong argaddr, char *idstr);
+int	superHtouchesmem(int op);
+int	superHEXtouchesmem(State *S);
+void	superHsettimerintrdelay(Engine *, State *S, int delay);
+void	superHcache_deactivate(Engine *, State *S);
+void	superHcache_printstats(Engine *E, State *S);
+int	superHcache_init(Engine *, State *S, int size, int blocksize, int assoc);
+void	superHdumpall(char *filename);
+
+uchar 	superHreadbyte(Engine *, State *S, ulong addr);
+ulong 	superHreadlong(Engine *, State *S, ulong addr);
+ushort 	superHreadword(Engine *, State *S, ulong addr);
+void 	superHwritelong(Engine *, State *S, ulong addr, ulong data);
+void 	superHwriteword(Engine *, State *S, ulong addr, ulong data);
+void	superHwritebyte(Engine *, State *S, ulong addr, ulong data);
+
+ulong	devportreadlong(Engine *E, State *S, ulong addr);
+ushort	devportreadword(Engine *E, State *S, ulong addr);
+uchar	devportreadbyte(Engine *E, State *S, ulong addr);
+void	devportwritelong(Engine *E, State *S, ulong addr, ulong data);
+void	devportwriteword(Engine *E, State *S, ulong addr, ushort data);
+void	devportwritebyte(Engine *E, State *S, ulong addr, uchar data);
+
+ulong	dev7708readlong(Engine *E, State *S, ulong addr);
+ushort	dev7708readword(Engine *E, State *S, ulong addr);
+uchar	dev7708readbyte(Engine *E, State *S, ulong addr);
+void	dev7708writelong(Engine *E, State *S, ulong addr, ulong data);
+void	dev7708writeword(Engine *E, State *S, ulong addr, ushort data);
+void	dev7708writebyte(Engine *E, State *S, ulong addr, uchar data);
+//void	dev7708write(State *S, ulong, uchar);
+//uchar	dev7708read(State *S, ulong);
+
+int	superHtlb_init(Engine *, State *S, int size, int blocksize, int assoc);
+void	superHvmtranslate(Engine *, State *S, int op, TransAddr *transladdr);
+void	superHtlb_exception(State *S, int code, ulong vaddr);
+ulong	superHtlb_addrarray_read(State *S, ulong addr);
+void	superHtlb_addrarray_write(State *S, ulong addr, ulong data);
+ulong	superHtlb_dataarray_read(State *S, ulong addr);
+void	superHtlb_dataarray_write(State *S, ulong addr, ulong data);
+void	superHdumptlb(Engine *, State *S);
+void	superHtlbflush(Engine *, State *S);
+int	superHcheck_batt_intr(Engine *, State *S);
+int	superHcheck_nic_intr(Engine *, State *S);
+
 
 /*									*/
 /*			SuperH instruction functions			*/
 /*									*/
-void	superH_add(State *S, ulong m, ulong n);
-void	superH_addc(State *S, ulong m, ulong n);
-void	superH_addi(State *S, long i, ulong n);
-void	superH_addv(State *S, ulong m, ulong n);
-void	superH_and(State *S, ulong m, ulong n);
-void	superH_andi(State *S, long i);
-void	superH_andm(State *S, long i);
-void	superH_bf(State *S, long d);
-void	superH_bfs(State *S, long d);
-void	superH_bra(State *S, long d);
-void	superH_braf(State *S, ulong n);
-void	superH_bsr(State *S, long d);
-void	superH_bsrf(State *S, ulong n);
-void	superH_bt(State *S, long d);
-void	superH_bts(State *S, long d);
-void	superH_clrmac(State *S);
-void	superH_clrs(State *S);
-void	superH_clrt(State *S);
-void	superH_cmpeq(State *S, ulong m, ulong n);
-void	superH_cmpge(State *S, ulong m, ulong n);
-void	superH_cmpgt(State *S, ulong m, ulong n);
-void	superH_cmphi(State *S, ulong m, ulong n);
-void	superH_cmphs(State *S, ulong m, ulong n);
-void	superH_cmpim(State *S, long i);
-void	superH_cmppl(State *S, ulong n);
-void	superH_cmppz(State *S, ulong n);
-void	superH_cmpstr(State *S, ulong m,ulong n);
-void	superH_div0s(State *S, ulong m,ulong n);
-void	superH_div0u(State *S);
-void	superH_div1(State *S, ulong m,ulong n);
-void	superH_dmuls(State *S, ulong m,ulong n);
-void	superH_dmulu(State *S, ulong m,ulong n);
-void	superH_dt(State *S, ulong n);
-void	superH_extsb(State *S, ulong m,ulong n);
-void	superH_extsw(State *S, ulong m,ulong n);
-void	superH_extub(State *S, ulong m, ulong n);
-void	superH_extuw(State *S, ulong m, ulong n);
-void	superH_jmp(State *S, ulong n);
-void	superH_jsr(State *S, ulong n);
-void	superH_ldcgbr(State *S, ulong m);
-void	superH_ldcmgbr(State *S, ulong m);
-void	superH_ldcmr_bank(State *S, int q, ulong m);
-void	superH_ldcmspc(State *S, ulong m);
-void	superH_ldcmsr(State *S, ulong m);
-void	superH_ldcmssr(State *S, ulong m);
-void	superH_ldcmvbr(State *S, ulong m);
-void	superH_ldcr_bank(State *S, int q, ulong m);
-void	superH_ldcspc(State *S, ulong m);
-void	superH_ldcsr(State *S, ulong m);
-void	superH_ldcssr(State *S, ulong m);
-void	superH_ldcvbr(State *S, ulong m);
-void	superH_ldsmach(State *S, ulong m);
-void	superH_ldsmacl(State *S, ulong m);
-void	superH_ldsmmach(State *S, ulong m);
-void	superH_ldsmmacl(State *S, ulong m);
-void	superH_ldsmpr(State *S, ulong m);
-void	superH_ldspr(State *S, ulong m);
-void	superH_ldtlb(State *S);
-void	superH_macl(State *S, ulong m,ulong n);
-void	superH_macw(State *S, ulong m,ulong n);
-void	superH_mov(State *S, ulong m,ulong n);
-void	superH_mova(State *S, long d);
-void	superH_movbl(State *S, ulong m, ulong n);
-void	superH_movbl0(State *S, ulong m,ulong n);
-void	superH_movbl4(State *S, ulong m, long d);
-void	superH_movblg(State *S, long d);
-void	superH_movbm(State *S, ulong m, ulong n);
-void	superH_movbp(State *S, ulong m, ulong n);
-void	superH_movbs(State *S, ulong m,ulong n);
-void	superH_movbs0(State *S, ulong m, ulong n);
-void	superH_movbs4(State *S, long d, ulong n);
-void	superH_movbsg(State *S, long d);
-void	superH_movi(State *S, long i, ulong n);
-void	superH_movli(State *S, long d, ulong n);
-void	superH_movll(State *S, ulong m, ulong n);
-void	superH_movll0(State *S, ulong m, ulong n);
-void	superH_movll4(State *S, ulong m, long d, ulong n);
-void	superH_movllg(State *S, long d);
-void	superH_movlm(State *S, ulong m, ulong n);
-void	superH_movlp(State *S, ulong m,ulong n);
-void	superH_movls(State *S, ulong m, ulong n);
-void	superH_movls0(State *S, ulong m, ulong n);
-void	superH_movls4(State *S, ulong m, long d,ulong n);
-void	superH_movlsg(State *S, long d);
-void	superH_movt(State *S, ulong n);
-void	superH_movwi(State *S, long d, ulong n);
-void	superH_movwl(State *S, ulong m, ulong n);
-void	superH_movwl0(State *S, ulong m, ulong n);
-void	superH_movwl4(State *S, ulong m, long d);
-void	superH_movwlg(State *S, long d);
-void	superH_movwm(State *S, ulong m, ulong n);
-void	superH_movwp(State *S, ulong m, ulong n);
-void	superH_movws(State *S, ulong m, ulong n);
-void	superH_movws0(State *S, ulong m, ulong n);
-void	superH_movws4(State *S, long d, ulong n);
-void	superH_movwsg(State *S, long d);
-void	superH_mull(State *S, ulong m,ulong n);
-void	superH_muls(State *S, ulong m, ulong n);
-void	superH_mulu(State *S, ulong m,ulong n);
-void	superH_neg(State *S, ulong m,ulong n);
-void	superH_negc(State *S, ulong m, ulong n);
-void	superH_nop(State *S);
-void	superH_not(State *S, ulong m,ulong n);
-void	superH_or(State *S, ulong m,ulong n);
-void	superH_ori(State *S, long i);
-void	superH_orm(State *S, long i);
-void	superH_sleep(State *S);
-void	superH_pref(State *S, ulong n);
-void	superH_rfg(State *S, long i);
-void	superH_rotcl(State *S, ulong n);
-void	superH_rotcr(State *S, ulong n);
-void	superH_rotl(State *S, ulong n);
-void	superH_rotr(State *S, ulong n);
-void	superH_rte(State *S);
-void	superH_rts(State *S);
-void	superH_sets(State *S);
-void	superH_sett(State *S);
-void	superH_shad(State *S, ulong m, ulong n);
-void	superH_shal(State *S, ulong n);
-void	superH_shar(State *S, ulong n);
-void	superH_shld(State *S, ulong m, ulong n);
-void	superH_shll(State *S, ulong n);
-void	superH_shll16(State *S, ulong n);
-void	superH_shll2(State *S, ulong n);
-void	superH_shll8(State *S, ulong n);
-void	superH_shlr(State *S, ulong n);
-void	superH_shlr16(State *S, ulong n);
-void	superH_shlr2(State *S, ulong n);
-void	superH_shlr8(State *S, ulong n);
-void	superH_stcgbr(State *S, ulong n);
-void	superH_stcmgbr(State *S, ulong n);
-void	superH_stcmr_bank(State *S, int q, ulong m);
-void	superH_stcmspc(State *S, ulong n);
-void	superH_stcmsr(State *S, ulong n);
-void	superH_stcmssr(State *S, ulong n);
-void	superH_stcmvbr(State *S, ulong n);
-void	superH_stcr_bank(State *S, int q, ulong m);
-void	superH_stcspc(State *S, ulong n);
-void	superH_stcsr(State *S, ulong n);
-void	superH_stcssr(State *S, ulong n);
-void	superH_stcvbr(State *S, ulong n);
-void	superH_stsmach(State *S, ulong n);
-void	superH_stsmacl(State *S, ulong n);
-void	superH_stsmmach(State *S, ulong n);
-void	superH_stsmmacl(State *S, ulong n);
-void	superH_stsmpr(State *S, ulong n);
-void	superH_stspr(State *S, ulong n);
-void	superH_sub(State *S, ulong m,ulong n);
-void	superH_subc(State *S, ulong m, ulong n);
-void	superH_subv(State *S, ulong m,ulong n);
-void	superH_swapb(State *S, ulong m, ulong n);
-void	superH_swapw(State *S, ulong m, ulong n);
-void	superH_tas(State *S, ulong n);
-void	superH_trapa(State *S, long i);
-void	superH_tst(State *S, ulong m, ulong n);
-void	superH_tsti(State *S, long i);
-void	superH_tstm(State *S, long i);
-void	superH_xor(State *S, ulong m,ulong n);
-void	superH_xori(State *S, long i);
-void	superH_xorm(State *S, long i);
-void	superH_xtrct(State *S, ulong m, ulong n);
+void	superH_add(Engine *E, State *S, ulong m, ulong n);
+void	superH_addc(Engine *E, State *S, ulong m, ulong n);
+void	superH_addi(Engine *E, State *S, long i, ulong n);
+void	superH_addv(Engine *E, State *S, ulong m, ulong n);
+void	superH_and(Engine *E, State *S, ulong m, ulong n);
+void	superH_andi(Engine *E, State *S, long i);
+void	superH_andm(Engine *E, State *S, long i);
+void	superH_bf(Engine *E, State *S, long d);
+void	superH_bfs(Engine *E, State *S, long d);
+void	superH_bra(Engine *E, State *S, long d);
+void	superH_braf(Engine *E, State *S, ulong n);
+void	superH_bsr(Engine *E, State *S, long d);
+void	superH_bsrf(Engine *E, State *S, ulong n);
+void	superH_bt(Engine *E, State *S, long d);
+void	superH_bts(Engine *E, State *S, long d);
+void	superH_clrmac(Engine *E, State *S);
+void	superH_clrs(Engine *E, State *S);
+void	superH_clrt(Engine *E, State *S);
+void	superH_cmpeq(Engine *E, State *S, ulong m, ulong n);
+void	superH_cmpge(Engine *E, State *S, ulong m, ulong n);
+void	superH_cmpgt(Engine *E, State *S, ulong m, ulong n);
+void	superH_cmphi(Engine *E, State *S, ulong m, ulong n);
+void	superH_cmphs(Engine *E, State *S, ulong m, ulong n);
+void	superH_cmpim(Engine *E, State *S, long i);
+void	superH_cmppl(Engine *E, State *S, ulong n);
+void	superH_cmppz(Engine *E, State *S, ulong n);
+void	superH_cmpstr(Engine *E, State *S, ulong m,ulong n);
+void	superH_div0s(Engine *E, State *S, ulong m,ulong n);
+void	superH_div0u(Engine *E, State *S);
+void	superH_div1(Engine *E, State *S, ulong m,ulong n);
+void	superH_dmuls(Engine *E, State *S, ulong m,ulong n);
+void	superH_dmulu(Engine *E, State *S, ulong m,ulong n);
+void	superH_dt(Engine *E, State *S, ulong n);
+void	superH_extsb(Engine *E, State *S, ulong m,ulong n);
+void	superH_extsw(Engine *E, State *S, ulong m,ulong n);
+void	superH_extub(Engine *E, State *S, ulong m, ulong n);
+void	superH_extuw(Engine *E, State *S, ulong m, ulong n);
+void	superH_jmp(Engine *E, State *S, ulong n);
+void	superH_jsr(Engine *E, State *S, ulong n);
+void	superH_ldcgbr(Engine *E, State *S, ulong m);
+void	superH_ldcmgbr(Engine *E, State *S, ulong m);
+void	superH_ldcmr_bank(Engine *E, State *S, int q, ulong m);
+void	superH_ldcmspc(Engine *E, State *S, ulong m);
+void	superH_ldcmsr(Engine *E, State *S, ulong m);
+void	superH_ldcmssr(Engine *E, State *S, ulong m);
+void	superH_ldcmvbr(Engine *E, State *S, ulong m);
+void	superH_ldcr_bank(Engine *E, State *S, int q, ulong m);
+void	superH_ldcspc(Engine *E, State *S, ulong m);
+void	superH_ldcsr(Engine *E, State *S, ulong m);
+void	superH_ldcssr(Engine *E, State *S, ulong m);
+void	superH_ldcvbr(Engine *E, State *S, ulong m);
+void	superH_ldsmach(Engine *E, State *S, ulong m);
+void	superH_ldsmacl(Engine *E, State *S, ulong m);
+void	superH_ldsmmach(Engine *E, State *S, ulong m);
+void	superH_ldsmmacl(Engine *E, State *S, ulong m);
+void	superH_ldsmpr(Engine *E, State *S, ulong m);
+void	superH_ldspr(Engine *E, State *S, ulong m);
+void	superH_ldtlb(Engine *E, State *S);
+void	superH_macl(Engine *E, State *S, ulong m,ulong n);
+void	superH_macw(Engine *E, State *S, ulong m,ulong n);
+void	superH_mov(Engine *E, State *S, ulong m,ulong n);
+void	superH_mova(Engine *E, State *S, long d);
+void	superH_movbl(Engine *E, State *S, ulong m, ulong n);
+void	superH_movbl0(Engine *E, State *S, ulong m,ulong n);
+void	superH_movbl4(Engine *E, State *S, ulong m, long d);
+void	superH_movblg(Engine *E, State *S, long d);
+void	superH_movbm(Engine *E, State *S, ulong m, ulong n);
+void	superH_movbp(Engine *E, State *S, ulong m, ulong n);
+void	superH_movbs(Engine *E, State *S, ulong m,ulong n);
+void	superH_movbs0(Engine *E, State *S, ulong m, ulong n);
+void	superH_movbs4(Engine *E, State *S, long d, ulong n);
+void	superH_movbsg(Engine *E, State *S, long d);
+void	superH_movi(Engine *E, State *S, long i, ulong n);
+void	superH_movli(Engine *E, State *S, long d, ulong n);
+void	superH_movll(Engine *E, State *S, ulong m, ulong n);
+void	superH_movll0(Engine *E, State *S, ulong m, ulong n);
+void	superH_movll4(Engine *E, State *S, ulong m, long d, ulong n);
+void	superH_movllg(Engine *E, State *S, long d);
+void	superH_movlm(Engine *E, State *S, ulong m, ulong n);
+void	superH_movlp(Engine *E, State *S, ulong m,ulong n);
+void	superH_movls(Engine *E, State *S, ulong m, ulong n);
+void	superH_movls0(Engine *E, State *S, ulong m, ulong n);
+void	superH_movls4(Engine *E, State *S, ulong m, long d,ulong n);
+void	superH_movlsg(Engine *E, State *S, long d);
+void	superH_movt(Engine *E, State *S, ulong n);
+void	superH_movwi(Engine *E, State *S, long d, ulong n);
+void	superH_movwl(Engine *E, State *S, ulong m, ulong n);
+void	superH_movwl0(Engine *E, State *S, ulong m, ulong n);
+void	superH_movwl4(Engine *E, State *S, ulong m, long d);
+void	superH_movwlg(Engine *E, State *S, long d);
+void	superH_movwm(Engine *E, State *S, ulong m, ulong n);
+void	superH_movwp(Engine *E, State *S, ulong m, ulong n);
+void	superH_movws(Engine *E, State *S, ulong m, ulong n);
+void	superH_movws0(Engine *E, State *S, ulong m, ulong n);
+void	superH_movws4(Engine *E, State *S, long d, ulong n);
+void	superH_movwsg(Engine *E, State *S, long d);
+void	superH_mull(Engine *E, State *S, ulong m,ulong n);
+void	superH_muls(Engine *E, State *S, ulong m, ulong n);
+void	superH_mulu(Engine *E, State *S, ulong m,ulong n);
+void	superH_neg(Engine *E, State *S, ulong m,ulong n);
+void	superH_negc(Engine *E, State *S, ulong m, ulong n);
+void	superH_nop(Engine *E, State *S);
+void	superH_not(Engine *E, State *S, ulong m,ulong n);
+void	superH_or(Engine *E, State *S, ulong m,ulong n);
+void	superH_ori(Engine *E, State *S, long i);
+void	superH_orm(Engine *E, State *S, long i);
+void	superH_sleep(Engine *E, State *S);
+void	superH_pref(Engine *E, State *S, ulong n);
+void	superH_rfg(Engine *E, State *S, long i);
+void	superH_rotcl(Engine *E, State *S, ulong n);
+void	superH_rotcr(Engine *E, State *S, ulong n);
+void	superH_rotl(Engine *E, State *S, ulong n);
+void	superH_rotr(Engine *E, State *S, ulong n);
+void	superH_rte(Engine *E, State *S);
+void	superH_rts(Engine *E, State *S);
+void	superH_sets(Engine *E, State *S);
+void	superH_sett(Engine *E, State *S);
+void	superH_shad(Engine *E, State *S, ulong m, ulong n);
+void	superH_shal(Engine *E, State *S, ulong n);
+void	superH_shar(Engine *E, State *S, ulong n);
+void	superH_shld(Engine *E, State *S, ulong m, ulong n);
+void	superH_shll(Engine *E, State *S, ulong n);
+void	superH_shll16(Engine *E, State *S, ulong n);
+void	superH_shll2(Engine *E, State *S, ulong n);
+void	superH_shll8(Engine *E, State *S, ulong n);
+void	superH_shlr(Engine *E, State *S, ulong n);
+void	superH_shlr16(Engine *E, State *S, ulong n);
+void	superH_shlr2(Engine *E, State *S, ulong n);
+void	superH_shlr8(Engine *E, State *S, ulong n);
+void	superH_stcgbr(Engine *E, State *S, ulong n);
+void	superH_stcmgbr(Engine *E, State *S, ulong n);
+void	superH_stcmr_bank(Engine *E, State *S, int q, ulong m);
+void	superH_stcmspc(Engine *E, State *S, ulong n);
+void	superH_stcmsr(Engine *E, State *S, ulong n);
+void	superH_stcmssr(Engine *E, State *S, ulong n);
+void	superH_stcmvbr(Engine *E, State *S, ulong n);
+void	superH_stcr_bank(Engine *E, State *S, int q, ulong m);
+void	superH_stcspc(Engine *E, State *S, ulong n);
+void	superH_stcsr(Engine *E, State *S, ulong n);
+void	superH_stcssr(Engine *E, State *S, ulong n);
+void	superH_stcvbr(Engine *E, State *S, ulong n);
+void	superH_stsmach(Engine *E, State *S, ulong n);
+void	superH_stsmacl(Engine *E, State *S, ulong n);
+void	superH_stsmmach(Engine *E, State *S, ulong n);
+void	superH_stsmmacl(Engine *E, State *S, ulong n);
+void	superH_stsmpr(Engine *E, State *S, ulong n);
+void	superH_stspr(Engine *E, State *S, ulong n);
+void	superH_sub(Engine *E, State *S, ulong m,ulong n);
+void	superH_subc(Engine *E, State *S, ulong m, ulong n);
+void	superH_subv(Engine *E, State *S, ulong m,ulong n);
+void	superH_swapb(Engine *E, State *S, ulong m, ulong n);
+void	superH_swapw(Engine *E, State *S, ulong m, ulong n);
+void	superH_tas(Engine *E, State *S, ulong n);
+void	superH_trapa(Engine *E, State *S, long i);
+void	superH_tst(Engine *E, State *S, ulong m, ulong n);
+void	superH_tsti(Engine *E, State *S, long i);
+void	superH_tstm(Engine *E, State *S, long i);
+void	superH_xor(Engine *E, State *S, ulong m,ulong n);
+void	superH_xori(Engine *E, State *S, long i);
+void	superH_xorm(Engine *E, State *S, long i);
+void	superH_xtrct(Engine *E, State *S, ulong m, ulong n);
 
+
+
+/*											*/
+/*			Microarchitecture  modeling: TI MSP430				*/
+/*											*/			
+void	msp430decode(Engine *, State *S, ushort instr, MSP430Pipestage *p);
+void	msp430dumpregs(Engine *, State *S);
+void	msp430dumpsysregs(Engine *, State *S);
+void	msp430fatalaction(Engine *, State *S);
+void	msp430stallaction(Engine *, State *S);
+void	msp430take_timer_intr(Engine *, State *S);
+void	msp430resetcpu(Engine *, State *S);
+State*	msp430newstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
+ushort	msp430regread(Engine *E, State *S, int n, MSP430Pipestage *p);
+void	msp430regset(Engine *E, State *S, int n, ushort data);
+void	msp430writebyte(Engine *, State *S, ushort addr, uchar data);
+void	msp430peripheralwritebyte(Engine *,State *S, ushort addr, uchar data);
+void	msp430writeword(Engine *,State *S, ushort addr, ushort data);
+void	msp430peripheralwriteword(Engine *,State *S, ushort addr, ushort data);
+uchar	msp430readbyte(Engine *,State *S, ushort addr);
+uchar	msp430peripheralreadbyte(Engine *,State *S, ushort addr);
+ushort	msp430readword(Engine *,State *S, ushort addr);
+ushort	msp430peripheralreadword(Engine *,State *S, ushort addr);
+void	msp430pipeflush(State *S);
+int	msp430step(Engine *, State *S, int);
+int	msp430faststep(Engine *, State *S, int);
+void	msp430dumppipe(Engine *, State *S);
+void	msp430split(Engine *E, State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr);
+
+void	dev430x1xxreset(State *S, int type);
+uchar	dev430x1xxreadbyte(Engine *, State *S, ushort addr);
+void	dev430x1xxwritebyte(Engine *, State *S, ushort addr, uchar data);
+ushort	dev430x1xxreadword(Engine *, State *S, ushort addr);
+void	dev430x1xxwriteword(Engine *, State *S, ushort addr, ushort data);
+void	dev430x1xxsetpin(State *S, int pin, double voltage);
+double	dev430x1xxgetpin(State *S, int pin);
+void	dev430x1xxPORreset(State *S);
+void	dev430x1xxPUCreset(State *S);
+void	dev430x1xxNMIinterrupt(State *S, int type);
+void	dev430x1xxinterrupt(State *S, int priority);
+void	dev430x1xxflashaccessviolation(State *S);
+void	dev430x1xxflashreadbyte(State *S);
+void	dev430x1xxflashwritebyte(State *S);
+void	dev430x1xxoscfault(State *S);
 
 /*									*/
 /*			MSP430 instruction functions			*/
 /*									*/		
-void	msp430_mov(State *S, ushort m, ushort n, MSP430Pipestage *p);
-void	msp430_movb(State *S, ushort m, ushort n, MSP430Pipestage *p);
-void	msp430_add(State *S, ushort m, ushort n, MSP430Pipestage *p);
-void	msp430_addb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_addc(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_addcb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_sub(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_subb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_subc(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_subcb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_cmp(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_cmpb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_dadd(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_daddb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bit(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bitb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bic(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bicb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bis(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_bisb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_xor(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_xorb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_and(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_andb(State *S, int m, int n, MSP430Pipestage *p);
-void	msp430_rrc(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_rrcb(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_rra(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_rrab(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_push(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_pushb(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_swpb(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_call(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_reti(State *S, MSP430Pipestage *p);
-void	msp430_sxt(State *S, ushort n, MSP430Pipestage *p);
-void	msp430_jeqjz(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jnejnz(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jc(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jnc(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jn(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jge(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jl(State *S, short offset, MSP430Pipestage *p);
-void	msp430_jmp(State *S, short offset, MSP430Pipestage *p);
+void	msp430_mov(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
+void	msp430_movb(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
+void	msp430_add(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
+void	msp430_addb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_addc(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_addcb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_sub(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_subb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_subc(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_subcb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_cmp(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_cmpb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_dadd(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_daddb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bit(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bitb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bic(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bicb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bis(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_bisb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_xor(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_xorb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_and(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_andb(Engine *E, State *S, int m, int n, MSP430Pipestage *p);
+void	msp430_rrc(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_rrcb(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_rra(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_rrab(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_push(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_pushb(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_swpb(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_call(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_reti(Engine *E, State *S, MSP430Pipestage *p);
+void	msp430_sxt(Engine *E, State *S, ushort n, MSP430Pipestage *p);
+void	msp430_jeqjz(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jnejnz(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jc(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jnc(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jn(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jge(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jl(Engine *E, State *S, short offset, MSP430Pipestage *p);
+void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);	

@@ -149,41 +149,41 @@ superHEXtouchesmem(State *S)
 /*	safety checks performed by step(). 					*/
 /*										*/
 int
-superHfaststep(State *S, int drain_pipeline)
+superHfaststep(Engine *E, State *S, int drain_pipeline)
 {
 	int		i, tmpinstr;
 	ulong		tmpPC;
-	double		saved_globaltime;
+	Picosec		saved_globaltime;
 
 
 	USED(drain_pipeline);
 
-	saved_globaltime = SIM_GLOBAL_TIME;
-	for (i = 0; (i < SIM_QUANTUM) && SIM_ON && S->runnable; i++)
+	saved_globaltime = E->globaltimepsec;
+	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
 	{
-		if (!eventready(SIM_GLOBAL_TIME, S->TIME, S->CYCLETIME))
+		if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
 		{
-			SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 			continue;
 		}
 
 		if (superH_check_excp_macro(S))
 		{
-			superHtake_exception(S);
+			superHtake_exception(E, S);
 		}
 		else if (SF_NETWORK && superH_check_nic_intr_macro(S))
 		{
-			S->take_nic_intr(S);
+			S->take_nic_intr(E, S);
 		}
-		else if (eventready(SIM_GLOBAL_TIME, S->superH->TIMER_LASTACTIVATE, S->superH->TIMER_INTR_DELAY))
+		else if (eventready(E->globaltimepsec, S->superH->TIMER_LASTACTIVATE, S->superH->TIMER_INTR_DELAY))
 		{
 			/*								*/
 			/*	Taking interrupt might fail if not interruptible, 	*/
 			/*	so do not set LASTACTIVATE til it actually succeeds	*/
 			/*								*/
-			if (S->take_timer_intr(S) == 0)
+			if (S->take_timer_intr(E, S) == 0)
 			{
-				S->superH->TIMER_LASTACTIVATE = SIM_GLOBAL_TIME;
+				S->superH->TIMER_LASTACTIVATE = E->globaltimepsec;
 			}
 		}
 
@@ -192,20 +192,20 @@ superHfaststep(State *S, int drain_pipeline)
 			update_energy(OP_SLEEP, 0, 0);
 			S->ICLK++;
 			S->TIME += S->CYCLETIME;
-			SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 
 			continue;
 		}
 
 		tmpPC = S->PC;
-		tmpinstr = superHreadword(S, S->PC);
-		S->superH->P.EX.fptr 	= superHDC[tmpinstr].dc_p.fptr;
-		S->superH->P.EX.format 	= superHDC[tmpinstr].dc_p.format;
+		tmpinstr = superHreadword(E, S, S->PC);
+		S->superH->P.EX.fptr 	= E->superHDC[tmpinstr].dc_p.fptr;
+		S->superH->P.EX.format 	= E->superHDC[tmpinstr].dc_p.format;
 		S->superH->P.EX.instr 	= tmpinstr;
 
 		if (SF_POWER_ANALYSIS)
 		{
-			update_energy(superHDC[tmpinstr].dc_p.op, 0, 0);
+			update_energy(E->superHDC[tmpinstr].dc_p.op, 0, 0);
 		}
 
 		S->superH->P.EX.fetchedpc = S->PC;
@@ -223,10 +223,10 @@ superHfaststep(State *S, int drain_pipeline)
 				/* 	Instruction may be delayed branch, so fill ID 	*/
 				/*	for Delay_SLot()				*/
 				/*							*/
-				S->superH->P.ID.instr = superHreadword(S, S->PC);
+				S->superH->P.ID.instr = superHreadword(E, S, S->PC);
 				S->superH->P.ID.fetchedpc = S->PC;
 
-				(*(S->superH->P.EX.fptr))(S);
+				(*(S->superH->P.EX.fptr))(E, S);
 				break;
 			}
 
@@ -238,53 +238,53 @@ superHfaststep(State *S, int drain_pipeline)
 				/* 	Instruction may be delayed branch, so fill ID 	*/
 				/*	for Delay_SLot()				*/
 				/*							*/
-				S->superH->P.ID.instr = superHreadword(S, S->PC);
+				S->superH->P.ID.instr = superHreadword(E, S, S->PC);
 				S->superH->P.ID.fetchedpc = S->PC;
 
 				tmp = (instr_n *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->dst);
 				break;
 			}
 
 			case INSTR_M:
 			{
 				instr_m *tmp = (instr_m *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->src);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->src);
 				break;
 			}
 
 			case INSTR_MBANK:
 			{
 				instr_mbank *tmp = (instr_mbank *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->reg, tmp->src);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->reg, tmp->src);
 				break;
 			}
 
 			case INSTR_NBANK:
 			{
 				instr_nbank *tmp = (instr_nbank *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->reg, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->reg, tmp->dst);
 				break;
 			}
 
 			case INSTR_NM:
 			{
 				instr_nm *tmp = (instr_nm *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->dst);
 				break;
 			}
 
 			case INSTR_MD:
 			{
 				instr_md *tmp = (instr_md *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->disp);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->disp);
 				break;
 			}
 
 			case INSTR_NMD:
 			{
 				instr_nmd *tmp = (instr_nmd *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->disp, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->disp, tmp->dst);
 				break;
 			}
 
@@ -296,11 +296,11 @@ superHfaststep(State *S, int drain_pipeline)
 				/* 	Instruction may be delayed branch, so fill ID 	*/
 				/*	for Delay_SLot()				*/
 				/*							*/
-				S->superH->P.ID.instr = superHreadword(S, S->PC);
+				S->superH->P.ID.instr = superHreadword(E, S, S->PC);
 				S->superH->P.ID.fetchedpc = S->PC;
 
 				tmp = (instr_d8 *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->disp);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->disp);
 				break;
 			}
 
@@ -312,64 +312,64 @@ superHfaststep(State *S, int drain_pipeline)
 				/* 	Instruction may be delayed branch, so fill ID 	*/
 				/*	for Delay_SLot()				*/
 				/*							*/
-				S->superH->P.ID.instr = superHreadword(S, S->PC);
+				S->superH->P.ID.instr = superHreadword(E, S, S->PC);
 				S->superH->P.ID.fetchedpc = S->PC;
 
 				tmp = (instr_d12 *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->disp);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->disp);
 				break;
 			}
 
 			case INSTR_ND4:
 			{
 				instr_nd4 *tmp = (instr_nd4 *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->disp, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->disp, tmp->dst);
 				break;
 			}
 
 			case INSTR_ND8:
 			{
 				instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->disp, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->disp, tmp->dst);
 				break;
 			}
 
 			case INSTR_I:
 			{
 				instr_i *tmp = (instr_i *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->imm);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->imm);
 				break;
 			}
 
 			case INSTR_NI:
 			{
 				instr_ni *tmp = (instr_ni *)&S->superH->P.EX.instr;
-				(*(S->superH->P.EX.fptr))(S, tmp->imm, tmp->dst);
+				(*(S->superH->P.EX.fptr))(E, S, tmp->imm, tmp->dst);
 				break;
 			}
 
 			default:
 			{
-				sfatal(S, "Unknown Instruction Type !!");
+				sfatal(E, S, "Unknown Instruction Type !!");
 				break;
 			}
 		}
 
 		if (SF_PAU_DEFINED && S->superH->PAUs != NULL)
 		{
-			pau_clk(S);
+			pau_clk(E, S);
 		}
 
 		if (SF_BITFLIP_ANALYSIS)
 		{
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
-			S->E.ntrans = S->E.ntrans + S->Cycletrans;
+			S->energyinfo.ntrans = S->energyinfo.ntrans + S->Cycletrans;
 			S->Cycletrans = 0;
 		}
 
-		SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 	}
-	SIM_GLOBAL_TIME = saved_globaltime;
+	E->globaltimepsec = saved_globaltime;
 	S->last_stepclks = i;
 
 	return i;
@@ -377,15 +377,15 @@ superHfaststep(State *S, int drain_pipeline)
 
 
 int
-superHstep(State *S, int drain_pipeline)
+superHstep(Engine *E, State *S, int drain_pipeline)
 {
 	int		i, exec_energy_updated = 0, stall_energy_updated = 0;
 	ulong		tmpPC;
-	double		saved_globaltime;
+	Picosec		saved_globaltime;
 
 
-	saved_globaltime = SIM_GLOBAL_TIME;
-	for (i = 0; (i < SIM_QUANTUM) && SIM_ON && S->runnable; i++)
+	saved_globaltime = E->globaltimepsec;
+	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
 	{
 		/*								*/
 		/*	TODO: This will have to change when we implement	*/
@@ -403,32 +403,33 @@ superHstep(State *S, int drain_pipeline)
 
 	    	if (!drain_pipeline)
 	    	{
-			if (!eventready(SIM_GLOBAL_TIME, S->TIME, S->CYCLETIME))
+			if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
 			{
-				SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 
 				continue;
 			}
 
-if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
-{
-	sfatal(S, "Exceptions are blocked and we got an exception. We don't handle this case correctly for synchronous exceptions!!!\n");
-}
+			if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
+			{
+				sfatal(E, S, "Exceptions are blocked and we got an exception."
+					"We don't handle this case correctly for synchronous exceptions!!!\n");
+			}
 
 			if (superH_check_excp_macro(S))
 			{
-				superHtake_exception(S);
+				superHtake_exception(E, S);
 			}
 			else if (SF_NETWORK && superH_check_nic_intr_macro(S))
 			{
-				S->take_nic_intr(S);
+				S->take_nic_intr(E, S);
 			}
-			else if (eventready(SIM_GLOBAL_TIME, S->superH->TIMER_LASTACTIVATE,
+			else if (eventready(E->globaltimepsec, S->superH->TIMER_LASTACTIVATE,
 					S->superH->TIMER_INTR_DELAY))
 			{
-				if (S->take_timer_intr(S) == 0)
+				if (S->take_timer_intr(E, S) == 0)
 				{
-					S->superH->TIMER_LASTACTIVATE = SIM_GLOBAL_TIME;
+					S->superH->TIMER_LASTACTIVATE = E->globaltimepsec;
 				}
 			}
 
@@ -437,7 +438,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				update_energy(OP_SLEEP, 0, 0);
 				S->ICLK++;
 				S->TIME += S->CYCLETIME;
-				SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 
 				continue;
 			}
@@ -500,17 +501,31 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 	
 		if (S->superH->P.EX.valid && (S->superH->P.EX.fptr == NULL))
 		{
-			mprint(S, nodeinfo, "PC=0x" UHLONGFMT "\n",
+			mprint(E, S, nodeinfo, "PC=0x" UHLONGFMT "\n",
 				S->superH->P.EX.fetchedpc);
-			mprint(S, nodeinfo, "S->superH->P.EX.instr = [0x%x]",
+			mprint(E, S, nodeinfo, "S->superH->P.EX.instr = [0x%x]",
 				S->superH->P.EX.instr);
-			sfatal(S, "Illegal instruction.");
+			sfatal(E, S, "Illegal instruction.");
 		}
 	
 		/*								*/
 		/* 	Execution "completes" only if next stage is empty.	*/
 		/*	Since we currently do mem acceses in EX, only go	*/
 		/*	ahead if bus is not locked.				*/
+		/*								*/
+		/*	TODO: only instructions which would cause an access	*/
+		/*	to main memory (non-cacheable / miss in cache) should	*/
+		/*	wait on bus lock. This can be fixed cleanly, if we	*/
+		/*	make actual memory access happen at the end of the	*/
+		/*	stall, in the MA stage (like it should). To do this,	*/
+		/*	would have to (1) mark pipestage as "memaccess-pending"	*/
+		/*	or "re-exec-in-MA". But then how to deal with instrs	*/
+		/*	for which the mem access is not the last step of 	*/
+		/*	execution, e.g. TAS ?  The logically cleanest solution	*/
+		/*	seems to use setjmp to save context as soon as a mem	*/
+		/*	access happens, and then setting the CPU's stall cycles	*/
+		/*	when stall cycles diminish to 0, do a longjmp to cont	*/
+		/*	the simulation of that node...				*/
 		/*								*/
 		if (	(S->superH->P.EX.valid)
 			&& (S->superH->P.EX.cycles == 0)
@@ -523,7 +538,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 			{
 				case INSTR_0:
 				{
-					(*(S->superH->P.EX.fptr))(S);
+					(*(S->superH->P.EX.fptr))(E, S);
 					S->dyncnt++;
 	
 					break;
@@ -533,7 +548,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_n *tmp = (instr_n *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -543,7 +558,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_m *tmp = (instr_m *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->src);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->src);
 					S->dyncnt++;
 	
 					break;
@@ -553,7 +568,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_mbank *tmp = (instr_mbank *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->reg, tmp->src);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->reg, tmp->src);
 					S->dyncnt++;
 	
 					break;
@@ -563,7 +578,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_nbank *tmp = (instr_nbank *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->reg, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->reg, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -573,7 +588,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_nm *tmp = (instr_nm *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -587,7 +602,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*   At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->disp);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->disp);
 					S->dyncnt++;
 	
 					break;
@@ -600,7 +615,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*    At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->src, tmp->disp, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->src, tmp->disp, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -613,7 +628,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*    At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->disp);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->disp);
 					S->dyncnt++;
 	
 					break;
@@ -626,7 +641,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*    At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->disp);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->disp);
 					S->dyncnt++;
 	
 					break;
@@ -639,7 +654,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*    At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->disp, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->disp, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -652,7 +667,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 					/*					*/
 					/*    At this point, disp is relative	*/
 					/*					*/
-					(*(S->superH->P.EX.fptr))(S, tmp->disp, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->disp, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -663,7 +678,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_i *tmp = (instr_i *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->imm);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->imm);
 					S->dyncnt++;
 	
 					break;
@@ -673,7 +688,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 				{
 					instr_ni *tmp = (instr_ni *)&S->superH->P.EX.instr;
 	
-					(*(S->superH->P.EX.fptr))(S, tmp->imm, tmp->dst);
+					(*(S->superH->P.EX.fptr))(E, S, tmp->imm, tmp->dst);
 					S->dyncnt++;
 	
 					break;
@@ -681,7 +696,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 	
 				default:
 				{
-					sfatal(S, "Unknown Instruction Type !!");
+					sfatal(E, S, "Unknown Instruction Type !!");
 					break;
 				}
 			}
@@ -736,10 +751,10 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 			}
 	
 			/*	We use Decode Cache Rather than call decode()	*/
-			S->superH->P.ID.fptr 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
-			S->superH->P.ID.op 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
-			S->superH->P.ID.format 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-			S->superH->P.ID.cycles 	= superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
+			S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
+			S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
+			S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
+			S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
 			memmove(&S->superH->P.EX, &S->superH->P.ID, sizeof(SuperHPipestage));
 	
 			S->superH->P.ID.valid = 0;
@@ -789,7 +804,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 			else
 			{
 				S->superH->mem_access_type = MEM_ACCESS_IFETCH;
-				instrword = superHreadword(S, S->PC);
+				instrword = superHreadword(E, S, S->PC);
 				S->superH->mem_access_type = MEM_ACCESS_NIL;
 			}
 
@@ -809,7 +824,7 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 			/*	if instr in IF is of type which uses	*/
 			/*	delay slot.				*/
 			/*						*/	
-			S->superH->P.IF.op = superHDC[(int)(instrword)].dc_p.op;
+			S->superH->P.IF.op = E->superHDC[(int)(instrword)].dc_p.op;
 
 			if (!drain_pipeline)
 			{
@@ -824,24 +839,24 @@ if ((S->superH->SR.BL == 1) && (S->superH->excpQ->nqintrs > 0))
 	
 		if (S->pipeshow)
 		{
-			superHdumppipe(S);
+			superHdumppipe(E, S);
 		}
 
 		if (SF_PAU_DEFINED && S->superH->PAUs != NULL)
 		{
-			pau_clk(S);
+			pau_clk(E, S);
 		}
 
 		if (SF_BITFLIP_ANALYSIS)
 		{
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
-			S->E.ntrans = S->E.ntrans + S->Cycletrans;
+			S->energyinfo.ntrans = S->energyinfo.ntrans + S->Cycletrans;
 			S->Cycletrans = 0;
 		}
 
-		SIM_GLOBAL_TIME = max(SIM_GLOBAL_TIME, S->TIME) + S->CYCLETIME;
+		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 	}
-	SIM_GLOBAL_TIME = saved_globaltime;
+	E->globaltimepsec = saved_globaltime;
 
 
 	return i;
@@ -899,62 +914,62 @@ superHifidflush(State *S)
 }
 
 void
-superHdumppipe(State *S)
+superHdumppipe(Engine *E, State *S)
 {
-	mprint(S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
 		S->NODE_ID, S->PC, S->ICLK, S->sleep);
 
-	mprint(S, nodeinfo, "buslock=%d, buslocker=%d, EX touches mem = %d\n",
+	mprint(E, S, nodeinfo, "buslock=%d, buslocker=%d, EX touches mem = %d\n",
 		S->superH->B->pbuslock, S->superH->B->pbuslocker, superHEXtouchesmem(S));
 
 	if (S->superH->P.WB.valid)
 	{
-		mprint(S, nodeinfo, "WB: [%s],%d\n",
+		mprint(E, S, nodeinfo, "WB: [%s],%d\n",
 			opstrs[S->superH->P.WB.op], S->superH->P.WB.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "WB: []\n");
+		mprint(E, S, nodeinfo, "WB: []\n");
 	}
 
 	if (S->superH->P.MA.valid)
 	{
-		mprint(S, nodeinfo, "MA: [%s],%d\n",
+		mprint(E, S, nodeinfo, "MA: [%s],%d\n",
 			opstrs[S->superH->P.MA.op], S->superH->P.MA.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "MA: []\n");
+		mprint(E, S, nodeinfo, "MA: []\n");
 	}
 
 	if (S->superH->P.EX.valid)
 	{
-		mprint(S, nodeinfo, "EX: [%s],%d\n",
+		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
 			opstrs[S->superH->P.EX.op], S->superH->P.EX.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "EX: []\n");
+		mprint(E, S, nodeinfo, "EX: []\n");
 	}
 
 	if (S->superH->P.ID.valid)
 	{
-		mprint(S, nodeinfo, "ID: [0x%x],%d\n",
+		mprint(E, S, nodeinfo, "ID: [0x%x],%d\n",
 			S->superH->P.ID.instr, S->superH->P.ID.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "ID: []\n");
+		mprint(E, S, nodeinfo, "ID: []\n");
 	}
 
 	if (S->superH->P.IF.valid)
 	{
-		mprint(S, nodeinfo, "IF: [0x%x],%d\n\n",
+		mprint(E, S, nodeinfo, "IF: [0x%x],%d\n\n",
 			S->superH->P.IF.instr, S->superH->P.IF.cycles);
 	}
 	else
 	{
-		mprint(S, nodeinfo, "IF: []\n\n");
+		mprint(E, S, nodeinfo, "IF: []\n\n");
 	}
 
 	return;

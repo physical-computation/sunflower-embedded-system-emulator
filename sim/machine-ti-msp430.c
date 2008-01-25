@@ -36,44 +36,45 @@
 #include "mextern.h"
 
 void
-msp430dumpregs(State *S)
+msp430dumpregs(Engine *E, State *S)
 {
 	int i;
 
 	for (i = 0; i < 16; i++)
 	{
-		mprint(S, nodeinfo, "R%-2d\t\t", i);
-		mbitprint(S, 32, S->msp430->R[i]);
-		mprint(S, nodeinfo, "  [0x%08lx]\n", S->msp430->R[i]);
+		mprint(E, S, nodeinfo, "R%-2d\t\t", i);
+		mbitprint(E, S, 32, S->msp430->R[i]);
+		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->msp430->R[i]);
 	}
 
 	return;
 }
 
 void
-msp430dumpsysregs(State *S)
+msp430dumpsysregs(Engine *E, State *S)
 {
 }
 
 void
-msp430fatalaction(State *S)
+msp430fatalaction(Engine *E, State *S)
 {
 }
 
 void
-msp430stallaction(State *S)
+msp430stallaction(State *S, ulong addr, int type, int latency)
 {
 }
 
 
-void
+tuck int
 msp430take_timer_intr(State *S)
 {
+	return 0;
 }
 
 
 void
-msp430resetcpu(State *S)
+msp430resetcpu(Engine *E, State *S)
 {
 	msp430pipeflush(S);
 
@@ -85,8 +86,8 @@ msp430resetcpu(State *S)
 	S->mem_w_latency = MSP430_DEFAULT_MEMWRITE_LATENCY;
 
 	memset(&S->msp430->P, 0, sizeof(MSP430Pipe));
-	memset(&S->E, 0, sizeof(EnergyInfo));
-	memset(&S->msp430->R, 0, sizeof(ulong)*16);
+	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
+	memset(&S->msp430->R[0], 0, sizeof(ulong)*16);
 	memset(S->MEM, 0, S->MEMSIZE);
 	memset(S->msp430->B, 0, sizeof(MSP430Buses));
 
@@ -94,7 +95,7 @@ msp430resetcpu(State *S)
 	S->pcstackheight = 0;
 	S->fpstackheight = 0;
 
-	S->TIME = SIM_GLOBAL_TIME;
+	S->TIME = E->globaltimepsec;
 	S->dyncnt = 0;
 	S->CLK = 0;
 	S->ICLK = 0;
@@ -124,118 +125,118 @@ msp430resetcpu(State *S)
 }
 
 State *
-msp430newstate(double xloc, double yloc, double zloc, int orbit, double velocity)
+msp430newstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
 	int	i;
 	State 	*S;
 	char 	*logfilename;
 
 
-	S = (State *)mcalloc(1, sizeof(State), "(State *)S");
+	S = (State *)mcalloc(E, 1, sizeof(State), "(State *)S");
 	if (S == NULL)
 	{
-		mexit("Failed to allocate memory for State *S.", -1);
+		mexit(E, "Failed to allocate memory for State *S.", -1);
 	}
 
-	S->msp430 = (MSP430State *)mcalloc(1, sizeof(MSP430State), "S->msp430");
+	S->msp430 = (MSP430State *)mcalloc(E, 1, sizeof(MSP430State), "S->msp430");
 	if (S->msp430 == NULL)
 	{
-		mexit("Failed to allocate memory for S->msp430.", -1);
+		mexit(E, "Failed to allocate memory for S->msp430.", -1);
 	}
 
-	S->MEM = (uchar *)mcalloc(1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
+	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
 	if (S->MEM == NULL)
 	{
-		mexit("Failed to allocate memory for S->MEM.", -1);
+		mexit(E, "Failed to allocate memory for S->MEM.", -1);
 	}
 
-	S->msp430->B = (MSP430Buses *)mcalloc(1, sizeof(MSP430Buses), "(MSP430Buses *)S->msp430->B");
+	S->msp430->B = (MSP430Buses *)mcalloc(E, 1, sizeof(MSP430Buses), "(MSP430Buses *)S->msp430->B");
 	if (S->msp430->B == NULL)
 	{
-		mexit("Failed to allocate memory for S->msp430->B.", -1);
+		mexit(E, "Failed to allocate memory for S->msp430->B.", -1);
 	}
 
 
-	S->N = (Numa *)mcalloc(1, sizeof(Numa), "(Numa *)S->N");
+	S->N = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->N");
 	if (S->N == NULL)
 	{
-		mexit("Failed to allocate memory for S->N.", -1);
+		mexit(E, "Failed to allocate memory for S->N.", -1);
 	}
 	S->N->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->N->regions = (Numaregion **)mcalloc(MAX_NUMA_REGIONS,
+	S->N->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
 		sizeof(Numaregion*), "(Numaregion **)S->N->regions");
 	if (S->N->regions == NULL)
 	{
-		mexit("Failed to allocate memory for S->N->regions.", -1);
+		mexit(E, "Failed to allocate memory for S->N->regions.", -1);
 	}
 
 
-	S->Nstack = (Numa *)mcalloc(1, sizeof(Numa), "(Numa *)S->Nstack");
+	S->Nstack = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->Nstack");
 	if (S->Nstack == NULL)
 	{
-		mexit("Failed to allocate memory for S->Nstack.", -1);
+		mexit(E, "Failed to allocate memory for S->Nstack.", -1);
 	}
 	S->Nstack->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->Nstack->regions = (Numaregion **)mcalloc(MAX_NUMA_REGIONS,
+	S->Nstack->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
 		sizeof(Numaregion*), "(Numaregion **)S->Nstack->regions");
 	if (S->Nstack->regions == NULL)
 	{
-		mexit("Failed to allocate memory for S->Nstack->regions.", -1);
+		mexit(E, "Failed to allocate memory for S->Nstack->regions.", -1);
 	}
 
 
-	S->RT = (Regtraces *)mcalloc(1, sizeof(Regtraces), "(Regtraces *)S->RT");
+	S->RT = (Regtraces *)mcalloc(E, 1, sizeof(Regtraces), "(Regtraces *)S->RT");
 	if (S->RT == NULL)
 	{
-		mexit("Failed to allocate memory for S->RT.", -1);
+		mexit(E, "Failed to allocate memory for S->RT.", -1);
 	}
 	S->RT->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->RT->regvts = (Regvt **)mcalloc(MAX_REG_TRACERS,
+	S->RT->regvts = (Regvt **)mcalloc(E, MAX_REG_TRACERS,
 		sizeof(Regvt*), "(Regvt **)S->RT->regvts");
 	if (S->RT->regvts == NULL)
 	{
-		mexit("Failed to allocate memory for S->RT->regvts.", -1);
+		mexit(E, "Failed to allocate memory for S->RT->regvts.", -1);
 	}
 
 
 
 	if (SF_SIMLOG)
 	{	
-		logfilename = (char *)mcalloc(1, MAX_NAMELEN*sizeof(char),
+		logfilename = (char *)mcalloc(E, 1, MAX_NAMELEN*sizeof(char),
 			"logfilename in machine-ti-msp430.c"); 
 		if (logfilename == NULL)
 		{
-                	mexit("Failed to allocate memory for logfilename.", -1);
+                	mexit(E, "Failed to allocate memory for logfilename.", -1);
         	}
 
-		snprintf(logfilename, MAX_NAMELEN, "simlog.node%d", SIM_NUM_NODES);
+		msnprint(logfilename, MAX_NAMELEN, "simlog.node%d", E->nnodes);
 
 		S->logfd = mcreate(logfilename, M_OWRITE|M_OTRUNCATE);
-		mfree(logfilename, "char * logfilename in machine-ti-msp430.c");
+		mfree(E, logfilename, "char * logfilename in machine-ti-msp430.c");
 
 		if (S->logfd < 0)
 		{
-			mexit("Could not open logfile for writing.", -1);
+			mexit(E, "Could not open logfile for writing.", -1);
 		}
 	}
 
-	CUR_STATE = S;
-	SIM_STATE_PTRS[SIM_NUM_NODES] = S;
-	mprint(NULL, siminfo, "New node created with node ID %d\n", SIM_NUM_NODES);
+	E->cp = S;
+	E->sp[E->nnodes] = S;
+	mprint(E, NULL, siminfo, "New node created with node ID %d\n", E->nnodes);
 
 	/*	Update the min cycle time	*/
-	SIM_MIN_CYCLETIME = DBL_MAX;
-	SIM_MAX_CYCLETIME = 0;
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
 	{
-		SIM_MIN_CYCLETIME = min(SIM_MIN_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
-		SIM_MAX_CYCLETIME = max(SIM_MAX_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
 	S->dumpregs = msp430dumpregs;
@@ -262,29 +263,35 @@ msp430newstate(double xloc, double yloc, double zloc, int orbit, double velocity
 	S->xloc = xloc;
 	S->yloc = yloc;
 	S->zloc = zloc;
-	S->velocity = velocity;
-	S->orbit = MOBILITY_RANDOM;
-	S->NODE_ID = SIM_BASENODEID + SIM_NUM_NODES;
+
+	S->trajfilename = (char *)mcalloc(E, 1, strlen(trajfilename)+1, "S->trajfilename in "SF_FILE_MACRO);
+	if (S->trajfilename == nil)
+	{
+		mexit(E, "mcalloc failed for S->trajfilename in "SF_FILE_MACRO);
+	}
+	strcpy(S->trajfilename, trajfilename);
+
+	S->NODE_ID = E->baseid + E->nnodes;
 
 	/*	Must know correct number of nodes in resetcpu()		*/
-	SIM_NUM_NODES++;
+	E->nnodes++;
 
 	S->resetcpu(S);
 
-	S->intrQ = (InterruptQ *)mcalloc(1, sizeof(InterruptQ),
+	S->intrQ = (InterruptQ *)mcalloc(E, 1, sizeof(InterruptQ),
 		"InterruptQ *intrQ in msp430newstate()");
 	if (S->intrQ == NULL)
 	{
-		mexit("Failed to allocate memory for InterruptQ *intrQ in msp430newstate().", -1);
+		mexit(E, "Failed to allocate memory for InterruptQ *intrQ in msp430newstate().", -1);
 	}
 
-	S->intrQ->hd = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->intrQ->hd = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->intrQ->hd in msp430newstate()");
-	S->intrQ->tl = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->intrQ->tl = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->intrQ->tl in msp430newstate()");
 	if (S->intrQ->hd == NULL || S->intrQ->tl == NULL)
 	{
-		mexit("Failed to allocate memory for S->intrQ->hd | S->intrQ->tl.", -1);
+		mexit(E, "Failed to allocate memory for S->intrQ->hd | S->intrQ->tl.", -1);
 	}
 
 
@@ -292,7 +299,7 @@ msp430newstate(double xloc, double yloc, double zloc, int orbit, double velocity
 }
 
 void
-msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
+msp430split(Engine *E, State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 {
 	int		i;
 	Numaregion	*tmp;
@@ -301,16 +308,16 @@ msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	/*								*/
 	/*	Split the current CPU into two, sharing the same mem	*/
 	/*								*/
-	State	*N = msp430newstate(S->xloc, S->yloc, S->zloc, S->orbit, S->velocity);
+	State	*N = msp430newstate(E, S->xloc, S->yloc, S->zloc, S->trajfilename);
 
 
-	mprint(NULL, siminfo,
+	mprint(E, NULL, siminfo,
 		"Splitting node %d to new node %d:\n\t\tstartpc @ 0x" UHLONGFMT 
 		", stack @ 0x" UHLONGFMT ", arg @ 0x" UHLONGFMT "\n\n",
 		S->NODE_ID, N->NODE_ID, startpc, stackptr, argaddr);
 
-	mfree(N->MEM, "N->MEM in msp430split");
-	mfree(N->msp430->B, "N->msp430->B in msp430split");
+	mfree(E, N->MEM, "N->MEM in msp430split");
+	mfree(E, N->msp430->B, "N->msp430->B in msp430split");
 
 	N->MEM = S->MEM;
 	N->msp430->B = S->msp430->B;
@@ -323,11 +330,11 @@ msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	/*								*/
 	for (i = 0; i < S->N->count; i++)
 	{
-		tmp = (Numaregion *) mcalloc(1, sizeof(Numaregion),
+		tmp = (Numaregion *) mcalloc(E, 1, sizeof(Numaregion),
 			"N->N->regions entry in machine-ti-msp430.c");
 		if (tmp == NULL)
 		{
-			merror("mcalloc failed for N->N->regions entry in machine-ti-msp430.c");
+			merror(E, "mcalloc failed for N->N->regions entry in machine-ti-msp430.c");
 			return;
 		}
 
@@ -341,11 +348,11 @@ msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 
 	for (i = 0; i < S->Nstack->count; i++)
 	{
-		tmp = (Numaregion *) mcalloc(1, sizeof(Numaregion),
+		tmp = (Numaregion *) mcalloc(E, 1, sizeof(Numaregion),
 			"N->Nstack->regions entry in machine-ti-msp430.c");
 		if (tmp == NULL)
 		{
-			merror("mcalloc failed for N->Nstack->regions entry in machine-ti-msp430.c");
+			merror(E, "mcalloc failed for N->Nstack->regions entry in machine-ti-msp430.c");
 			return;
 		}
 
@@ -379,7 +386,7 @@ msp430split(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	strncpy(N->idstr, idstr, MAX_NAMELEN);
 	N->PC = startpc;
 	N->runnable = 1;
-	CUR_STATE = N;
+	E->cp = N;
 
 	return;
 }

@@ -30,23 +30,21 @@
 /*	damage.									*/
 /*										*/
 /*	Contact: phillip Stanley-Marbell <pstanley@ece.cmu.edu>			*/
-/*										*/	
+/*										*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <float.h>
 #include "sf.h"
-#include "mmalloc.h"
 #include "mextern.h"
 
-static double		check_snr(Netsegment *curseg, State *src_node, State *dst_node);
-static int		fifo_enqueue(State *S, Fifo fifo_name, int whichifc);
-static int		lookup_id(uchar*);
-static int		seg_enqueue(State *S, int whichifc);
-static uchar *		fifo_dequeue(State *S, Fifo fifo_name, int whichifc);
-static void		netsegcircbuf(Segbuf *segbuf);
-static void		seg_dequeue(Netsegment *curseg, Segbuf *tptr);
+static int		lookup_id(Engine *, uchar*);
+static int		seg_enqueue(Engine *E, State *S, int whichifc);
+static uchar *		fifo_dequeue(Engine *, State *S, Fifo fifo_name, int whichifc);
+static void		netsegcircbuf(Engine *, Segbuf *segbuf);
+static void		seg_dequeue(Netsegment *curseg, int whichbuf);
 
 enum
 {
@@ -66,7 +64,7 @@ enum
 /*	the FIFO indeces.						*/
 /*									*/
 tuck int
-fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
+fifo_enqueue(Engine *E, State *S, Fifo which_fifo, int whichifc)
 {
 	Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
 
@@ -75,7 +73,7 @@ fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
 	{
 		if (ifcptr->tx_fifo_size <= 0)
 		{
-			mexit("Invalid TX FIFO size", -1);
+			mexit(E, "Invalid TX FIFO size", -1);
 		}
 
 		if (ifcptr->IFC_TXFIFO_LEVEL == ifcptr->tx_fifo_size)
@@ -85,7 +83,7 @@ fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
 	
 			if (S->superH->txovrrunerr_intrenable_flag)
 			{
-				pic_intr_enqueue(S, S->superH->nicintrQ, NIC_TXOVRRUNERR_INTR, whichifc, 0);
+				pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXOVRRUNERR_INTR, whichifc, 0);
 			}
 		
 			return Etxovrrun;
@@ -107,7 +105,7 @@ fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
 	{
 		if (ifcptr->rx_fifo_size <= 0)
 		{
-			mexit("Invalid TX FIFO size", -1);
+			mexit(E, "Invalid TX FIFO size", -1);
 		}
 
 		if (ifcptr->IFC_RXFIFO_LEVEL == ifcptr->rx_fifo_size)
@@ -122,12 +120,12 @@ fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
 			/*	result of that interrupt being raised and no	*/
 			/*	data to consume.				*/
 			/*							*/
-			pic_intr_clear(S, S->superH->nicintrQ, NIC_RXOK_INTR, 0 /* clear just one intr */);
+			pic_intr_clear(E, S, S->superH->nicintrQ, NIC_RXOK_INTR, 0 /* clear just one intr */);
 
 			/*	RX err intrs if enbld.	*/
 			if (S->superH->rxovrrunerr_intrenable_flag)
 			{
-				pic_intr_enqueue(S, S->superH->nicintrQ, NIC_RXOVRRUNERR_INTR, whichifc, 0);
+				pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_RXOVRRUNERR_INTR, whichifc, 0);
 			}
 		
 			return Erxovrrun;
@@ -155,7 +153,7 @@ fifo_enqueue(State *S, Fifo which_fifo, int whichifc)
 /*	the FIFO indeces.						*/
 /*									*/
 tuck uchar *
-fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
+fifo_dequeue(Engine *E, State *S, Fifo which_fifo, int whichifc)
 {
 	uchar	*ret_ptr;
 	Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
@@ -165,7 +163,7 @@ fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
 	{
 		if (ifcptr->tx_fifo_size <= 0)
 		{
-			mexit("Invalid TX FIFO size", -1);
+			mexit(E, "Invalid TX FIFO size", -1);
 		}
 
 		if (ifcptr->IFC_TXFIFO_LEVEL == 0)
@@ -175,18 +173,18 @@ fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
 	
 			if (S->superH->txundrrunerr_intrenable_flag)
 			{
-				pic_intr_enqueue(S, S->superH->nicintrQ, NIC_TXUNDRRUNERR_INTR, whichifc, 0);
+				pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXUNDRRUNERR_INTR, whichifc, 0);
 			}
 
 			/*	No soup for you		*/
-			sfatal(S, "fifo_dequeue() returning NULL (TX UNDERRRUN)");
+			sfatal(E, S, "fifo_dequeue() returning NULL (TX UNDERRRUN)");
 			return NULL;
 		}
 		else
 		{
 			ifcptr->IFC_TXFIFO_LEVEL--;
 		}
-		
+
 		/*	   Caller of fifo_dequeue will copy data immediately	*/
 		ret_ptr = ifcptr->tx_fifo[ifcptr->tx_fifo_oldestidx];
 		ifcptr->tx_fifo_oldestidx++;
@@ -196,7 +194,7 @@ fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
 	{
 		if (ifcptr->rx_fifo_size <= 0)
 		{
-			mexit("Invalid TX FIFO size", -1);
+			mexit(E, "Invalid TX FIFO size", -1);
 		}
 
 		if (ifcptr->IFC_RXFIFO_LEVEL == 0)
@@ -206,11 +204,11 @@ fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
 	
 			if (S->superH->rxundrrunerr_intrenable_flag)
 			{
-				pic_intr_enqueue(S, S->superH->nicintrQ, NIC_RXUNDRRUNERR_INTR, whichifc, 0);
+				pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_RXUNDRRUNERR_INTR, whichifc, 0);
 			}
 
 			/*	No soup for you		*/
-			sfatal(S, "fifo_dequeue() returning NULL (RX UNDERRUN)");
+			sfatal(E, S, "fifo_dequeue() returning NULL (RX UNDERRUN)");
 			return NULL;
 		}
 		else
@@ -229,61 +227,78 @@ fifo_dequeue(State *S, Fifo which_fifo, int whichifc)
 }
 
 int
-seg_enqueue(State *S, int whichifc)
+seg_enqueue(Engine *E, State *S, int whichifc)
 {
-	int			i, si, di;
+	int			actual_framesize, i, si, di;
 	Ifc			*ifcptr = &S->superH->NIC_IFCS[whichifc];
-	Netsegment		*Seg = &SIM_NET_SEGMENTS[ifcptr->segno];
+	Netsegment		*Seg = &E->netsegs[ifcptr->segno];
 	uchar			*tptr;
-	ulong			cksum = 0;
 	int			curwidth = Seg->cur_queue_width;
-	char			srcstr[16], dststr[16];		
+	char			srcstr[16], dststr[16];
+
+
+	/*										*/
+	/*	TODO: if we move from using the node ID as the identical OUI,		*/
+	/*	must change the line below to do lookup_id() to get the si		*/
+	/*										*/
+	/*	*	The dest node should be determined from the contents 		*/
+	/*	of the frame that we get from fifo_dequeue (below) rather than		*/
+	/*	from  the node's IFC_DST. The whole IFC_DST business should be 		*/
+	/*	gotten rid of, like we did for curifc					*/
+	/*										*/
+
 
 
 	si = S->NODE_ID;
-	di = lookup_id(S->superH->NIC_IFCS[whichifc].IFC_DST);
+	di = lookup_id(E, S->superH->NIC_IFCS[whichifc].IFC_DST);
 	
-	snprintf(srcstr, sizeof(srcstr), "%d/%d", si, whichifc);
-	snprintf(dststr, sizeof(dststr), "%d", di);
+	msnprint(srcstr, sizeof(srcstr), "%d/%d", si, whichifc);
+	msnprint(dststr, sizeof(dststr), "%d", di);
 	if (di == -2)
 	{
-		snprintf(dststr, sizeof(dststr), "(broadcast)");
+		msnprint(dststr, sizeof(dststr), "(broadcast)");
 	}
 	if (si == -3)
 	{
-		snprintf(srcstr, sizeof(srcstr), "(remote)/%d", whichifc);
+		msnprint(srcstr, sizeof(srcstr), "(remote)/%d", whichifc);
 	}
 	
-	mprint(S, nodeinfo,
-		"Frame from %s --> %s, %Es since epoch\n",
-		srcstr, dststr, SIM_GLOBAL_TIME);
+	mprint(E, S, nodeinfo,
+		"%d byte frame from %s --> %s, %Es since epoch\n",
+		ifcptr->tx_fifo_framesizes[ifcptr->tx_fifo_oldestidx],
+		srcstr, dststr, E->globaltimepsec);
 
 	if (!Seg->valid)
 	{
-		mprint(S, nodeinfo, "Carrier sense error\n");
+		mprint(E, S, nodeinfo, "Carrier sense error\n");
 
 		S->superH->NIC_IFCS[whichifc].IFC_CNTR_CSENSE_ERR++;
 		S->superH->NIC_IFCS[whichifc].IFC_NSR |= (1 << 0);
 		if (S->superH->csenseerr_intrenable_flag)
 		{
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_CSENSEERR_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_CSENSEERR_INTR, whichifc, 0);
 		}
 
 		return Ecsense;
 	}
 
+	/*										*/
+	/*	TODO: if we want to have a collision defined as two nodes attempt	*/
+	/*	to transmit at _exactly_ same time, then we should check below and	*/
+	/*	signal a collision only if the Seg->bits_left equals the frame_bits	*/
+	/*										*/
 
 	if (Seg->busy)
 	{
-		mprint(S, nodeinfo,
-			"Frame collision error (bandwidth = %d, occupancy = %d)\n",
+		mprint(E, S, nodeinfo,
+			"Channel busy... (bandwidth = %d, occupancy = %d)\n",
 			Seg->queue_max_width, Seg->cur_queue_width);
 
 		S->superH->NIC_IFCS[whichifc].IFC_CNTR_COLLS_ERR++;
 		S->superH->NIC_IFCS[whichifc].IFC_NSR |= (1 << 0);
 		if (S->superH->collserr_intrenable_flag)
 		{
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_COLLSERR_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_COLLSERR_INTR, whichifc, 0);
 		}
 
 		return Ecoll;
@@ -291,13 +306,13 @@ seg_enqueue(State *S, int whichifc)
 
 	if (ifcptr->frame_bits != Seg->frame_bits)
 	{
-		mprint(S, nodeinfo, "Frame error\n");
+		mprint(E, S, nodeinfo, "Frame error\n");
 		
 		S->superH->NIC_IFCS[whichifc].IFC_CNTR_FRAME_ERR++;
 		S->superH->NIC_IFCS[whichifc].IFC_NSR |= (1 << 0);
 		if (S->superH->frameerr_intrenable_flag)
 		{
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_FRAMEERR_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_FRAMEERR_INTR, whichifc, 0);
 		}
 
 		return Eframeerr;
@@ -305,15 +320,15 @@ seg_enqueue(State *S, int whichifc)
 
 	if ((si == -1) || (di == -1))
 	{
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"lookup() on either frame source or destination failed\n");
-		mprint(S, nodeinfo, "Frame MAC layer address error\n");
+		mprint(E, S, nodeinfo, "Frame MAC layer address error\n");
 
 		S->superH->NIC_IFCS[whichifc].IFC_CNTR_ADDR_ERR++;
 		S->superH->NIC_IFCS[whichifc].IFC_NSR |= (1 << 0);	
 		if (S->superH->addrerr_intrenable_flag)
 		{
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_ADDRERR_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_ADDRERR_INTR, whichifc, 0);
 		}
 
 		return Eaddrerr;
@@ -332,22 +347,28 @@ seg_enqueue(State *S, int whichifc)
 		/*	If src and dst are not on segment, ADDRERR	*/
 		if (i == MAX_SEGNODES)
 		{
-			mprint(S, nodeinfo, "Destination not on same segment (segment %d)\n",\
+			mprint(E, S, nodeinfo, "Destination not on same segment (segment %d)\n",\
 				S->superH->NIC_IFCS[whichifc].segno);
-			mprint(S, nodeinfo, "Frame MAC layer address error\n");
+			mprint(E, S, nodeinfo, "Frame MAC layer address error\n");
 
 			S->superH->NIC_IFCS[whichifc].IFC_CNTR_ADDR_ERR++;
 			S->superH->NIC_IFCS[whichifc].IFC_NSR |= (1 << 0);
 			if (S->superH->addrerr_intrenable_flag)
 			{
-				pic_intr_enqueue(S, S->superH->nicintrQ, NIC_ADDRERR_INTR, whichifc, 0);
+				pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_ADDRERR_INTR, whichifc, 0);
 			}
 
 			return Eaddrerr;
 		}
 	}
 	
-	tptr = fifo_dequeue(S, TX_FIFO, whichifc);
+	/*								*/
+	/*	fifo_dequeue() below will be taking the oldest fifo	*/
+	/*	entry, so that is the one whose size we want to get	*/
+	/*								*/
+	actual_framesize = ifcptr->tx_fifo_framesizes[ifcptr->tx_fifo_oldestidx];
+
+	tptr = fifo_dequeue(E, S, TX_FIFO, whichifc);
 	if (tptr == NULL)
 	{
 		/*	Node interrupt is raised in fifo_dequeue()	*/
@@ -355,11 +376,10 @@ seg_enqueue(State *S, int whichifc)
 	}
 
 	memmove(Seg->segbufs[curwidth].data, tptr, ifcptr->frame_bits/8);
-	cksum = checksum((uchar *)&Seg->segbufs[curwidth].data, ifcptr->frame_bits/8);
-	memmove(&Seg->segbufs[curwidth].data[ifcptr->frame_bits/8], &cksum, sizeof(ulong));
 
-	Seg->segbufs[curwidth].timestamp = SIM_GLOBAL_TIME;
-	Seg->segbufs[curwidth].bits_left = ifcptr->frame_bits;
+	Seg->segbufs[curwidth].timestamp = E->globaltimepsec;
+	Seg->segbufs[curwidth].bits_left = actual_framesize * 8;
+	Seg->segbufs[curwidth].actual_nbytes = actual_framesize;
 	Seg->segbufs[curwidth].src_node = S;
 	Seg->segbufs[curwidth].src_ifc = whichifc;
 	Seg->segbufs[curwidth].parent_netsegid = Seg->NETSEG_ID;
@@ -380,7 +400,7 @@ seg_enqueue(State *S, int whichifc)
 	}
 	else
 	{
-		Seg->segbufs[curwidth].dst_node = SIM_STATE_PTRS[di];
+		Seg->segbufs[curwidth].dst_node = E->sp[di];
 		Seg->segbufs[curwidth].bcast = 0;
 	}
 
@@ -391,25 +411,29 @@ seg_enqueue(State *S, int whichifc)
 
 		for (i = 0; i < Seg->num_seg2files; i++)
 		{
-			netsegdump(Seg->seg2filenames[i], &Seg->segbufs[curwidth]);
+			netsegdump(E, Seg->seg2filenames[i], &Seg->segbufs[curwidth]);
 		}
 	}
 
 	if (!S->from_remote)
 	{
-		netsegcircbuf(&Seg->segbufs[curwidth]);
+		netsegcircbuf(E, &Seg->segbufs[curwidth]);
 	}
 
 	S->superH->NIC_IFCS[whichifc].IFC_NSR &= ~(1 << 0);
-	SIM_NIC_BYTES_SENT += S->superH->NIC_IFCS[whichifc].frame_bits/8;
+	E->nicsimbytes += S->superH->NIC_IFCS[whichifc].frame_bits/8;
 
 
 	return OK;
 }
 
 void
-seg_dequeue(Netsegment *curseg, Segbuf *tptr)
+seg_dequeue(Netsegment *curseg, int whichbuf)
 {
+	memmove(&curseg->segbufs[whichbuf],
+		&curseg->segbufs[curseg->cur_queue_width - 1],
+		sizeof(Segbuf));
+
 	curseg->cur_queue_width--;
 	if (curseg->cur_queue_width < curseg->queue_max_width)
 	{
@@ -421,7 +445,7 @@ seg_dequeue(Netsegment *curseg, Segbuf *tptr)
 
 
 void
-remote_seg_enqueue(Segbuf *segbuf)
+remote_seg_enqueue(Engine *E, Segbuf *segbuf)
 {
 	State	*S = (State *)segbuf->src_node;
 	int	whichifc = segbuf->src_ifc;
@@ -433,37 +457,38 @@ remote_seg_enqueue(Segbuf *segbuf)
 	/*	dst_node will be NULL if it was a bcast		*/
 	if (segbuf->dst_node != NULL)
 	{
-		snprintf(ifcptr->IFC_DST, NIC_ADDR_LEN, "%d",
+		msnprint((char *)ifcptr->IFC_DST, NIC_ADDR_LEN, "%d",
 			((State *)segbuf->dst_node)->NODE_ID);
 	}
 	else
 	{
-		snprintf(ifcptr->IFC_DST, NIC_ADDR_LEN, "::1");
+		msnprint((char *)ifcptr->IFC_DST, NIC_ADDR_LEN, "::1");
 	}
 
 	memmove(ifcptr->tx_fifo[ifcptr->tx_fifo_curidx], segbuf->data, segbuf->bits_left/8);
-	fifo_enqueue(S, TX_FIFO, whichifc);
+	ifcptr->tx_fifo_framesizes[ifcptr->tx_fifo_curidx] = segbuf->actual_nbytes;
+	fifo_enqueue(E, S, TX_FIFO, whichifc);
 
 
 	return;
 }
 
 void
-nic_tx_enqueue(State *S, uchar data, int whichifc)
+nic_tx_enqueue(Engine *E, State *S, uchar data, int whichifc)
 {
 	Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
 
 
 	if (!SF_NETWORK)
 	{
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"Networking disabled, and you want to do what !!! Exiting !\n");
-		mexit("See above messages.", -1);
+		mexit(E, "See above messages.", -1);
 	}
 
 	if (ifcptr->tx_fifo == NULL || ifcptr->tx_fifo_size <= 0)
 	{
-		sfatal(S, 
+		sfatal(E, S, 
 			"Node has bogus tx_fifo. You might have incorrectly configured the IFC");
 		return;
 	}
@@ -483,7 +508,8 @@ nic_tx_enqueue(State *S, uchar data, int whichifc)
 		/*	All necessary interrupts, if any, are raised	*/
 		/*	by fifo_enqueue().				*/
 		/*							*/
-		fifo_enqueue(S, TX_FIFO, whichifc);
+		ifcptr->tx_fifo_framesizes[ifcptr->tx_fifo_curidx] = ifcptr->tx_fifo_h2o;
+		fifo_enqueue(E, S, TX_FIFO, whichifc);
 		ifcptr->tx_fifo_h2o = 0;
 	}
 
@@ -492,23 +518,23 @@ nic_tx_enqueue(State *S, uchar data, int whichifc)
 
 
 uchar
-nic_rx_dequeue(State *S, int whichifc)
+nic_rx_dequeue(Engine *E, State *S, int whichifc)
 {
 	uchar	retchar = 0;
 	Ifc	*ifcptr = &S->superH->NIC_IFCS[whichifc];
-	int	framesize = (int)(ifcptr->frame_bits/8);
+	int	framesize = ifcptr->rx_localbuf_framesize;
 
 
 	if (!SF_NETWORK)
 	{
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"Networking disabled, and you want to do what !!! Exiting !\n");
-		mexit("See above messages.", -1);
+		mexit(E, "See above messages.", -1);
 	}
 
 	if (!ifcptr->rx_fifo)
 	{
-		sfatal(S,
+		sfatal(E, S,
 			"Node is not equipped with an IFC.\nWhat do you mean you want to receive ?!");
 	}
 
@@ -519,7 +545,14 @@ nic_rx_dequeue(State *S, int whichifc)
 	/*									*/
 	if (ifcptr->rx_localbuf_h2o == 0)
 	{
-		uchar *tptr = fifo_dequeue(S, RX_FIFO, whichifc);
+		uchar *tptr;
+	
+		/*								*/
+		/*	fifo_dequeue will be taking the item at oldestidx	*/
+		/*								*/
+		framesize = ifcptr->rx_localbuf_framesize = ifcptr->rx_fifo_framesizes[ifcptr->rx_fifo_oldestidx];
+
+		tptr = fifo_dequeue(E, S, RX_FIFO, whichifc);
 
 		/*	Intrs / marking NSR done in fifo_dequeue	*/
 		if (tptr == NULL)
@@ -539,8 +572,10 @@ nic_rx_dequeue(State *S, int whichifc)
 }
 
 void
-tx_retryalg_binexp(void *x, int whichifc)
+tx_retryalg_binexp(void *e, void *x, int whichifc)
 {
+	Engine	*E = (Engine *)e;
+
 	/*								*/
 	/*	This routine is called by network_clock(), and it	*/
 	/*	provides the intelligent network interface: It will	*/
@@ -553,7 +588,7 @@ tx_retryalg_binexp(void *x, int whichifc)
 
 
 	if ((ifcptr->IFC_TXFIFO_LEVEL == 0) ||
-		(ifcptr->fifo_nextretry_time > SIM_GLOBAL_TIME))
+		(ifcptr->fifo_nextretry_time > E->globaltimepsec))
 	{
 		return;
 	}
@@ -562,21 +597,21 @@ tx_retryalg_binexp(void *x, int whichifc)
 	/*	Add in the cost of trying to grab network: 		*/
 	/*	tx_pwr watts for 1 clock cycle				*/
 	/*								*/
-	S->E.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
+	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
 	/*	The seg_enqueue() failed, so calc. a new retry time	*/
-	if (seg_enqueue(S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != OK)
 	{
 		timeslot = (double)ifcptr->frame_bits/
-					(double)SIM_NET_SEGMENTS[ifcptr->segno].bitrate;
+					(double)E->netsegs[ifcptr->segno].bitrate;
 		range = timeslot * (pow(2, min(ifcptr->tx_alg_retries, 10)) + 1);
-		delay = fmod((double)mrandom(), range);
+		delay = fmod((double)mrandom(E), range);
 
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"Binary exponential backoff for %E seconds, node %d ifc %d\n",
 			delay, S->NODE_ID, whichifc);
 
-		ifcptr->fifo_nextretry_time = SIM_GLOBAL_TIME + delay;
+		ifcptr->fifo_nextretry_time = E->globaltimepsec + delay;
 		ifcptr->tx_alg_retries++;
 	}
 	else
@@ -590,7 +625,7 @@ tx_retryalg_binexp(void *x, int whichifc)
 		if (S->superH->txok_intrenable_flag)
 		{
 			/*	Enqueue a TX interrupt on the sender	*/
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
 		}
 
 		ifcptr->tx_alg_retries = 0;
@@ -599,10 +634,11 @@ tx_retryalg_binexp(void *x, int whichifc)
 	return;
 }
 
-
 void
-tx_retryalg_random(void *x, int whichifc)
+tx_retryalg_random(void *e, void *x, int whichifc)
 {
+	Engine	*E = (Engine *)e;
+
 	/*								*/
 	/*	This routine is called by network_clock(), and it	*/
 	/*	provides the intelligent network interface: It will	*/
@@ -616,7 +652,7 @@ tx_retryalg_random(void *x, int whichifc)
 
 
 	if ((ifcptr->IFC_TXFIFO_LEVEL == 0) ||
-		(ifcptr->fifo_nextretry_time > SIM_GLOBAL_TIME))
+		(ifcptr->fifo_nextretry_time > E->globaltimepsec))
 	{
 		return;
 	}
@@ -625,20 +661,20 @@ tx_retryalg_random(void *x, int whichifc)
 	/*	Add in the cost of trying to grab network: 		*/
 	/*	tx_pwr watts for 1 clock cycle				*/
 	/*								*/
-	S->E.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
+	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
-	if (seg_enqueue(S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != OK)
 	{
 		timeslot = (double)ifcptr->frame_bits/
-					(double)SIM_NET_SEGMENTS[ifcptr->segno].bitrate;
+					(double)E->netsegs[ifcptr->segno].bitrate;
 		range = timeslot*(MAXRANDOMSLOTS + 1);
-		delay = fmod((double)mrandom(), range);
+		delay = fmod((double)mrandom(E), range);
 
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"Random backoff for %E seconds (range=%E, max=%d slots), node %d ifc %d\n",
 			delay, range, MAXRANDOMSLOTS, S->NODE_ID, whichifc);
 
-		ifcptr->fifo_nextretry_time = SIM_GLOBAL_TIME + delay;
+		ifcptr->fifo_nextretry_time = E->globaltimepsec + delay;
 		ifcptr->tx_alg_retries++;
 	}
 	else
@@ -652,7 +688,7 @@ tx_retryalg_random(void *x, int whichifc)
 		if (S->superH->txok_intrenable_flag)
 		{
 			/*	Enqueue a TX interrupt on the sender	*/
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
 		}
 
 		ifcptr->tx_alg_retries = 0;
@@ -663,15 +699,19 @@ tx_retryalg_random(void *x, int whichifc)
 
 
 void
-tx_retryalg_linear(void *x, int whichifc)
+tx_retryalg_linear(void *e, void *x, int whichifc)
 {
-	//State *S = (State *)x;
+	USED(e);
+	USED(x)
+	USED(whichifc);
 }
 
-
 void
-tx_retryalg_asap(void *x, int whichifc)
+tx_retryalg_asap(void *e, void *x, int whichifc)
 {
+	Engine	*E = (Engine *)e;
+
+
 	/*								*/
 	/*	This routine is called by network_clock(), and it	*/
 	/*	provides the intelligent network interface: It will	*/
@@ -684,7 +724,7 @@ tx_retryalg_asap(void *x, int whichifc)
 
 
 	if ((ifcptr->IFC_TXFIFO_LEVEL == 0) ||
-		(ifcptr->fifo_nextretry_time > SIM_GLOBAL_TIME))
+		(ifcptr->fifo_nextretry_time > E->globaltimepsec))
 	{
 		return;
 	}
@@ -693,18 +733,18 @@ tx_retryalg_asap(void *x, int whichifc)
 	/*	Add in the cost of trying to grab network: 		*/
 	/*	tx_pwr watts for 1 clock cycle				*/
 	/*								*/
-	S->E.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
+	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
-	if (seg_enqueue(S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != OK)
 	{
 		timeslot = (double)ifcptr->frame_bits/
-					(double)SIM_NET_SEGMENTS[ifcptr->segno].bitrate;
+					(double)E->netsegs[ifcptr->segno].bitrate;
 
-		mprint(S, nodeinfo,
+		mprint(E, S, nodeinfo,
 			"Asap backoff for %E seconds (1 timeslot), node %d ifc %d\n",
 			timeslot, S->NODE_ID, whichifc);
 
-		ifcptr->fifo_nextretry_time = SIM_GLOBAL_TIME + timeslot;
+		ifcptr->fifo_nextretry_time = E->globaltimepsec + timeslot;
 		ifcptr->tx_alg_retries++;
 	}
 	else
@@ -718,7 +758,7 @@ tx_retryalg_asap(void *x, int whichifc)
 		if (S->superH->txok_intrenable_flag)
 		{
 			/*	Enqueue a TX interrupt on the sender	*/
-			pic_intr_enqueue(S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
 		}
 
 		ifcptr->tx_alg_retries = 0;
@@ -728,17 +768,72 @@ tx_retryalg_asap(void *x, int whichifc)
 }
 
 void
-network_clock()
+tx_retryalg_none(void *e, void *x, int whichifc)
+{
+	Engine	*E = (Engine *)e;
+
+	/*								*/
+	/*	This routine is called by network_clock(), and will	*/
+	/*	try to move data out of the IFC's FIFO onto a netseg.	*/
+	/*								*/
+	State		*S = (State *)x;
+	Ifc		*ifcptr = &S->superH->NIC_IFCS[whichifc];
+
+
+	if ((ifcptr->IFC_TXFIFO_LEVEL == 0) ||
+		(ifcptr->fifo_nextretry_time > E->globaltimepsec))
+	{
+		return;
+	}
+
+	/*								*/
+	/*	Add in the cost of trying to grab network: 		*/
+	/*	tx_pwr watts for 1 clock cycle				*/
+	/*								*/
+	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
+
+	if (seg_enqueue(E, S, whichifc) == OK)
+	{
+		/*							*/
+		/*	Interrupt is raised when an entry was sent 	*/
+		/*	from FIFO onto network, so if device was	*/
+		/*	waiting on a full FIFO, it can do its thing	*/
+		/*							*/
+		ifcptr->IFC_CNTR_TXOK++;
+		if (S->superH->txok_intrenable_flag)
+		{
+			/*	Enqueue a TX interrupt on the sender	*/
+			pic_intr_enqueue(E, S, S->superH->nicintrQ, NIC_TXOK_INTR, whichifc, 0);
+		}
+	}
+	else
+	{
+		/*							*/
+		/*	Grabbing the medium failed for some reason	*/
+		/*	for retryalg_none, we just junk the FIFO	*/
+		/*	entry, no retries for sending it onto medium	*/
+		/*							*/
+		fifo_dequeue(E, S, TX_FIFO, whichifc);
+	}
+
+	ifcptr->tx_alg_retries = 0;
+
+
+	return;
+}
+
+void
+network_clock(Engine *E)
 {
 	int 			whichbuf, i, j, k;
 	Netsegment		*curseg;
 
 
-	for (i = 0; i < SIM_NUM_ACTIVE_NETSEGS; i++)
+	for (i = 0; i < E->nactivensegs; i++)
 	{
-		curseg = &SIM_NET_SEGMENTS[SIM_ACTIVE_NETSEGS[i]];
+		curseg = &E->netsegs[E->activensegs[i]];
 		if (( curseg->cur_queue_width == 0) ||
-			!eventready(SIM_GLOBAL_TIME, curseg->lastactivate, curseg->bytedelay))
+			!eventready(E->globaltimepsec, curseg->lastactivate, curseg->bytedelay))
 		{
 			continue;
 		}
@@ -748,12 +843,12 @@ network_clock()
 			Segbuf		*tptr = &curseg->segbufs[whichbuf];
 			State*		dptr = (State *)tptr->dst_node;
 			State*		sptr = (State *)tptr->src_node;
-			int		frame_bytes = curseg->frame_bits/8;
+			int		frame_bytes = tptr->actual_nbytes;
 			int		src_ifc = tptr->src_ifc;
 
 
 			/*	Timestamp might be in future if spliced from remote host.	*/
-			if (tptr->bits_left == 0 || tptr->timestamp > SIM_GLOBAL_TIME)
+			if (tptr->bits_left == 0 || tptr->timestamp > E->globaltimepsec)
 			{
 				continue;
 			}
@@ -764,7 +859,7 @@ network_clock()
 			/*									*/
 			if (tptr->bcast) for (j = 0; j < curseg->num_attached; j++)
 			{
-				dptr = SIM_STATE_PTRS[curseg->node_ids[j]];
+				dptr = E->sp[curseg->node_ids[j]];
 				if (!dptr->runnable || (dptr == tptr->src_node))
 				{
 					continue;
@@ -776,27 +871,36 @@ network_clock()
 				/*							*/
 				for (k = 0; k < dptr->superH->NIC_NUM_IFCS; k++)
 				{
-					if (dptr->superH->NIC_IFCS[k].segno == SIM_ACTIVE_NETSEGS[i])
+					if (	(dptr->superH->NIC_IFCS[k].segno == E->activensegs[i]) &&
+						(dptr->superH->NIC_IFCS[k].IFC_STATE & NIC_STATE_LISTEN))
 					{
 						int	offset = frame_bytes - (tptr->bits_left/8);
 						int	idx = dptr->superH->NIC_IFCS[k].rx_fifo_curidx;
 
 					
+						/*	Gets reset for all recipients when we dequeue segbuf	*/
+						dptr->superH->NIC_IFCS[k].IFC_STATE |= NIC_STATE_RX;
+
+
 						/*	If we have an associate physical model		*/
 						if (curseg->sigsrc != NULL)
 						{
-							double snr = check_snr(curseg, sptr, dptr);
+							double snr = check_snr(E, curseg, sptr, dptr);
 
-							if (snr < curseg->minsnr)
-							{
-								/*	SNR too low. Dest. gets noise	*/
-								dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
-									tptr->data[offset] & mrandom();
-							}
-							else
+							if (snr > curseg->minsnr)
 							{
 								dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
 									tptr->data[offset];
+							}
+							else if (snr == curseg->minsnr)
+							{
+								/*	SNR too low. Dest. gets noise	*/
+								dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
+									tptr->data[offset] & mrandom(E);
+							}
+							else
+							{
+								/*	when snr too low, dst gets nothing	*/
 							}
 						}
 						else
@@ -811,7 +915,7 @@ network_clock()
 						/*					*/
 						if (SF_POWER_ANALYSIS)
 						{
-							dptr->E.current_draw +=
+							dptr->energyinfo.current_draw +=
 								dptr->superH->NIC_IFCS[k].rx_pwr /
 								dptr->VDD;
 						}
@@ -819,31 +923,25 @@ network_clock()
 						/*	If about to become empty:	*/
 						if (tptr->bits_left == 8)
 						{
-							char *ptr = dptr->superH->NIC_IFCS[k].rx_fifo[idx];
+							dptr->superH->NIC_IFCS[k].rx_fifo_framesizes[idx] = tptr->actual_nbytes;
 
-							if (checksum(ptr, frame_bytes) !=
-								*((ulong *)&tptr->data[frame_bytes]))
+							/*	We trigger the dst to eat if minsnr exceeds at point of end of frame */
+							if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
 							{
-								dptr->superH->NIC_IFCS[k].IFC_CNTR_CSUM_ERR++;
+								fifo_enqueue(E, dptr, RX_FIFO, k);
 
-								if (dptr->superH->csumerr_intrenable_flag)
-								{
-									pic_intr_enqueue(dptr,
-										dptr->superH->nicintrQ,
-										NIC_CSUMERR_INTR,
-										k, 0);
-								}
-							}
-							else if (fifo_enqueue(dptr, RX_FIFO, k) == OK)
-							{
 								if (dptr->superH->rxok_intrenable_flag)
 								{
-									pic_intr_enqueue(dptr,
-									dptr->superH->nicintrQ,
-									NIC_RXOK_INTR, k, 0);
+									pic_intr_enqueue(E, dptr,
+										dptr->superH->nicintrQ,
+										NIC_RXOK_INTR, k, 0);
 								}
 
 								dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
+							}
+							else
+							{
+								/* snr too low, print debug warning if want to show these... */
 							}
 						}
 					}
@@ -856,20 +954,38 @@ network_clock()
 
 				if (SF_DEBUG && (tptr->bits_left < 0))
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"tptr->bits_left is < 0 (on a bcast): Should ne'er happen");
-					mexit("See above messages.", -1);
+					mexit(E, "See above messages.", -1);
 				}
 
 				if (tptr->bits_left == 0)
 				{
-					seg_dequeue(curseg, tptr);
+					/*							*/
+					/*	Clear the RX bit in state of all recepients on	*/
+					/*	this netseg.  There may be other buffers still	*/
+					/*	emptying out, but that is Ok since we keep 	*/
+					/*	setting the RX flag in the state repeatedly	*/
+					/*							*/
+					for (j = 0; j < curseg->num_attached; j++)
+					{
+						dptr = E->sp[curseg->node_ids[j]];
+						if (!dptr->runnable || (dptr == tptr->src_node))
+						{
+							continue;
+						}
+
+						// BUG: why k ?! we should be looping over all the IFCs (with index k)
+						dptr->superH->NIC_IFCS[k].IFC_STATE &= ~NIC_STATE_RX;
+					}
+
+					seg_dequeue(curseg, whichbuf);
 				}
 
 				/*	Source power consumption	*/
 				if (SF_POWER_ANALYSIS)
 				{
-					sptr->E.current_draw +=
+					sptr->energyinfo.current_draw +=
 						sptr->superH->NIC_IFCS[src_ifc].tx_pwr / sptr->VDD;
 				}
 
@@ -885,10 +1001,16 @@ network_clock()
 			/*									*/
 			for (k = 0; (dptr->runnable) && (k < dptr->superH->NIC_NUM_IFCS); k++)
 			{
-				if (dptr->superH->NIC_IFCS[k].segno == SIM_ACTIVE_NETSEGS[i])
+				if ((dptr->superH->NIC_IFCS[k].segno == E->activensegs[i]) &&
+						(dptr->superH->NIC_IFCS[k].IFC_STATE & NIC_STATE_LISTEN))
 				{
 					int	idx = dptr->superH->NIC_IFCS[k].rx_fifo_curidx;
 					int	offset = frame_bytes - (tptr->bits_left/8);
+
+
+					/*	Gets reset for all recipients when we dequeue segbuf	*/
+					dptr->superH->NIC_IFCS[k].IFC_STATE |= NIC_STATE_RX;
+
 
 					/*							*/
 					/*	Subscription to segment enforces framesize	*/
@@ -902,19 +1024,22 @@ network_clock()
 					/*							*/
 					if (curseg->sigsrc != NULL)
 					{
-						double snr = check_snr(curseg, sptr, dptr);
-						if (snr < curseg->minsnr)
-						{
-							/*	SNR is too low. Destination gets noise	*/
-							dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
-								tptr->data[offset] & mrandom();
-							mprint(NULL, siminfo,
-							 "Data corrupted in xmit due to low SNR\n");
-						}
-						else
+						double snr = check_snr(E, curseg, sptr, dptr);
+
+						if (snr > curseg->minsnr)
 						{
 							dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
 								tptr->data[offset];
+						}
+						else if (snr == curseg->minsnr)
+						{
+							/*	SNR at brink. Destination gets noise	*/
+							dptr->superH->NIC_IFCS[k].rx_fifo[idx][offset] =
+								tptr->data[offset] & mrandom(E);
+						}
+						else
+						{
+							/*	when snr is too low, dst gets nothing	*/
 						}
 					}
 					else
@@ -928,37 +1053,31 @@ network_clock()
 					/*							*/
 					if (SF_POWER_ANALYSIS)
 					{
-						dptr->E.current_draw +=
+						dptr->energyinfo.current_draw +=
 							dptr->superH->NIC_IFCS[k].rx_pwr / dptr->VDD;
 					}
 
 					/*	If about to become empty:	*/
 					if (tptr->bits_left == 8)
 					{
-						char *ptr = dptr->superH->NIC_IFCS[k].rx_fifo[idx];
+						dptr->superH->NIC_IFCS[k].rx_fifo_framesizes[idx] = tptr->actual_nbytes;
 
-						if (checksum(ptr, frame_bytes) !=
-							*((ulong *)&tptr->data[frame_bytes]))
+						if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
 						{
-							dptr->superH->NIC_IFCS[k].IFC_CNTR_CSUM_ERR++;
+							fifo_enqueue(E, dptr, RX_FIFO, k);
 
-							if (dptr->superH->csumerr_intrenable_flag)
-							{
-								pic_intr_enqueue(dptr,
-									dptr->superH->nicintrQ,
-									NIC_CSUMERR_INTR, k, 0);
-							}
-						}
-						else if (fifo_enqueue(dptr, RX_FIFO, k) == OK)
-						{
 							if (dptr->superH->rxok_intrenable_flag)
 							{
-								pic_intr_enqueue(dptr,
+								pic_intr_enqueue(E, dptr,
 								dptr->superH->nicintrQ,
 								NIC_RXOK_INTR, k, 0);
 							}
 
 							dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
+						}
+						else
+						{	
+							// snr too low, print debug warning if want to show these...
 						}
 					}
 				}
@@ -968,35 +1087,60 @@ network_clock()
 
 			if (SF_DEBUG && (tptr->bits_left < 0))
 			{
-				mprint(NULL, siminfo,
+				mprint(E, NULL, siminfo,
 					"tptr->bits_left is < 0 (for a unicast): should ne'er happen");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
 
 			if (tptr->bits_left == 0)
 			{
-				seg_dequeue(curseg, tptr);
+				/*							*/
+				/*	Clear the RX bit in state of all recepients on	*/
+				/*	this netseg.  There may be other buffers still	*/
+				/*	emptying out, but that is Ok since we keep 	*/
+				/*	setting the RX flag in the state repeatedly	*/
+				/*							*/
+				dptr->superH->NIC_IFCS[k].IFC_STATE &= ~NIC_STATE_RX;
+
+				seg_dequeue(curseg, whichbuf);
 			}
 
 			/*	Source power consumption	*/
 			if (SF_POWER_ANALYSIS)
 			{
-				sptr->E.current_draw += sptr->superH->NIC_IFCS[src_ifc].tx_pwr / sptr->VDD;
+				sptr->energyinfo.current_draw += sptr->superH->NIC_IFCS[src_ifc].tx_pwr / sptr->VDD;
 			}
 		}
-		curseg->lastactivate = SIM_GLOBAL_TIME;
+		curseg->lastactivate = E->globaltimepsec;
 	}
 
-	/*	Nodes -> Seg		*/
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	/*								*/
+	/*	Handle Nodes -> Seg transmission, and also handle	*/
+	/*	LISTEN and IDLE power.					*/
+	/*								*/
+	for (i = 0; i < E->nnodes; i++)
 	{
-		State* nptr = SIM_STATE_PTRS[i];
+		State* nptr = E->sp[i];
 
 		for (k = 0; k < nptr->superH->NIC_NUM_IFCS; k++)
 		{
 			if (nptr->superH->NIC_IFCS[k].IFC_TXFIFO_LEVEL > 0)
 			{
-				nptr->superH->NIC_IFCS[k].tx_fifo_retry_fxn(nptr, k);
+				nptr->superH->NIC_IFCS[k].tx_fifo_retry_fxn(E, nptr, k);
+			}
+
+			if (SF_POWER_ANALYSIS)
+			{
+				if (nptr->superH->NIC_IFCS[k].IFC_STATE == NIC_STATE_IDLE)
+				{
+					nptr->energyinfo.current_draw +=
+						nptr->superH->NIC_IFCS[k].idle_pwr / nptr->VDD;
+				}
+				else if (nptr->superH->NIC_IFCS[k].IFC_STATE == NIC_STATE_LISTEN)
+				{
+					nptr->energyinfo.current_draw +=
+						nptr->superH->NIC_IFCS[k].listen_pwr / nptr->VDD;
+				}
 			}
 		}
 	}
@@ -1006,7 +1150,7 @@ network_clock()
 }
 
 double
-check_snr(Netsegment *curseg, State *src_node, State *dst_node)
+check_snr(Engine *E, Netsegment *curseg, State *src_node, State *dst_node)
 {
 	int		whichbuf, i;
 	double		noise_signal = DBL_MIN, desired_signal = DBL_MIN;
@@ -1042,10 +1186,11 @@ check_snr(Netsegment *curseg, State *src_node, State *dst_node)
 	curseg->sigsrc->sample = 0;
 
 	/*	Add in all present signals of same type as curseg	*/
-	for (i = 0; i < SIM_NUM_SIGSRCS; i++)
+	for (i = 0; i < E->nsigsrcs; i++)
 	{
-		s = &SIM_SIGSRCS[i];
+		s = &E->sigsrcs[i];
 
+		/*	NOTE: for fixedsamples, nsamples will be 1	*/
 		if (s->nsamples <= 0 || s->type != curseg->sigsrc->type)
 		{
 			continue;
@@ -1076,18 +1221,18 @@ checksum(uchar *data, int datalen)
 
 
 int
-lookup_id(uchar *addr)
+lookup_id(Engine *E, uchar *addr)
 {
 	int 		i, j;
 			
 	if (!SF_NETWORK)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Networking disabled, and you want to do what !!! Exiting!\n");
-		mexit("See above messages.", -1);
+		mexit(E, "See above messages.", -1);
 	}
 
-	if (!strcmp(addr, "::1"))
+	if (!strcmp((char*)addr, "::1") || (addr[0] == 255))
 	{
 		/*								*/
 		/*	I can't convince myself that this is not disgusting. 	*/
@@ -1096,11 +1241,11 @@ lookup_id(uchar *addr)
 		return -2;
 	}
 
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	for (i = 0; i < E->nnodes; i++)
 	{
-		for (j = 0; j < SIM_STATE_PTRS[i]->superH->NIC_NUM_IFCS; j++)
+		for (j = 0; j < E->sp[i]->superH->NIC_NUM_IFCS; j++)
 		{
-			if (!strcmp(addr, SIM_STATE_PTRS[i]->superH->NIC_IFCS[j].IFC_OUI))
+			if (!strcmp((char *)addr, (char *)E->sp[i]->superH->NIC_IFCS[j].IFC_OUI))
 			{
 				return i;
 			}
@@ -1111,53 +1256,54 @@ lookup_id(uchar *addr)
 }
 
 void
-netsegcircbuf(Segbuf *segbuf)
+netsegcircbuf(Engine *E, Segbuf *segbuf)
 {
 	char	*buf;
-	int	i, n = 0;
+	int	bufsz, i, n = 0;
 
 
-	buf = &SIM_NETIO_BUF[SIM_NETIO_H2O][0];	
+	buf = &E->netiobuf[E->netioh2o][0];
+	bufsz = sizeof(E->netiobuf[0]);
 
-	n += sprintf(&buf[n], "Timestamp: %E\n", segbuf->timestamp);
+	n += msnprint(&buf[n], bufsz, "Timestamp: %E\n", segbuf->timestamp);
 
-	n += sprintf(&buf[n], "Data: ");
+	n += msnprint(&buf[n], bufsz, "Data: ");
 	for (i = 0; i < segbuf->bits_left/8; i++)
 	{
-		n += sprintf(&buf[n], "%02X ", segbuf->data[i]);
+		n += msnprint(&buf[n], bufsz, "%02X ", segbuf->data[i]);
 		if (!((i+1) % 24))
 		{
-			n += sprintf(&buf[n], "\n");
+			n += msnprint(&buf[n], bufsz, "\n");
 		}
 	}
-	n += sprintf(&buf[n], ".\n");
+	n += msnprint(&buf[n], bufsz, ".\n");
 
-	n += sprintf(&buf[n], "Bits left: 0x%08X\n", segbuf->bits_left);
-	n += sprintf(&buf[n], "Src node: 0x%08X\n", ((State *)segbuf->src_node)->NODE_ID);
+	n += msnprint(&buf[n], bufsz, "Bits left: 0x%08X\n", segbuf->bits_left);
+	n += msnprint(&buf[n], bufsz, "Src node: 0x%08X\n", ((State *)segbuf->src_node)->NODE_ID);
 
 	if (segbuf->bcast)
 	{
-		n += sprintf(&buf[n], "Dst node: 0x%08X\n", -2);
+		n += msnprint(&buf[n], bufsz, "Dst node: 0x%08X\n", -2);
 	}
 	else
 	{
-		n += sprintf(&buf[n], "Dst node: 0x%08X\n",
+		n += msnprint(&buf[n], bufsz, "Dst node: 0x%08X\n",
 			((State *)segbuf->dst_node)->NODE_ID);
 	}
 
-	n += sprintf(&buf[n], "Bcast flag: 0x%08X\n", segbuf->bcast);
-	n += sprintf(&buf[n], "Src ifc: 0x%08X\n", segbuf->src_ifc);
-	n += sprintf(&buf[n], "Parent netseg ID: 0x%08X\n", segbuf->parent_netsegid);
-	n += sprintf(&buf[n], "from_remote flag: 0x%08X\n", segbuf->from_remote);
-	n += sprintf(&buf[n], "\n\n\n\n");
+	n += msnprint(&buf[n], bufsz, "Bcast flag: 0x%08X\n", segbuf->bcast);
+	n += msnprint(&buf[n], bufsz, "Src ifc: 0x%08X\n", segbuf->src_ifc);
+	n += msnprint(&buf[n], bufsz, "Parent netseg ID: 0x%08X\n", segbuf->parent_netsegid);
+	n += msnprint(&buf[n], bufsz, "from_remote flag: 0x%08X\n", segbuf->from_remote);
+	n += msnprint(&buf[n], bufsz, "\n\n\n\n");
 
- 	SIM_NETIO_H2O++;
+ 	E->netioh2o++;
 
-	if (SIM_NETIO_H2O == MAX_NETIO_NBUFS)
+	if (E->netioh2o == MAX_NETIO_NBUFS)
 	{
-		memmove(SIM_NETIO_BUF[0], SIM_NETIO_BUF[1],
+		memmove(E->netiobuf[0], E->netiobuf[1],
 			(MAX_NETIO_NBUFS-1)*MAX_SEGBUF_TEXT);
-		SIM_NETIO_H2O--;
+		E->netioh2o--;
 	}
 
 
@@ -1165,17 +1311,25 @@ netsegcircbuf(Segbuf *segbuf)
 }
 
 void
-netsegdump(char *dumpname, Segbuf *segbuf)
+netsegdump(Engine *E, char *dumpname, Segbuf *segbuf)
 {
-	int	i, fd;
-	char	buf[MAX_SEGBUF_TEXT];
+	int	bufsz, i, fd;
+	char	*buf;
 
+
+	bufsz = MAX_SEGBUF_TEXT;
+        buf = (char *) mmalloc(E, bufsz,
+			"(char *)buf segbuf text in network-hitachi-sh.c");
+        if (buf == NULL)
+        {
+		mexit(E, "Malloc failed in network-hitachi-sh.c for \"buf\"...", -1);
+        }
 
 	/*	Create if not there, append if there:	*/
 	fd = mcreate(dumpname, M_OWRITE);
 	if (fd < 0)
 	{
-		mprint(NULL, siminfo, 
+		mprint(E, NULL, siminfo, 
 			"Could not open destination \"%s\" for NETSEG2FILE\n",
 			dumpname);
 
@@ -1183,49 +1337,49 @@ netsegdump(char *dumpname, Segbuf *segbuf)
 	}
 
 	/*	The fd was created w/ mopen(), so must write w/ mprintfd	*/
-	sprintf(buf, "Timestamp: %E\n", segbuf->timestamp);
+	msnprint(buf, bufsz, "Timestamp: %E\n", segbuf->timestamp);
 	mprintfd(fd, buf);
 
-	sprintf(buf, "Data: ");
+	msnprint(buf, bufsz, "Data: ");
 	mprintfd(fd, buf);
 	for (i = 0; i < segbuf->bits_left/8; i++)
 	{
-		sprintf(buf, "%02X ", segbuf->data[i]);
+		msnprint(buf, bufsz, "%02X ", segbuf->data[i]);
 		mprintfd(fd, buf);
 		if (!((i+1) % 24))
 		{
-			sprintf(buf, "\n");
+			msnprint(buf, bufsz, "\n");
 			mprintfd(fd, buf);
 		}
 	}
-	sprintf(buf, ".\n");
+	msnprint(buf, bufsz, ".\n");
 
 	mprintfd(fd, buf);
-	sprintf(buf, "Bits left: 0x%08X\n", segbuf->bits_left);
+	msnprint(buf, bufsz, "Bits left: 0x%08X\n", segbuf->bits_left);
 	mprintfd(fd, buf);
-	sprintf(buf, "Src node: 0x%08X\n", ((State *)segbuf->src_node)->NODE_ID);
+	msnprint(buf, bufsz, "Src node: 0x%08X\n", ((State *)segbuf->src_node)->NODE_ID);
 	mprintfd(fd, buf);
 
 	if (segbuf->bcast)
 	{
-		sprintf(buf, "Dst node: 0x%08X\n", -2);
+		msnprint(buf, bufsz, "Dst node: 0x%08X\n", -2);
 		mprintfd(fd, buf);
 	}
 	else
 	{
-		sprintf(buf, "Dst node: 0x%08X\n", ((State *)segbuf->dst_node)->NODE_ID);
+		msnprint(buf, bufsz, "Dst node: 0x%08X\n", ((State *)segbuf->dst_node)->NODE_ID);
 		mprintfd(fd, buf);
 	}
 
-	sprintf(buf, "Bcast flag: 0x%08X\n", segbuf->bcast);
+	msnprint(buf, bufsz, "Bcast flag: 0x%08X\n", segbuf->bcast);
 	mprintfd(fd, buf);
-	sprintf(buf, "Src ifc: 0x%08X\n", segbuf->src_ifc);
+	msnprint(buf, bufsz, "Src ifc: 0x%08X\n", segbuf->src_ifc);
 	mprintfd(fd, buf);
-	sprintf(buf, "Parent netseg ID: 0x%08X\n", segbuf->parent_netsegid);
+	msnprint(buf, bufsz, "Parent netseg ID: 0x%08X\n", segbuf->parent_netsegid);
 	mprintfd(fd, buf);
-	sprintf(buf, "from_remote flag: 0x%08X\n", segbuf->from_remote);
+	msnprint(buf, bufsz, "from_remote flag: 0x%08X\n", segbuf->from_remote);
 	mprintfd(fd, buf);
-	sprintf(buf, "\n\n\n\n");
+	msnprint(buf, bufsz, "\n\n\n\n");
 	mprintfd(fd, buf);
 
 	mclose(fd);
@@ -1235,7 +1389,7 @@ netsegdump(char *dumpname, Segbuf *segbuf)
 }
 
 int
-parsenetsegdump(char *buf, Segbuf *segbuf)
+parsenetsegdump(Engine *E, char *buf, Segbuf *segbuf)
 {
 	int	i = 0, off = 0, tmp;
 
@@ -1264,17 +1418,17 @@ parsenetsegdump(char *buf, Segbuf *segbuf)
 
 	sscanf(buf+off, "Src node: 0x%8X\n", &tmp);
 	off += strlen("Src node: 0xXXXXXXXX\n");
-	if (tmp < SIM_NUM_NODES && tmp >= 0)
+	if (tmp < E->nnodes && tmp >= 0)
 	{
-		segbuf->src_node = SIM_STATE_PTRS[tmp];
+		segbuf->src_node = E->sp[tmp];
 	}
 
 	sscanf(buf+off, "Dst node: 0x%8X\n", &tmp);
 	off += strlen("Dst node: 0xXXXXXXXX\n");
 
-	if (tmp < SIM_NUM_NODES && tmp >= 0)
+	if (tmp < E->nnodes && tmp >= 0)
 	{
-		segbuf->dst_node = SIM_STATE_PTRS[tmp];
+		segbuf->dst_node = E->sp[tmp];
 	}
 
 	sscanf(buf+off, "Bcast flag: 0x%8X\n", &segbuf->bcast);
@@ -1289,34 +1443,34 @@ parsenetsegdump(char *buf, Segbuf *segbuf)
 	sscanf(buf+off, "from_remote flag: 0x%8X\n", &segbuf->from_remote);
 	off += strlen("from_remote flag: 0xXXXXXXXX\n");
 
-	//netsegdump("/tmp/parsenetsegdebug", segbuf);
+	//netsegdump(E, "/tmp/parsenetsegdebug", segbuf);
 
 
 	return off;
 }
 
 void
-network_netseg2file(int which, char *filename)
+network_netseg2file(Engine *E, int which, char *filename)
 {
 	Netsegment	*tptr;
 
 
-	if (which >= SIM_NUM_NET_SEGMENTS)
+	if (which >= E->nnetsegs)
 	{
-		merror("Network segment, [%d] is out of range.", which);
+		merror(E, "Network segment, [%d] is out of range.", which);
 
 		return;
 	}
 
-	tptr = &SIM_NET_SEGMENTS[which];
+	tptr = &E->netsegs[which];
 	tptr->seg2filenames[tptr->num_seg2files] = 
-		mcalloc(strlen(filename)+1,
+		mcalloc(E, strlen(filename)+1,
 		sizeof(char),
 		"mcalloc() for tptr->seg2filenames[n] in shasm.y");
 
 	if (tptr->seg2filenames[tptr->num_seg2files] == NULL)
 	{
-		merror("Could not allocate memory for tptr->seg2filenames[].");
+		merror(E, "Could not allocate memory for tptr->seg2filenames[].");
 	}
 	else
 	{
@@ -1329,38 +1483,38 @@ network_netseg2file(int which, char *filename)
 
 
 void
-network_file2netseg(char *file, int whichseg)
+network_file2netseg(Engine *E, char *file, int whichseg)
 {
 	return;
 }
 
 void
-network_netsegpropmodel(int whichseg, int whichmodel, double minsnr)
+network_netsegpropmodel(Engine *E, int whichseg, int whichmodel, double minsnr)
 {
 	Netsegment	*tptr;
 
 	if (whichseg >= MAX_NETSEGMENTS)
 	{
-		merror("Invalid netseg ID [%d] specified in \"netsegpropmodel\" command.",
+		merror(E, "Invalid netseg ID [%d] specified in \"netsegpropmodel\" command.",
 			whichseg);
 		return;
 	}
 	else if (whichmodel >= MAX_SIGNAL_SRCS)
 	{
-		merror("Invalid sigsrc ID [%d] specified in \"netsegpropmodel\" command\n",
+		merror(E, "Invalid sigsrc ID [%d] specified in \"netsegpropmodel\" command\n",
 			whichmodel);
 		return;
 	}
 
-	tptr = &SIM_NET_SEGMENTS[whichseg];
-	tptr->sigsrc = &SIM_SIGSRCS[whichmodel];
+	tptr = &E->netsegs[whichseg];
+	tptr->sigsrc = &E->sigsrcs[whichmodel];
 	tptr->minsnr = minsnr;
 
 	return;
 }
 
 void
-network_netnewseg(int which, int framebits, int pgnspeed, int bitrate, int width, 
+network_netnewseg(Engine *E, int which, int framebits, int pgnspeed, int bitrate, int width, 
 		int fpdist, double fpdistmu, double fpdistsigma, double fpdistlambda,
 		int fddist, double fddistmu, double fddistsigma, double fddistlambda)
 {
@@ -1369,31 +1523,31 @@ network_netnewseg(int which, int framebits, int pgnspeed, int bitrate, int width
 
 	if (which >= MAX_NETSEGMENTS)
 	{
-		merror("Segment # > max. number of network segments.");
+		merror(E, "Segment # > max. number of network segments.");
 		return;
 	}
 
 	if (framebits/8 > MAX_FRAMEBYTES)
 	{
-		merror("Segment frame size is larger than max allowed.");
+		merror(E, "Segment frame size is larger than max allowed.");
 		return;
 	}
 
-	if (!SIM_NET_SEGMENTS[which].valid)
+	if (!E->netsegs[which].valid)
 	{
-		which = SIM_NUM_NET_SEGMENTS++;
+		which = E->nnetsegs++;
 
 		if (which >= MAX_NETSEGMENTS)
 		{
-			merror("Maximum number of network segments reached.");
+			merror(E, "Maximum number of network segments reached.");
 			return;
 		}
 
-		SIM_NET_SEGMENTS[which].valid = 1;
-		SIM_ACTIVE_NETSEGS[SIM_NUM_ACTIVE_NETSEGS++] = which;
+		E->netsegs[which].valid = 1;
+		E->activensegs[E->nactivensegs++] = which;
 	}
 
-	tptr = &SIM_NET_SEGMENTS[which];
+	tptr = &E->netsegs[which];
 
 	tptr->frame_bits = framebits;
 	tptr->propagation_speed = pgnspeed;
@@ -1402,18 +1556,18 @@ network_netnewseg(int which, int framebits, int pgnspeed, int bitrate, int width
 	tptr->queue_max_width = width;
 	if (tptr->queue_max_width == 0)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Queue width of 0 deprecated. Upgraded to width 1\n");
 		tptr->queue_max_width = 1;
 	}
 
 	tptr->NETSEG_ID = which; 
 
-	tptr->segbufs = (Segbuf *)mcalloc(tptr->queue_max_width, sizeof(Segbuf),
+	tptr->segbufs = (Segbuf *)mcalloc(E, tptr->queue_max_width, sizeof(Segbuf),
 				"(Segbuf *)tptr->segbufs in shasm.y");
 	if (tptr->segbufs == NULL)
 	{
-		merror("mcalloc failed for (Segbuf *)tptr->segbufs in shasm.y.");
+		merror(E, "mcalloc failed for (Segbuf *)tptr->segbufs in shasm.y.");
 		return;
 	}
 
@@ -1427,107 +1581,125 @@ network_netnewseg(int which, int framebits, int pgnspeed, int bitrate, int width
 	tptr->failure_duration_dist.sigma = fddistsigma;
 	tptr->failure_duration_dist.lambda = fddistlambda;
 
-	fault_setnetsegpfun(tptr, "urnd");
+	fault_setnetsegpfun(E, tptr, "urnd");
 	tptr->num_attached = 0;
 	tptr->num_seg2files = 0;
 	
 	tptr->lastactivate = 0;
 	tptr->bytedelay = 8.0/((double)tptr->bitrate);
 
-	SIM_NETWORK_PERIOD = min(SIM_NETWORK_PERIOD, tptr->bytedelay);
+	E->netperiodpsec = min(E->netperiodpsec, tptr->bytedelay);
 
 	return;
 }
 
 void
-network_netsegnicattach(State *S, int whichifc, int whichseg)
+network_netsegnicattach(Engine *E, State *S, int whichifc, int whichseg)
 {
 	int i;
 
 
 	if (whichifc >= NIC_MAX_IFCS)
 	{
-		merror("IFC # > max. number of IFCs.");
+		merror(E, "IFC # > max. number of IFCs.");
 		return;
 	}
 
 	if (whichseg >= MAX_NETSEGMENTS)
 	{
-		merror("Segment # > max. number of network segments.");
+		merror(E, "Segment # > max. number of network segments.");
 		return;
 	}
 
-	if (SIM_NET_SEGMENTS[whichseg].num_attached >= MAX_SEGNODES)
+	if (E->netsegs[whichseg].num_attached >= MAX_SEGNODES)
 	{
-		merror("Maximum number of node IFCs attached to segment.");
+		merror(E, "Maximum number of node IFCs attached to segment.");
 		return;
 	}
 
-	SIM_NET_SEGMENTS[whichseg].node_ids[SIM_NET_SEGMENTS[whichseg].num_attached++] =
+	E->netsegs[whichseg].node_ids[E->netsegs[whichseg].num_attached++] =
 		S->NODE_ID;
 
 	S->superH->NIC_IFCS[whichifc].segno = whichseg;
- 	S->superH->NIC_IFCS[whichifc].frame_bits = SIM_NET_SEGMENTS[whichseg].frame_bits;
+ 	S->superH->NIC_IFCS[whichifc].frame_bits = E->netsegs[whichseg].frame_bits;
 
 	/*	NIC_BRR contains network speed in Kb/s		*/
-	S->superH->NIC_IFCS[whichifc].IFC_BRR = SIM_NET_SEGMENTS[whichseg].bitrate/1024;
+	S->superH->NIC_IFCS[whichifc].IFC_BRR = E->netsegs[whichseg].bitrate/1024;
 
 
 	S->superH->NIC_IFCS[whichifc].rx_fifo =
-		(uchar **)mcalloc(S->superH->NIC_IFCS[whichifc].rx_fifo_size,
+		(uchar **)mcalloc(E, S->superH->NIC_IFCS[whichifc].rx_fifo_size,
 		sizeof(uchar *), "shasm.y, (uchar **) for T_NETSEGNICATTACH");
 
 	if (S->superH->NIC_IFCS[whichifc].rx_fifo == NULL)
 	{
-		merror("Could not allocate memory for rx_fifo[].");
+		merror(E, "Could not allocate memory for rx_fifo[].");
 		return;
 	}
 
 	for (i = 0; i < S->superH->NIC_IFCS[whichifc].rx_fifo_size; i++)
 	{
 		S->superH->NIC_IFCS[whichifc].rx_fifo[i] =
-			(uchar *)mcalloc(SIM_NET_SEGMENTS[whichseg].frame_bits/8,
+			(uchar *)mcalloc(E, E->netsegs[whichseg].frame_bits/8,
 			sizeof(uchar), "shasm.y, (uchar *) for T_NETSEGNICATTACH");
 
 		if (S->superH->NIC_IFCS[whichifc].rx_fifo[i] == NULL)
 		{
-			merror("Could not allocate memory for rx_fifo entry.");
+			merror(E, "Could not allocate memory for rx_fifo entry.");
 			return;
 		}
 	}
 
 
 	S->superH->NIC_IFCS[whichifc].tx_fifo =
-		(uchar **)mcalloc(S->superH->NIC_IFCS[whichifc].tx_fifo_size, sizeof(uchar *),
+		(uchar **)mcalloc(E, S->superH->NIC_IFCS[whichifc].tx_fifo_size, sizeof(uchar *),
 		"shasm.y, (uchar **) for T_NETSEGNICATTACH");
 				
 	if (S->superH->NIC_IFCS[whichifc].tx_fifo == NULL)
 	{
-		merror("Could not allocate memory for tx_fifo[].");
+		merror(E, "Could not allocate memory for tx_fifo[].");
 		return;
 	}
 
 	for (i = 0; i < S->superH->NIC_IFCS[whichifc].tx_fifo_size; i++)
 	{
 		S->superH->NIC_IFCS[whichifc].tx_fifo[i] =\
-			(uchar *)mcalloc(SIM_NET_SEGMENTS[whichseg].frame_bits/8, sizeof(uchar),
+			(uchar *)mcalloc(E, E->netsegs[whichseg].frame_bits/8, sizeof(uchar),
 			"shasm.y, (uchar *) for T_NETSEGNICATTACH");
 
 		if (S->superH->NIC_IFCS[whichifc].tx_fifo[i] == NULL)
 		{
-			merror("Could not allocate memory for tx_fifo entry.");
+			merror(E, "Could not allocate memory for tx_fifo entry.");
 			return;
 		}
 	}
 
+	S->superH->NIC_IFCS[whichifc].tx_fifo_framesizes =
+		(int *)mcalloc(E, S->superH->NIC_IFCS[whichifc].tx_fifo_size,
+		sizeof(int), "network-hitachi-sh.c, (int *) for tx_fifo_framesizes");
+	if (S->superH->NIC_IFCS[whichifc].tx_fifo_framesizes == NULL)
+	{
+		merror(E, "Could not allocate memory for tx_fifo_framesizes[].");
+		return;
+	}
+
+	S->superH->NIC_IFCS[whichifc].rx_fifo_framesizes =
+		(int *)mcalloc(E, S->superH->NIC_IFCS[whichifc].rx_fifo_size,
+		sizeof(int), "network-hitachi-sh.c, (int *) for rx_fifo_framesizes");
+	if (S->superH->NIC_IFCS[whichifc].rx_fifo_framesizes == NULL)
+	{
+		merror(E, "Could not allocate memory for rx_fifo_framesizes[].");
+		return;
+	}
+
 	/*	Local buffer for RX only	*/
 	S->superH->NIC_IFCS[whichifc].rx_localbuf =
-		(uchar *)mcalloc(S->superH->NIC_IFCS[whichifc].frame_bits/8, sizeof(uchar),
+		(uchar *)mcalloc(E, S->superH->NIC_IFCS[whichifc].frame_bits/8, sizeof(uchar),
 		"shasm.y, (uchar *) for S->superH->NIC_IFCS[whichifc].rx_localbuf");
 			
 	if (S->superH->NIC_IFCS[whichifc].rx_localbuf == NULL)
 	{
-		merror("Could not allocate memory for rx_localbuf[].");
+		merror(E, "Could not allocate memory for rx_localbuf[].");
 		return;
 	}
 
@@ -1539,13 +1711,13 @@ network_netsegnicattach(State *S, int whichifc, int whichseg)
 
 void
 network_netnodenewifc(
-	State *S, int which, double txpwr, double rxpwr, double idlepwr,
+	Engine *E, State *S, int which, double txpwr, double rxpwr, double idlepwr, double listenpwr,
 	int fpdist, int fpdistmu, int fpdistsigma, int fpdistlambda,
 	int txfifosz, int rxfifosz)
 {
 	if (which >= NIC_MAX_IFCS)
 	{
-		merror("Invalid node IFC number.");
+		merror(E, "Invalid node IFC number.");
 		return;
 	}
 
@@ -1558,6 +1730,7 @@ network_netnodenewifc(
 	S->superH->NIC_IFCS[which].tx_pwr = txpwr;
 	S->superH->NIC_IFCS[which].rx_pwr = rxpwr;
 	S->superH->NIC_IFCS[which].idle_pwr = idlepwr;
+	S->superH->NIC_IFCS[which].listen_pwr = listenpwr;
 	S->superH->NIC_IFCS[which].failure_dist.distribution = fpdist;
 	S->superH->NIC_IFCS[which].failure_dist.mu = fpdistmu;
 	S->superH->NIC_IFCS[which].failure_dist.sigma = fpdistsigma;
@@ -1577,32 +1750,32 @@ network_netnodenewifc(
 
 	/*	The default alg. is binary exp.		*/
 	S->superH->NIC_IFCS[which].tx_fifo_retry_fxn = tx_retryalg_binexp;
-	snprintf(&S->superH->NIC_IFCS[which].IFC_OUI[0], NIC_ADDR_LEN, "%d", S->NODE_ID);
+	msnprint((char*)&S->superH->NIC_IFCS[which].IFC_OUI[0], NIC_ADDR_LEN, "%d", S->NODE_ID);
 		
 
 	return;	
 }
 
 void
-network_netsegdelete(int whichseg)
+network_netsegdelete(Engine *E, int whichseg)
 {
 	int	i;
 
 	if (whichseg >= MAX_NETSEGMENTS)
 	{
-		merror("Segment # (%d) > max. number of network segments.", whichseg);
+		merror(E, "Segment # (%d) > max. number of network segments.", whichseg);
 		return;
 	}
 
-	SIM_NET_SEGMENTS[whichseg].valid = 0;
+	E->netsegs[whichseg].valid = 0;
 
-	for (i = 0; i < SIM_NUM_ACTIVE_NETSEGS; i++)
+	for (i = 0; i < E->nactivensegs; i++)
 	{
-		if (SIM_ACTIVE_NETSEGS[i] == whichseg)
+		if (E->activensegs[i] == whichseg)
 		{
-			SIM_ACTIVE_NETSEGS[i] = SIM_ACTIVE_NETSEGS[SIM_NUM_ACTIVE_NETSEGS-1];
-			SIM_ACTIVE_NETSEGS[SIM_NUM_ACTIVE_NETSEGS-1] = 0;
-			SIM_NUM_ACTIVE_NETSEGS--;
+			E->activensegs[i] = E->activensegs[E->nactivensegs - 1];
+			E->activensegs[E->nactivensegs - 1] = 0;
+			E->nactivensegs--;
 		}
 	}
 
@@ -1611,115 +1784,124 @@ network_netsegdelete(int whichseg)
 
 
 void
-network_netdebug(State *S)
+network_netdebug(Engine *E, State *S)
 {
 	Ifc	*ifcptr;
 	int	i;
 
 
-	mprint(S, nodeinfo, "\nNode has [%d] active interfaces\n",
+	mprint(E, S, nodeinfo, "\nNode has [%d] active interfaces\n",
 		S->superH->NIC_NUM_IFCS);
 
 	for (i = 0; i < S->superH->NIC_NUM_IFCS; i++)
 	{
 		ifcptr = &S->superH->NIC_IFCS[i];
 
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"NIC_OUI\" is [%s]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"NIC_OUI\" is [%s]\n",
 			i, ifcptr->IFC_OUI);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"NIC_DST\" is [%s]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"NIC_DST\" is [%s]\n",
 			i, ifcptr->IFC_DST);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"valid\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"valid\" is [%d]\n",
 			i, ifcptr->valid);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_pwr\" is [%E]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_pwr\" is [%E]\n",
 			i, ifcptr->tx_pwr);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_pwr\" is [%E]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_pwr\" is [%E]\n",
 			i, ifcptr->rx_pwr);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"idle_pwr\" is [%E]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"idle_pwr\" is [%E]\n",
 			i, ifcptr->idle_pwr);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"fail_prob\" is [%E]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"fail_prob\" is [%E]\n",
 			i, ifcptr->fail_prob);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"fail_clocks_left\" is [" UVLONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"fail_clocks_left\" is [" UVLONGFMT "]\n",
 			i, ifcptr->fail_clocks_left);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"frame_bits\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"frame_bits\" is [" INTFMT "]\n",
 			i, ifcptr->frame_bits);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"segno\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"segno\" is [" INTFMT "]\n",
 			i, ifcptr->segno);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_localbuf_h2o\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_localbuf_h2o\" is [" INTFMT "]\n",
 			i, ifcptr->rx_localbuf_h2o);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_size\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_size\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_fifo_size);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_size\" is [%d]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_size\" is [" UINTFMT "]\n",
 			i, ifcptr->rx_fifo_size);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_curidx\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_curidx\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_fifo_curidx);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_curidx\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_curidx\" is [" UINTFMT "]\n",
 			i, ifcptr->rx_fifo_curidx);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_oldestidx\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_oldestidx\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_fifo_oldestidx);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_oldestidx\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_oldestidx\" is [" UINTFMT "]\n",
 			i, ifcptr->rx_fifo_oldestidx);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_h2o\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_h2o\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_fifo_h2o);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_maxoccupancy\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_fifo_maxoccupancy\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_fifo_maxoccupancy);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_maxoccupancy\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"rx_fifo_maxoccupancy\" is [" UINTFMT "]\n",
 			i, ifcptr->rx_fifo_maxoccupancy);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"tx_alg_retries\" is [%ud]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"tx_alg_retries\" is [" UINTFMT "]\n",
 			i, ifcptr->tx_alg_retries);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"fifo_nextretry_time\" is [%E]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"fifo_nextretry_time\" is [%E]\n",
 			i, ifcptr->fifo_nextretry_time);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_FSZ\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_FSZ\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_FSZ);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_RDR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_RDR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_RDR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_NSR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_NSR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_NSR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_TDR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_TDR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_TDR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_NCR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_NCR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_NCR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_BRR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_BRR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_BRR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_NMR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_NMR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_NMR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXOK\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXOK\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_TXOK);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXOK\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXOK\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_RXOK);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_ADDR_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_ADDR_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_ADDR_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_FRAME_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_FRAME_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_FRAME_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_COLL_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_COLL_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_COLLS_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_CSENSE_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_CSENSE_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_CSENSE_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXOVRRUN_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXOVRRUN_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_RXOVRRUN_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXUNDRRUN_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_RXUNDRRUN_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_RXUNDRRUN_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXOVRRUN_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXOVRRUN_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_TXOVRRUN_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXUNDRRUN_ERR\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_CNTR_TXUNDRRUN_ERR\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_CNTR_TXUNDRRUN_ERR);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_TXFIFO_LEVEL\" is [" ULONGFMT "]\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_TXFIFO_LEVEL\" is [" ULONGFMT "]\n",
 			i, ifcptr->IFC_TXFIFO_LEVEL);
-		mprint(S, nodeinfo, "\t\tIFC [%d] \"IFC_RXFIFO_LEVEL\" is [" ULONGFMT "]\n\n",
+		mprint(E, S, nodeinfo, "\t\tIFC [%d] \"IFC_RXFIFO_LEVEL\" is [" ULONGFMT "]\n\n",
 			i, ifcptr->IFC_RXFIFO_LEVEL);
+	
 	}
 
-	mprint(S, nodeinfo, "\nSIM_GLOBAL_TIME = %E\n", SIM_GLOBAL_TIME);
+	/*											*/
+	/*	If sim quantum is > 0, this might be Inf (which is OK), however, in that	*/
+	/*	case we may not want to print it out. (Or maybe somehow ensure that time	*/
+	/*	is always valid even in case of large quantum.					*/
+	/*											*/
+	if (E->globaltimepsec < PICOSEC_MAX)
+	{
+		mprint(E, S, nodeinfo, "\nGlobal time = "UVLONGFMT"\n", E->globaltimepsec);
+	}
 
-	mprint(S, nodeinfo,
+	mprint(E, S, nodeinfo,
 		"Total of " UVLONGFMT " bytes sent in simulation (all nodes)\n\n",
-		SIM_NIC_BYTES_SENT);
+		E->nicsimbytes);
 		
 
 	return;	
 }
 
 void
-network_setretryalg(State *S, int which, char *alg)
+network_setretryalg(Engine *E, State *S, int which, char *alg)
 {
 	if (!strcmp(alg, "asap"))
 	{
@@ -1733,9 +1915,13 @@ network_setretryalg(State *S, int which, char *alg)
 	{
 		S->superH->NIC_IFCS[which].tx_fifo_retry_fxn = tx_retryalg_binexp;
 	}
+	else if (!strcmp(alg, "none"))
+	{
+		S->superH->NIC_IFCS[which].tx_fifo_retry_fxn = tx_retryalg_none;
+	}
 	else
 	{
-		merror("Invalid Retry Algorithm supplied\n");
+		merror(E, "Invalid Retry Algorithm supplied\n");
 	}
 
 	return;

@@ -174,7 +174,11 @@ struct Sensor
 	/*		Which sensor are we:			*/
 	int		which;		
 	
-	double		reading;
+	/*							*/
+	/*		Doesn't make sense to have the sensor	*/
+	/*	values be double precision.			*/
+	/*							*/
+	float		reading;
 };
 
 struct Actuator

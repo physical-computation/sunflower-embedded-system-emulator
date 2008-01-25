@@ -87,16 +87,16 @@ typedef struct
 #define	update_energy(op, Rm, Rn)\
 	if ((S->force_sleeppwr != 0.0) && S->sleep)\
 	{\
-		S->E.CPUEtot += S->force_sleeppwr*S->CYCLETIME;\
-		S->E.current_draw += S->force_sleeppwr/S->VDD;\
+		S->energyinfo.CPUEtot += S->force_sleeppwr*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->force_sleeppwr/S->VDD;\
 	}\
 	else if (S->force_avgpwr != 0.0)\
 	{\
-		S->E.CPUEtot += S->force_avgpwr*S->CYCLETIME;\
-		S->E.current_draw += S->force_avgpwr/S->VDD;\
+		S->energyinfo.CPUEtot += S->force_avgpwr*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->force_avgpwr/S->VDD;\
 	}\
 	else\
 	{\
-		S->E.CPUEtot += S->scaledcurrents[op]*S->VDD*S->CYCLETIME;\
-		S->E.current_draw += S->scaledcurrents[op];\
+		S->energyinfo.CPUEtot += S->scaledcurrents[op]*S->VDD*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->scaledcurrents[op];\
 	}

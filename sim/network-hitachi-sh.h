@@ -48,6 +48,15 @@ enum
 	NIC_HDRLEN		= 37,
 	NIC_NCR_READ		= 0,
 	NIC_NCR_WRITE		= 1,
+
+	NIC_CMD_POWERUP		= 0,
+	NIC_CMD_POWERDN		= 1,
+	NIC_CMD_TRANSMIT	= 2,
+
+	NIC_STATE_IDLE		= 1<<0,
+	NIC_STATE_LISTEN	= 1<<1,
+	NIC_STATE_TX		= 1<<2,
+	NIC_STATE_RX		= 1<<3,
 };
 
 enum
@@ -84,6 +93,11 @@ typedef struct
 	/*						*/
 	double		idle_pwr;
 
+	/*						*/
+	/*	Listen power consumption (Watts)	*/
+	/*						*/
+	double		listen_pwr;
+
 	double		fail_prob;
 	Pdist		failure_dist;
 	Pdist		failure_duration_dist;
@@ -98,10 +112,19 @@ typedef struct
 	uchar		**rx_fifo;
 	uchar		**tx_fifo;
 
+	/*							*/
+	/*	The FIFO entries are each sized for maximum	*/
+	/*	frame size.  We maintain the actual frame	*/
+	/*	sizes separately.				*/
+	/*							*/
+	int		*rx_fifo_framesizes;
+	int		*tx_fifo_framesizes;
+
 	
 	/*	For receive only, a further level of buffering	*/
 	uchar		*rx_localbuf;
 	int		rx_localbuf_h2o;
+	int		rx_localbuf_framesize;
 
 
 	/*	Interface can hold multiple incoming frames	*/
@@ -159,12 +182,14 @@ typedef struct
 	ulong		IFC_TXFIFO_LEVEL;
 	ulong		IFC_RXFIFO_LEVEL;
 
+		/*	Track idle/listen/rx/tx	*/
+	ulong		IFC_STATE;
 
 	/*	Pointer to function for failure prob dist	*/
-	uvlong 		(*pfun)(void *, char *, uvlong);
+	uvlong 		(*pfun)(void *, void *, char *, uvlong);
 
 	/*	Pointer to function for retry algorithm.	*/
-	void		(*tx_fifo_retry_fxn)(void *, int);
+	void		(*tx_fifo_retry_fxn)(void *, void *, int);
 } Ifc;
 
 
@@ -180,6 +205,7 @@ struct Segbuf
 	/*	of MAXFRAMEBYTES to not inlcude cksum.	*/
 	/*						*/
 	uchar	data[MAX_FRAMEBYTES + 4];
+	int	actual_nbytes;
 
 	/*	How many bits remain to be emptied	*/
 	int	bits_left;
@@ -272,7 +298,7 @@ typedef struct
 
 
 	/*	Pointer to function for failure prob dist	*/
-	uvlong 		(*pfun)(void *, char *, uvlong);
+	uvlong 		(*pfun)(void *, void *, char *, uvlong);
 } Netsegment;
 
 

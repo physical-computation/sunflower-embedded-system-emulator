@@ -36,162 +36,159 @@
 #include <string.h>
 #include <assert.h>
 #include "sf.h"
-#include "mmalloc.h"
 
 
-MMemblock	memblocks[MMALLOC_MAXALLOCBLOCKS];
-int		nmemblocks = 0;
 
-void		allocaccounting(Maddr addr, char *ID);
-void		reallocaccounting(Maddr addr, void *oldaddr, char *ID);
+void		allocaccounting(Engine *, Maddr addr, char *ID);
+void		reallocaccounting(Engine *, Maddr addr, void *oldaddr, char *ID);
 
 
 tuck void
-allocaccounting(Maddr addr, char *ID)
+allocaccounting(Engine *E, Maddr addr, char *ID)
 {
 	int	i;
 
 
 	if (addr == 0)
 	{
-		mprint(NULL, siminfo, "malloc/calloc failed for \"%s\"\n", ID);
-		mmblocksdisplay();
+		mprint(E, NULL, siminfo, "malloc/calloc failed for \"%s\"\n", ID);
+		mmblocksdisplay(E);
 
-		mexit("", -1);
+		mexit(E, "", -1);
 	}
 
-	if (nmemblocks == MMALLOC_MAXALLOCBLOCKS)
+	if (E->nmemblocks == MMALLOC_MAXALLOCBLOCKS)
 	{
-		mprint(NULL, siminfo, "Ran out of memblocks. Exiting...\n");
-		mmblocksdisplay();
+		mprint(E, NULL, siminfo, "Ran out of memblocks. Exiting...\n");
+		mmblocksdisplay(E);
 
-		mexit("", -1);
+		mexit(E, "", -1);
 	}
 
-	for (i = 0; i < nmemblocks; i++)
+	for (i = 0; i < E->nmemblocks; i++)
 	{
-		if (!strncmp(memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN))
+		if (!strncmp(E->memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN))
 		{
-			int	nentries = memblocks[i].allocs - memblocks[i].frees;
+			int	nentries = E->memblocks[i].allocs - E->memblocks[i].frees;
 
 			if (nentries >= MMALLOC_MAXALLOCS)
 			{
-				mprint(NULL, siminfo,
+				mprint(E, NULL, siminfo,
 					"Ran out of memblock[].addrs[]. Exiting...\n");
-				mmblocksdisplay();
-				mexit("", -1);
+				mmblocksdisplay(E);
+				mexit(E, "", -1);
 			}
 
-			memblocks[i].addrs[nentries] = addr;
-			memblocks[i].allocs++;
+			E->memblocks[i].addrs[nentries] = addr;
+			E->memblocks[i].allocs++;
 				
 			return;
 		}
 	}
 
-	strncpy(memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN);
+	strncpy(E->memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN);
 
-	if (!memblocks[i].mallocd)
+	if (!E->memblocks[i].mallocd)
 	{
-		memblocks[i].addrs = (uvlong *)calloc(MMALLOC_MAXALLOCS, sizeof(Maddr));
-		if (memblocks[i].addrs == NULL)
+		E->memblocks[i].addrs = (uvlong *)calloc(MMALLOC_MAXALLOCS, sizeof(Maddr));
+		if (E->memblocks[i].addrs == NULL)
 		{
-			mprint(NULL, siminfo,
+			mprint(E, NULL, siminfo,
 				"Could not allocate memory for (Maddr *)memblocks[i].addrs\n");
-			mexit("", -1);
+			mexit(E, "", -1);
 		}
-		memblocks[i].mallocd = 1;
+		E->memblocks[i].mallocd = 1;
 	}
 
-	memblocks[i].addrs[0] = addr;
-	memblocks[i].allocs = 1;
-	memblocks[i].frees = 0;
-	memblocks[i].reallocs = 0;
-	memblocks[i].valid = 1;
+	E->memblocks[i].addrs[0] = addr;
+	E->memblocks[i].allocs = 1;
+	E->memblocks[i].frees = 0;
+	E->memblocks[i].reallocs = 0;
+	E->memblocks[i].valid = 1;
 
-	nmemblocks++;
+	E->nmemblocks++;
 
 
 	return;
 }
 
 tuck void
-reallocaccounting(Maddr addr, void *oldaddr, char *ID)
+reallocaccounting(Engine *E, Maddr addr, void *oldaddr, char *ID)
 {
 	int	i;
 
 
 	if (addr == 0)
 	{
-		mprint(NULL, siminfo, "realloc failed for \"%s\"\n", ID);
-		mmblocksdisplay();
+		mprint(E, NULL, siminfo, "realloc failed for \"%s\"\n", ID);
+		mmblocksdisplay(E);
 
-		mexit("", -1);
+		mexit(E, "", -1);
 	}
 
-	for (i = 0; i < nmemblocks; i++)
+	for (i = 0; i < E->nmemblocks; i++)
 	{
-		int	nentries = memblocks[i].allocs - memblocks[i].frees;
+		int	nentries = E->memblocks[i].allocs - E->memblocks[i].frees;
 
-		if (!strncmp(memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN))
+		if (!strncmp(E->memblocks[i].ID, ID, MMALLOC_MAXIDSTRLEN))
 		{
-			memblocks[i].addrs[nentries] = addr;
-			memblocks[i].reallocs++;
+			E->memblocks[i].addrs[nentries] = addr;
+			E->memblocks[i].reallocs++;
 				
 			return;
 		}
 	}
 
-	if (!memblocks[i].valid)
+	if (!E->memblocks[i].valid)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Attempt to realloc an unalloc'd chunk, ID = [%s]\n", ID);
-		mmblocksdisplay();
+		mmblocksdisplay(E);
 
-		mexit("", -1);
+		mexit(E, "", -1);
 	}
 
 	return;
 }
 
 void*
-mmalloc(int size, char *ID)
+mmalloc(Engine *E, int size, char *ID)
 {
 	Maddr addr = (Maddr)malloc(size);
 	if (SF_DEBUG)
 	{
-		allocaccounting(addr, ID);
+		allocaccounting(E, addr, ID);
 	}
 
 	return (void *)addr;
 }
 
 void*
-mcalloc(int nelem, int size, char *ID)
+mcalloc(Engine *E, int nelem, int size, char *ID)
 {
 	Maddr addr = (Maddr)calloc(nelem, size);
 	if (SF_DEBUG)
 	{
-		allocaccounting(addr, ID);
+		allocaccounting(E, addr, ID);
 	}
 
 	return (void *)addr;
 }
 
 void*
-mrealloc(void *oldptr, int size, char *ID)
+mrealloc(Engine *E, void *oldptr, int size, char *ID)
 {
 	Maddr addr = (Maddr)realloc(oldptr, size);
 	if (SF_DEBUG)
 	{
-		reallocaccounting(addr, oldptr, ID);
+		reallocaccounting(E, addr, oldptr, ID);
 	}
 
 	return (void *)addr;
 }
 
 void
-mfree(void *ptr, char *ID)
+mfree(Engine *E, void *ptr, char *ID)
 {
 	int	i, j;
 
@@ -202,26 +199,26 @@ mfree(void *ptr, char *ID)
 		return;
 	}
 
-	for (i = 0; i < nmemblocks; i++)
+	for (i = 0; i < E->nmemblocks; i++)
 	{
-		int	nentries = memblocks[i].allocs - memblocks[i].frees;
+		int	nentries = E->memblocks[i].allocs - E->memblocks[i].frees;
 
 		for (j = 0; j < nentries; j++)
 		{
-			if (memblocks[i].addrs[j] == (Maddr)ptr)
+			if (E->memblocks[i].addrs[j] == (Maddr)ptr)
 			{
 				if (nentries == 1)
 				{
-					memmove(&memblocks[i], &memblocks[nmemblocks - 1],
+					memmove(&E->memblocks[i], &E->memblocks[E->nmemblocks - 1],
 						sizeof(MMemblock));
-					memblocks[nmemblocks - 1].valid = 0;
-					nmemblocks--;
+					E->memblocks[E->nmemblocks - 1].valid = 0;
+					E->nmemblocks--;
 				}
 				else
 				{
-					memblocks[i].addrs[j] = memblocks[i].addrs[nentries - 1];
-					memblocks[i].addrs[nentries - 1] = 0;
-					memblocks[i].frees++;
+					E->memblocks[i].addrs[j] = E->memblocks[i].addrs[nentries - 1];
+					E->memblocks[i].addrs[nentries - 1] = 0;
+					E->memblocks[i].frees++;
 				}
 				free(ptr);
 
@@ -232,7 +229,7 @@ mfree(void *ptr, char *ID)
 
 	if (SF_CHATTY)
 	{
-		mprint(NULL, siminfo, 
+		mprint(E, NULL, siminfo, 
 			"WARNING!: You tried to free an unallocated block, ID = [%s].\n", ID);
 	}
 	
@@ -240,29 +237,29 @@ mfree(void *ptr, char *ID)
 }
 
 void
-mmblocksdisplay(void)
+mmblocksdisplay(Engine *E)
 {
 	int	i;
 
-	mprint(NULL, siminfo, "\nM-MALLOC Statistics:\n\n");
+	mprint(E, NULL, siminfo, "\nM-MALLOC Statistics:\n\n");
 	for (i = 0; i < MMALLOC_MAXALLOCBLOCKS; i++)
 	{
-		if (!memblocks[i].valid)
+		if (!E->memblocks[i].valid)
 		{
 			break;
 		}
 
-		mprint(NULL, siminfo, "Block \"%-64s\": %d a%-1s %d f%-1s %d r%-1s\n",
-			memblocks[i].ID, memblocks[i].allocs,
-			(memblocks[i].allocs == 1 ? "," : "s,"),
+		mprint(E, NULL, siminfo, "Block \"%-64s\": %d a%-1s %d f%-1s %d r%-1s\n",
+			E->memblocks[i].ID, E->memblocks[i].allocs,
+			(E->memblocks[i].allocs == 1 ? "," : "s,"),
 
-			memblocks[i].frees,
-			(memblocks[i].frees == 1 ? "" : "s"),
+			E->memblocks[i].frees,
+			(E->memblocks[i].frees == 1 ? "" : "s"),
 
-			memblocks[i].reallocs,
-			(memblocks[i].reallocs == 1 ? "" : "s"));
+			E->memblocks[i].reallocs,
+			(E->memblocks[i].reallocs == 1 ? "" : "s"));
 	}
-	mprint(NULL, siminfo, "\n");
+	mprint(E, NULL, siminfo, "\n");
 
 	return;
 }

@@ -42,12 +42,23 @@
 #endif
 
 #ifndef LIB9
-#	include "e-types.h"
+#	include "sf-types.h"
 #endif
+
+/*
+	we are yet to make the switch to using picoseconds for time
+	#define	Picosec	unsigned long long
+*/
+#define	Picosec	double
+
 
 #include <setjmp.h>
 #include "merror.h"
 #include "bit.h"
+#include "listutils.h"
+#include "parserlib.h"
+#include "mmalloc.h"
+#include "batt.h"
 #include "physics.h"
 #include "interrupts-hitachi-sh.h"
 #include "dev7708.h"
@@ -69,6 +80,5 @@
 #include "dev430x1xx.h"
 #include "machine-ti-msp430.h"
 #include "main.h"
-#include "batt.h"
 #include "mfns.h"
-#include "parserlib.h"
+#include "randgen.h"

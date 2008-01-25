@@ -4,7 +4,7 @@ Z		= $(PATH):$(SUNFLOWERROOT)/tools/bin
 CUR		= sunflower-1.0-beta#`echo $(PWD) | awk -F'/' '{print $NF}'`
 
 RELEASE		= sunflower-1.0-release
-MINOR		= 2
+MINOR		= 5
 DISTRIBUTION	= $(RELEASE)-source-beta.$(MINOR)
 
 DIRS =\
@@ -52,4 +52,4 @@ clean:
 
 nuke: clean
 	cd $(TOOLS); $(MAKE) nuke; \
-	for dir in $(SUPPORTED-TARGETS); do ($(DEL) $(SUNFLOWERROOT)/tools-lib/*/*.a); done
+	for dir in $(SUPPORTED-TARGETS); do ($(DEL) $(SUNFLOWERROOT)/tools/tools-lib/*/*.a); done

@@ -35,17 +35,17 @@
 #include "sf.h"
 
 void
-mbitprint(State *S, short nbits, unsigned long num)
+mbitprint(Engine *E, State *S, short nbits, unsigned long num)
 {
         int	i = 0;
 
         for (i = (nbits-1); i >= 0; i--)
         {
-		mprint(S, nodeinfo, "%c", ((num >> i)&1) + '0');
+		mprint(E, S, nodeinfo, "%c", ((num >> i)&1) + '0');
 
 		if (!(i%4))
 		{
-			mprint(S, nodeinfo, "%c", ' ');
+			mprint(E, S, nodeinfo, "%c", ' ');
 		}
         }
 

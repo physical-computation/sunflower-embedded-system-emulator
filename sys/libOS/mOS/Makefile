@@ -38,6 +38,7 @@ OBJS     	=\
 		readdir.o\
 		closedir.o\
 		fsync.o\
+		random.o\
 
 ##		getenv.o\
 ##		fgetc.o\
@@ -221,6 +222,9 @@ perror.o:
 
 rand.o:
 	$(CC) $(CCFLAGS) rand.c
+
+random.o:
+	$(CC) $(CCFLAGS) random.c
 
 read.o:
 	$(CC) $(CCFLAGS) read.c

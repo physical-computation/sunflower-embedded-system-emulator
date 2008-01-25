@@ -53,21 +53,6 @@ static void	reset_adc12(State *S, int type);
 static void	reset_adc10(State *S, int type);
 static void	reset_dac12(State *S, int type);
 
-void		dev430x1xxreset(State *S, int type);
-uchar		dev430x1xxreadbyte(State *S, ushort addr);
-void		dev430x1xxwritebyte(State *S, ushort addr, uchar data);
-ushort		dev430x1xxreadword(State *S, ushort addr);
-void		dev430x1xxwriteword(State *S, ushort addr, ushort data);
-void		dev430x1xxsetpin(State *S, int pin, double voltage);
-double		dev430x1xxgetpin(State *S, int pin);
-void		dev430x1xxPORreset(State *S);
-void		dev430x1xxPUCreset(State *S);
-void		dev430x1xxNMIinterrupt(State *S, int type);
-void		dev430x1xxinterrupt(State *S, int priority);
-void		dev430x1xxflashaccessviolation(State *S);
-void		dev430x1xxflashreadbyte(State *S);
-void		dev430x1xxflashwritebyte(State *S);
-void		dev430x1xxoscfault(State *S);
 
 
 
@@ -385,7 +370,7 @@ dev430x1xxreset(State *S, int type)
 }
 
 uchar
-dev430x1xxreadbyte(State *S, ushort addr)
+dev430x1xxreadbyte(Engine *E, State *S, ushort addr)
 {
 	/*								*/
 	/*	If this is a byte read to peripheral module space,	*/
@@ -411,13 +396,13 @@ dev430x1xxreadbyte(State *S, ushort addr)
 	{
 		return S->msp430->sfr[addr - MSP430_SFR_BEGIN];
 	}
-	sfatal(S, "Address not in device registers");
+	sfatal(E, S, "Address not in device registers");
 
 	return -1;
 }
 
 void
-dev430x1xxwritebyte(State *S, ushort addr, uchar data)
+dev430x1xxwritebyte(Engine *E, State *S, ushort addr, uchar data)
 {
 	if ((addr >= MSP430_PERIPH8_BEGIN) && (addr <= MSP430_PERIPH8_END))
 	{
@@ -441,14 +426,14 @@ dev430x1xxwritebyte(State *S, ushort addr, uchar data)
 	}
 	else
 	{
-		sfatal(S, "Address not in device registers");
+		sfatal(E, S, "Address not in device registers");
 	}
 
 	return;
 }
 
 ushort
-dev430x1xxreadword(State *S, ushort addr)
+dev430x1xxreadword(Engine *E, State *S, ushort addr)
 {
 	/*								*/
 	/*	If this is a read from the 8 bit peripheral space,	*/
@@ -476,13 +461,13 @@ dev430x1xxreadword(State *S, ushort addr)
 	{
 		return (ushort)S->msp430->sfr[addr - MSP430_SFR_BEGIN];
 	}
-	sfatal(S, "Address not in device registers");
+	sfatal(E, S, "Address not in device registers");
 
 	return -1;
 }
 
 void
-dev430x1xxwriteword(State *S, ushort addr, ushort data)
+dev430x1xxwriteword(Engine *E, State *S, ushort addr, ushort data)
 {
 	/*									*/
 	/*	If this is a word write to 8-bit peripheral module region,	*/
@@ -502,7 +487,7 @@ dev430x1xxwriteword(State *S, ushort addr, ushort data)
 
 		if (addr & B0001)
 		{
-			sfatal(S, "Word write to odd address (Architecture undefined). ");
+			sfatal(E, S, "Word write to odd address (Architecture undefined). ");
 			return;
 		}
 
@@ -534,7 +519,7 @@ dev430x1xxwriteword(State *S, ushort addr, ushort data)
 	}
 	else
 	{
-		sfatal(S, "Address not in device registers");
+		sfatal(E, S, "Address not in device registers");
 	}
 
 	return;

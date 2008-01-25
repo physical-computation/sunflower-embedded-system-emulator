@@ -48,9 +48,25 @@ enum
 	BYTEINSTR	= 0
 };
 
+/*
+	decode should set the As and Ad felds of the pipe,
+		in addition to setting the amode_s and amode_d.
+		the former are needed in regaccess, and the latter
+		are implicitly contain information about whether
+		the register being used is r0 or r2, and is
+		generally easier to reson about
+*/	
+
+
+
+/*
+	TODO: check all setting of overflow flag with rules defined 
+	in table 3-1 of slau049e.pdf
+*/
+
 
 static tuck ushort
-getval(State *S, int mode, int regnum, int whichop, int iswordinstr, MSP430Pipestage *p)
+getval(Engine *E, State *S, int mode, int regnum, int whichop, int iswordinstr, MSP430Pipestage *p)
 {
 	switch (mode)
 	{
@@ -65,6 +81,17 @@ getval(State *S, int mode, int regnum, int whichop, int iswordinstr, MSP430Pipes
 		{
 			int	X = msp430readword(S,
 					msp430regread(S, MSP430_PC, p) + (1 << whichop));
+
+		/*
+			BUG ?: If you look at example in slau049e.pdf, 3.3.3, it looks like 
+			the value should be X + PC + (1 << whichop) in the case of IDX mode
+			i.e., we don't use the PC as the base address for the register indirect,
+			but rather add the address at which the offset resides (the memory 
+			address of X) to X (at least in the case of IDX mode). I think the 
+			manual is wrong, since it contradicts itself right there in in 3.3.3 
+			saying the addresses are X + PC and Y+PC, and not of X+&X, Y+&Y... ???  
+			(similar thing is done in 3.3.7)...
+		*/
 
 			if (iswordinstr)
 			{
@@ -120,8 +147,8 @@ getval(State *S, int mode, int regnum, int whichop, int iswordinstr, MSP430Pipes
 
 		default:
 		{
-			mprint(S, nodeinfo, "Illegal addressing mode [%4X] in getval()\n", mode);
-			sfatal(S, "See above messages.");
+			mprint(E, S, nodeinfo, "Illegal addressing mode [%4X] in getval()\n", mode);
+			sfatal(E, S, "See above messages.");
 		}
 	}
 
@@ -130,7 +157,7 @@ getval(State *S, int mode, int regnum, int whichop, int iswordinstr, MSP430Pipes
 }
 
 static tuck void
-setval(State *S, int mode, int regnum, int whichop, int iswordinstr, ushort data, MSP430Pipestage *p)
+setval(Engine *E, State *S, int mode, int regnum, int whichop, int iswordinstr, ushort data, MSP430Pipestage *p)
 {
 	switch (mode)
 	{
@@ -156,8 +183,8 @@ setval(State *S, int mode, int regnum, int whichop, int iswordinstr, ushort data
 
 		default:
 		{
-			mprint(S, nodeinfo, "Illegal addressing mode [%4X] in setval()\n", mode);
-			sfatal(S, "See above messages.");
+			mprint(E, S, nodeinfo, "Illegal addressing mode [%4X] in setval()\n", mode);
+			sfatal(E, S, "See above messages.");
 		}
 	}
 

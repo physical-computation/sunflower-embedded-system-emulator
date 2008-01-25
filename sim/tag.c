@@ -57,7 +57,7 @@ tag_settag(State *S, int whichtag, char *tag, char *whohas, int confidence, ulon
 }
 
 void
-tag_showtags(State *S)
+tag_showtags(Engine *E, State *S)
 {
 	int 	i;
 	Tag	tmptag;
@@ -68,13 +68,13 @@ tag_showtags(State *S)
 		tmptag = S->TAGMEM[i];
 		if (tmptag.ttl > 0)
 		{
-			mprint(S, nodeinfo, "TAGMEM[%d].string = \"%s\"\n",\
+			mprint(E, S, nodeinfo, "TAGMEM[%d].string = \"%s\"\n",\
 				i, tmptag.string);
-			mprint(S, nodeinfo, "TAGMEM[%d].who_has = \"%s\"\n",\
+			mprint(E, S, nodeinfo, "TAGMEM[%d].who_has = \"%s\"\n",\
 				i, tmptag.who_has);
-			mprint(S, nodeinfo, "TAGMEM[%d].confidence = %d\n",\
+			mprint(E, S, nodeinfo, "TAGMEM[%d].confidence = %d\n",\
 					i, tmptag.confidence);
-			mprint(S, nodeinfo, "TAGMEM[%d].ttl = %lu\n",\
+			mprint(E, S, nodeinfo, "TAGMEM[%d].ttl = %lu\n",\
 				i, tmptag.ttl);
 		}
 	}

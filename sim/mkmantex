@@ -9,8 +9,8 @@
 
 	echo '\section{Simulator Command Set}'
 	cat lex.c | grep '/\*+' | sort -t ',' | sed 's/none//' | $1 -F'*|_|}|{|+|,|:|"'\
-		'{print "\n\\subsection{\\bf " $3 "}\\inxx{{\\tt "$3"}}\n\\label{manpage:"$3"}\n{\\bf Description}: " $10\
-		"\\\\[1.5ex]\n{\\em Synopsis}:\n\\scriptsize\n\\begin{verbatim}\n"\
+		'{print "\n\\subsection{\\bf " $3 "}\\inxx{Commands,{\\bf "tolower($3)"}}\n\\label{manpages:"toupper($3)"}\n\\label{manpages:"tolower($3)"}\n\\vspace{-0.2in}\n{\\bf Description}: " $10\
+		"\\\\[1.5ex]\n{\\em Synopsis}:\n\\vspace{-0.2in}\n\\scriptsize\n\\begin{verbatim}\n"\
 	"   " $3 "   " $11\
-		"\n\\end{verbatim}\n\\normalsize\n"}'
+		"\n\\end{verbatim}\n\\normalsize\n\\vspace{-0.2in}\n"}'
 

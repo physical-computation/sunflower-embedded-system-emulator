@@ -37,12 +37,11 @@
 #include <math.h>
 #include <float.h>
 #include "sf.h"
-#include "mmalloc.h"
 #include "mextern.h"
 #include "ilpa.h"
 
 
-static tuck void	drain_pipeline(State *S);
+static tuck void	drain_pipeline(Engine *E, State *S);
 static tuck int		interruptible(State *S);
 
 
@@ -100,7 +99,7 @@ interruptible(State *S)
 }
 
 tuck void
-drain_pipeline(State *S)
+drain_pipeline(Engine *E, State *S)
 {
 	/*							*/
 	/*	Note: this will continue trying to drain	*/
@@ -118,26 +117,26 @@ drain_pipeline(State *S)
 		(S->superH->P.WB.instr != 0x9))
 	{
 		/*	Call superHstep, with flag set to drain pipe	*/
-		superHstep(S, 1);
+		superHstep(E, S, 1);
 	}
 
 	return;
 }
 
 void
-superHsettimerintrdelay(State *S, int delay)
+superHsettimerintrdelay(Engine *E, State *S, int delay)
 {
 	S->superH->TIMER_INTR_DELAY = delay * 1E-6;
 }
 
 tuck int
-superHcheck_nic_intr(State *S)
+superHcheck_nic_intr(Engine *E, State *S)
 {
 	return superH_check_nic_intr_macro(S);
 }
 
 tuck int
-superHcheck_batt_intr(State *S)
+superHcheck_batt_intr(Engine *E, State *S)
 {
 	return ((((S->BATT) &&
 			((Batt *)S->BATT)->battery_remaining <=
@@ -149,125 +148,125 @@ superHcheck_batt_intr(State *S)
 }
 
 void
-superHdumpregs(State *S)
+superHdumpregs(Engine *E, State *S)
 {
 	int i;
 
 	for (i = 0; i < 16; i++)
 	{
-		mprint(S, nodeinfo, "R%-2d\t\t", i);
-		mbitprint(S, 32, S->superH->R[i]);
-		mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->R[i]);
+		mprint(E, S, nodeinfo, "R%-2d\t\t", i);
+		mbitprint(E, S, 32, S->superH->R[i]);
+		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->R[i]);
 	}
 
 	return;
 }
 
 void
-superHdumpsysregs(State *S)
+superHdumpsysregs(Engine *E, State *S)
 {
 	int i;
 	long tmp;
 	
 	for (i = 0; i < 8; i++)
 	{
-		mprint(S, nodeinfo, "%-7s%d\t", "R_BANK_", i);
-		mbitprint(S, 32, S->superH->R_BANK[i]);
-		mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->R_BANK[i]);
+		mprint(E, S, nodeinfo, "%-7s%d\t", "R_BANK_", i);
+		mbitprint(E, S, 32, S->superH->R_BANK[i]);
+		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->R_BANK[i]);
 	}
 
 	memmove(&tmp, &S->superH->SR, sizeof(tmp));
-	mprint(S, nodeinfo, "%-8s\t", "SR");
-	mbitprint(S, 32, tmp);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", tmp);
+	mprint(E, S, nodeinfo, "%-8s\t", "SR");
+	mbitprint(E, S, 32, tmp);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", tmp);
 
 	memmove(&tmp, &S->superH->SSR, sizeof(tmp));
-	mprint(S, nodeinfo, "%-8s\t", "SSR");
-	mbitprint(S, 32, tmp);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", tmp);
+	mprint(E, S, nodeinfo, "%-8s\t", "SSR");
+	mbitprint(E, S, 32, tmp);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", tmp);
 
-	mprint(S, nodeinfo, "%-8s\t", "GBR");
-	mbitprint(S, 32, S->superH->GBR);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->GBR);
+	mprint(E, S, nodeinfo, "%-8s\t", "GBR");
+	mbitprint(E, S, 32, S->superH->GBR);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->GBR);
 
-	mprint(S, nodeinfo, "%-8s\t", "MACH");
-	mbitprint(S, 32, S->superH->MACH);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->MACH);
+	mprint(E, S, nodeinfo, "%-8s\t", "MACH");
+	mbitprint(E, S, 32, S->superH->MACH);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->MACH);
 
-	mprint(S, nodeinfo, "%-8s\t", "MACL");
-	mbitprint(S, 32, S->superH->MACL);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->MACL);
+	mprint(E, S, nodeinfo, "%-8s\t", "MACL");
+	mbitprint(E, S, 32, S->superH->MACL);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->MACL);
 
-	mprint(S, nodeinfo, "%-8s\t", "PR");
-	mbitprint(S, 32, S->superH->PR);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->PR);
+	mprint(E, S, nodeinfo, "%-8s\t", "PR");
+	mbitprint(E, S, 32, S->superH->PR);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->PR);
 
-	mprint(S, nodeinfo, "%-8s\t", "VBR");
-	mbitprint(S, 32, S->superH->VBR);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->VBR);
+	mprint(E, S, nodeinfo, "%-8s\t", "VBR");
+	mbitprint(E, S, 32, S->superH->VBR);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->VBR);
 
-	mprint(S, nodeinfo, "%-8s\t", "PC");
-	mbitprint(S, 32, S->PC);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->PC);
+	mprint(E, S, nodeinfo, "%-8s\t", "PC");
+	mbitprint(E, S, 32, S->PC);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->PC);
 
-	mprint(S, nodeinfo, "%-8s\t", "SPC");
-	mbitprint(S, 32, S->superH->SPC);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->SPC);
+	mprint(E, S, nodeinfo, "%-8s\t", "SPC");
+	mbitprint(E, S, 32, S->superH->SPC);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->SPC);
 
-	mprint(S, nodeinfo, "%-8s\t", "TTB");
-	mbitprint(S, 32, S->superH->TTB);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->TTB);
+	mprint(E, S, nodeinfo, "%-8s\t", "TTB");
+	mbitprint(E, S, 32, S->superH->TTB);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->TTB);
 
-	mprint(S, nodeinfo, "%-8s\t", "TEA");
-	mbitprint(S, 32, S->superH->TEA);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->TEA);
+	mprint(E, S, nodeinfo, "%-8s\t", "TEA");
+	mbitprint(E, S, 32, S->superH->TEA);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->TEA);
 
-	mprint(S, nodeinfo, "%-8s\t", "MMUCR");
-	mbitprint(S, 32, S->superH->MMUCR);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->MMUCR);
+	mprint(E, S, nodeinfo, "%-8s\t", "MMUCR");
+	mbitprint(E, S, 32, S->superH->MMUCR);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->MMUCR);
 
-	mprint(S, nodeinfo, "%-8s\t", "PTEH");
-	mbitprint(S, 32, S->superH->PTEH);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->PTEH);
+	mprint(E, S, nodeinfo, "%-8s\t", "PTEH");
+	mbitprint(E, S, 32, S->superH->PTEH);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->PTEH);
 
-	mprint(S, nodeinfo, "%-8s\t", "PTEL");
-	mbitprint(S, 32, S->superH->PTEL);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->PTEL);
+	mprint(E, S, nodeinfo, "%-8s\t", "PTEL");
+	mbitprint(E, S, 32, S->superH->PTEL);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->PTEL);
 
-	mprint(S, nodeinfo, "%-8s\t", "TRA");
-	mbitprint(S, 32, S->superH->TRA);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->TRA);
+	mprint(E, S, nodeinfo, "%-8s\t", "TRA");
+	mbitprint(E, S, 32, S->superH->TRA);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->TRA);
 
-	mprint(S, nodeinfo, "%-8s\t", "EXPEVT");
-	mbitprint(S, 32, S->superH->EXPEVT);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->EXPEVT);
+	mprint(E, S, nodeinfo, "%-8s\t", "EXPEVT");
+	mbitprint(E, S, 32, S->superH->EXPEVT);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->EXPEVT);
 
-	mprint(S, nodeinfo, "%-8s\t", "INTEVT");
-	mbitprint(S, 32, S->superH->INTEVT);
-	mprint(S, nodeinfo, "  [0x%08lx]\n", S->superH->INTEVT);
+	mprint(E, S, nodeinfo, "%-8s\t", "INTEVT");
+	mbitprint(E, S, 32, S->superH->INTEVT);
+	mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->superH->INTEVT);
 
-	mprint(S, nodeinfo, "SLEEP = [%s]\n", (S->sleep == 1 ? "YES" : "NO"));
+	mprint(E, S, nodeinfo, "SLEEP = [%s]\n", (S->sleep == 1 ? "YES" : "NO"));
 	
 	return;
 }
 
 void
-superHfatalaction(State *S)
+superHfatalaction(Engine *E, State *S)
 {
-	superHdumptlb(S);
-	mprint(S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
+	superHdumptlb(E, S);
+	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
 			S->NODE_ID, opstrs[S->superH->P.EX.op]);
 
 	return;
 }
 
 tuck void
-superHstallaction(State *S, ulong addr, int type, int latency)
+superHstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 {
 	/*	PAU may change VDD	*/
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, type, addr);
+		pau_feed(E, S, type, addr);
 	}
 
 	/*								*/
@@ -288,6 +287,11 @@ superHstallaction(State *S, ulong addr, int type, int latency)
 	/*	TODO: This will have to change when we implement	*/
 	/*	setjmp idea for simulating memory stalls		*/
 	/*								*/
+	//So that accesses to main mem that are not mapped objects do not lock bus
+	//if (latency == 0)
+	//{
+	//	return;
+	//}
 
 	S->superH->B->pbuslock = 1;
 	S->superH->B->pbuslocker = S->NODE_ID;
@@ -299,7 +303,7 @@ superHstallaction(State *S, ulong addr, int type, int latency)
 
 
 tuck int
-superHtake_timer_intr(State *S)
+superHtake_timer_intr(Engine *E, State *S)
 {
 	if (!interruptible(S))
 	{
@@ -322,7 +326,7 @@ superHtake_timer_intr(State *S)
 		}
 		else
 		{
-			drain_pipeline(S);
+			drain_pipeline(E, S);
 
 			/*						*/
 			/*	Must do this after drain because 	*/	
@@ -345,17 +349,17 @@ superHtake_timer_intr(State *S)
 }
 
 tuck void
-superHtake_exception(State *S)
+superHtake_exception(Engine *E, State *S)
 {
 	enum		{ABORTED_AND_RETRIED, ABORTED, COMPLETED, INVALID_HANDLING};
 	Interrupt	*intr;
 	int		handling = INVALID_HANDLING;
 
 
-	intr = (Interrupt *)pic_intr_dequeue(S, S->superH->excpQ);
+	intr = (Interrupt *)pic_intr_dequeue(E, S, S->superH->excpQ);
 	if (intr == NULL)
 	{
-		sfatal(S,
+		sfatal(E, S,
 		"We supposedly had an exception, but nothing was queued!");
 	}
 
@@ -498,7 +502,7 @@ superHtake_exception(State *S)
 
 		default:
 		{
-			sfatal(S, "Unknown/invalid exception code");
+			sfatal(E, S, "Unknown/invalid exception code");
 		}
 	}
 
@@ -521,19 +525,19 @@ superHtake_exception(State *S)
 		}
 		else
 		{
-			drain_pipeline(S);
+			drain_pipeline(E, S);
 			S->superH->SPC = S->PC;
 		}
 	}
 
-	mfree(intr, "Interrupt *interrupt in machine-hitachi-sh.c");
+	mfree(E, intr, "Interrupt *interrupt in machine-hitachi-sh.c");
 
 	return;
 
 }
 
 tuck int
-superHtake_nic_intr(State *S)
+superHtake_nic_intr(Engine *E, State *S)
 {
 	Interrupt	*interrupt;
 
@@ -560,7 +564,7 @@ superHtake_nic_intr(State *S)
 	}
 	else
 	{
-		drain_pipeline(S);
+		drain_pipeline(E, S);
 
 		/*						*/
 		/*	Must do this after drain because 	*/	
@@ -578,10 +582,10 @@ superHtake_nic_intr(State *S)
 	S->PC = S->superH->VBR + 0x600;
 	S->sleep = 0;
 
-	interrupt = (Interrupt *)pic_intr_dequeue(S, S->superH->nicintrQ);
+	interrupt = (Interrupt *)pic_intr_dequeue(E, S, S->superH->nicintrQ);
 	if (interrupt == NULL)
 	{
-		sfatal(S,
+		sfatal(E, S,
 		"We supposedly had an interrupt, but nothing was queued!");
 	}
 
@@ -661,19 +665,19 @@ superHtake_nic_intr(State *S)
 
 		default:
 		{
-			mprint(S, nodeinfo, "Received interrupt type [%d]\n",
+			mprint(E, S, nodeinfo, "Received interrupt type [%d]\n",
 				interrupt->type);
 
-			sfatal(S, "Unknown interrupt type!");
+			sfatal(E, S, "Unknown interrupt type!");
 		}
 	}
-	mfree(interrupt, "Interrupt *interrupt in machine-hitachi-sh.c");
+	mfree(E, interrupt, "Interrupt *interrupt in machine-hitachi-sh.c");
 
 	return 0;
 }
 
 tuck int
-superHtake_batt_intr(State *S)
+superHtake_batt_intr(Engine *E, State *S)
 {
 	if (!interruptible(S))
 	{
@@ -686,7 +690,7 @@ superHtake_batt_intr(State *S)
 	}
 	else
 	{
-		drain_pipeline(S);
+		drain_pipeline(E, S);
 		
 		/*						*/
 		/*	Must do this after drain because 	*/	
@@ -707,7 +711,7 @@ superHtake_batt_intr(State *S)
 }
 
 void
-superHresetcpu(State *S)
+superHresetcpu(Engine *E, State *S)
 {
 	int	i;
 
@@ -724,7 +728,7 @@ superHresetcpu(State *S)
 
 
 	memset(&S->superH->P, 0, sizeof(SuperHPipe));
-	memset(&S->E, 0, sizeof(EnergyInfo));
+	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
 	memset(&S->superH->R, 0, sizeof(ulong)*16);
 	memset(&S->superH->R_BANK, 0, sizeof(ulong)*8);
 	memset(&S->superH->SR, 0, sizeof(SuperHSREG));
@@ -736,7 +740,7 @@ superHresetcpu(State *S)
 	/*	The only the ratio of size:blocksize and assoc are	*/
 	/*	significant when Cache struct is used for modeling TLB	*/
 	/*								*/
-	superHtlb_init(S, 128, 1, 4);
+	superHtlb_init(E, S, 128, 1, 4);
 
 	S->superH->GBR = 0;
 	S->superH->VBR = SUPERH_MEMBASE;
@@ -749,7 +753,7 @@ superHresetcpu(State *S)
 	S->fpstackheight = 0;
 
 
-	S->TIME = SIM_GLOBAL_TIME;
+	S->TIME = E->globaltimepsec;
 	S->superH->TIMER_LASTACTIVATE = 0.0;
 	S->superH->TIMER_INTR_DELAY = 1E-3;
 	S->dyncnt = 0;
@@ -762,7 +766,20 @@ superHresetcpu(State *S)
 	S->SVDD = 0.0;
 	S->LOWVDD = S->VDD/2.0;
 	
+
+/*
+	TODO:	set these using the power_scale routines. power_scale* should update these
+		(there, not here). This also takes care of the setvdd/setfreq via sf.y
+		adjustments needed.
+
+	S->mem_r_latency
+	S->mem_w_latency
+	S->flash_r_latency
+	S->flash_w_latency
+*/
+
 	S->voltscale_alpha = 2.0;
+//BUG?
 	S->voltscale_K = SUPERH_ORIG_VDD * SUPERH_ORIG_CYCLE;
 	S->voltscale_Vt = 0.0;
 
@@ -806,12 +823,12 @@ superHresetcpu(State *S)
 	S->superH->txundrrunerr_intrenable_flag	= 1;
 	S->superH->csumerr_intrenable_flag	= 1;
 
-	fault_setnodepfun(S, "urnd");
+	fault_setnodepfun(E, S, "urnd");
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_init(S, S->superH->npau);
-		mprint(S, nodeinfo,
+		pau_init(E, S, S->superH->npau);
+		mprint(E, S, nodeinfo,
 			"Done with pauinit, for %d PAU entries...\n",
 			S->superH->npau);
 	}
@@ -830,12 +847,12 @@ superHresetcpu(State *S)
 	}
 
 	/*	Since we've reset VDD, need to update this	*/
-	SIM_MIN_CYCLETIME = DBL_MAX;
-	SIM_MAX_CYCLETIME = 0;
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
 	{
-		SIM_MIN_CYCLETIME = min(SIM_MIN_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
-		SIM_MAX_CYCLETIME = max(SIM_MAX_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
 	return;
@@ -843,118 +860,117 @@ superHresetcpu(State *S)
 
 
 State *
-superHnewstate(double xloc, double yloc, double zloc, int orbit, double velocity)
+superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
 	int	i;
 	State 	*S;
 	char 	*logfilename;
 
 
-	S = (State *)mcalloc(1, sizeof(State), "(State *)S");
+	S = (State *)mcalloc(E, 1, sizeof(State), "(State *)S");
 	if (S == NULL)
 	{
-		mexit("Failed to allocate memory for State *S.", -1);
+		mexit(E, "Failed to allocate memory for State *S.", -1);
 	}
 
-	S->superH = (SuperHState *)mcalloc(1, sizeof(SuperHState), "S->superH");
+	S->superH = (SuperHState *)mcalloc(E, 1, sizeof(SuperHState), "S->superH");
 	if (S->superH == NULL)
 	{
-		mexit("Failed to allocate memory for S->superH.", -1);
+		mexit(E, "Failed to allocate memory for S->superH.", -1);
 	}
 
-	S->MEM = (uchar *)mcalloc(1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
+	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
 	if (S->MEM == NULL)
 	{
-		mexit("Failed to allocate memory for S->MEM.", -1);
+		mexit(E, "Failed to allocate memory for S->MEM.", -1);
 	}
 
-	S->superH->B = (SuperHBuses *)mcalloc(1, sizeof(SuperHBuses), "(SuperHBuses *)S->superH->B");
+	S->superH->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->superH->B");
 	if (S->superH->B == NULL)
 	{
-		mexit("Failed to allocate memory for S->superH->B.", -1);
+		mexit(E, "Failed to allocate memory for S->superH->B.", -1);
 	}
 
 
-	S->N = (Numa *)mcalloc(1, sizeof(Numa), "(Numa *)S->N");
+	S->N = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->N");
 	if (S->N == NULL)
 	{
-		mexit("Failed to allocate memory for S->N.", -1);
+		mexit(E, "Failed to allocate memory for S->N.", -1);
 	}
 	S->N->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->N->regions = (Numaregion **)mcalloc(MAX_NUMA_REGIONS,
+	S->N->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
 		sizeof(Numaregion*), "(Numaregion **)S->N->regions");
 	if (S->N->regions == NULL)
 	{
-		mexit("Failed to allocate memory for S->N->regions.", -1);
+		mexit(E, "Failed to allocate memory for S->N->regions.", -1);
 	}
 
 
-	S->Nstack = (Numa *)mcalloc(1, sizeof(Numa), "(Numa *)S->Nstack");
+	S->Nstack = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->Nstack");
 	if (S->Nstack == NULL)
 	{
-		mexit("Failed to allocate memory for S->Nstack.", -1);
+		mexit(E, "Failed to allocate memory for S->Nstack.", -1);
 	}
 	S->Nstack->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->Nstack->regions = (Numaregion **)mcalloc(MAX_NUMA_REGIONS,
+	S->Nstack->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
 		sizeof(Numaregion*), "(Numaregion **)S->Nstack->regions");
 	if (S->Nstack->regions == NULL)
 	{
-		mexit("Failed to allocate memory for S->Nstack->regions.", -1);
+		mexit(E, "Failed to allocate memory for S->Nstack->regions.", -1);
 	}
 
 
-	S->RT = (Regtraces *)mcalloc(1, sizeof(Regtraces), "(Regtraces *)S->RT");
+	S->RT = (Regtraces *)mcalloc(E, 1, sizeof(Regtraces), "(Regtraces *)S->RT");
 	if (S->RT == NULL)
 	{
-		mexit("Failed to allocate memory for S->RT.", -1);
+		mexit(E, "Failed to allocate memory for S->RT.", -1);
 	}
 	S->RT->count = 0;
 
 	/*	Actual entries are allocated when a region is installed		*/
-	S->RT->regvts = (Regvt **)mcalloc(MAX_REG_TRACERS,
+	S->RT->regvts = (Regvt **)mcalloc(E, MAX_REG_TRACERS,
 		sizeof(Regvt*), "(Regvt **)S->RT->regvts");
 	if (S->RT->regvts == NULL)
 	{
-		mexit("Failed to allocate memory for S->RT->regvts.", -1);
+		mexit(E, "Failed to allocate memory for S->RT->regvts.", -1);
 	}
-
 
 
 	if (SF_SIMLOG)
 	{	
-		logfilename = (char *)mcalloc(1, MAX_NAMELEN*sizeof(char),
+		logfilename = (char *)mcalloc(E, 1, MAX_NAMELEN*sizeof(char),
 			"logfilename in machine-hitachi-sh.c"); 
 		if (logfilename == NULL)
 		{
-                	mexit("Failed to allocate memory for logfilename.", -1);
+                	mexit(E, "Failed to allocate memory for logfilename.", -1);
         	}
 
-		snprintf(logfilename, MAX_NAMELEN, "simlog.node%d", SIM_NUM_NODES);
+		msnprint(logfilename, MAX_NAMELEN, "simlog.node%d", E->nnodes);
 
 		S->logfd = mcreate(logfilename, M_OWRITE|M_OTRUNCATE);
-		mfree(logfilename, "char * logfilename in machine-hitachi-sh.c");
+		mfree(E, logfilename, "char * logfilename in machine-hitachi-sh.c");
 
 		if (S->logfd < 0)
 		{
-			mexit("Could not open logfile for writing.", -1);
+			mexit(E, "Could not open logfile for writing.", -1);
 		}
 	}
 
-	CUR_STATE = S;
-	SIM_STATE_PTRS[SIM_NUM_NODES] = S;
-	mprint(NULL, siminfo, "New node created with node ID %d\n", SIM_NUM_NODES);
+	E->cp = S;
+	E->sp[E->nnodes] = S;
+	mprint(E, NULL, siminfo, "New node created with node ID %d\n", E->nnodes);
 
 	/*	Update the min cycle time	*/
-	SIM_MIN_CYCLETIME = DBL_MAX;
-	SIM_MAX_CYCLETIME = 0;
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
 	{
-		SIM_MIN_CYCLETIME = min(SIM_MIN_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
-		SIM_MAX_CYCLETIME = max(SIM_MAX_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
 	S->dumpregs = superHdumpregs;
@@ -995,45 +1011,54 @@ superHnewstate(double xloc, double yloc, double zloc, int orbit, double velocity
 	S->xloc = xloc;
 	S->yloc = yloc;
 	S->zloc = zloc;
-	S->velocity = velocity;
-	S->orbit = MOBILITY_RANDOM;
-	S->NODE_ID = SIM_BASENODEID + SIM_NUM_NODES;
+
+	if (trajfilename != NULL)
+	{
+		S->trajfilename = (char *)mcalloc(E, 1, strlen(trajfilename)+1, "S->trajfilename in "SF_FILE_MACRO);
+		if (S->trajfilename == nil)
+		{
+			mexit(E, "mcalloc failed for S->trajfilename in "SF_FILE_MACRO, -1);
+		}
+		strcpy(S->trajfilename, trajfilename);
+	}
+
+	S->NODE_ID = E->baseid + E->nnodes;
+
 
 	/*	Must know correct number of nodes in resetcpu()		*/
-	SIM_NUM_NODES++;
+	E->nnodes++;
+	S->resetcpu(E, S);
 
-	S->resetcpu(S);
-
-	S->superH->nicintrQ = (InterruptQ *)mcalloc(1, sizeof(InterruptQ),
+	S->superH->nicintrQ = (InterruptQ *)mcalloc(E, 1, sizeof(InterruptQ),
 		"InterruptQ *nicintrQ in superHnewstate()");
 	if (S->superH->nicintrQ == NULL)
 	{
-		mexit("Failed to allocate memory for InterruptQ *nicintrQ in superHnewstate().", -1);
+		mexit(E, "Failed to allocate memory for InterruptQ *nicintrQ in superHnewstate().", -1);
 	}
 
-	S->superH->nicintrQ->hd = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->superH->nicintrQ->hd = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->superH->nicintrQ->hd in superHnewstate()");
-	S->superH->nicintrQ->tl = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->superH->nicintrQ->tl = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->superH->nicintrQ->tl in superHnewstate()");
 	if (S->superH->nicintrQ->hd == NULL || S->superH->nicintrQ->tl == NULL)
 	{
-		mexit("Failed to allocate memory for S->superH->nicintrQ->hd | S->superH->nicintrQ->tl.", -1);
+		mexit(E, "Failed to allocate memory for S->superH->nicintrQ->hd | S->superH->nicintrQ->tl.", -1);
 	}
 
-	S->superH->excpQ = (InterruptQ *)mcalloc(1, sizeof(InterruptQ),
+	S->superH->excpQ = (InterruptQ *)mcalloc(E, 1, sizeof(InterruptQ),
 		"InterruptQ *excpQ in superHnewstate()");
 	if (S->superH->excpQ == NULL)
 	{
-		mexit("Failed to allocate memory for InterruptQ *excpQ in superHnewstate().", -1);
+		mexit(E, "Failed to allocate memory for InterruptQ *excpQ in superHnewstate().", -1);
 	}
 
-	S->superH->excpQ->hd = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->superH->excpQ->hd = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->superH->excpQ->hd in superHnewstate()");
-	S->superH->excpQ->tl = (Interrupt *)mcalloc(1, sizeof(Interrupt),
+	S->superH->excpQ->tl = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
 		"Interrupt *S->superH->excpQ->tl in superHnewstate()");
 	if (S->superH->excpQ->hd == NULL || S->superH->excpQ->tl == NULL)
 	{
-		mexit("Failed to allocate memory for S->superH->excpQ->hd | S->superH->excpQ->tl.", -1);
+		mexit(E, "Failed to allocate memory for S->superH->excpQ->hd | S->superH->excpQ->tl.", -1);
 	}
 
 
@@ -1041,7 +1066,7 @@ superHnewstate(double xloc, double yloc, double zloc, int orbit, double velocity
 }
 
 void
-superHsplit(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
+superHsplit(Engine *E, State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 {
 	int		i;
 	Numaregion	*tmp;
@@ -1050,18 +1075,15 @@ superHsplit(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	/*								*/
 	/*	Split the current CPU into two, sharing the same mem	*/
 	/*								*/
-	State	*N = superHnewstate(S->xloc, S->yloc, S->zloc, S->orbit, S->velocity);
+	State	*N = superHnewstate(E, S->xloc, S->yloc, S->zloc, S->trajfilename);
 
-/*
-	mprint(NULL, siminfo,
+	mprint(E, NULL, siminfo,
 		"Splitting node %d to new node %d:\n\t\tstartpc @ 0x" UHLONGFMT 
 		", stack @ 0x" UHLONGFMT ", arg @ 0x" UHLONGFMT "\n\n",
 		S->NODE_ID, N->NODE_ID, startpc, stackptr, argaddr);
-*/
 
-
-	mfree(N->MEM, "N->MEM in superHsplit");
-	mfree(N->superH->B, "N->superH->B in superHsplit");
+	mfree(E, N->MEM, "N->MEM in superHsplit");
+	mfree(E, N->superH->B, "N->superH->B in superHsplit");
 
 	N->MEM = S->MEM;
 	N->superH->B = S->superH->B;
@@ -1074,11 +1096,11 @@ superHsplit(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	/*								*/
 	for (i = 0; i < S->N->count; i++)
 	{
-		tmp = (Numaregion *) mcalloc(1, sizeof(Numaregion),
+		tmp = (Numaregion *) mcalloc(E, 1, sizeof(Numaregion),
 			"N->N->regions entry in machine-hitachi-sh.c");
 		if (tmp == NULL)
 		{
-			merror("mcalloc failed for N->N->regions entry in machine-hitachi-sh.c");
+			merror(E, "mcalloc failed for N->N->regions entry in machine-hitachi-sh.c");
 			return;
 		}
 
@@ -1092,11 +1114,11 @@ superHsplit(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 
 	for (i = 0; i < S->Nstack->count; i++)
 	{
-		tmp = (Numaregion *) mcalloc(1, sizeof(Numaregion),
+		tmp = (Numaregion *) mcalloc(E, 1, sizeof(Numaregion),
 			"N->Nstack->regions entry in machine-hitachi-sh.c");
 		if (tmp == NULL)
 		{
-			merror("mcalloc failed for N->Nstack->regions entry in machine-hitachi-sh.c");
+			merror(E, "mcalloc failed for N->Nstack->regions entry in machine-hitachi-sh.c");
 			return;
 		}
 
@@ -1129,7 +1151,7 @@ superHsplit(State *S, ulong startpc, ulong stackptr, ulong argaddr, char *idstr)
 	strncpy(N->idstr, idstr, MAX_NAMELEN);
 	N->PC = startpc;
 	N->runnable = 1;
-	CUR_STATE = N;
+	E->cp = N;
 
 	return;
 }

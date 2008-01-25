@@ -80,6 +80,7 @@ TokenTab token_table [] =
 	{"NETDEBUG",	T_NETDEBUG},		/*+	Show debugging information about the simulated network interface.:none	*/
 	{"ND",		T_NETDEBUG},		/*+	Synonym for NETDEBUG.:none						*/
 	{"LOCSTATS",	T_LOCSTATS},		/*+	Show node's current location in three-dimentional space.:none		*/
+	{"LISTRVARS",	T_LISTRVARS},		/*+	List all structures that can be treated as rvars.:none		*/
 	{"L",		T_LOCSTATS},		/*+	Synonym for LOCSTATS.:none						*/
 	{"SHOWPIPE",	T_SHOWPIPE},		/*+	Show contents of the processor pipeline.:none				*/
 	{"N",		T_STEP},		/*+	Step through simulation for a number (default 1) of cycles.:[# cycles]	*/
@@ -90,7 +91,7 @@ TokenTab token_table [] =
 	{"HELP",	T_HELP},		/*+	Print list of commands.:none						*/
 	{"MAN",		T_MAN},			/*+	Print synopsis for command usage.:<command name>			*/
 	{"SHOWCLK",	T_SHOWCLK},		/*+	Show the number of clock cycles simulated since processor reset.:none	*/
-	{"NEWNODE",	T_NEWNODE},		/*+	Create a new node (Simulated system).:<type=superH|msp430> <x> <y> <z> <speed> <orbit type>	*/
+	{"NEWNODE",	T_NEWNODE},		/*+	Create a new node (Simulated system).:<type=superH|msp430> [<x> <y> <z> [<speed> <orbit type>] | [<trajectory file name> <loopsamples>]]	*/
 	{"SETNODE",	T_SETNODE},		/*+	Set the current simulated node.:<node id>				*/
 	{"PAUINFO",	T_PAUINFO},		/*+	Show information about all valid PAU entries.:none			*/
 	{"PI",		T_PAUINFO},		/*+	Synonym for PAUINFO.:none						*/
@@ -107,7 +108,6 @@ TokenTab token_table [] =
 
 	{"EBATTINTR",	T_EBATTINTR},		/*+	Toggle enable low battery level interrupts.:<0/1>			*/
 	{"BATTALERTFRAC",T_BATTALERTFRAC},	/*+	Set battery alert level fraction.:none				*/
-	{"BATTLEAKCURRENT",T_BATTLEAKCURRENT},	/*+	Set battery leakage current (default is 1uA).:none				*/
 	{"NEWBATT",	T_NEWBATT},		/*+	New battery:<ID> <capacity in mAh>					*/
 	{"BATTNODEATTACH",T_BATTNODEATTACH},	/*+	Attach current node to a specified battery.:<which battery>		*/
 	{"BATTSTATS",	T_BATTSTATS},		/*+	Get battery statistics.:<which battery>					*/
@@ -120,10 +120,10 @@ TokenTab token_table [] =
 	{"PAUSE",	T_PAUSE},		/*+	Pause the simulation for arg seconds.:<duration of pause in seconds>		*/
 
 	/*	Interfaces and Networks		*/
-	{"NETNEWSEG",	T_NETNEWSEG},		/*+	Add a new network segment to simulation.:<which (if exists)>	<frame bits>	<propagation speed>	<bitrate>	<medium width>	<link failure probability distribution>	<link failure distribution mu>	<link failure probability distribution sigma>	<link failure probability distribution lambda>	<link failure duration distribution>	<link failure duration distribution mu>	<link failure duration distribution sigma>	<link failure duration distribution lambda>	*/
+	{"NETNEWSEG",	T_NETNEWSEG},		/*+	Add a new network segment to simulation.:<which (if exists)> <frame bits> <propagation speed> <bitrate> <medium width> <link failure probability distribution> <link failure distribution mu> <link failure probability distribution sigma> <link failure probability distribution lambda> <link failure duration distribution> <link failure duration distribution mu> <link failure duration distribution sigma> <link failure duration distribution lambda>	*/
 	{"NETSEGNICATTACH", T_NETSEGNICATTACH},	/*+	Attach a current node's IFC to a network segment.:<which IFC>	<which segment>	*/
 	{"NETCORREL",	T_NETCORREL},		/*+	Specify correlation coefficient between failure of a network segment and failure of an IFC on a node @@NOTE that it is not using the current node so we can specify in a matrix-like form@@.:<which seg>	<which node>	<coefficient>	*/
-	{"NETNODENEWIFC", T_NETNODENEWIFC},	/*+	Add a new IFC to current node frame bits and segno are set at attach time.:<ifc num (if valid)>	<tx pwr (watts)>	<rx pwr (watts)>	<idle pwr (watts)>	<fail distribution>	<fail mu>	<fail sigma>	<fail lambda>	<transmit FIFO size> <receive FIFO size>*/
+	{"NETNODENEWIFC", T_NETNODENEWIFC},	/*+	Add a new IFC to current node frame bits and segno are set at attach time.:<ifc num (if valid)> <tx pwr (watts)> <rx pwr (watts)> <idle pwr (watts)> <listen pwr (watts)> <fail distribution> <fail mu> <fail sigma> <fail lambda> <transmit FIFO size> <receive FIFO size>*/
 	{"NETSEGDELETE", T_NETSEGDELETE},	/*+	Disable a specified network segment.:<which segment>			*/
 	{"NETSEGFAILPROB", T_NETSEGFAILPROB},	/*+	Set probability of failure for a setseg.:<which segment> <probability>	*/
 	{"NODEFAILPROB", T_NODEFAILPROB},	/*+	Set probability of failure for current node.:<probability>		*/
@@ -136,8 +136,8 @@ TokenTab token_table [] =
 	{"STOP", T_STOP},			/*+	Mark the current node as unrunnable.:none				*/
 	{"VERBOSE", T_VERBOSE},			/*+	Enable the various prints.:none						*/
 	{"V", T_VERBOSE},			/*+	Synonym for VERBOSE.:none						*/
-	{"DUMPALL", T_DUMPALL},			/*+	Dump the State structure info for all nodes to the file.:<filename>	*/
-	{"D", T_DUMPALL},			/*+	Synonym for DUMPALL.:<filename>						*/
+	{"DUMPALL", T_DUMPALL},			/*+	Dump the State structure info for all nodes to the file using given tag and prefix.:<filename> <tag> <prefix>	*/
+	{"D", T_DUMPALL},			/*+	Synonym for DUMPALL.:<filename> <tag> <prefix>						*/
 	{"RETRYALG", T_RETRYALG},		/*+	set NIC retransmission backoff algorithm.:<ifc #> <algname>		*/
 	{"IGN", T_IGNORENODEDEATHS},		/*+	Ignore node fatalities and continue sim without pausing.:<0 or 1>	*/
 	{"SETSCALEALPHA", T_SETSCALEALPHA},	/*+	Set technology alpha parameter for use in voltage scaling.:<double>		*/
@@ -152,17 +152,17 @@ TokenTab token_table [] =
 	{"CD", T_CD},				/*+	Change current working directory.:<path>				*/
 	{"SETTIMERDELAY", T_SETTIMERDELAY},	/*+	Change granularity of timer intrs.:<granularity in microseconds>	*/
 	{"VERSION", T_VERSION},			/*+	Display the simulator version and build.:none				*/
-	{"THROTTLE", T_THROTTLE},		/*+	Set the throttling delay in usecs.:<throttle delay in usecs>				*/
-	{"THROTTLEWIN", T_THROTTLEWIN},		/*+	Set the throttling window clock cycles.:<throttle window period in clock cycles>				*/
+	{"THROTTLE", T_THROTTLE},		/*+	Set the throttling delay in nanoseconds.:<throttle delay in nanoseconds>				*/
+	{"THROTTLEWIN", T_THROTTLEWIN},		/*+	Set the throttling window --- main simulation loop sleeps for throttlensecs x throttlewin nanosecs every throttlewin simulation cycles, for an average of throttlensecs sleep per simulation cycle.:<throttle window period in clock cycles>				*/
 	{"RESETNODECTRS", T_RESETNODECTRS},	/*+	Reset simulation rate measurement trip counters for current node only.:none				*/
 	{"RESETALLCTRS", T_RESETALLCTRS},	/*+	Reset simulation rate measurement trip counters for all nodes.:none				*/
 
 	{"SIGSRC", T_SIGNALSRC},		/*+	Create a physical phenomenon signal source.:<type> <description> <tau> <propagationspeed> <A> <B> <C> <D> <E> <F> <G> <H> <I> <K> <m> <n> <o> <p> <q> <r> <s> <t> <x> <y> <z> <trajectoryfile> <trajectoryrate> <looptrajectory> <samplesfile> <samplerate> <fixedsampleval> <loopsamples>	*/
 	{"SIGSUBSCRIBE", T_SIGNALSUBSCRIBE},	/*+	Subscribe sensor X on the current node to a signal source Y.:<X> <Y>	*/
 	{"SENSORSDEBUG", T_SENSORSDEBUG},		/*+	Display various statistics on sensors and signals.:none 		*/
-	{"SETPHYSICSPERIOD", T_SETPHYSICSPERIOD},	/*+	Set update periodicity for physical phenomenon simulation.:<period in microseconds> */
-	{"SETBATTFEEDPERIOD", T_SETBATTFEEDPERIOD},	/*+	Set update periodicity for battery simulation.:<period in microseconds> */
-	{"SETDUMPPWRPERIOD", T_SETDUMPPWRPERIOD},	/*+	Set periodicity power logging to simlog.:<period in microseconds> 	*/
+	{"SETPHYSICSPERIOD", T_SETPHYSICSPERIOD},	/*+	Set update periodicity for physical phenomenon simulation.:<period in picoseconds> */
+	{"SETBATTFEEDPERIOD", T_SETBATTFEEDPERIOD},	/*+	Set update periodicity for battery simulation.:<period in picoseconds> */
+	{"SETDUMPPWRPERIOD", T_SETDUMPPWRPERIOD},	/*+	Set periodicity power logging to simlog.:<period in picoseconds> 	*/
 	{"FORCEAVGPWR", T_FORCEAVGPWR},			/*+	Bypass ILPA analysis and set avg pwr consumption.:<avg pwr in Watts> <sleep pwr in Watts>	*/
 	{"NETSEGPROPMODEL", T_NETSEGPROPMODEL},		/*+	Associate a network segment with a signal propagation model.:<netseg ID> <sigsrc ID> <minimum SNR>	*/
 	{"NUMAREGION", T_NUMAREGION},			/*+	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.:<name string> <start address (inclusive)> <end address (non-inclusive)> <local read latency in cycles> <local write latency in cycles> <remote read latency in cycles> <remote write latency in cycles> <Map ID> <Map offset> <private flag>*/
@@ -178,7 +178,12 @@ TokenTab token_table [] =
 	{"ADDVALUETRACE", T_ADDVALUETRACE},			/*+	Install an address monitor to track data values.:<name string> <base addr> <size> <onstack> <pcstart> <frameoffset>*/
 	{"DELVALUETRACE", T_DELVALUETRACE},			/*+	Delete an installed address monitor for tracking data values.:<name string> <base addr> <size> <onstack> <pcstart><frameoffset>*/
 	{"VALUESTATS", T_VALUESTATS},			/*+	Print data value tracking statistics.:none*/
-	{"REGISTERSTABS", T_REGISTERSTABS},		/*+	Register variables in a STABS file with value tracing framework.:<STABS filename>*/
+	{"REGISTERSTABS", T_REGISTERSTABS},		/*+	Register variables in a STABS file with value tracing framework.:<STABS filename>	*/
+	{"SETRANDOMSEED", T_SETRANDOMSEED},		/*+	Reinitialize random number generation system with a specific seed useful in conjunction with GETRANDOMSEED for reproducing same pseudorandom state.:<seed value negative one to use current time>	*/
+	{"GETRANDOMSEED", T_GETRANDOMSEED},		/*+	Query seed used to initialize random number generation system useful for reinitializing generator to same seed for reproducibility.:none	*/
+	{"PCBT", T_PCBT},				/*+	Dump PC backtrace.:none	*/
+	{"HWSEEREG", T_HWSEEREG},			/*+	Register a hardware structure or part thereof for inducement of SEEs.: <structure name> <actual bits> <logical bits> <bit offset>	*/
+	{"INITSEESTATE", T_INITSEESTATE},		/*+	Initialize SEE function and parameter state.: <loc pfun> <loc p1> <loc p2> <loc p3> <loc p4> <bit pfun> <bit p1> <bit p2> <bit p3> <bit p4> <duration pfun> <dur p1> <dur p2> <dur p3> <dur p4>	*/
 
 	/*										*/
 	/*	We should use these and get rid of NETSEGFAILPROB and NODEFAILPROB	*/
@@ -186,6 +191,7 @@ TokenTab token_table [] =
 	{"NODEFAILPROBFN", T_NODEFAILPROBFN},		/*+	Specify Node failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@>		*/
 	{"NETSEGFAILPROBFN", T_NETSEGFAILPROBFN},	/*+	Specify Netseg failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@>		*/
 
+	{"BATTILEAK",		T_BATTILEAK},		/*+	Set Battery self-discharge current.:<Current in Amperes>	*/
 	{"BATTCF",		T_BATTCF},		/*+	Set Battery Vrate lowpass filter capacitance.:<Capacitance in Farads>	*/
 	{"BATTINOMINAL",	T_BATTINOMINAL},	/*+	Set Battery Inominal.:<Inominal in Amperes>				*/
 	{"BATTRF",		T_BATTRF},		/*+	Set Battery Vrate lowpass filter resistance.:<Resistance in Ohms>	*/
@@ -196,9 +202,26 @@ TokenTab token_table [] =
 	{"BATTVLOSTLUT",	T_BATTVLOSTLUT},	/*+	Set Battery VlostLUT value.:<index> <value>				*/
 	{"BATTVLOSTLUTNENTRIES",T_BATTVLOSTLUTNENTRIES},/*+	Set number of VlostLUT entries.:<number of entries>			*/
 	{"SETBATT",		T_SETBATT},		/*+	Set current battery.:<Battery ID>					*/
+	{"SETSCHEDRANDOM",	T_SETSCHEDRANDOM},	/*+	Use a different random order for node simulation every cycle.:<none>	*/
+	{"SETSCHEDROUNDROBIN",	T_SETSCHEDROUNDROBIN},	/*+	Use a round-robin order for node simulation.:<none>			*/
+	{"SETNETPERIOD",	T_SETNETPERIOD},	/*+	Set period for activting network scheduling.:<period in picoseconds>	*/
+	{"SETFAULTPERIOD",	T_SETFAULTPERIOD},	/*+	Set period for activating fault scheduling.:<period in picoseconds>	*/
+	{"BPT",			T_BPT},			/*+	Set breakpoint.:<CYCLES> <ncycles on current node> | <INSTRS> <ninstrs on current node>| <SENSORREADING> <which sensor> <float value> | <GLOBALTIME> <global time in picoseconds> */
+	{"BPTLS",		T_BPTLS},		/*+	List breakpoints and their IDs.:<none>	*/
+	{"BPTDEL",		T_BPTDEL},		/*+	Delete breakpoint.:<breakpoint ID>	*/
+	{"RANDPRINT",		T_RANDPRINT},		/*+	Print a random value from the selected distribution with given parameters.:<distribution name> <min> <max> <p1> <p2> <p3> <p4> */
+	{"SETLOC",		T_SETLOC},		/*+	Set or change node location.:<xloc> <yloc> <zloc>	*/
+	{"INITRANDTABLE",		T_INITRANDTABLE},		/*+	Set or change node location.:<distname> <pfun name> <basis min> <basis max> <granularity> <p1> <p2> <p3> <p4>	*/
+	{"DEFNDIST",		T_DEFNDIST},		/*+	Define a discrete probability measure as a set of badis value probability tuples.:<list of basis value> <list of probabilities>	*/
+	{"REGISTERRVAR",		T_REGISTERRVAR},		/*+	Register a simulator internal implementation variable or structure for periodic updates either overwriting values or summing determined by the mode parameter.: <sim var name> <index for array structures> <value dist name> <value dist p1> <value dist p2> <value dist p3> <value dist p4> <duration dist name> <duration dist p1> <duration dist p2> <duration dist p3> <duration dist p4> <mode>	*/
 
 
 
+	/*	Breakpoint targets	*/
+	{"CYCLES",		T_CYCLES},
+	{"INSTRS",		T_INSTRS},
+	{"SENSORREADING",	T_SENSORREADING},
+	{"GLOBALTIME",		T_GLOBALTIME},
 
 	/*	Assembler Control Instructions		*/
 	{".ALIGN",	T_DOTALIGN},
@@ -353,30 +376,30 @@ yylex(void)
 	int	i;
 	char	*tmpdata;
 	char	*bptr;
-	Datum	*tllp = labellist.tail;
+	Datum	*tllp = yyengine->labellist.tail;
 	Datum	*tmphd;
 	char	*aptr ;
 	int	chunklen;
 
 
-	if ((istream.head == NULL) || (istream.head->data == NULL))
+	if ((yyengine->istream.head == NULL) || (yyengine->istream.head->data == NULL))
 	{
 		/* EOF */
 		//clearistream();
 		return (0);
 	}
 
-	aptr = istream.head->data;
-	chunklen = strlen(istream.head->data);
+	aptr = yyengine->istream.head->data;
+	chunklen = strlen(yyengine->istream.head->data);
 
 
 	/*	Used to hold a copy of token as we conv to uppercase.		*/
-	tmpdata = (char *) mmalloc((chunklen+1)*sizeof(char), "tmpdata in lex.inc");
+	tmpdata = (char *) mmalloc(yyengine, (chunklen+1)*sizeof(char), "tmpdata in lex.inc");
 	if (tmpdata == NULL)
 	{
-		mprint(NULL, siminfo,
+		mprint(yyengine, NULL, siminfo,
 			"Could not allocate memory for char *tmpdata in yylex(), main.c");
-		mexit("See above messages.", -1);
+		mexit(yyengine, "See above messages.", -1);
 	}
 
 	bptr = tmpdata;
@@ -392,26 +415,26 @@ yylex(void)
 	/*	and including, the next '\n', away. Even if scanning, delete	*/
 	/*	from the istream.						*/
 	/*									*/
-	if ((istream.head->data[0] == '-') &&
-		(istream.head->prev != NULL) &&
-		(((Datum *)istream.head->prev)->data != NULL) &&
-		(((Datum *)istream.head->prev)->data[0] == '-'))
+	if ((yyengine->istream.head->data[0] == '-') &&
+		(yyengine->istream.head->prev != NULL) &&
+		(((Datum *)yyengine->istream.head->prev)->data != NULL) &&
+		(((Datum *)yyengine->istream.head->prev)->data[0] == '-'))
 	{
-		while ((istream.head != NULL) && strcmp(istream.head->data, "\n"))
+		while ((yyengine->istream.head != NULL) && strcmp(yyengine->istream.head->data, "\n"))
 		{
-			tmphd = istream.head;
-			istream.head = istream.head->prev;
+			tmphd = yyengine->istream.head;
+			yyengine->istream.head = yyengine->istream.head->prev;
 
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				istream.head->next = NULL;
-				mfree(tmphd->data, "tmphd->data in lex.c");
-				mfree(tmphd, "tmphd in lex.c");
+				yyengine->istream.head->next = NULL;
+				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+				mfree(yyengine, tmphd, "tmphd in lex.c");
 			}
 		}
 			
 		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(tmpdata, "tmpdata in lex.c");
+		mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 		return	T_COMMENT;
 	}
@@ -421,45 +444,45 @@ yylex(void)
 	/* 	If we are in the SCANNING phase, we got here after we had built	*/
 	/*	the labellist, but had not yet assigned correct displacements	*/
 	/*	to T_LABELS. In that case, search labellist and set the disp 	*/
-	/*	to the current CUR_STATE->PC. So, check if it is a label...		*/
+	/*	to the current yyengine->cp->PC. So, check if it is a label...		*/
 	/*									*/
 	if (tmpdata[strlen(tmpdata)-1] == ':')
 	{
-		if (SCANNING)
+		if (yyengine->scanning)
 		{
 			while (tllp != NULL)
 			{
 				if (!strncmp(tllp->data,\
-					istream.head->data,\
-					strlen(istream.head->data)-1)) /* -1 for the ':' */
+					yyengine->istream.head->data,\
+					strlen(yyengine->istream.head->data)-1)) /* -1 for the ':' */
 				{
 					/* 	Set correct value of displacement.	*/
-					tllp->value = CUR_STATE->PC;
+					tllp->value = yyengine->cp->PC;
 
 					/*	We move head, but dont really unlink	*/
-					istream.head = istream.head->prev;
+					yyengine->istream.head = yyengine->istream.head->prev;
 						
 					/*	Alloc'd for uppercase stuff. Free it	*/
-					mfree(tmpdata, "tmpdata in lex.c");
+					mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 					return	T_LABELDEFN;
 				}
 				tllp = tllp->next;
 			}
 
-			mprint(NULL, siminfo, "Saw a T_LABELDEFN that was missed by scan_labels!!");
-			mexit("See above messages.", -1);
+			mprint(yyengine, NULL, siminfo, "Saw a T_LABELDEFN that was missed by scan_labels!!");
+			mexit(yyengine, "See above messages.", -1);
 		}
 
 		/*	Not scanning, so we must unlink it from token list	*/
-		tmphd = istream.head;
-		istream.head = istream.head->prev;
-		istream.head->next = NULL;
-		mfree(tmphd->data, "tmphd->data in lex.c");
-		mfree(tmphd, "tmphd in lex.c");
+		tmphd = yyengine->istream.head;
+		yyengine->istream.head = yyengine->istream.head->prev;
+		yyengine->istream.head->next = NULL;
+		mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+		mfree(yyengine, tmphd, "tmphd in lex.c");
 
 		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(tmpdata, "tmpdata in lex.c");
+		mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 		return	T_LABELDEFN;
 	}
@@ -471,14 +494,14 @@ yylex(void)
 	/*									*/
 	if (!strcmp(tmpdata, ".COMM"))
 	{
-		if (SCANNING)
+		if (yyengine->scanning)
 		{
 			while (tllp != NULL)
 			{
-				if (!strcmp(tllp->data, ((Datum *)istream.head->prev)->data))
+				if (!strcmp(tllp->data, ((Datum *)yyengine->istream.head->prev)->data))
 				{
 					/* 	Set correct value of displacement	*/
-					tllp->value = CUR_STATE->PC;
+					tllp->value = yyengine->cp->PC;
 					break;
 				}
 				tllp = tllp->next;
@@ -486,9 +509,9 @@ yylex(void)
 
 			if (tllp == NULL)
 			{
-				mprint(NULL, siminfo,
+				mprint(yyengine, NULL, siminfo,
 					"Saw a name missed by scan_labels_and_globalvars!");
-				mexit("See above messages.", -1);
+				mexit(yyengine, "See above messages.", -1);
 			}
 		}
 	}
@@ -502,24 +525,24 @@ yylex(void)
 	/*									*/
 	while (tllp != NULL)
 	{
-		if (!strcmp(tllp->data, istream.head->data))
+		if (!strcmp(tllp->data, yyengine->istream.head->data))
 		{
 			/* 	Set yylval to addr(label)	*/
 			yylval.uval = tllp->value;
 
 			/* 	Keep labellist, remove token from input list	*/
-			tmphd = istream.head;
-			istream.head = istream.head->prev;
+			tmphd = yyengine->istream.head;
+			yyengine->istream.head = yyengine->istream.head->prev;
 
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				istream.head->next = NULL;
-				mfree(tmphd->data, "tmphd->data in lex.c");
-				mfree(tmphd, "tmphd in lex.c");
+				yyengine->istream.head->next = NULL;
+				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+				mfree(yyengine, tmphd, "tmphd in lex.c");
 			}
 
 			/*	Allocated just for uppercase stuff. Free it	*/
-			mfree(tmpdata, "tmpdata in lex.c");
+			mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 			return T_LABEL;
 		}
@@ -532,31 +555,31 @@ yylex(void)
 		Datum	*tmphd;
 	
 
-		if ((istream.head->prev != NULL) &&
-			(((Datum *)istream.head->prev)->data[0] == '\n'))
+		if ((yyengine->istream.head->prev != NULL) &&
+			(((Datum *)yyengine->istream.head->prev)->data[0] == '\n'))
 		{
 			/*	A lone 'MAN' is treated as a 'HELP'	*/
-			tmphd = istream.head;
-			istream.head = istream.head->prev;
+			tmphd = yyengine->istream.head;
+			yyengine->istream.head = yyengine->istream.head->prev;
 
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				istream.head->next = NULL;
-				mfree(tmphd->data, "tmphd->data in lex.c");
-				mfree(tmphd, "tmphd in lex.c");
+				yyengine->istream.head->next = NULL;
+				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+				mfree(yyengine, tmphd, "tmphd in lex.c");
 			}
 
 			/*	This was allocated just for uppercase stuff. Free it	*/
-			mfree(tmpdata, "tmpdata in lex.c");
+			mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 			return T_HELP;
 		}
 
-		yylval.str = (char *) mrealloc(yylval.str, 
+		yylval.str = (char *) mrealloc(yyengine, yylval.str, 
 					MAX_BUFLEN*sizeof(char), 
 					"yylval.str (MAN) in lex.inc");
 
-		aptr = ((Datum *)istream.head->prev)->data;
+		aptr = ((Datum *)yyengine->istream.head->prev)->data;
 		bptr = yylval.str;
 		while (*aptr != '\0')
 		{
@@ -565,28 +588,28 @@ yylex(void)
 		*bptr++ = '\0';
 
 		/*	Twice, past MAN command and subsequent token	*/
-		tmphd = istream.head;
-		istream.head = istream.head->prev;
+		tmphd = yyengine->istream.head;
+		yyengine->istream.head = yyengine->istream.head->prev;
 
-		if (!SCANNING)
+		if (!yyengine->scanning)
 		{
-			istream.head->next = NULL;
-			mfree(tmphd->data, "tmphd->data in lex.c");
-			mfree(tmphd, "tmphd in lex.c");
+			yyengine->istream.head->next = NULL;
+			mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+			mfree(yyengine, tmphd, "tmphd in lex.c");
 		}
 
-		tmphd = istream.head;
-		istream.head = istream.head->prev;
+		tmphd = yyengine->istream.head;
+		yyengine->istream.head = yyengine->istream.head->prev;
 		
-//		if (!SCANNING)
+//		if (!yyengine->scanning)
 //		{
-//			istream.head->next = NULL;
-//			mfree(tmphd->data);
-//			mfree(tmphd);
+//			yyengine->istream.head->next = NULL;
+//			mfree(yyengine, tmphd->data);
+//			mfree(yyengine, tmphd);
 //		}
 
 		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(tmpdata, "tmpdata in lex.c");
+		mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 		return T_MAN;
 	}
@@ -598,170 +621,170 @@ yylex(void)
 			if (!strcmp(tmpdata, token_table[i].token))
 			{
 				/* we do not set yylval : token has no "value" */
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return token_table[i].token_value;
 			}
 
 			if (!strncmp(tmpdata, "#", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 				
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '#';
 			}
 
 			if (!strncmp(tmpdata, ",", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 				
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return ',';
 			}
 			
 			if (!strncmp(tmpdata, ")", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return ')';
 			}	
 		
 			if (!strncmp(tmpdata, "(", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '(';
 			}			
 
 			if (!strncmp(tmpdata, "@", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '@';
 			}
 
 			if (!strncmp(tmpdata, "-", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '-';
 			}			
 
 			if (!strncmp(tmpdata, "+", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '+';
 			}
 
 			if (!strncmp(tmpdata, "!", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '!';
 			}
 
 			if (!strncmp(tmpdata, "\n", 1))
 			{
-				tmphd = istream.head;
-				istream.head = istream.head->prev;
-				if (!SCANNING)
+				tmphd = yyengine->istream.head;
+				yyengine->istream.head = yyengine->istream.head->prev;
+				if (!yyengine->scanning)
 				{
-					if (istream.head != NULL) istream.head->next = NULL;
-					mfree(tmphd->data, "tmphd->data in lex.c");
-					mfree(tmphd, "tmphd in lex.c");
+					if (yyengine->istream.head != NULL) yyengine->istream.head->next = NULL;
+					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
 
 				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(tmpdata, "tmpdata in lex.c");
+				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '\n';
 			}
@@ -771,29 +794,29 @@ yylex(void)
 	/* 	Match not found for this token, return T_STRING, 	*/
 	/*	use un-uppercased data.					*/
 	/*								*/
-	yylval.str = (char *) mmalloc((strlen(tmpdata)+1)*sizeof(char),
+	yylval.str = (char *) mmalloc(yyengine, (strlen(tmpdata)+1)*sizeof(char),
 					"yylval.str in lex.inc");
 	if (yylval.str == NULL)
 	{
-		mprint(NULL, siminfo,
+		mprint(yyengine, NULL, siminfo,
 			"Failed to allocate memory in lex.c. Sorry. Exiting...\n\n");
-		mexit("See above messages.", -1);
+		mexit(yyengine, "See above messages.", -1);
 	}
 
-	strncpy(yylval.str, istream.head->data, strlen(istream.head->data)+1); 
+	strncpy(yylval.str, yyengine->istream.head->data, strlen(yyengine->istream.head->data)+1); 
 
 	/* 	move it off input queue		*/
-	tmphd = istream.head;
-	istream.head = istream.head->prev;
-	if (!SCANNING)
+	tmphd = yyengine->istream.head;
+	yyengine->istream.head = yyengine->istream.head->prev;
+	if (!yyengine->scanning)
 	{
-		istream.head->next = NULL;
-		mfree(tmphd->data, "tmphd->data in lex.c");
-		mfree(tmphd, "tmphd in lex.c");
+		yyengine->istream.head->next = NULL;
+		mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+		mfree(yyengine, tmphd, "tmphd in lex.c");
 	}
 
 	/*	This was allocated just for uppercase stuff. Free it	*/
-	mfree(tmpdata, "tmpdata in lex.c");
+	mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 
 	return T_STRING;

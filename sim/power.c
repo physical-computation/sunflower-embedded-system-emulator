@@ -43,22 +43,22 @@ enum
 static double	Power(double x, double y);
 static double	Root(double x, double y);
 static double	Sqrt(double x);
-static double	scaledvdd05(double delta, double K, double Vt);
-static double	scaledvdd06(double delta, double K, double Vt);
-static double	scaledvdd07(double delta, double K, double Vt);
-static double	scaledvdd08(double delta, double K, double Vt);
-static double	scaledvdd09(double delta, double K, double Vt);
-static double	scaledvdd10(double delta, double K, double Vt);
-static double	scaledvdd11(double delta, double K, double Vt);
-static double	scaledvdd12(double delta, double K, double Vt);
-static double	scaledvdd13(double delta, double K, double Vt);
-static double	scaledvdd14(double delta, double K, double Vt);
-static double	scaledvdd15(double delta, double K, double Vt);
-static double	scaledvdd16(double delta, double K, double Vt);
-static double	scaledvdd17(double delta, double K, double Vt);
-static double	scaledvdd18(double delta, double K, double Vt);
-static double	scaledvdd19(double delta, double K, double Vt);
-static double	scaledvdd20(double delta, double K, double Vt);
+static double	scaledvdd05(Engine *, double delta, double K, double Vt);
+static double	scaledvdd06(Engine *, double delta, double K, double Vt);
+static double	scaledvdd07(Engine *, double delta, double K, double Vt);
+static double	scaledvdd08(Engine *, double delta, double K, double Vt);
+static double	scaledvdd09(Engine *, double delta, double K, double Vt);
+static double	scaledvdd10(Engine *, double delta, double K, double Vt);
+static double	scaledvdd11(Engine *, double delta, double K, double Vt);
+static double	scaledvdd12(Engine *, double delta, double K, double Vt);
+static double	scaledvdd13(Engine *, double delta, double K, double Vt);
+static double	scaledvdd14(Engine *, double delta, double K, double Vt);
+static double	scaledvdd15(Engine *, double delta, double K, double Vt);
+static double	scaledvdd16(Engine *, double delta, double K, double Vt);
+static double	scaledvdd17(Engine *, double delta, double K, double Vt);
+static double	scaledvdd18(Engine *, double delta, double K, double Vt);
+static double	scaledvdd19(Engine *, double delta, double K, double Vt);
+static double	scaledvdd20(Engine *, double delta, double K, double Vt);
 
 
 
@@ -81,42 +81,41 @@ Sqrt(double x)
 }
 
 void
-power_printstats(State *S)
+power_printstats(Engine *E, State *S)
 {
 	if (S->machinetype != MACHINE_SUPERH)
 	{
-		merror("This machine does not know how to \"powerstats\"");
+		merror(E, "This machine does not know how to \"powerstats\"");
 		return;
 	}
 
-//fprintf(stderr, "Bus lock=%d, locker=%d\n", S->B->pbuslock, S->B->pbuslocker);
+	//fprintf(stderr, "Bus lock=%d, locker=%d\n", S->B->pbuslock, S->B->pbuslocker);
 
+	mprint(E, NULL, siminfo, "\nVdd\t= %E\n", S->VDD);
+	mprint(E, NULL, siminfo, "Vt\t= %E\n", S->voltscale_Vt);
+	mprint(E, NULL, siminfo, "K\t= %E\n", S->voltscale_K);
+	mprint(E, NULL, siminfo, "alpha\t= %E\n", S->voltscale_alpha);
 
-	mprint(NULL, siminfo, "\nVdd\t= %E\n", S->VDD);
-	mprint(NULL, siminfo, "Vt\t= %E\n", S->voltscale_Vt);
-	mprint(NULL, siminfo, "K\t= %E\n", S->voltscale_K);
-	mprint(NULL, siminfo, "alpha\t= %E\n", S->voltscale_alpha);
-
-	mprint(NULL, siminfo,
+	mprint(E, NULL, siminfo,
 		"\nCumulative Signal Transitions to date\t= " UVLONGFMT "\n",
-		S->E.ntrans);
-	mprint(NULL, siminfo,
+		S->energyinfo.ntrans);
+	mprint(E, NULL, siminfo,
 		"CPU-only Total Energy\t\t\t= %.6E Joules\n",
-		S->E.CPUEtot);
+		S->energyinfo.CPUEtot);
 
 	if (S->ICLK > 0 && S->CYCLETIME > 0)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"CPU-only Average Power\t\t\t= %.6E Watts\n",
-			S->E.CPUEtot / (S->ICLK*S->CYCLETIME));
+			S->energyinfo.CPUEtot / (S->ICLK*S->CYCLETIME));
 	}
-	mprint(NULL, siminfo, "\n");
+	mprint(E, NULL, siminfo, "\n");
 
 	return;			
 }
 
 void
-power_scaledelay(State *S, double Vdd)
+power_scaledelay(Engine *E, State *S, double Vdd)
 {
 	int	i;
 	double	Vt = S->voltscale_Vt;
@@ -128,11 +127,26 @@ power_scaledelay(State *S, double Vdd)
 	/*		Sanity check on arguments			*/
 	if (Vdd <= 0.0 || Vt < 0.0 || K < 0.0 || alpha < 0.0)
 	{
-		mprint(NULL, siminfo, "Invalid parameters passed to scale delay: %f %f %f %f\n",
+		mprint(E, NULL, siminfo, "Invalid parameters passed to scale delay: %f %f %f %f\n",
 			Vdd, Vt, K, alpha);
 
 		return;
-	}	
+	}
+	
+	/*
+	TODO: 
+	*	still need to update latencies on flash_*_l;atency
+
+	*	when we change and start using M[] array for memories, then cleanup 
+		and basically update all latencies in M array
+
+	*	need to stop using integer latencies, and define them as doubles
+		in absolute time, which makes more sense essp for DVFS
+
+
+	*	make sure those who depend on miss penalty are correctly updated,
+		as well as local_r_latency (partly done the mem_r_latency/mem_w_)
+	*/
 
 	S->VDD = Vdd;
 	oldcycle = S->CYCLETIME;
@@ -154,19 +168,19 @@ power_scaledelay(State *S, double Vdd)
 	S->mem_r_latency *= (int) ceil(oldcycle/S->CYCLETIME);
 	S->mem_w_latency *= (int) ceil(oldcycle/S->CYCLETIME);
 
-	SIM_MIN_CYCLETIME = DBL_MAX;
-	SIM_MAX_CYCLETIME = 0;
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
 	{
-		SIM_MIN_CYCLETIME = min(SIM_MIN_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
-		SIM_MAX_CYCLETIME = max(SIM_MAX_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
 	return;
 }
 
 void
-power_scalevdd(State *S, double freq)
+power_scalevdd(Engine *E, State *S, double freq)
 {
 	int	i, alphaX10;
 	double	newvdd = -1.0;
@@ -179,7 +193,7 @@ power_scalevdd(State *S, double freq)
 	/*		Sanity check on arguments			*/
 	if (freq <= 0.0 || Vt < 0.0 || K < 0.0 || alpha < 0.0)
 	{
-		mprint(NULL, siminfo, "Invalid parameters passed to scale Vdd: %f %f %f %f\n",
+		mprint(E, NULL, siminfo, "Invalid parameters passed to scale Vdd: %f %f %f %f\n",
 			freq, Vt, K, alpha);
 
 		return;
@@ -194,56 +208,57 @@ power_scalevdd(State *S, double freq)
 	/*	supplied alpha and K. If the scaledvddXX() function	*/
 	/*	cannot find a solution it returns -1.0			*/
 	/*								*/
+
 	alphaX10 = (int)ceil(alpha*10.0);
 	switch (alphaX10)
 	{
 		case 5:
-			newvdd = scaledvdd05(delta, K, Vt);
+			newvdd = scaledvdd05(E, delta, K, Vt);
 			break;
 		case 6:
-			newvdd = scaledvdd06(delta, K, Vt);
+			newvdd = scaledvdd06(E, delta, K, Vt);
 			break;
 		case 7:
-			newvdd = scaledvdd07(delta, K, Vt);
+			newvdd = scaledvdd07(E, delta, K, Vt);
 			break;
 		case 8:
-			newvdd = scaledvdd08(delta, K, Vt);
+			newvdd = scaledvdd08(E, delta, K, Vt);
 			break;
 		case 9:
-			newvdd = scaledvdd09(delta, K, Vt);
+			newvdd = scaledvdd09(E, delta, K, Vt);
 			break;
 		case 10:
-			newvdd = scaledvdd10(delta, K, Vt);
+			newvdd = scaledvdd10(E, delta, K, Vt);
 			break;
 		case 11:
-			newvdd = scaledvdd11(delta, K, Vt);
+			newvdd = scaledvdd11(E, delta, K, Vt);
 			break;
 		case 12:
-			newvdd = scaledvdd12(delta, K, Vt);
+			newvdd = scaledvdd12(E, delta, K, Vt);
 			break;
 		case 13:
-			newvdd = scaledvdd13(delta, K, Vt);
+			newvdd = scaledvdd13(E, delta, K, Vt);
 			break;
 		case 14:
-			newvdd = scaledvdd14(delta, K, Vt);
+			newvdd = scaledvdd14(E, delta, K, Vt);
 			break;
 		case 15:
-			newvdd = scaledvdd15(delta, K, Vt);
+			newvdd = scaledvdd15(E, delta, K, Vt);
 			break;
 		case 16:
-			newvdd = scaledvdd16(delta, K, Vt);
+			newvdd = scaledvdd16(E, delta, K, Vt);
 			break;
 		case 17:
-			newvdd = scaledvdd17(delta, K, Vt);
+			newvdd = scaledvdd17(E, delta, K, Vt);
 			break;
 		case 18:
-			newvdd = scaledvdd18(delta, K, Vt);
+			newvdd = scaledvdd18(E, delta, K, Vt);
 			break;
 		case 19:
-			newvdd = scaledvdd19(delta, K, Vt);
+			newvdd = scaledvdd19(E, delta, K, Vt);
 			break;
 		case 20:
-			newvdd = scaledvdd20(delta, K, Vt);
+			newvdd = scaledvdd20(E, delta, K, Vt);
 			break;
 		default:
 			break;
@@ -251,7 +266,7 @@ power_scalevdd(State *S, double freq)
 
 	if (newvdd < 0.0)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Could not solve for Vdd from given delta, K, alpha and Vt.\n");
 		return;
 	}
@@ -275,19 +290,19 @@ power_scalevdd(State *S, double freq)
 		}
 	}
 
-	SIM_MIN_CYCLETIME = DBL_MAX;
-	SIM_MAX_CYCLETIME = 0;
-	for (i = 0; i < SIM_NUM_NODES; i++)
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
 	{
-		SIM_MIN_CYCLETIME = min(SIM_MIN_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
-		SIM_MAX_CYCLETIME = max(SIM_MAX_CYCLETIME, SIM_STATE_PTRS[i]->CYCLETIME);
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
 	return;
 }
 
 double
-scaledvdd05(double delta, double K, double Vt)
+scaledvdd05(Engine *E, double delta, double K, double Vt)
 {
 	int		i, fsol = 0;
 	const int	nsol = 2;
@@ -307,7 +322,7 @@ scaledvdd05(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -315,7 +330,7 @@ scaledvdd05(double delta, double K, double Vt)
 }
 
 double
-scaledvdd06(double delta, double K, double Vt)
+scaledvdd06(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 5;
@@ -341,7 +356,7 @@ scaledvdd06(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -349,7 +364,7 @@ scaledvdd06(double delta, double K, double Vt)
 }
 
 double
-scaledvdd07(double delta, double K, double Vt)
+scaledvdd07(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 10;
@@ -379,7 +394,7 @@ scaledvdd07(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -387,7 +402,7 @@ scaledvdd07(double delta, double K, double Vt)
 }
 
 double
-scaledvdd08(double delta, double K, double Vt)
+scaledvdd08(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 5;
@@ -414,7 +429,7 @@ scaledvdd08(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -422,7 +437,7 @@ scaledvdd08(double delta, double K, double Vt)
 }
 
 double
-scaledvdd09(double delta, double K, double Vt)
+scaledvdd09(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 10;
@@ -454,7 +469,7 @@ scaledvdd09(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -462,7 +477,7 @@ scaledvdd09(double delta, double K, double Vt)
 }
 
 double
-scaledvdd10(double delta, double K, double Vt)
+scaledvdd10(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 1;
@@ -484,7 +499,7 @@ scaledvdd10(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -492,7 +507,7 @@ scaledvdd10(double delta, double K, double Vt)
 }
 
 double
-scaledvdd11(double delta, double K, double Vt)
+scaledvdd11(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 11;
@@ -526,7 +541,7 @@ scaledvdd11(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -534,7 +549,7 @@ scaledvdd11(double delta, double K, double Vt)
 }
 
 double
-scaledvdd12(double delta, double K, double Vt)
+scaledvdd12(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 6;
@@ -563,7 +578,7 @@ scaledvdd12(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -571,7 +586,7 @@ scaledvdd12(double delta, double K, double Vt)
 }
 
 double
-scaledvdd13(double delta, double K, double Vt)
+scaledvdd13(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 13;
@@ -607,7 +622,7 @@ scaledvdd13(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -615,7 +630,7 @@ scaledvdd13(double delta, double K, double Vt)
 }
 
 double
-scaledvdd14(double delta, double K, double Vt)
+scaledvdd14(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 7;
@@ -645,7 +660,7 @@ scaledvdd14(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -653,7 +668,7 @@ scaledvdd14(double delta, double K, double Vt)
 }
 
 double
-scaledvdd15(double delta, double K, double Vt)
+scaledvdd15(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 1;
@@ -691,7 +706,7 @@ scaledvdd15(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -699,7 +714,7 @@ scaledvdd15(double delta, double K, double Vt)
 }
 
 double
-scaledvdd16(double delta, double K, double Vt)
+scaledvdd16(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 8;
@@ -730,7 +745,7 @@ scaledvdd16(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -738,7 +753,7 @@ scaledvdd16(double delta, double K, double Vt)
 }
 
 double
-scaledvdd17(double delta, double K, double Vt)
+scaledvdd17(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 17;
@@ -778,7 +793,7 @@ scaledvdd17(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -786,7 +801,7 @@ scaledvdd17(double delta, double K, double Vt)
 }
 
 double
-scaledvdd18(double delta, double K, double Vt)
+scaledvdd18(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 9;
@@ -818,7 +833,7 @@ scaledvdd18(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -826,7 +841,7 @@ scaledvdd18(double delta, double K, double Vt)
 }
 
 double
-scaledvdd19(double delta, double K, double Vt)
+scaledvdd19(Engine *E, double delta, double K, double Vt)
 {
 	int		i, q, fsol = 0;
 	const int	nsol = 19;
@@ -868,7 +883,7 @@ scaledvdd19(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 
@@ -876,7 +891,7 @@ scaledvdd19(double delta, double K, double Vt)
 }
 
 double
-scaledvdd20(double delta, double K, double Vt)
+scaledvdd20(Engine *E, double delta, double K, double Vt)
 {
 	int		i, fsol = 0;
 	const int	nsol = 2;
@@ -896,7 +911,7 @@ scaledvdd20(double delta, double K, double Vt)
 	}
 	if (SF_DEBUG)
 	{
-		mprint(NULL, siminfo,
+		mprint(E, NULL, siminfo,
 			"Found %d solutions for Vdd from delay equation.\n", fsol);
 	}
 

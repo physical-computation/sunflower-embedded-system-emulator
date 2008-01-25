@@ -49,3 +49,6 @@
 #define	SF_FAULT		0
 #define	SF_DUMPPWR		0
 #define	SF_VALUETRACE_ANALYSIS	0
+#define	SF_FT_TANDEM		0
+#define	SF_BPTS			1
+#define	SF_TRAJECTORIES		0

@@ -31,23 +31,39 @@
 /*										*/
 /*	Contact: phillip Stanley-Marbell <pstanley@ece.cmu.edu>			*/
 /*										*/	
+/*
+	TODO: Might be able to speed up cache simulation  using the
+	methodology we use for PAU --- have a separate array that
+	keeps track of which line indeces in cache are valid, so
+	we do not have to search through entire set to find a match.
+	This will reap greatest benefits when sets are large.
+
+	TODO:	(1)	Write_Byte etc should be renamed to write_byte
+		(2)	Fix the use of xdata and the way things are used
+			from op-hitachi-sh.c
+		(3)	all non-byte reads must rearrange bytes for the target
+			machine endianess. This should be a call to a 
+			function which acts based on simulated machine endianness,
+			enabling us to easily simulate the machine as Big-endian 
+			or little endian
+*/
 
 int
-superHcache_init(State *S, int size, int blocksize, int assoc)
+superHcache_init(Engine *E, State *S, int size, int blocksize, int assoc)
 {	
 	if (S->superH->C != NULL)
 	{
-		mfree(S->superH->C, "(Cache *)S->superH->C");
+		mfree(E, S->superH->C, "(Cache *)S->superH->C");
 		if (S->superH->C->blocks != NULL)
 		{
-			mfree(S->superH->C->blocks, "(Cache *)S->superH->C");
+			mfree(E, S->superH->C->blocks, "(Cache *)S->superH->C");
 		}
 	}
 
-	S->superH->C = (Cache *)mcalloc(1, sizeof(Cache), "(Cache *)S->superH->C");
+	S->superH->C = (Cache *)mcalloc(E, 1, sizeof(Cache), "(Cache *)S->superH->C");
 	if (S->superH->C == NULL)
 	{
-		merror("mcalloc failed for (Cache *)C in cache_init()");
+		merror(E, "mcalloc failed for (Cache *)C in cache_init()");
 		return -1;
 	}
 
@@ -55,7 +71,7 @@ superHcache_init(State *S, int size, int blocksize, int assoc)
 		(blocksize <= 0)||(size%blocksize != 0)||\
 		((size/blocksize)%assoc != 0))
 	{
-		merror("cacheinit() failed: Invalid Cache parameters");
+		merror(E, "cacheinit() failed: Invalid Cache parameters");
 		return -1;
 	}
 
@@ -64,11 +80,11 @@ superHcache_init(State *S, int size, int blocksize, int assoc)
 	S->superH->C->size = size;
 	S->superH->C->nblocks = size/blocksize;
 
-	S->superH->C->blocks = (CacheBlock *)mcalloc(S->superH->C->nblocks, sizeof(CacheBlock),
+	S->superH->C->blocks = (CacheBlock *)mcalloc(E, S->superH->C->nblocks, sizeof(CacheBlock),
 			"(CacheBlock *)S->superH->C->blocks");
 	if (S->superH->C->blocks == NULL)
 	{
-		merror("mcalloc failed for C->blocks in cache_init()");
+		merror(E, "mcalloc failed for C->blocks in cache_init()");
 		return -1;
 	}
 
@@ -78,27 +94,27 @@ superHcache_init(State *S, int size, int blocksize, int assoc)
 	S->superH->C->tagbits = SUPERH_MEMADDRBITS - (S->superH->C->offsetbits+S->superH->C->indexbits);
 	S->superH->cache_activated = 1;
 
-	mprint(S, nodeinfo, "\nCache Parameters:\n");
-	mprint(S, nodeinfo, "\t\tSize: %d KBytes\n", S->superH->C->size/1024);
-	mprint(S, nodeinfo, "\t\tBlock Size: %d Bytes\n", S->superH->C->blocksize);
-	mprint(S, nodeinfo, "\t\tNumber of Blocks: %d\n", S->superH->C->nblocks);
-	mprint(S, nodeinfo, "\t\tAssociativity: %d-way set associative\n", S->superH->C->assoc);
-	mprint(S, nodeinfo, "\t\tNumber of Sets: %d\n", S->superH->C->nsets);
-	mprint(S, nodeinfo, "\t\toffset:%d bits, index:%d bits, tag:%d bits\n\n",\
+	mprint(E, S, nodeinfo, "\nCache Parameters:\n");
+	mprint(E, S, nodeinfo, "\t\tSize: %d KBytes\n", S->superH->C->size/1024);
+	mprint(E, S, nodeinfo, "\t\tBlock Size: %d Bytes\n", S->superH->C->blocksize);
+	mprint(E, S, nodeinfo, "\t\tNumber of Blocks: %d\n", S->superH->C->nblocks);
+	mprint(E, S, nodeinfo, "\t\tAssociativity: %d-way set associative\n", S->superH->C->assoc);
+	mprint(E, S, nodeinfo, "\t\tNumber of Sets: %d\n", S->superH->C->nsets);
+	mprint(E, S, nodeinfo, "\t\toffset:%d bits, index:%d bits, tag:%d bits\n\n",\
 			 S->superH->C->offsetbits, S->superH->C->indexbits, S->superH->C->tagbits);
 
 	return 0;
 }
 
 void
-superHcache_deactivate(State *S)
+superHcache_deactivate(Engine *E, State *S)
 {
-	mprint(S, nodeinfo, "Cache deactivated\n");
+	mprint(E, S, nodeinfo, "Cache deactivated\n");
 	S->superH->cache_activated = 0;
 }
 
 tuck void
-superHwritebyte(State *S, ulong vaddr, ulong xdata)
+superHwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
 	int		inram, latency = 0;
 	int		i, j, id;
@@ -160,14 +176,14 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 
 	if (i != -1)
 	{
-		fprintf(stderr, "!");
+		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		/*										*/
@@ -190,14 +206,14 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 				ulong	*tmp;
 
 				X->regions[i]->nvalues *= 2;
-				tmp = (ulong *)mrealloc(X->regions[i]->values,
+				tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 					X->regions[i]->nvalues*sizeof(ulong), "realloc C->regions[i]->values in cache.c");
 				if (tmp == NULL)
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"Resizing X->regions[i]->values to %d entries failed\n",
 						X->regions[i]->nvalues);
-					sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+					sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 				}
 				X->regions[i]->values = tmp;
 			}
@@ -214,21 +230,21 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 				latency = X->regions[i]->remote_write_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			D->MEM[destoffset] = data;
@@ -245,7 +261,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 
 			return;
 		}
@@ -258,7 +274,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_WRITE_BYTE, &trans);
+	S->vmtranslate(E, S, MEM_WRITE_BYTE, &trans);
 	if (trans.error)
 	{
 		return;
@@ -281,7 +297,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		devportwritebyte(S, vaddr, data);
+		devportwritebyte(E, S, vaddr, data);
 
 		return;
 	}
@@ -300,7 +316,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_WRITE_BYTE, paddr);
+		pau_feed(E, S, MEM_WRITE_BYTE, paddr);
 	}
 
 
@@ -360,7 +376,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 		/*							*/
 		if (S->superH->C->blocks[oldest].valid)
 		{
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 		}
 
 		S->superH->C->blocks[oldest].tag = tag;
@@ -375,7 +391,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 	}
 
 	return;
@@ -383,7 +399,7 @@ superHwritebyte(State *S, ulong vaddr, ulong xdata)
 
  
 tuck void 	
-superHwriteword(State *S, ulong vaddr, ulong xdata)
+superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
@@ -445,14 +461,14 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 
 	if (i != -1)
 	{
-		fprintf(stderr, "!");
+		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		/*										*/
@@ -486,14 +502,14 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 				ulong	*tmp;
 
 				X->regions[i]->nvalues *= 2;
-				tmp = (ulong *)mrealloc(X->regions[i]->values,
+				tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 					X->regions[i]->nvalues*sizeof(ulong), "realloc C->regions[i]->values in cache.c");
 				if (tmp == NULL)
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"Resizing X->regions[i]->values to %d entries failed\n",
 						X->regions[i]->nvalues);
-					sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+					sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 				}
 				X->regions[i]->values = tmp;
 			}
@@ -510,21 +526,21 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 				latency = X->regions[i]->remote_write_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			D->MEM[destoffset] = (uchar)((data>>8)&0xFF);
@@ -542,7 +558,7 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 
 			return;
 		}
@@ -555,7 +571,7 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_WRITE_WORD, &trans);
+	S->vmtranslate(E, S, MEM_WRITE_WORD, &trans);
 	if (trans.error)
 	{
 		return;
@@ -588,7 +604,7 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		devportwriteword(S, vaddr, data);
+		devportwriteword(E, S, vaddr, data);
 
 		return;
 	}
@@ -607,7 +623,7 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_WRITE_WORD, paddr);
+		pau_feed(E, S, MEM_WRITE_WORD, paddr);
 	}
 
 	/*								  */
@@ -666,7 +682,7 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 		/*							*/
 		if (S->superH->C->blocks[oldest].valid)
 		{
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 		}
 
 		S->superH->C->blocks[oldest].tag = tag;
@@ -682,14 +698,14 @@ superHwriteword(State *S, ulong vaddr, ulong xdata)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 	}
 
 	return;
 }
 
 tuck void 	
-superHwritelong(State *S, ulong vaddr, ulong data)
+superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
@@ -750,14 +766,14 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 
 	if (i != -1)
 	{
-		fprintf(stderr, "!");
+		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		/*										*/
@@ -791,14 +807,14 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 				ulong	*tmp;
 
 				X->regions[i]->nvalues *= 2;
-				tmp = (ulong *)mrealloc(X->regions[i]->values,
+				tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 					X->regions[i]->nvalues*sizeof(ulong), "realloc C->regions[i]->values in cache.c");
 				if (tmp == NULL)
 				{
-					mprint(NULL, siminfo,
+					mprint(E, NULL, siminfo,
 						"Resizing X->regions[i]->values to %d entries failed\n",
 						X->regions[i]->nvalues);
-					sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+					sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 				}
 				X->regions[i]->values = tmp;
 			}
@@ -815,21 +831,21 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 				latency = X->regions[i]->remote_write_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			D->MEM[destoffset] =(uchar)((data>>24)&0xFF);
@@ -849,7 +865,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 
 			return;
 		}
@@ -862,7 +878,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_WRITE_LONG, &trans);
+	S->vmtranslate(E, S, MEM_WRITE_LONG, &trans);
 	if (trans.error)
 	{
 		return;
@@ -895,7 +911,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		devportwritelong(S, vaddr, data);
+		devportwritelong(E, S, vaddr, data);
 
 		return;
 	}
@@ -914,7 +930,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_WRITE_LONG, paddr);
+		pau_feed(E, S, MEM_WRITE_LONG, paddr);
 	}
 
 	/*								*/
@@ -974,7 +990,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 		/*							*/
 		if (S->superH->C->blocks[oldest].valid)
 		{
-			S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 		}
 
 		S->superH->C->blocks[oldest].tag = tag;
@@ -992,7 +1008,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_WRITE_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
 	}
 
 	return;
@@ -1004,7 +1020,7 @@ superHwritelong(State *S, ulong vaddr, ulong data)
 /*	or if longword data is read from an address other than 4n	*/
 /*									*/
 tuck uchar 	
-superHreadbyte(State *S, ulong vaddr)
+superHreadbyte(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
@@ -1069,10 +1085,10 @@ superHreadbyte(State *S, ulong vaddr)
 		X->regions[i]->nreads++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		if (!X->regions[i]->private || (id == S->NODE_ID))
@@ -1086,21 +1102,21 @@ superHreadbyte(State *S, ulong vaddr)
 				latency = X->regions[i]->remote_read_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			data = D->MEM[destoffset];
@@ -1126,15 +1142,15 @@ superHreadbyte(State *S, ulong vaddr)
 					ulong	*tmp;
 
 					X->regions[i]->nvalues *= 2;
-					tmp = (ulong *)mrealloc(X->regions[i]->values,
+					tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 						X->regions[i]->nvalues*sizeof(ulong), 
 						"realloc C->regions[i]->values in cache.c");
 					if (tmp == NULL)
 					{
-						mprint(NULL, siminfo,
+						mprint(E, NULL, siminfo,
 							"Resizing X->regions[i]->values to %d entries failed\n",
 							X->regions[i]->nvalues);
-						sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+						sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 					}
 					X->regions[i]->values = tmp;
 				}
@@ -1151,7 +1167,7 @@ superHreadbyte(State *S, ulong vaddr)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_READ_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 			return data;
 		}
@@ -1164,7 +1180,7 @@ superHreadbyte(State *S, ulong vaddr)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_READ_BYTE, &trans);
+	S->vmtranslate(E, S, MEM_READ_BYTE, &trans);
 	if (trans.error)
 	{
 		/*							*/
@@ -1194,7 +1210,7 @@ superHreadbyte(State *S, ulong vaddr)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		return devportreadbyte(S, vaddr);
+		return devportreadbyte(E, S, vaddr);
 	}
 
 	/*		Model # bits flipping due to this mem access	*/
@@ -1211,7 +1227,7 @@ superHreadbyte(State *S, ulong vaddr)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_READ_BYTE, paddr);
+		pau_feed(E, S, MEM_READ_BYTE, paddr);
 	}
 
 	/*								*/
@@ -1259,7 +1275,7 @@ superHreadbyte(State *S, ulong vaddr)
 			}
 		}
 
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 		S->superH->C->blocks[oldest].tag = tag;
 		S->superH->C->blocks[oldest].valid = 1;
@@ -1268,14 +1284,14 @@ superHreadbyte(State *S, ulong vaddr)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 	}
 
 	return data;
 }
 
 tuck ushort
-superHreadword(State *S, ulong vaddr)
+superHreadword(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
@@ -1340,10 +1356,10 @@ superHreadword(State *S, ulong vaddr)
 		X->regions[i]->nreads++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		if (!X->regions[i]->private || (id == S->NODE_ID))
@@ -1357,21 +1373,21 @@ superHreadword(State *S, ulong vaddr)
 				latency = X->regions[i]->remote_read_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			data = (ushort)(D->MEM[destoffset]<<8)|D->MEM[destoffset + 1];
@@ -1408,15 +1424,15 @@ superHreadword(State *S, ulong vaddr)
 					ulong	*tmp;
 
 					X->regions[i]->nvalues *= 2;
-					tmp = (ulong *)mrealloc(X->regions[i]->values,
+					tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 						X->regions[i]->nvalues*sizeof(ulong), 
 						"realloc C->regions[i]->values in cache.c");
 					if (tmp == NULL)
 					{
-						mprint(NULL, siminfo,
+						mprint(E, NULL, siminfo,
 							"Resizing X->regions[i]->values to %d entries failed\n",
 							X->regions[i]->nvalues);
-						sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+						sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 					}
 					X->regions[i]->values = tmp;
 				}
@@ -1433,7 +1449,7 @@ superHreadword(State *S, ulong vaddr)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_READ_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 			return data;
 		}
@@ -1446,7 +1462,7 @@ superHreadword(State *S, ulong vaddr)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_READ_WORD, &trans);
+	S->vmtranslate(E, S, MEM_READ_WORD, &trans);
 	if (trans.error)
 	{
 		/*							*/
@@ -1486,7 +1502,7 @@ superHreadword(State *S, ulong vaddr)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		return devportreadword(S, vaddr);
+		return devportreadword(E, S, vaddr);
 	}
 
 	/*		Model # bits flipping due to this mem access	*/
@@ -1503,7 +1519,7 @@ superHreadword(State *S, ulong vaddr)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_READ_WORD, paddr);
+		pau_feed(E, S, MEM_READ_WORD, paddr);
 	}
 
 	/*								*/
@@ -1551,7 +1567,7 @@ superHreadword(State *S, ulong vaddr)
 			}
 		}
 
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 		S->superH->C->blocks[oldest].tag = tag;
 		S->superH->C->blocks[oldest].valid = 1;
@@ -1560,14 +1576,14 @@ superHreadword(State *S, ulong vaddr)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 	}
 
 	return data;
 }
 
 tuck ulong 	
-superHreadlong(State *S, ulong vaddr)
+superHreadlong(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
@@ -1632,10 +1648,10 @@ superHreadlong(State *S, ulong vaddr)
 		X->regions[i]->nreads++;
 
 		id = X->regions[i]->map_id;
-		if (id >= SIM_NUM_NODES || id < 0) 
+		if (id >= E->nnodes || id < 0) 
 		{
-			mprint(S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
-			sfatal(S, "Bad NUMA destination map ID!");
+			mprint(E, S, nodeinfo, "\nMap: invalid dst node, ID = %d\n", id);
+			sfatal(E, S, "Bad NUMA destination map ID!");
 		}
 
 		if (!X->regions[i]->private || (id == S->NODE_ID))
@@ -1649,21 +1665,21 @@ superHreadlong(State *S, ulong vaddr)
 				latency = X->regions[i]->remote_read_latency;
 			}
 
-			D		= SIM_STATE_PTRS[id];
+			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
 			if (destoffset >= D->MEMSIZE)
 			{
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"\nMap: Access @ addr 0x" UHLONGFMT ", dst node ID %d\n",
 					vaddr, id);
-				mprint(S, nodeinfo,
+				mprint(E, S, nodeinfo,
 					"membase 0x" UHLONGFMT ", memsize 0x" UHLONGFMT 
 					", destoffset 0x" UHLONGFMT "\n",
 					D->MEMBASE, D->MEMSIZE, destoffset);
-				sfatal(S, "Bad NUMA destination address access!");
+				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
 			data = (ulong)(D->MEM[destoffset]<<24)	|
@@ -1703,15 +1719,15 @@ superHreadlong(State *S, ulong vaddr)
 					ulong	*tmp;
 
 					X->regions[i]->nvalues *= 2;
-					tmp = (ulong *)mrealloc(X->regions[i]->values,
+					tmp = (ulong *)mrealloc(E, X->regions[i]->values,
 						X->regions[i]->nvalues*sizeof(ulong),
 						"realloc C->regions[i]->values in cache.c");
 					if (tmp == NULL)
 					{
-						mprint(NULL, siminfo,
+						mprint(E, NULL, siminfo,
 							"Resizing X->regions[i]->values to %d entries failed\n",
 							X->regions[i]->nvalues);
-						sfatal(S, "realloc failed for X->regions[i]->values in cache.c");
+						sfatal(E, S, "realloc failed for X->regions[i]->values in cache.c");
 					}
 					X->regions[i]->values = tmp;
 				}
@@ -1728,7 +1744,7 @@ superHreadlong(State *S, ulong vaddr)
 				S->superH->B->paddr_bus = paddr;
 			}
 
-			S->stallaction(S, paddr, MEM_READ_STALL, latency);
+			S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 			return data;
 		}
@@ -1741,7 +1757,7 @@ superHreadlong(State *S, ulong vaddr)
 	/*								*/
 	trans.vaddr = vaddr;
 	trans.error = 0;
-	S->vmtranslate(S, MEM_READ_LONG, &trans);
+	S->vmtranslate(E, S, MEM_READ_LONG, &trans);
 	if (trans.error)
 	{
 		/*							*/
@@ -1784,7 +1800,7 @@ superHreadlong(State *S, ulong vaddr)
 		/*	devport. If addr not found in devport, try	*/
 		/*	arch-specific dev if not, fail with sfatal.	*/
 		/*							*/
-		return devportreadlong(S, vaddr);
+		return devportreadlong(E, S, vaddr);
 	}
 
 	/*		Model # bits flipping due to this mem access	*/
@@ -1801,7 +1817,7 @@ superHreadlong(State *S, ulong vaddr)
 
 	if (SF_PAU_DEFINED)
 	{
-		pau_feed(S, MEM_READ_LONG, paddr);
+		pau_feed(E, S, MEM_READ_LONG, paddr);
 	}
 
 	/*									*/
@@ -1849,7 +1865,7 @@ superHreadlong(State *S, ulong vaddr)
 			}
 		}
 
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 
 		S->superH->C->blocks[oldest].tag = tag;
 		S->superH->C->blocks[oldest].valid = 1;
@@ -1858,38 +1874,38 @@ superHreadlong(State *S, ulong vaddr)
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
 	{
-		S->stallaction(S, paddr, MEM_READ_STALL, latency);
+		S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
 	}
 
 	return data;
 }
 
 void
-superHcache_printstats(State *S)
+superHcache_printstats(Engine *E, State *S)
 {
 	uvlong	tot;
 
 	if (!S->superH->cache_activated)
 	{
-		mprint(S, nodeinfo, "Cache is not activated\n");
+		mprint(E, S, nodeinfo, "Cache is not activated\n");
 		return;
 	}
 
 	tot = S->superH->C->readhit+S->superH->C->readmiss+S->superH->C->writehit+S->superH->C->writemiss;
 	if (tot > 0)
 	{
-		mprint(S, nodeinfo, "\nMemory accesses : " UVLONGFMT "\n", tot);
+		mprint(E, S, nodeinfo, "\nMemory accesses : " UVLONGFMT "\n", tot);
 
-		mprint(S, nodeinfo, "Read Hits 	: " UVLONGFMT " (%.2f%%)\n",
+		mprint(E, S, nodeinfo, "Read Hits 	: " UVLONGFMT " (%.2f%%)\n",
 			S->superH->C->readhit,
 			100*(float)S->superH->C->readhit/(float)tot);
-		mprint(S, nodeinfo, "Read Misses 	: " UVLONGFMT " (%.2f%%)\n",
+		mprint(E, S, nodeinfo, "Read Misses 	: " UVLONGFMT " (%.2f%%)\n",
 			S->superH->C->readmiss,
 			100*(float)S->superH->C->readmiss/(float)tot);
-		mprint(S, nodeinfo, "Write Hits 	: " UVLONGFMT " (%.2f%%)\n",
+		mprint(E, S, nodeinfo, "Write Hits 	: " UVLONGFMT " (%.2f%%)\n",
 			S->superH->C->writehit,
 			100*(float)S->superH->C->writehit/(float)tot);
-		mprint(S, nodeinfo, "Write Misses 	: " UVLONGFMT " (%.2f%%)\n\n",
+		mprint(E, S, nodeinfo, "Write Misses 	: " UVLONGFMT " (%.2f%%)\n\n",
 			S->superH->C->writemiss,
 			100*(float)S->superH->C->writemiss/(float)tot);
 	}

@@ -36,7 +36,7 @@
 #include "mextern.h"
 
 void
-munchinput(char *buf)
+munchinput(Engine *E, char *buf)
 {	
 	int 	eaten = 0;
 
@@ -48,26 +48,26 @@ munchinput(char *buf)
 			char *tptr;
 			Datum *t1;
 
-			t1 = (Datum *) mmalloc(sizeof(Datum),
+			t1 = (Datum *) mmalloc(E, sizeof(Datum),
 					"Datum *t1 in munchinput(), main.c");
 
 			if (t1 == NULL)
 			{
-				mprint(NULL, siminfo, "Could not allocate memory for Datum *t1");
-				mexit("See above messages.", -1);
+				mprint(E, NULL, siminfo, "Could not allocate memory for Datum *t1");
+				mexit(E, "See above messages.", -1);
 			}
 
 			t1->next = NULL;
 			t1->prev = NULL;
 			t1->value = 0;
 
-			t1->data = (char*) mmalloc((strlen(buf)+1)*sizeof(char), 
+			t1->data = (char*) mmalloc(E, (strlen(buf)+1)*sizeof(char), 
 						"char *t1->data in munchinput(), main.c");
 			if (t1->data == NULL)
 			{
-				mfree(t1, "char *t1 in main.c");
-				mprint(NULL, siminfo, "Could not allocate memory for char *t1->data");
-				mexit("See above messages.", -1);
+				mfree(E, t1, "char *t1 in main.c");
+				mprint(E, NULL, siminfo, "Could not allocate memory for char *t1->data");
+				mexit(E, "See above messages.", -1);
 			}
 			tptr = t1->data;
 
@@ -129,22 +129,22 @@ munchinput(char *buf)
 			/*	If we actually ate any food, put it in our stomach	*/
 			if (tptr != t1->data)
 			{
-				if ((istream.head == NULL)  || (istream.tail == NULL))
+				if ((E->istream.head == NULL)  || (E->istream.tail == NULL))
 				{
-					istream.tail = istream.head = istream.masthead = t1;
+					E->istream.tail = E->istream.head = E->istream.masthead = t1;
 
 					/*							*/
 					/*    NOTE tail and head now point to the lone datum 	*/
 					/*    and they _both_ have null pre- and next-.		*/
 					/*							*/
-					istream.masthead->prev = NULL;
-					istream.masthead->next = NULL;
+					E->istream.masthead->prev = NULL;
+					E->istream.masthead->next = NULL;
 
-					istream.head->prev = NULL;
-					istream.head->next = NULL;
+					E->istream.head->prev = NULL;
+					E->istream.head->next = NULL;
 
-					istream.tail->prev = NULL;
-					istream.tail->next = NULL;
+					E->istream.tail->prev = NULL;
+					E->istream.tail->next = NULL;
 				}
 				else
 				{
@@ -152,15 +152,15 @@ munchinput(char *buf)
 					/*  Add new datum to _tail_ of list. MUST keep it FIFO 	*/
 					/*  for the asm to be parsed correctly.			*/
 					/*							*/
-					t1->next = istream.tail;
-					istream.tail->prev = t1;
-					istream.tail = t1;
+					t1->next = E->istream.tail;
+					E->istream.tail->prev = t1;
+					E->istream.tail = t1;
 				}
 			}
 			else
 			{
-				mfree(t1->data, "t1->data in munchinput");
-				mfree(t1, "t1 in munchinput");
+				mfree(E, t1->data, "t1->data in munchinput");
+				mfree(E, t1, "t1 in munchinput");
 			}
 			/* careful : DO NOT free t1 ! */
 		}
@@ -171,34 +171,34 @@ munchinput(char *buf)
 }
 
 void
-clearistream(void)
+clearistream(Engine *E)
 {
 	Datum	*p, *q;
 
-	p = istream.head;
+	p = E->istream.head;
 	while (p != NULL)
 	{
 		if (SF_DEBUG)
 		{
-			mprint(NULL, siminfo,
+			mprint(E, NULL, siminfo,
 				"Discarding \"%s\" from istream...\n", p->data);
 		}
 
 		q = p;
-		mfree(p->data, "p->data in clearistream");
+		mfree(E, p->data, "p->data in clearistream");
 		p = p->prev;
-		mfree(q, "q in clearistream");
+		mfree(E, q, "q in clearistream");
 	}
-	istream.tail = istream.head = istream.masthead = NULL;
+	E->istream.tail = E->istream.head = E->istream.masthead = NULL;
 
 	return;
 }
 
 void
-scan_labels_and_globalvars(void)
+scan_labels_and_globalvars(Engine *E)
 {
 	ulong	tmp_pc;
-	Datum	*tmpistream = istream.tail;
+	Datum	*tmpistream = E->istream.tail;
 
 
 	while (tmpistream != NULL)
@@ -206,93 +206,93 @@ scan_labels_and_globalvars(void)
 		/* 	If it is new a label, add it to labellist 		*/
 		if (tmpistream->data[strlen(tmpistream->data)-1] == ':')
 		{
-			Datum*	tmplabel = (Datum *) mmalloc(sizeof(Datum), 
+			Datum*	tmplabel = (Datum *) mmalloc(E, sizeof(Datum), 
 					"Datum *tmplabel in parser-driver.c, ~line 174");
 			
 			if (tmplabel == NULL)
 			{
-				mprint(NULL, siminfo, 
+				mprint(E, NULL, siminfo, 
 					"Could not allocate memory for Datum *tmplabel, main.c");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
 
 			tmplabel->next = NULL;
 			tmplabel->prev = NULL;
-			tmplabel->data = (char*)mmalloc(strlen(tmpistream->data)*sizeof(char),
+			tmplabel->data = (char*)mmalloc(E, strlen(tmpistream->data)*sizeof(char),
 					"char *tmplabel->data in scan_labels...(), main.c");
 			if (tmplabel->data == NULL)
 			{
-				mfree(tmplabel, "tmplabel in scan_labels_and_globalvars");
-				mprint(NULL, siminfo,
+				mfree(E, tmplabel, "tmplabel in scan_labels_and_globalvars");
+				mprint(E, NULL, siminfo,
 					"Could not allocate memory for char *tmplabel->data, main.c");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
-			tmplabel->value = CUR_STATE->PC;
+			tmplabel->value = E->cp->PC;
 
 			
 			strncpy(tmplabel->data, tmpistream->data, strlen(tmpistream->data) - 1);
 			tmplabel->data[strlen(tmpistream->data)-1] = '\0';
 
-			if ((labellist.head == NULL)  || (labellist.tail == NULL))
+			if ((E->labellist.head == NULL)  || (E->labellist.tail == NULL))
 			{
-				//mprint(NULL, siminfo, "New label list\n");
-				labellist.tail = labellist.head = tmplabel;
+				//mprint(E, NULL, siminfo, "New label list\n");
+				E->labellist.tail = E->labellist.head = tmplabel;
 
-				labellist.head->prev = NULL;
-				labellist.head->next = NULL;
+				E->labellist.head->prev = NULL;
+				E->labellist.head->next = NULL;
 
-				labellist.tail->prev = NULL;
-				labellist.tail->next = NULL;
+				E->labellist.tail->prev = NULL;
+				E->labellist.tail->next = NULL;
 			}
 			else
 			{
-				//mprint(NULL, siminfo, "Adding new item to label list");
+				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
 				/*  		Add new datum to _tail_ of list.	*/
 				/*							*/
-				tmplabel->next = labellist.tail;
-				labellist.tail->prev = tmplabel;
-				labellist.tail = tmplabel;
+				tmplabel->next = E->labellist.tail;
+				E->labellist.tail->prev = tmplabel;
+				E->labellist.tail = tmplabel;
 			}
 		}
 
 		/*	If it is a global definition (".comm"), add it to labellist	*/
 		if (!strcmp(tmpistream->data, ".comm"))
 		{
-			Datum* tmplabel = (Datum *) mmalloc(sizeof(Datum),
+			Datum* tmplabel = (Datum *) mmalloc(E, sizeof(Datum),
 						"Datum *tmplabel in scan_labels...(), main.c");
 			if (tmplabel == NULL)
 			{
-				mprint(NULL, siminfo,
+				mprint(E, NULL, siminfo,
 					"Could not allocate memory for Datum *tmplabel, main.c");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
 
 			/*	Token we just passed is global var name		*/
 			tmpistream = tmpistream->prev;
 			if (tmpistream == NULL)
 			{
-				mprint(NULL, siminfo,
+				mprint(E, NULL, siminfo,
 					"Badly formed input stream: \".comm\" without a var name");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
 
-			//mprint(NULL, siminfo, "Found a global var definition, var name = [%s]\n",
+			//mprint(E, NULL, siminfo, "Found a global var definition, var name = [%s]\n",
 			//	tmpistream->data);
 
 			tmplabel->next = NULL;
 			tmplabel->prev = NULL;
-			tmplabel->data = (char*)mmalloc(strlen(tmpistream->data)*sizeof(char),
+			tmplabel->data = (char*)mmalloc(E, strlen(tmpistream->data)*sizeof(char),
 					"char *tmplabel->data in parser-driver.c, ~line 250");
-			tmplabel->value = CUR_STATE->PC;
+			tmplabel->value = E->cp->PC;
 
 
 			if (tmplabel->data == NULL)
 			{
-				mfree(tmplabel, "tmplabel in scan_labels_and_globalvars");
-				mprint(NULL, siminfo,
+				mfree(E, tmplabel, "tmplabel in scan_labels_and_globalvars");
+				mprint(E, NULL, siminfo,
 					"Could not allocate memory for char* tmplabel->data, main.c");
-				mexit("See above messages.", -1);
+				mexit(E, "See above messages.", -1);
 			}
 			
 			strncpy(tmplabel->data, tmpistream->data, strlen(tmpistream->data));
@@ -300,60 +300,60 @@ scan_labels_and_globalvars(void)
 			/*	We went one step back. Step forward again	*/
 			tmpistream = tmpistream->next;
 
-			if ((labellist.head == NULL)  || (labellist.tail == NULL))
+			if ((E->labellist.head == NULL)  || (E->labellist.tail == NULL))
 			{
-				//mprint(NULL, siminfo, "New label list\n");
-				labellist.tail = labellist.head = tmplabel;
+				//mprint(E, NULL, siminfo, "New label list\n");
+				E->labellist.tail = E->labellist.head = tmplabel;
 
-				labellist.head->prev = NULL;
-				labellist.head->next = NULL;
+				E->labellist.head->prev = NULL;
+				E->labellist.head->next = NULL;
 
-				labellist.tail->prev = NULL;
-				labellist.tail->next = NULL;
+				E->labellist.tail->prev = NULL;
+				E->labellist.tail->next = NULL;
 			}
 			else
 			{
-				//mprint(NULL, siminfo, "Adding new item to label list");
+				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
 				/*  		Add new datum to _tail_ of list.	*/
 				/*							*/
-				tmplabel->next = labellist.tail;
-				labellist.tail->prev = tmplabel;
-				labellist.tail = tmplabel;
+				tmplabel->next = E->labellist.tail;
+				E->labellist.tail->prev = tmplabel;
+				E->labellist.tail = tmplabel;
 			}
 		}
 		tmpistream = tmpistream->next;
 	}
 
-	//mprint(NULL, siminfo, "Done scan_labels_and_globalvars()...\n");
-	//mprint(NULL, siminfo, "Calling yyparse(), with SCANNING flag set\n\n\n");
+	//mprint(E, NULL, siminfo, "Done scan_labels_and_globalvars()...\n");
+	//mprint(E, NULL, siminfo, "Calling yyparse(), with SCANNING flag set\n\n\n");
 
-	SCANNING = 1;
-	tmp_pc = CUR_STATE->PC;
+	E->scanning = 1;
+	tmp_pc = E->cp->PC;
 	yyparse();
-	CUR_STATE->PC = tmp_pc;
-	SCANNING = 0;
-	//mprint(NULL, siminfo, "Done assigning true disp's to labels.\n\n");
+	E->cp->PC = tmp_pc;
+	E->scanning = 0;
+	//mprint(E, NULL, siminfo, "Done assigning true disp's to labels.\n\n");
 	
 	/*	We screwed up istream.head, so reset it :	*/
-	istream.head = istream.masthead;
+	E->istream.head = E->istream.masthead;
 
 
 	return;
 }
 
 void
-streamchk(void)
+streamchk(Engine *E)
 {
-	Datum *tmp = istream.head;
+	Datum *tmp = E->istream.head;
 
-	mprint(NULL, siminfo, "Current input stream is: ");
+	mprint(E, NULL, siminfo, "Current input stream is: ");
 	while (tmp != NULL)
 	{
-		mprint(NULL, siminfo, "[%s]", tmp->data);
+		mprint(E, NULL, siminfo, "[%s]", tmp->data);
 		tmp = tmp->prev;
 	}
-	mprint(NULL, siminfo, "\n");
+	mprint(E, NULL, siminfo, "\n");
 
 	return;
 }

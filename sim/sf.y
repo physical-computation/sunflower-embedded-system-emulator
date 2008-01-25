@@ -40,24 +40,40 @@
 #include <math.h>
 #include "endian-hitachi-sh.h"
 #include "sf.h"
-#include "mmalloc.h"
 #include "mextern.h"
 %}
 
 
+/*									*/
+/*	The 'value' field will always hold a value, likewise the	*/
+/*	'type' field.  The 'rv' field will be populated	if the		*/
+/*	type field indicates that this is a random variable.		*/
+/*	Random constants look just like other immediate constants	*/
+/*	and do not have rv field set.  Random variables will always	*/
+/*	have the value field set to their initial value.		*/
+/*									*/
+/*	Grammar rules can get by by using only $X.value.  If the	*/
+/*	semantics of random variables for arguments make sense, it	*/
+/*	can additionally supply the $X.type and $X.rv to the m_...()	*/
+/*	function it invokes, to enable registering the appropriate	*/
+/*	variables as random variables.					*/
+/*									*/
 %union
 {
-	double	dval;
-	ulong	uval;
-	long	sval;
-	char	*str;
+	double		dval;
+	ulong		uval;
+	long		sval;
+	char		*str;
+	Rval		*rval;
+	DoubleList	*dlist;
 }
 
 
-/*	Myrmigki Commands	*/
+/*	Sunflower Commands	*/
 %token	T_BATTALERTFRAC
-%token	T_BATTLEAKCURRENT
+%token	T_BATTLEAK
 %token	T_BATTCF
+%token	T_BATTILEAK
 %token	T_BATTETALUT
 %token	T_BATTETALUTNENTRIES
 %token	T_BATTINOMINAL
@@ -68,6 +84,7 @@
 %token	T_BATTVBATTLUTNENTRIES
 %token	T_BATTVLOSTLUT
 %token	T_BATTVLOSTLUTNENTRIES
+%token	T_PCBT
 %token	T_CACHEINIT
 %token	T_CACHEOFF
 %token	T_CACHESTATS
@@ -93,8 +110,15 @@
 %token	T_FORCEAVGPWR
 %token	T_HELP
 %token	T_IGNORENODEDEATHS
+%token	T_INITSEESTATE
+%token	T_HWSEEREG
+%token	T_REGISTERRVAR
+%token	T_INITRANDTABLE
+%token	T_DEFNDIST
+%token	T_RANDPRINT
 %token	T_LOAD
 %token	T_LOCSTATS
+%token	T_LISTRVARS
 %token	T_MALLOCDEBUG
 %token	T_MMAP
 %token	T_MODECA
@@ -136,6 +160,8 @@
 %token	T_PWD
 %token	T_PARSEOBJDUMP
 %token	T_QUIT
+%token	T_GETRANDOMSEED
+%token	T_SETRANDOMSEED
 %token	T_RATIO
 %token	T_RENUMBERNODES
 %token	T_RESETNODECTRS
@@ -149,6 +175,8 @@
 %token	T_SETBATT
 %token	T_SETBATTFEEDPERIOD
 %token	T_SETDUMPPWRPERIOD
+%token	T_SETNETPERIOD
+%token	T_SETFAULTPERIOD
 %token	T_SETFREQ
 %token	T_SETIFCOUI
 %token	T_SETNODE
@@ -158,6 +186,8 @@
 %token	T_SETSCALEALPHA
 %token	T_SETSCALEK
 %token	T_SETSCALEVT
+%token	T_SETSCHEDRANDOM
+%token	T_SETSCHEDROUNDROBIN
 %token	T_SETTAG
 %token	T_SETTIMERDELAY
 %token	T_SETVDD
@@ -179,6 +209,17 @@
 %token	T_THROTTLEWIN
 %token	T_VERBOSE
 %token	T_VERSION
+%token	T_SETLOC
+%token	T_BPT
+%token	T_BPTLS
+%token	T_BPTDEL
+
+
+/*	Breakpoint types	*/
+%token	T_GLOBALTIME
+%token	T_CYCLES
+%token	T_INSTRS
+%token	T_SENSORREADING
 
 /*	Assembler control instructions 		*/
 %token	T_DOTALIGN
@@ -247,7 +288,7 @@
 %token	T_CMPPZ
 %token	T_CMPSTR
 %token	T_DIV0S
-%token	T_DIV0U	/*      TODO: This instr is not implemented in our interface assembler  	*/
+%token	T_DIV0U	/*    TODO: This instr is not implemented in our interface assembler  	*/
 %token	T_DIV1
 %token	T_DMULSL
 %token	T_DMULUL
@@ -328,9 +369,65 @@
 %type	<sval>	simm
 %type	<dval>	dimm
 %type	<str>	optstring
+
+/*									*/
+/*	An rdimm immediate value indicates that either a dimm or a	*/
+/*	rnd (random variable or random constant) can be used (i.e.,	*/
+/*	rvars and rconsts are treated as though they were dimms, to	*/
+/*	keep things simple (as opposed to differentiating between 	*/
+/*	continuous r.v.'s as dimm, and discrete r.v.'s as uimms, etc.	*/
+/*									*/
+/*	TODO: update lex comments with designation of dimm/rdimm, so	*/
+/*	that documentation reflects sites where we now permit an rdimm	*/
+/*									*/
+%type	<rval>	ruimm
+%type	<rval>	rsimm
+%type	<rval>	rdimm
+%type	<rval>	rnd
+%type	<rval>	rnd_const
+%type	<rval>	rnd_var
+
+/*
+%type	<rval>	rnd_bathtub
+%type	<rval>	rnd_beta
+%type	<rval>	rnd_betaprime
+%type	<rval>	rnd_bpareto
+%type	<rval>	rnd_cauchy
+%type	<rval>	rnd_chi
+%type	<rval>	rnd_erlang
+%type	<rval>	rnd_exp
+%type	<rval>	rnd_extremeval
+%type	<rval>	rnd_fdist
+%type	<rval>	rnd_fermidirac
+%type	<rval>	rnd_fisherz
+%type	<rval>	rnd_gamma
+%type	<rval>	rnd_gauss
+%type	<rval>	rnd_gibrat
+%type	<rval>	rnd_gumbel
+%type	<rval>	rnd_halfnormal
+%type	<rval>	rnd_laplace
+%type	<rval>	rnd_logistic
+%type	<rval>	rnd_lognorm
+%type	<rval>	rnd_logseries
+%type	<rval>	rnd_maxwell
+%type	<rval>	rnd_negbinomial
+%type	<rval>	rnd_pearsontype3
+%type	<rval>	rnd_poisson
+%type	<rval>	rnd_rayleigh
+%type	<rval>	rnd_studentst
+%type	<rval>	rnd_studentsz
+%type	<rval>	rnd_uniform
+%type	<rval>	rnd_weibull
+%type	<rval>	rnd_xi2
+*/
+
+%type	<dlist>	dimmlist
+%type	<dlist>	dimmlistbody
+
 %token	<uval>	T_LABEL
 %token	<str> 	T_STRING
 %token	<str> 	T_MAN
+
 
 %%
 input		: /* empty */
@@ -341,7 +438,7 @@ line		: T_LABELDEFN
 		| T_LABELDEFN expr
 		| expr
 		| asm_ctl
-		| myrmigki_cmd
+		| sf_cmd
 		;
 
 asm_ctl		: dotalign
@@ -520,354 +617,546 @@ expr		: add_instr
 		;
 
 
-myrmigki_cmd	: T_QUIT '\n'
+sf_cmd		: T_QUIT '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mexit("Exiting as per user's request.", 0);
+				mexit(yyengine, "Exiting as per user's request.", 0);
 			}
 		}
-		| T_NEWNODE optstring dimm dimm dimm uimm dimm '\n'
+		//	TODO: we temporarily accept old-style velocity and orbit definitions
+		| T_NEWNODE optstring rdimm rdimm rdimm rdimm rdimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_newnode($2, $3, $4, $5, $6, $7);
+				m_newnode(yyengine, $2, $3->value, $4->value, $5->value, NULL, 0);
+			}
+		}
+		| T_NEWNODE optstring '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_newnode(yyengine, $2, 0, 0, 0, NULL, 0);
+			}
+		}
+		| T_NEWNODE optstring rdimm rdimm rdimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_newnode(yyengine, $2, $3->value, $3->value, $3->value, NULL, 0);
+			}
+		}
+		| T_NEWNODE optstring rdimm rdimm rdimm T_STRING uimm'\n'
+		{
+			if (!yyengine->scanning)
+			{
+				//	rdimm example: 	READ THE FOLLOWING!!!!
+				//
+				//	this is an example of using rdimm.  For rdimm,
+				//	you can't get the value from, e.g., $4, but have to do $4.value
+				//	The $X.rv field is the packaged rvar state needed to register
+				//	the corresponding parameter using m_register_rvar(), if the
+				//	rvar was declared as "{...}", or NULL if it was "<...>"
+				//
+				m_newnode(yyengine, $2, $3->value, $4->value, $5->value, $6, $7);
+
+				//	The above should be changed to:
+				//m_newnode($2, $3.value, $4.value, $5.value, $6.value, $7.value,
+				//		$3.rv, $4.rv, $5.rv, $6.rv, $7.rv);
+				//
+				//	and then in m_newnode(), check each of the rv args to
+				//	see if it is non-null, and if so, do approp. registration
+				//	of state as an rvar
 			}
 		}
 		| T_BATTNODEATTACH uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				batt_nodeattach(CUR_STATE, $2);
+				batt_nodeattach(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_BATTSTATS uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				batt_printstats(CUR_STATE, $2);
+				batt_printstats(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_NEWBATT uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				batt_newbatt($2, $3);
+				batt_newbatt(yyengine, $2, $3);
+			}
+		}
+		| T_BATTILEAK dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				if (SF_DEBUG) mprint(yyengine, NULL, siminfo, 
+						"Setting yyengine->batts[%d].ileak to %f\n",
+						yyengine->curbatt, $2);
+				yyengine->batts[yyengine->curbatt].ileak = $2;
 			}
 		}
 		| T_BATTCF dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo, 
-						"Setting SIM_BATTERIES[%d].Cf to %f\n",
-						CUR_BATT_ID, $2);
-				SIM_BATTERIES[CUR_BATT_ID].Cf = $2;
+				if (SF_DEBUG) mprint(yyengine, NULL, siminfo, 
+						"Setting yyengine->batts[%d].Cf to %f\n",
+						yyengine->curbatt, $2);
+				yyengine->batts[yyengine->curbatt].Cf = $2;
 			}
 		}
 		| T_BATTINOMINAL dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo, 
-					"Setting SIM_BATTERIES[%d].Inominal to %f\n",
-					CUR_BATT_ID, $2);
-				SIM_BATTERIES[CUR_BATT_ID].Inominal = $2;
+				if (SF_DEBUG) mprint(yyengine, NULL, siminfo, 
+					"Setting yyengine->batts[%d].Inominal to %f\n",
+					yyengine->curbatt, $2);
+				yyengine->batts[yyengine->curbatt].Inominal = $2;
 			}
 		}
 		| T_BATTRF dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo, 
-						"Setting SIM_BATTERIES[%d].Rf to %f\n",
-						CUR_BATT_ID, $2);
-				SIM_BATTERIES[CUR_BATT_ID].Rf = $2;
+				if (SF_DEBUG) mprint(yyengine, NULL, siminfo, 
+						"Setting yyengine->batts[%d].Rf to %f\n",
+						yyengine->curbatt, $2);
+				yyengine->batts[yyengine->curbatt].Rf = $2;
 			}
 		}
 		| T_BATTETALUT uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 < SIM_BATTERIES[CUR_BATT_ID].etaLUTnentries)
+				if ($2 < yyengine->batts[yyengine->curbatt].etaLUTnentries)
 				{
-					SIM_BATTERIES[CUR_BATT_ID].etaLUT[$2] = $3;
+					yyengine->batts[yyengine->curbatt].etaLUT[$2] = $3;
 				}
 				else
 				{
-					merror("Invalid etaLUT index.");
+					merror(yyengine, "Invalid etaLUT index.");
 				}
 			}
 		}
 		| T_BATTETALUTNENTRIES uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				double *tmp = (double *)mrealloc(SIM_BATTERIES[CUR_BATT_ID].etaLUT,
+				double *tmp = (double *)mrealloc(yyengine, yyengine->batts[yyengine->curbatt].etaLUT,
 						$2*sizeof(double), 
 						"shasm.y, (double *) for T_BATTETALUTNENTRIES");
 				if (tmp == NULL)
 				{
-					merror("Could not resize etaLUT.");
+					mexit(yyengine, "Could not resize etaLUT: mcrealloc failed.", -1);
 				}
 				else
 				{
-					SIM_BATTERIES[CUR_BATT_ID].etaLUT = tmp;
-					SIM_BATTERIES[CUR_BATT_ID].etaLUTnentries = $2;
+					yyengine->batts[yyengine->curbatt].etaLUT = tmp;
+					yyengine->batts[yyengine->curbatt].etaLUTnentries = $2;
 				}
 			}
 		}
 		| T_BATTVBATTLUT uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 < SIM_BATTERIES[CUR_BATT_ID].VbattLUTnentries)
+				if ($2 < yyengine->batts[yyengine->curbatt].VbattLUTnentries)
 				{
-					SIM_BATTERIES[CUR_BATT_ID].VbattLUT[$2] = $3;
+					yyengine->batts[yyengine->curbatt].VbattLUT[$2] = $3;
 				}
 				else
 				{
-					merror("Invalid VbattLUT index.");
+					merror(yyengine, "Invalid VbattLUT index.");
 				}
 			}
 		}
 		| T_BATTVBATTLUTNENTRIES uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				double *tmp = (double *)mrealloc(SIM_BATTERIES[CUR_BATT_ID].VbattLUT,
+				double *tmp = (double *)mrealloc(yyengine, yyengine->batts[yyengine->curbatt].VbattLUT,
 						$2*sizeof(double), 
 						"shasm.y, (double *) for T_BATTVBATTLUTNENTRIES");
 				if (tmp == NULL)
 				{
-					merror("Could not resize VbattLUT.");
+					mexit(yyengine, "Could not resize VbattLUT: mrealloc() failed", -1);
 				}
 				else
 				{
-					SIM_BATTERIES[CUR_BATT_ID].VbattLUT = tmp;
-					SIM_BATTERIES[CUR_BATT_ID].VbattLUTnentries = $2;
+					yyengine->batts[yyengine->curbatt].VbattLUT = tmp;
+					yyengine->batts[yyengine->curbatt].VbattLUTnentries = $2;
 				}
 			}
 		}
 		| T_BATTVLOSTLUT uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 < SIM_BATTERIES[CUR_BATT_ID].VlostLUTnentries)
+				if ($2 < yyengine->batts[yyengine->curbatt].VlostLUTnentries)
 				{
-					SIM_BATTERIES[CUR_BATT_ID].VlostLUT[$2] = $3;
+					yyengine->batts[yyengine->curbatt].VlostLUT[$2] = $3;
 				}
 				else
 				{
-					merror("Invalid VlostLUT index.");
+					merror(yyengine, "Invalid VlostLUT index.");
 				}
 			}
 		}
 		| T_BATTVLOSTLUTNENTRIES uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				double *tmp = (double *)mrealloc(SIM_BATTERIES[CUR_BATT_ID].VlostLUT,
+				double *tmp = (double *)mrealloc(yyengine, yyengine->batts[yyengine->curbatt].VlostLUT,
 						$2*sizeof(double), 
 						"shasm.y, (double *) for T_BATTVLOSTLUTNENTRIES");
 				if (tmp == NULL)
 				{
-					merror("Could not resize Vlost.");
+					mexit(yyengine, "Could not resize Vlost: mrealloc failed.", -1);
 				}
 				else
 				{
-					SIM_BATTERIES[CUR_BATT_ID].VlostLUT = tmp;
-					SIM_BATTERIES[CUR_BATT_ID].VlostLUTnentries = $2;
+					yyengine->batts[yyengine->curbatt].VlostLUT = tmp;
+					yyengine->batts[yyengine->curbatt].VlostLUTnentries = $2;
 				}
 			}
 		}
 		| T_SETBATT uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if (($2 >= SIM_NUM_BATTERIES) || ($2 < 0))
+				if (($2 >= yyengine->nbatts) || ($2 < 0))
 				{
-					merror("Battery ID out of range.");
+					merror(yyengine, "Battery ID out of range.");
 				}
 				else
 				{
-					CUR_BATT_ID = $2;
+					yyengine->curbatt = $2;
 				}
 			}
 		}
-		| T_POWERTOTAL '\n'
+		| T_PCBT '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_powertotal();
+				m_pcbacktrace(yyengine, yyengine->cp);
+			}
+		}
+		| T_BPT T_GLOBALTIME uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_setbptglobaltime(yyengine, $3);
+			}
+		}
+		| T_BPT T_CYCLES uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_setbptcycles(yyengine, yyengine->cp, $3);
+			}
+		}
+		| T_BPT T_INSTRS uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_setbptinstrs(yyengine, yyengine->cp, $3);
+			}
+		}
+		| T_BPT T_SENSORREADING uimm dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_setbptsensorreading(yyengine, yyengine->cp, $3, $4);
+			}
+		}
+		| T_BPTLS '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_bptls(yyengine);
+			}
+		}
+		| T_BPTDEL uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_bptdel(yyengine, $2);
+			}
+		}
+		| T_SETLOC dimm dimm dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_setloc(yyengine, yyengine->cp, $2, $3, $4);
 			}
 		}
 		| T_RETRYALG uimm T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_setretryalg(CUR_STATE, $2, $3);
+				network_setretryalg(yyengine, yyengine->cp, $2, $3);
+			}
+		}
+		| T_RANDPRINT T_STRING dimm dimm dimm dimm dimm dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_randprint(yyengine, $2, $3, $4, $5, $6, $7, $8);
+			}
+		}
+		| T_REGISTERRVAR T_STRING uimm T_STRING dimm dimm dimm dimm T_STRING dimm dimm dimm dimm T_STRING '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				//m_registerrvar(yyengine->cp, $2, $3, $4, $5, $6, $7,
+				//		$8, $9, $10, $11, $12, $13, $14);
+			}
+		}
+		| T_INITRANDTABLE T_STRING T_STRING dimm dimm dimm dimm dimm dimm dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_initrandtable(yyengine, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+			}
+		}
+		| T_DEFNDIST T_STRING '{' dimmlist ',' dimmlist '}'
+		{
+			if (!yyengine->scanning)
+			{
+				//m_defndist($2, $4, $6);
+
+			}
+		}
+		| T_HWSEEREG T_STRING uimm uimm uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				if (yyengine->cp->machinetype == MACHINE_SUPERH)
+				{
+					//superHhwSEEreg($2, $3, $4, $5);
+				}
+				else if (yyengine->cp->machinetype == MACHINE_MSP430)
+				{
+					//msp430hwSEEreg($2, $3, $4, $5);
+				}
+				else
+				{
+					sfatal(yyengine, yyengine->cp, "Unknown machine type");
+				}
+			}
+		}
+		| T_INITSEESTATE T_STRING dimm dimm dimm dimm T_STRING dimm dimm dimm dimm T_STRING dimm dimm dimm dimm T_STRING dimm dimm dimm dimm
+		{
+			if (!yyengine->scanning)
+			{
+				if (yyengine->cp->machinetype == MACHINE_SUPERH)
+				{
+					//superHinitSEEstate(yyengine->cp, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
+				}
+				else if (yyengine->cp->machinetype == MACHINE_MSP430)
+				{
+					//msp430initSEEstate(yyengine->cp, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
+				}
+				else
+				{
+					sfatal(yyengine, yyengine->cp, "Unknown machine type");
+				}
 			}
 		}
 		| T_IGNORENODEDEATHS uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_IGNORE_NODEDEATHS = $2;
+				yyengine->ignoredeaths = $2;
 			}
 		}
 		| T_SETSCALEALPHA dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->voltscale_alpha = $2;
+				yyengine->cp->voltscale_alpha = $2;
 			}
 		}
 		| T_SETSCALEK dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->voltscale_K = $2;
+				yyengine->cp->voltscale_K = $2;
 			}
 		}
 		| T_SETSCALEVT dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->voltscale_Vt = $2;
+				yyengine->cp->voltscale_Vt = $2;
+			}
+		}
+		| T_SETSCHEDRANDOM '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->schedtype = SchedRandom;
+			}
+		}
+		| T_SETSCHEDROUNDROBIN '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->schedtype = SchedRoundRobin;
 			}
 		}
 		| T_SETQUANTUM uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_QUANTUM = $2;
+				yyengine->quantum = $2;
 			}
 		}
 		| T_SETBASENODEID uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_BASENODEID = $2;
+				yyengine->baseid = $2;
 			}
 		}
 		| T_RENUMBERNODES '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_renumbernodes();
+				m_renumbernodes(yyengine);
 			}
 		}
 		| T_RESETNODECTRS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->trip_ustart = musercputimeusecs();
-				CUR_STATE->trip_startclk = CUR_STATE->ICLK;
+				yyengine->cp->trip_ustart = musercputimeusecs();
+				yyengine->cp->trip_startclk = yyengine->cp->ICLK;
 			}
 		}
 		| T_RESETALLCTRS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				int i;
 
-				for (i = 0; i < SIM_NUM_NODES; i++)
+				for (i = 0; i < yyengine->nnodes; i++)
 				{
-					SIM_STATE_PTRS[i]->trip_ustart = musercputimeusecs();
-					SIM_STATE_PTRS[i]->trip_startclk = SIM_STATE_PTRS[i]->ICLK;
+					yyengine->sp[i]->trip_ustart = musercputimeusecs();
+					yyengine->sp[i]->trip_startclk = yyengine->sp[i]->ICLK;
 				}
 			}
 		}
 		| T_NETSEG2FILE uimm T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netseg2file($2, $3);
+				network_netseg2file(yyengine, $2, $3);
 			}
 		}
 		| T_FILE2NETSEG T_STRING uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_file2netseg($2, $3);
+				network_file2netseg(yyengine, $2, $3);
 			}
 		}
 		| T_CD T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				int	n = mchdir($2);
 
 				if (n < 0)
 				{
-					merror("Could not change directory to \"%s\".", $2);
+					merror(yyengine, "Could not change directory to \"%s\".", $2);
 				}
 			}
 		}
 		| T_SETTIMERDELAY dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->settimerintrdelay(CUR_STATE, $2);
+				yyengine->cp->settimerintrdelay(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SETPHYSICSPERIOD dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_PHYSICS_PERIOD = $2 * 1E-6;
+				yyengine->phyperiodpsec = $2;
 			}
 		}
 		| T_SETBATTFEEDPERIOD dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_BATTFEED_PERIOD = $2 * 1E-6;
+				yyengine->battperiodpsec = $2;
 			}
 		}
+		| T_SETNETPERIOD dimm
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->netperiodpsec = $2;
+			}
+		}
+		| T_SETFAULTPERIOD dimm
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->fperiodpsec = $2;
+			}
+		}
+
 		| T_FORCEAVGPWR dimm dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->force_avgpwr = $2;
-				CUR_STATE->force_sleeppwr = $3;
+				yyengine->cp->force_avgpwr = $2;
+				yyengine->cp->force_sleeppwr = $3;
 			}
 		}
 		| T_NETSEGPROPMODEL uimm uimm dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netsegpropmodel($2, $3, $4);
+				network_netsegpropmodel(yyengine, $2, $3, $4);
 			}
 		}
 		| T_SETDUMPPWRPERIOD dimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_DUMPPWR_PERIOD = $2 * 1E-6;
+				yyengine->dumpperiodpsec = $2;
 			}
 		}
 		| T_VERSION
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_version();
+				m_version(yyengine);
 			}
 		}
 		| T_SENSORSDEBUG
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				physics_sensorsdbg();
+				physics_sensorsdbg(yyengine);
 			}
 		}
 
 		| T_SIGNALSUBSCRIBE uimm uimm
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				physics_sigsubscr(CUR_STATE, $2, $3);
+				physics_sigsubscr(yyengine, yyengine->cp, $2, $3);
 			}
 		}
 		| T_SIGNALSRC uimm optstring 
@@ -876,9 +1165,9 @@ myrmigki_cmd	: T_QUIT '\n'
 			optstring uimm dimm dimm dimm uimm		
 			optstring uimm dimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				physics_newsigsrc($2, $3, $4, $5, $6, $7, $8, $9, $10,
+				physics_newsigsrc(yyengine, $2, $3, $4, $5, $6, $7, $8, $9, $10,
 					$11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
 					$21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
 					$31, $32, $33);
@@ -886,416 +1175,426 @@ myrmigki_cmd	: T_QUIT '\n'
 		}
 		| T_PWD '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo,
+				mprint(yyengine, NULL, siminfo,
 					"Current directory: %s\n", mgetpwd());
 			}
 		}
 		| T_PARSEOBJDUMP T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_parseobjdump(CUR_STATE, $2);
+				m_parseobjdump(yyengine, yyengine->cp, $2);
 			}
 		}
-		| T_DUMPALL T_STRING '\n'
+		| T_DUMPALL T_STRING T_STRING T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_dumpall($2);
+				m_dumpall(yyengine, $2, M_OWRITE, $3, $4);
 			}
 		}
 		| T_SETNODE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 >= SIM_NUM_NODES)
+				if ($2 >= yyengine->nnodes)
 				{
-					merror("Node ID out of range.");
+					merror(yyengine, "Node ID out of range.");
 				}
 				else
 				{
-					m_setnode($2);
+					m_setnode(yyengine, $2);
 				}
 			}
 		}
 		| T_MMAP uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if (($2 > SIM_NUM_NODES) || ($2 < 0)\
-					|| ($3 > SIM_NUM_NODES) || ($3 < 0))
+				if (($2 > yyengine->nnodes) || ($2 < 0)\
+					|| ($3 > yyengine->nnodes) || ($3 < 0))
 				{
-					merror("Node indeces out of range in call to MMAP!");
+					merror(yyengine, "Node indeces out of range in call to MMAP!");
 				}
 				else
 				{
-					SIM_STATE_PTRS[$3]->MEM  = SIM_STATE_PTRS[$2]->MEM;
-					mprint(NULL, siminfo,
+					yyengine->sp[$3]->MEM  = yyengine->sp[$2]->MEM;
+					mprint(yyengine, NULL, siminfo,
 						"Mapped mem of Node " ULONGFMT " into Node " ULONGFMT "\n", $2, $3);
 				}
 			}
 		}
 		| T_MODECA '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->step = CUR_STATE->cyclestep;
+				yyengine->cp->step = yyengine->cp->cyclestep;
 			}
 		}
 		| T_MODEFF '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->step = CUR_STATE->faststep;
+				yyengine->cp->step = yyengine->cp->faststep;
 			}
 		}
 		| T_CACHEINIT uimm uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->cache_init(CUR_STATE, $2, $3, $4);
+				yyengine->cp->cache_init(yyengine, yyengine->cp, $2, $3, $4);
 			}
 		}
 		| T_CACHEOFF '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->cache_deactivate(CUR_STATE);
+				yyengine->cp->cache_deactivate(yyengine, yyengine->cp);
 			}
 		}
 		| T_CACHESTATS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->cache_printstats(CUR_STATE);
+				yyengine->cp->cache_printstats(yyengine, yyengine->cp);
 			}
 		}
 		| T_DUMPREGS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->dumpregs(CUR_STATE);
+				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
 		| T_DUMPSYSREGS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->dumpsysregs(CUR_STATE);
+				yyengine->cp->dumpsysregs(yyengine, yyengine->cp);
 			}
 		}
 		| T_DUMPPIPE '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->dumppipe(CUR_STATE);
+				yyengine->cp->dumppipe(yyengine, yyengine->cp);
 			}
 		}
 		| T_RESETCPU '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->resetcpu(CUR_STATE);
+				yyengine->cp->resetcpu(yyengine, yyengine->cp);
 			}
 		}
 		| T_DYNINSTR '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(CUR_STATE, nodeinfo,
+				mprint(yyengine, yyengine->cp, nodeinfo,
 					"Dynamic Instruction Count = [" UVLONGFMT "]\n",
-					CUR_STATE->dyncnt);	
+					yyengine->cp->dyncnt);	
 			}
 		}
 		| T_NODETACH uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_NODETACH = $2;
+				yyengine->nodetach = $2;
 			}
 		}
 		| T_ADDVALUETRACE T_STRING uimm uimm uimm uimm uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_addvaluetrace(CUR_STATE, $2, $3, $4, $5, $6, $7, $8);
+				m_addvaluetrace(yyengine, yyengine->cp, $2, $3, $4, $5, $6, $7, $8);
 			}
 		}
 		| T_DELVALUETRACE T_STRING uimm uimm uimm uimm uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_delvaluetrace(CUR_STATE, $2, $3, $4, $5, $6, $7, $8);
+				m_delvaluetrace(yyengine, yyengine->cp, $2, $3, $4, $5, $6, $7, $8);
 			}
 		}
 		| T_REGISTERSTABS T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_readstabs(CUR_STATE, $2);
+				m_readstabs(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_VALUESTATS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_valuestats(CUR_STATE);
+				m_valuestats(yyengine, yyengine->cp);
 			}
 		}
 		| T_NUMAREGION T_STRING uimm uimm simm simm simm simm uimm uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_numaregion($2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+				m_numaregion(yyengine, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 			}
 		}
 		| T_NUMASTATS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_numastats(CUR_STATE);
+				m_numastats(yyengine, yyengine->cp);
 			}
 		}
 		| T_NUMASTATSALL '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_numastatsall();
+				m_numastatsall(yyengine);
 			}
 		}
 		| T_NUMASETMAPID uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_numasetmapid($2, $3);
+				m_numasetmapid(yyengine, $2, $3);
 			}
 		}
 		| T_DUMPTLB '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->dumptlb(CUR_STATE);
+				yyengine->cp->dumptlb(yyengine, yyengine->cp);
 			}
 		}
 		| T_RATIO '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if (CUR_STATE->ICLK > 0)
+				if (yyengine->cp->ICLK > 0)
 				{
-					mprint(CUR_STATE, nodeinfo,
+					mprint(yyengine, yyengine->cp, nodeinfo,
 						"Ratio of active/sleep cycles = %.6f\n",
-						(float)CUR_STATE->CLK/(float)CUR_STATE->ICLK);
+						(float)yyengine->cp->CLK/(float)yyengine->cp->ICLK);
 				}
 				else
 				{
-					merror("We don't stand a chance.");
+					merror(yyengine, "We don't stand a chance.");
 				}
+			}
+		}
+		| T_GETRANDOMSEED '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				mprint(yyengine, NULL, siminfo,
+					"Simulation random seed = %ld\n", yyengine->randseed);
+			}
+		}
+		| T_SETRANDOMSEED uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				mprint(yyengine, NULL, siminfo,
+					"Resetting random number generation with seed [%ld]\n", $2);
+				yyengine->randseed = mrandominit(yyengine, $2);
 			}
 		}
 		| T_EBATTINTR uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->ENABLE_BATT_LOW_INTR = $2;
-			}
-		}
-		| T_BATTLEAKCURRENT dimm '\n'
-		{
-			if (!SCANNING)
-			{
-				SIM_BATT_LEAK_CURRENT = $2;
+				yyengine->cp->ENABLE_BATT_LOW_INTR = $2;
 			}
 		}
 		| T_BATTALERTFRAC dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->battery_alert_frac = $2;
+				yyengine->cp->battery_alert_frac = $2;
 			}
 		}
 		| T_NODEFAILPROB dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->fail_prob = $2;
+				yyengine->cp->fail_prob = $2;
 			}
 		}
 		| T_NODEFAILDURMAX uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->failure_duration_max = $2;
+				yyengine->cp->failure_duration_max = $2;
 			}
 		}
 		| T_NETSEGFAILDURMAX uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				if ($2 >= MAX_NETSEGMENTS)
 				{
-					merror("Segment # > max. number of network segments.");
+					merror(yyengine, "Segment # > max. number of network segments.");
 				}
 				else
 				{
-					SIM_NET_SEGMENTS[$2].failure_duration_max = $3;
+					yyengine->netsegs[$2].failure_duration_max = $3;
 				}
 			}
 		}
 		| T_NETNEWSEG uimm uimm uimm uimm uimm uimm dimm dimm dimm 
 			uimm dimm dimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netnewseg($2, $3, $4, $5, $6, $7,
+				network_netnewseg(yyengine, $2, $3, $4, $5, $6, $7,
 					$8, $9, $10, $11, $12, $13, $14);
 			}
 		}
 		| T_NETSEGFAILPROB uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 >= SIM_NUM_NET_SEGMENTS)
+				if ($2 >= yyengine->nnetsegs)
 				{
-					merror("NETSEGMENT out of range.");
+					merror(yyengine, "NETSEGMENT out of range.");
 				}
 				else
 				{
-					SIM_NET_SEGMENTS[$2].fail_prob = $3;
+					yyengine->netsegs[$2].fail_prob = $3;
 				}
 			}
 		}
 		| T_NETSEGNICATTACH uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netsegnicattach(CUR_STATE, $2, $3);
+				network_netsegnicattach(yyengine, yyengine->cp, $2, $3);
 			}
 		}
 		| T_NETCORREL uimm uimm dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				if ($2 >= MAX_NETSEGMENTS)
 				{
-					merror("Segment # > max. number of network segments.");
+					merror(yyengine, "Segment # > max. number of network segments.");
 				}
-				else if ($3 >= SIM_NUM_NODES)
+				else if ($3 >= yyengine->nnodes)
 				{
-					merror("Invalid node number.");
+					merror(yyengine, "Invalid node number.");
 				}
 				else
 				{
-					SIM_NET_SEGMENTS[$2].correl_coeffs[$3] = $4;
+					yyengine->netsegs[$2].correl_coeffs[$3] = $4;
 				}
 			}
 		}
-		| T_NETNODENEWIFC uimm dimm dimm dimm uimm dimm dimm dimm uimm uimm'\n'
+		| T_NETNODENEWIFC uimm dimm dimm dimm dimm uimm dimm dimm dimm uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netnodenewifc(CUR_STATE, $2, $3, $4, $5,
-					$6, $7, $8, $9, $10, $11);
+				network_netnodenewifc(yyengine, yyengine->cp, $2, $3, $4, $5,
+					$6, $7, $8, $9, $10, $11, $12);
 			}
 		}
 		| T_NETSEGDELETE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netsegdelete($2);
+				network_netsegdelete(yyengine, $2);
 			}
 		}
 		| T_NODEFAILPROBFN T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				merror("Command \"NODEFAILPROBFN\" unimplemented.");
+				merror(yyengine, "Command \"NODEFAILPROBFN\" unimplemented.");
 			}
 		}
 		| T_NETSEGFAILPROBFN T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				merror("Command \"NETSEGFAILPROBFN\" unimplemented.");
+				merror(yyengine, "Command \"NETSEGFAILPROBFN\" unimplemented.");
 			}
 		}
 		| T_SIZEMEM uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_sizemem(CUR_STATE, $2);
+				m_sizemem(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SIZEPAU uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				pau_init(CUR_STATE, $2);
+				pau_init(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SPLIT uimm  uimm uimm T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->split(CUR_STATE, $2, $3, $4, $5);
+				yyengine->cp->split(yyengine, yyengine->cp, $2, $3, $4, $5);
 			}
 		}
 		| T_DUMPMEM uimm uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_dumpmem(CUR_STATE, $2, $3);
+				m_dumpmem(yyengine, yyengine->cp, $2, $3);
 			}
 		}
 		| T_DISABLEPIPELINE '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->pipelined = 0;
+				yyengine->cp->pipelined = 0;
 			}
 		}
 		| T_ENABLEPIPELINE '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->pipelined = 1;
+				yyengine->cp->pipelined = 1;
 			}
 		}
 		| T_CLOCKINTR uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->superH->ENABLE_CLK_INTR = $2;
+				yyengine->cp->superH->ENABLE_CLK_INTR = $2;
 			}
 		}
 		| T_STOP '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->runnable = 0;
+				yyengine->cp->runnable = 0;
 			}
 		}
 		| T_SFATAL T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				sfatal(CUR_STATE, $2);
+				sfatal(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_VERBOSE '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_VERBOSE ^= 1;
+				yyengine->verbose ^= 1;
 			}
 		}
 		| T_RUN optstring '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_run(CUR_STATE, $2);
+				m_run(yyengine, yyengine->cp, $2);
 			}
 
 			/*	The 'string' is dynamically allocated, in lex.c		*/
@@ -1303,256 +1602,262 @@ myrmigki_cmd	: T_QUIT '\n'
 		}
 		| T_STEP '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->step(CUR_STATE, 0);
+				yyengine->cp->step(yyengine, yyengine->cp, 0);
 			}
 		}
 		| T_STEP uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				go(CUR_STATE, $2);
+				go(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_LOAD T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				loadcmds($2);
+				loadcmds(yyengine, $2);
 			}
 		}
 		| T_SETPC uimm '\n'
 		{	
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->PC = $2;
+				yyengine->cp->PC = $2;
 			}
 		}
 		| T_SETVDD dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				/*	Scale frequency accordingly for provided Vdd	*/
-				power_scaledelay(CUR_STATE, $2);
+				power_scaledelay(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SETFREQ dimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				/*	Scale Vdd accordingly for provided frequency	*/
-				power_scalevdd(CUR_STATE, $2);
+				power_scalevdd(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_HELP '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				help();
+				help(yyengine);
 			}
 		}
 		| T_MAN '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				man($1);
+				man(yyengine, $1);
 			}
 		}
 		| T_PIPEFLUSH '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->pipeflush(CUR_STATE);
+				yyengine->cp->pipeflush(yyengine->cp);
 			}
 		}
 		| T_SHOWPIPE '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->pipeshow = !CUR_STATE->pipeshow;
+				yyengine->cp->pipeshow = !yyengine->cp->pipeshow;
 			}
 		}
 		| T_SAVE uimm uimm T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				savemem(CUR_STATE, $2, $3, $4);
+				savemem(yyengine, yyengine->cp, $2, $3, $4);
 			}
 		}
 		| T_SRECL T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				load_srec(CUR_STATE, $2);
+				load_srec(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_CONT uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				cont(CUR_STATE, $2);
+				cont(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SHAREBUS uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_sharebus(CUR_STATE, $2);
+				m_sharebus(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SHOWCLK '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo,
+				mprint(yyengine, NULL, siminfo,
 					"CLK = " UVLONGFMT ", ICLK = " UVLONGFMT ", TIME = %E, CYCLETIME = %E\n",
-					CUR_STATE->CLK, CUR_STATE->ICLK, CUR_STATE->TIME, 
-					CUR_STATE->CYCLETIME);
+					yyengine->cp->CLK, yyengine->cp->ICLK, yyengine->cp->TIME, 
+					yyengine->cp->CYCLETIME);
 			}
 		}
 		| T_POWERSTATS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				power_printstats(CUR_STATE);
+				power_printstats(yyengine, yyengine->cp);
 			}
 		}
 		| T_LOCSTATS '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo,
-					"Location  = [%E][%E][%E]\n",
-					CUR_STATE->xloc, CUR_STATE->yloc, CUR_STATE->zloc);
+				m_locstats(yyengine, yyengine->cp);
 			}
 		}
+		| T_LISTRVARS '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				m_listrvars(yyengine);
+			}
+		}
+
 		| T_ON '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_on(CUR_STATE);
+				m_on(yyengine, yyengine->cp);
 			}
 		}
 		| T_OFF '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				m_off(CUR_STATE);
+				m_off(yyengine, yyengine->cp);
 			}
 		}
 		| T_NETDEBUG '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				network_netdebug(CUR_STATE);
+				network_netdebug(yyengine, yyengine->cp);
 			}
 		}
 		| T_TRACE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"WARNING: Trace only works if compiled w/ -MYRMIGKI_DEBUG\n\n");
-				CUR_STATE->trace = $2;
+				yyengine->cp->trace = $2;
 			}
 		}
 		| T_THROTTLE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_THROTTLE_NANOSEC = $2;
+				yyengine->throttlensec = $2;
 			}
 		}
 		| T_THROTTLEWIN uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				SIM_THROTTLE_WINDOW = $2;
+				yyengine->throttlewin = $2;
 			}
 		}
 		| T_FLTTHRESH uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->faultthreshold = $2;
+				yyengine->cp->faultthreshold = $2;
 			}
 		}
 		| T_EFAULTS uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				CUR_STATE->ENABLE_TOO_MANY_FAULTS = $2;
+				yyengine->cp->ENABLE_TOO_MANY_FAULTS = $2;
 			}
 		}
 		| T_PFUN T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				fault_setnodepfun(CUR_STATE, $2);
+				fault_setnodepfun(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_SETIFCOUI uimm T_STRING '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				if ($2 < CUR_STATE->superH->NIC_NUM_IFCS)
+				if ($2 < yyengine->cp->superH->NIC_NUM_IFCS)
 				{
-					sprintf(&CUR_STATE->superH->NIC_IFCS[$2].IFC_OUI[0],
-						"%s", $3);
+					msnprint((char*)&yyengine->cp->superH->NIC_IFCS[$2].IFC_OUI[0],
+						NIC_ADDR_LEN, "%s", $3);
 				}
 				else
 				{
-					merror("Network interface [%d] out of range.", $2);
+					merror(yyengine, "Network interface [%d] out of range.", $2);
 				}
 			}
 		}
 		| T_MALLOCDEBUG '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				mmblocksdisplay();
+				mmblocksdisplay(yyengine);
 			}
 		}
 		| T_PAUINFO '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
-				pau_printstats(CUR_STATE);
+				pau_printstats(yyengine, yyengine->cp);
 			}
 		}
 		| T_NANOPAUSE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				// TODO: we should account for the cost of the m_on and m_off
 
-				m_off(CUR_STATE);
+				m_off(yyengine, yyengine->cp);
 				mnsleep($2);
-				m_on(CUR_STATE);
+				m_on(yyengine, yyengine->cp);
 			}
 		}
 		| T_PAUSE uimm '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				// TODO: we should account for the cost of the m_on and m_off
 
-				m_off(CUR_STATE);
+				m_off(yyengine, yyengine->cp);
 				mnsleep($2 * 1000000000);
-				m_on(CUR_STATE);
+				m_on(yyengine, yyengine->cp);
 			}
 		}
 		| T_COMMENT '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				/*	For now, nothing fun is done with comments	*/
 			}
 		}
 		| '\n'
 		{
-			if (!SCANNING)
+			if (!yyengine->scanning)
 			{
 				/*								*/
 				/*	The case where the command is just a solitary newline 	*/
@@ -1567,25 +1872,25 @@ myrmigki_cmd	: T_QUIT '\n'
 dotalign	: T_DOTALIGN uimm
 		{
 			/*							*/
-			/*	Whether SCANNING or not, forcefully align PC 	*/
+			/*	Whether yyengine->scanning or not, forcefully align PC 	*/
 			/*							*/
 			ulong align = $2;
 
 			if (align == 2)
 			{
-				mprint(NULL, siminfo, "adjusting PC from " ULONGFMT " to " ULONGFMT "\n",
-					CUR_STATE->PC, (CUR_STATE->PC+16-(CUR_STATE->PC&0xF)));
-				CUR_STATE->PC += 16 - (CUR_STATE->PC & 0xF);
+				mprint(yyengine, NULL, siminfo, "adjusting PC from " ULONGFMT " to " ULONGFMT "\n",
+					yyengine->cp->PC, (yyengine->cp->PC+16-(yyengine->cp->PC&0xF)));
+				yyengine->cp->PC += 16 - (yyengine->cp->PC & 0xF);
 			}
 			else if (align == 4)
 			{
-				mprint(NULL, siminfo, "adjusting PC from " ULONGFMT " to " ULONGFMT "\n",
-					CUR_STATE->PC, (CUR_STATE->PC+16-(CUR_STATE->PC&0xF)));
-				CUR_STATE->PC += 256 - (CUR_STATE->PC & 0xFF);
+				mprint(yyengine, NULL, siminfo, "adjusting PC from " ULONGFMT " to " ULONGFMT "\n",
+					yyengine->cp->PC, (yyengine->cp->PC+16-(yyengine->cp->PC&0xF)));
+				yyengine->cp->PC += 256 - (yyengine->cp->PC & 0xFF);
 			}
 			else
 			{
-				merror(".align for arbitrary alignment not implemented !!!");
+				merror(yyengine, ".align for arbitrary alignment not implemented !!!");
 			}
 		}
 		;
@@ -1627,20 +1932,20 @@ dotlong		: T_DOTLONG disp
 			/*	just doing the opposite of what we did in rule for	*/
 			/*	'disp', at the end of this shasm.y			*/
 			/*								*/
-			long absdisp = ($2 << 1) + CUR_STATE->PC + 4;
+			long absdisp = ($2 << 1) + yyengine->cp->PC + 4;
 
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 4;
+				yyengine->cp->PC += 4;
 			}
 			else
 			{
-				mprint(NULL, siminfo,
+				mprint(yyengine, NULL, siminfo,
 					"Laying down raw data, val = [" ULONGFMT "]\n", absdisp);
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC], &absdisp, sizeof(absdisp));
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC], &absdisp, sizeof(absdisp));
 
 				/*	.long : 32 bits == 4 bytes	*/
-				CUR_STATE->PC += 4;
+				yyengine->cp->PC += 4;
 			}
 		}
 		;
@@ -1652,16 +1957,16 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 			/*	in memory of the global var is the	*/
 			/*	PC of the .comm defn.			*/
 			/*						*/
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
 				char tmp;
 				char *ep = &tmp;
 
-				CUR_STATE->PC += strtol($4, &ep, 0);
+				yyengine->cp->PC += strtol($4, &ep, 0);
 				
 				if (*ep != '\0')
 				{
-					mprint(NULL, siminfo, "invalid size for .comm variable");
+					mprint(yyengine, NULL, siminfo, "invalid size for .comm variable");
 				}	
 			}
 		}
@@ -1670,22 +1975,22 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 		
 add_instr	: T_ADD reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)	
+				if (!yyengine->cp->pipelined)	
 				{
-					superH_add(CUR_STATE, $2, $4);
+					superH_add(yyengine, yyengine->cp, $2, $4);
 				}
 		
 				tmp.src = ($2&B1111);
@@ -1693,40 +1998,40 @@ add_instr	: T_ADD reg ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 addi_instr	: T_ADD '#' simm ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_ni tmp;
 
-				if (!CUR_STATE->pipelined)	
+				if (!yyengine->cp->pipelined)	
 				{
-					superH_addi(CUR_STATE, $3, $5);
+					superH_addi(yyengine, yyengine->cp, $3, $5);
 				}
 		
 				tmp.imm = ($3&B11111111);
 				tmp.dst = ($5&B1111);
 				tmp.code = B0111;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 				
 			}
 		}
@@ -1734,22 +2039,22 @@ addi_instr	: T_ADD '#' simm ',' reg
 
 addc_instr	: T_ADDC reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_addc(CUR_STATE, $2, $4);
+					superH_addc(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -1757,31 +2062,31 @@ addc_instr	: T_ADDC reg ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 addv_instr	: T_ADDV reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_addv(CUR_STATE, $2, $4);
+					superH_addv(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -1789,31 +2094,31 @@ addv_instr	: T_ADDV reg ',' reg
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0011;
 			
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 and_instr	: T_AND reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_and(CUR_STATE, $2, $4);
+					superH_and(yyengine, yyengine->cp, $2, $4);
 				}
 	
 				tmp.src = ($2&B1111);
@@ -1821,82 +2126,82 @@ and_instr	: T_AND reg ',' reg
 				tmp.code_lo = B1001;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 andi_instr	: T_AND '#' simm ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_andi(CUR_STATE, $3);
+					superH_andi(yyengine, yyengine->cp, $3);
 				}
 	
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 andm_instr	: T_ANDB '#' simm ',' '@''(' T_R0 ',' T_GBR ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_andm(CUR_STATE, $3);
+					superH_andm(yyengine, yyengine->cp, $3);
 				}
 			
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bf_instr	: T_BF disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -1908,30 +2213,30 @@ bf_instr	: T_BF disp
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bf(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bf(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($2&B11111111);
 				tmp.code = B10001011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bfs_instr	: T_BFS disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -1943,92 +2248,92 @@ bfs_instr	: T_BFS disp
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bfs(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bfs(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 	
 				tmp.disp = ($2&B11111111);
 				tmp.code = B10001111;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bra_instr	: T_BRA disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_d12 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
 					/*						*/
 					/*	The disp is absolute, and we have to	*/
 					/*	pass PC relative to bra(). No need to	*/
 					/*	PC-2 as in main.c, since no pipelining	*/
 					/*						*/
-					superH_bra(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bra(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 
 				tmp.disp = $2;
 				tmp.code = B1010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 braf_instr	: T_BRA reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 	
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_braf(CUR_STATE, $2);
+					superH_braf(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00100011;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bsr_instr	: T_BSR disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 			else
 			{
@@ -2039,61 +2344,61 @@ bsr_instr	: T_BSR disp
 				/*						*/
 				instr_d12 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bsr(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bsr(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($2&B111111111111);
 				tmp.code = B1011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bsrf_instr	: T_BSRF reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bsrf(CUR_STATE, $2);
+					superH_bsrf(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00000011;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bt_instr	: T_BT disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -2105,30 +2410,30 @@ bt_instr	: T_BT disp
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bt(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bt(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($2&B11111111);
 				tmp.code = B10001001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 bts_instr:	T_BTS disp
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -2140,126 +2445,126 @@ bts_instr:	T_BTS disp
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_bts(CUR_STATE, $2 - CUR_STATE->PC);
+					superH_bts(yyengine, yyengine->cp, $2 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($2&B11111111);
 				tmp.code = B10001101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 clrmac_instr	: T_CLRMAC
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_clrmac(CUR_STATE);
+					superH_clrmac(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000101000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 clrs_instr	: T_CLRS
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_clrs(CUR_STATE);
+					superH_clrs(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000001001000;
 			
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 clrt_instr	: T_CLRT
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_clrt(CUR_STATE);
+					superH_clrt(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000001000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmpeq_instr	: T_CMPEQ reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmpeq(CUR_STATE, $2, $4);
+					superH_cmpeq(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2267,31 +2572,31 @@ cmpeq_instr	: T_CMPEQ reg ',' reg
 				tmp.code_lo = B0000;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmpge_instr	: T_CMPGE reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmpge(CUR_STATE, $2, $4);
+					superH_cmpge(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2299,31 +2604,31 @@ cmpge_instr	: T_CMPGE reg ',' reg
 				tmp.code_lo = B0011;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmpgt_instr	: T_CMPGT reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmpgt(CUR_STATE, $2, $4);
+					superH_cmpgt(yyengine, yyengine->cp, $2, $4);
 				}
 	
 				tmp.src = ($2&B1111);
@@ -2331,31 +2636,31 @@ cmpgt_instr	: T_CMPGT reg ',' reg
 				tmp.code_lo = B0111;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmphi_instr	: T_CMPHI reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmphi(CUR_STATE, $2, $4);
+					superH_cmphi(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2363,31 +2668,31 @@ cmphi_instr	: T_CMPHI reg ',' reg
 				tmp.code_lo = B0110; 
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmphs_instr	: T_CMPHS reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmphs(CUR_STATE, $2, $4);
+					superH_cmphs(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2395,92 +2700,92 @@ cmphs_instr	: T_CMPHS reg ',' reg
 				tmp.code_lo = B0010;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmppl_instr	: T_CMPPL reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmppl(CUR_STATE, $2);
+					superH_cmppl(yyengine, yyengine->cp, $2);
 				}
 				tmp.dst = ($2&B111);
 				tmp.code_lo = B00010101;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmppz_instr	: T_CMPPZ reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmppz(CUR_STATE, $2);
+					superH_cmppz(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00010001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmpstr_instr	: T_CMPSTR reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmpstr(CUR_STATE, $2, $4);
+					superH_cmpstr(yyengine, yyengine->cp, $2, $4);
 				}
 		
 				tmp.src = ($2&B1111);
@@ -2488,61 +2793,61 @@ cmpstr_instr	: T_CMPSTR reg ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 cmpim_instr	: T_CMPEQ '#' simm ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_cmpim(CUR_STATE, $3);
+					superH_cmpim(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B10001000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 div0s_instr	: T_DIV0S reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_div0s(CUR_STATE, $2, $4);
+					superH_div0s(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2550,31 +2855,31 @@ div0s_instr	: T_DIV0S reg ',' reg
 				tmp.code_lo = B0111;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 div1_instr	: T_DIV1 reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_div1(CUR_STATE, $2, $4);
+					superH_div1(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2582,31 +2887,31 @@ div1_instr	: T_DIV1 reg ',' reg
 				tmp.code_lo = B0100;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 dmuls_instr	: T_DMULSL reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_dmuls(CUR_STATE, $2, $4);
+					superH_dmuls(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2614,31 +2919,31 @@ dmuls_instr	: T_DMULSL reg ',' reg
 				tmp.code_lo = B1101;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 dmulu_instr	: T_DMULUL reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_dmulu(CUR_STATE, $2, $4);
+					superH_dmulu(yyengine, yyengine->cp, $2, $4);
 				}
 			
 				tmp.src = ($2&B1111);
@@ -2646,62 +2951,62 @@ dmulu_instr	: T_DMULUL reg ',' reg
 				tmp.code_lo = B0101;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 dt_instr	: T_DT reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_dt(CUR_STATE, $2);
+					superH_dt(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00010000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 extsb_instr	: T_EXTSB reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_extsb(CUR_STATE, $2, $4);
+					superH_extsb(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2709,31 +3014,31 @@ extsb_instr	: T_EXTSB reg ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 extsw_instr	: T_EXTSW reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_extsw(CUR_STATE, $2, $4);
+					superH_extsw(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2741,31 +3046,31 @@ extsw_instr	: T_EXTSW reg ',' reg
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 extub_instr	: T_EXTUB reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_extub(CUR_STATE, $2, $4);
+					superH_extub(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2773,31 +3078,31 @@ extub_instr	: T_EXTUB reg ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 extuw_instr	: T_EXTUW reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_extuw(CUR_STATE, $2, $4);
+					superH_extuw(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -2805,248 +3110,248 @@ extuw_instr	: T_EXTUW reg ',' reg
 				tmp.code_lo = B1101;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 jmp_instr	: T_JMP '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_jmp(CUR_STATE, $3);
+					superH_jmp(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.dst = ($3&B1111);
 				tmp.code_lo = B00101011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 jsr_instr	: T_JSR '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_jsr(CUR_STATE, $3);
+					superH_jsr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.dst = ($3&B1111);
 				tmp.code_lo = B00001011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcsr_instr	: T_LDC reg ',' T_SR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcsr(CUR_STATE, $2);
+					superH_ldcsr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00001110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcgbr_instr	: T_LDC reg ',' T_GBR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcgbr(CUR_STATE, $2);
+					superH_ldcgbr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00011110;
 				tmp.code_hi = B0100;
 			
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcvbr_instr	: T_LDC reg ',' T_VBR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcvbr(CUR_STATE, $2);
+					superH_ldcvbr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00101110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcssr_instr	: T_LDC reg ',' T_SSR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcssr(CUR_STATE, $2);
+					superH_ldcssr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00111110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcspc_instr	: T_LDC reg ',' T_SPC
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcspc(CUR_STATE, $2);
+					superH_ldcspc(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B01001110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcr_bank_instr	: T_LDC reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_mbank tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcr_bank(CUR_STATE, $4, $2);
+					superH_ldcr_bank(yyengine, yyengine->cp, $4, $2);
 				}
 		
 				tmp.code_lo = B1110;
@@ -3055,181 +3360,181 @@ ldcr_bank_instr	: T_LDC reg ',' reg
 				tmp.src = ($2&B1111);
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmsr_instr	: T_LDCL '@'reg'+'',' T_SR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmsr(CUR_STATE, $3);
+					superH_ldcmsr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00000111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmgbr_instr	: T_LDCL '@'reg'+'',' T_GBR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 			else
 			{
 				instr_m tmp;
 	
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmgbr(CUR_STATE, $3);
+					superH_ldcmgbr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00010111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmvbr_instr	: T_LDCL '@'reg'+'',' T_VBR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmvbr(CUR_STATE, $3);
+					superH_ldcmvbr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00100111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmssr_instr	: T_LDCL '@'reg'+'',' T_SSR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m  tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmssr(CUR_STATE, $3);
+					superH_ldcmssr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00110111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmspc_instr	: T_LDCL '@'reg'+'',' T_SPC
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmspc(CUR_STATE, $3);
+					superH_ldcmspc(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B01000111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldcmr_bank_instr: T_LDCL '@' reg '+' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_mbank tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldcmr_bank(CUR_STATE, $6, $3);
+					superH_ldcmr_bank(yyengine, yyengine->cp, $6, $3);
 				}
 
 				tmp.code_lo = B0111;
@@ -3238,241 +3543,241 @@ ldcmr_bank_instr: T_LDCL '@' reg '+' ',' reg
 				tmp.src = ($3&B1111);
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldsmach_instr	: T_LDS reg ',' T_MACH
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldsmach(CUR_STATE, $2);
+					superH_ldsmach(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00001010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldsmacl_instr	: T_LDS reg ',' T_MACL
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldsmacl(CUR_STATE, $2);
+					superH_ldsmacl(yyengine, yyengine->cp, $2);
 				}
 	
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00011010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldspr_instr	: T_LDS reg ',' T_PR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldspr(CUR_STATE, $2);
+					superH_ldspr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.src = ($2&B1111);
 				tmp.code_lo = B00101010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldsmmach_instr	: T_LDSL '@' reg '+' ',' T_MACH
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldsmmach(CUR_STATE, $3);
+					superH_ldsmmach(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00000110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldsmmacl_instr	: T_LDSL '@' reg '+' ',' T_MACL
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldsmmacl(CUR_STATE, $3);
+					superH_ldsmmacl(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00010110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldsmpr_instr	: T_LDSL '@' reg '+' ',' T_PR
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_m tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldsmpr(CUR_STATE, $3);
+					superH_ldsmpr(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.src = ($3&B1111);
 				tmp.code_lo = B00100110;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ldtlb_instr	: T_LDTLB
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ldtlb(CUR_STATE);
+					superH_ldtlb(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000111000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 macl_instr	: T_MACL '@' reg '+' ',' '@' reg '+'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_macl(CUR_STATE, $3, $7);
+					superH_macl(yyengine, yyengine->cp, $3, $7);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3480,31 +3785,31 @@ macl_instr	: T_MACL '@' reg '+' ',' '@' reg '+'
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 macw_instr	: T_MACW '@' reg '+' ',' '@' reg '+'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_macw(CUR_STATE, $3, $7);
+					superH_macw(yyengine, yyengine->cp, $3, $7);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3512,31 +3817,31 @@ macw_instr	: T_MACW '@' reg '+' ',' '@' reg '+'
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 mov_instr	: T_MOV reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_mov(CUR_STATE, $2, $4);
+					superH_mov(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3544,31 +3849,31 @@ mov_instr	: T_MOV reg ',' reg
 				tmp.code_lo = B0011;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbs_instr	: T_MOVB reg ',' '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbs(CUR_STATE, $2, $5);
+					superH_movbs(yyengine, yyengine->cp, $2, $5);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3576,31 +3881,31 @@ movbs_instr	: T_MOVB reg ',' '@' reg
 				tmp.code_lo = B0000;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movws_instr	: T_MOVW reg ',' '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movws(CUR_STATE, $2, $5);
+					superH_movws(yyengine, yyengine->cp, $2, $5);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3608,31 +3913,31 @@ movws_instr	: T_MOVW reg ',' '@' reg
 				tmp.code_lo = B0001;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movls_instr	: T_MOVL reg ',' '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movls(CUR_STATE, $2, $5);
+					superH_movls(yyengine, yyengine->cp, $2, $5);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3640,31 +3945,31 @@ movls_instr	: T_MOVL reg ',' '@' reg
 				tmp.code_lo = B0010;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbl_instr	: T_MOVB '@' reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbl(CUR_STATE, $3, $5);
+					superH_movbl(yyengine, yyengine->cp, $3, $5);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3672,31 +3977,31 @@ movbl_instr	: T_MOVB '@' reg ',' reg
 				tmp.code_lo = B0000;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwl_instr	: T_MOVW '@' reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwl(CUR_STATE, $3, $5);
+					superH_movwl(yyengine, yyengine->cp, $3, $5);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3704,31 +4009,31 @@ movwl_instr	: T_MOVW '@' reg ',' reg
 				tmp.code_lo = B0001;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movll_instr	: T_MOVL '@' reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movll(CUR_STATE, $3, $5);
+					superH_movll(yyengine, yyengine->cp, $3, $5);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3736,31 +4041,31 @@ movll_instr	: T_MOVL '@' reg ',' reg
 					tmp.code_lo = B0010;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbm_instr	: T_MOVB reg ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbm(CUR_STATE, $2, $6);
+					superH_movbm(yyengine, yyengine->cp, $2, $6);
 				}
 	
 				tmp.src = ($2&B1111);
@@ -3768,31 +4073,31 @@ movbm_instr	: T_MOVB reg ',' '@' '-' reg
 				tmp.code_lo = B0100;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwm_instr	: T_MOVW reg ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwm(CUR_STATE, $2, $6);
+					superH_movwm(yyengine, yyengine->cp, $2, $6);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3800,31 +4105,31 @@ movwm_instr	: T_MOVW reg ',' '@' '-' reg
 				tmp.code_lo = B0101;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movlm_instr	: T_MOVL reg ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movlm(CUR_STATE, $2, $6);
+					superH_movlm(yyengine, yyengine->cp, $2, $6);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3832,31 +4137,31 @@ movlm_instr	: T_MOVL reg ',' '@' '-' reg
 				tmp.code_lo = B0110;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbp_instr	: T_MOVB '@' reg '+' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbp(CUR_STATE, $3, $6);
+					superH_movbp(yyengine, yyengine->cp, $3, $6);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3864,31 +4169,31 @@ movbp_instr	: T_MOVB '@' reg '+' ',' reg
 				tmp.code_lo = B0100;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwp_instr	: T_MOVW '@' reg '+' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwp(CUR_STATE, $3, $6);
+					superH_movwp(yyengine, yyengine->cp, $3, $6);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3896,31 +4201,31 @@ movwp_instr	: T_MOVW '@' reg '+' ',' reg
 				tmp.code_lo = B0101;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movlp_instr	: T_MOVL '@' reg '+' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movlp(CUR_STATE, $3, $6);
+					superH_movlp(yyengine, yyengine->cp, $3, $6);
 				}
 
 				tmp.src = ($3&B1111);
@@ -3928,31 +4233,31 @@ movlp_instr	: T_MOVL '@' reg '+' ',' reg
 				tmp.code_lo = B0110;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbs0_instr	: T_MOVB reg ',' '@' '(' T_R0 ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbs0(CUR_STATE, $2, $8);
+					superH_movbs0(yyengine, yyengine->cp, $2, $8);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3960,31 +4265,31 @@ movbs0_instr	: T_MOVB reg ',' '@' '(' T_R0 ',' reg ')'
 				tmp.code_lo = B0100;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movws0_instr	: T_MOVW reg ',' '@' '(' T_R0 ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movws0(CUR_STATE, $2, $8);
+					superH_movws0(yyengine, yyengine->cp, $2, $8);
 				}
 
 				tmp.src = ($2&B1111);
@@ -3992,31 +4297,31 @@ movws0_instr	: T_MOVW reg ',' '@' '(' T_R0 ',' reg ')'
 				tmp.code_lo = B0101;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movls0_instr	: T_MOVL reg ',' '@' '(' T_R0 ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movls0(CUR_STATE, $2, $8);
+					superH_movls0(yyengine, yyengine->cp, $2, $8);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4024,31 +4329,31 @@ movls0_instr	: T_MOVL reg ',' '@' '(' T_R0 ',' reg ')'
 				tmp.code_lo = B0110;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbl0_instr	: T_MOVB '@' '(' T_R0 ',' reg ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbl0(CUR_STATE, $6, $9);
+					superH_movbl0(yyengine, yyengine->cp, $6, $9);
 				}
 	
 				tmp.src = ($6&B1111);
@@ -4056,31 +4361,31 @@ movbl0_instr	: T_MOVB '@' '(' T_R0 ',' reg ')' ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwl0_instr	: T_MOVW '@' '(' T_R0 ',' reg ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwl0(CUR_STATE, $6, $9);
+					superH_movwl0(yyengine, yyengine->cp, $6, $9);
 				}
 
 				tmp.src = ($6&B1111);
@@ -4088,9 +4393,9 @@ movwl0_instr	: T_MOVW '@' '(' T_R0 ',' reg ')' ',' reg
 				tmp.code_lo = B1101;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 
 		}
@@ -4098,22 +4403,22 @@ movwl0_instr	: T_MOVW '@' '(' T_R0 ',' reg ')' ',' reg
 
 movll0_instr	: T_MOVL '@' '(' T_R0 ',' reg ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movll0(CUR_STATE, $6, $9);
+					superH_movll0(yyengine, yyengine->cp, $6, $9);
 				}
 
 				tmp.src = ($6&B1111);
@@ -4121,53 +4426,53 @@ movll0_instr	: T_MOVL '@' '(' T_R0 ',' reg ')' ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movi_instr	: T_MOV '#' simm ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_ni tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movi(CUR_STATE, $3, $5);
+					superH_movi(yyengine, yyengine->cp, $3, $5);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.dst = ($5&B1111);
 				tmp.code = B1110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwi_instr	: T_MOVW '@' '(' disp ',' T_PC ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4179,18 +4484,18 @@ movwi_instr	: T_MOVW '@' '(' disp ',' T_PC ')' ',' reg
 				/*						*/
 				instr_nd8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwi(CUR_STATE, $4 - CUR_STATE->PC, $9);
+					superH_movwi(yyengine, yyengine->cp, $4 - yyengine->cp->PC, $9);
 				}
 
 				tmp.dst = ($9&B11111111);
 				tmp.disp = ($4&B11111111);
 				tmp.code = B1001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
@@ -4199,13 +4504,13 @@ movwi_instr	: T_MOVW '@' '(' disp ',' T_PC ')' ',' reg
 		/*	Original version from spec	*/
 movli_instr	: T_MOVL '@' '(' disp ',' T_PC ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4217,30 +4522,30 @@ movli_instr	: T_MOVL '@' '(' disp ',' T_PC ')' ',' reg
 				/*						*/
 				instr_nd8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movli(CUR_STATE, $4 - CUR_STATE->PC, $9);
+					superH_movli(yyengine, yyengine->cp, $4 - yyengine->cp->PC, $9);
 				}
 
 				tmp.dst = ($9&B11111111);
 				tmp.disp = ($4&B11111111);
 				tmp.code = B1101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		/*	Added to handle "mov.l LABEL, reg" that gcc emits	*/
 		| T_MOVL disp ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4252,31 +4557,31 @@ movli_instr	: T_MOVL '@' '(' disp ',' T_PC ')' ',' reg
 				/*						*/
 				instr_nd8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movli(CUR_STATE, $2 - CUR_STATE->PC, $4);
+					superH_movli(yyengine, yyengine->cp, $2 - yyengine->cp->PC, $4);
 				}
 
 				tmp.dst = ($4&B11111111);
 				tmp.disp = ($2&B11111111);
 				tmp.code = B1101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movblg_instr	: T_MOVB '@' '(' disp ',' T_GBR ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4288,30 +4593,30 @@ movblg_instr	: T_MOVB '@' '(' disp ',' T_GBR ')' ',' T_R0
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movblg(CUR_STATE, $4 - CUR_STATE->PC);
+					superH_movblg(yyengine, yyengine->cp, $4 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($4&B11111111);
 				tmp.code = B11000100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwlg_instr	: T_MOVW '@' '(' disp ',' T_GBR ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4323,30 +4628,30 @@ movwlg_instr	: T_MOVW '@' '(' disp ',' T_GBR ')' ',' T_R0
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwlg(CUR_STATE, $4 - CUR_STATE->PC);
+					superH_movwlg(yyengine, yyengine->cp, $4 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($4&B11111111);
 				tmp.code = B11000101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movllg_instr	: T_MOVL '@' '(' disp ',' T_GBR ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4358,30 +4663,30 @@ movllg_instr	: T_MOVL '@' '(' disp ',' T_GBR ')' ',' T_R0
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movllg(CUR_STATE, $4 - CUR_STATE->PC);
+					superH_movllg(yyengine, yyengine->cp, $4 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($4&B11111111);
 				tmp.code = B11000110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbsg_instr	: T_MOVB T_R0 ',' '@' '(' disp ',' T_GBR ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4393,30 +4698,30 @@ movbsg_instr	: T_MOVB T_R0 ',' '@' '(' disp ',' T_GBR ')'
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbsg(CUR_STATE, $6 - CUR_STATE->PC);
+					superH_movbsg(yyengine, yyengine->cp, $6 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($6&B11111111);
 				tmp.code = B11000000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwsg_instr	: T_MOVW T_R0 ',' '@' '(' disp ',' T_GBR ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4428,30 +4733,30 @@ movwsg_instr	: T_MOVW T_R0 ',' '@' '(' disp ',' T_GBR ')'
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwsg(CUR_STATE, $6 - CUR_STATE->PC);
+					superH_movwsg(yyengine, yyengine->cp, $6 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($6&B11111111);
 				tmp.code = B11000001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movlsg_instr	: T_MOVL T_R0 ',' '@' '(' disp ',' T_GBR ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4463,30 +4768,30 @@ movlsg_instr	: T_MOVL T_R0 ',' '@' '(' disp ',' T_GBR ')'
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movlsg(CUR_STATE, $6 - CUR_STATE->PC);
+					superH_movlsg(yyengine, yyengine->cp, $6 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($6&B11111111);
 				tmp.code = B11000010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbs4_instr	: T_MOVB T_R0 ',' '@' '(' disp ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4498,31 +4803,31 @@ movbs4_instr	: T_MOVB T_R0 ',' '@' '(' disp ',' reg ')'
 				/*						*/
 				instr_nd4 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbs4(CUR_STATE, $6 - CUR_STATE->PC, $8);
+					superH_movbs4(yyengine, yyengine->cp, $6 - yyengine->cp->PC, $8);
 				}
 	
 				tmp.dst = ($8&B1111);
 				tmp.disp = ($6&B1111);
 				tmp.code = B10000000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movws4_instr	: T_MOVW T_R0 ',' '@' '(' disp ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4534,31 +4839,31 @@ movws4_instr	: T_MOVW T_R0 ',' '@' '(' disp ',' reg ')'
 				/*						*/
 				instr_nd4 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movws4(CUR_STATE, $6 - CUR_STATE->PC, $8);
+					superH_movws4(yyengine, yyengine->cp, $6 - yyengine->cp->PC, $8);
 				}
 
 				tmp.dst = ($8&B1111);
 				tmp.disp = ($6&B1111);
 				tmp.code = B10000001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movls4_instr	: T_MOVL reg ',' '@' '(' disp ',' reg ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4570,9 +4875,9 @@ movls4_instr	: T_MOVL reg ',' '@' '(' disp ',' reg ')'
 				/*						*/
 				instr_nmd tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movls4(CUR_STATE, $2, $6 - CUR_STATE->PC, $8);
+					superH_movls4(yyengine, yyengine->cp, $2, $6 - yyengine->cp->PC, $8);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4580,22 +4885,22 @@ movls4_instr	: T_MOVL reg ',' '@' '(' disp ',' reg ')'
 				tmp.disp = ($6&B1111);
 				tmp.code = B0001;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movbl4_instr	: T_MOVB '@' '(' disp ',' reg ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4607,31 +4912,31 @@ movbl4_instr	: T_MOVB '@' '(' disp ',' reg ')' ',' T_R0
 				/*						*/
 				instr_md tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movbl4(CUR_STATE, $4 - CUR_STATE->PC, $6);
+					superH_movbl4(yyengine, yyengine->cp, $4 - yyengine->cp->PC, $6);
 				}
 
 				tmp.src = ($6&B1111);
 				tmp.disp = ($4&B1111);
 				tmp.code = B10000100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movwl4_instr	: T_MOVW '@' '(' disp ',' reg ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4643,31 +4948,31 @@ movwl4_instr	: T_MOVW '@' '(' disp ',' reg ')' ',' T_R0
 				/*						*/
 				instr_md tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movwl4(CUR_STATE, $4 - CUR_STATE->PC, $6);
+					superH_movwl4(yyengine, yyengine->cp, $4 - yyengine->cp->PC, $6);
 				}
 
 				tmp.src = ($6&B1111);
 				tmp.disp = ($4&B1111);
 				tmp.code = B10000101;
 	
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movll4_instr	: T_MOVL '@' '(' disp ',' reg ')' ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4679,9 +4984,9 @@ movll4_instr	: T_MOVL '@' '(' disp ',' reg ')' ',' reg
 				/*						*/
 				instr_nmd tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movll4(CUR_STATE, $6, $4 - CUR_STATE->PC, $9);
+					superH_movll4(yyengine, yyengine->cp, $6, $4 - yyengine->cp->PC, $9);
 				}
 
 				tmp.src = ($6&B1111);
@@ -4689,22 +4994,22 @@ movll4_instr	: T_MOVL '@' '(' disp ',' reg ')' ',' reg
 				tmp.disp = ($4&B1111);
 				tmp.code = B0101;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 mova_instr	: T_MOVA '@' '(' disp ',' T_PC ')' ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
@@ -4716,70 +5021,70 @@ mova_instr	: T_MOVA '@' '(' disp ',' T_PC ')' ',' T_R0
 				/*						*/
 				instr_d8 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_mova(CUR_STATE, $4 - CUR_STATE->PC);
+					superH_mova(yyengine, yyengine->cp, $4 - yyengine->cp->PC);
 				}
 
 				tmp.disp = ($4&B11111111);
 				tmp.code = B11000111;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 movt_instr	: T_MOVT reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_movt(CUR_STATE, $2);
+					superH_movt(yyengine, yyengine->cp, $2);
 				}
 		
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00101001;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 mull_instr	: T_MULL reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_mull(CUR_STATE, $2, $4);
+					superH_mull(yyengine, yyengine->cp, $2, $4);
 				}
 		
 				tmp.src = ($2&B1111);
@@ -4787,31 +5092,31 @@ mull_instr	: T_MULL reg ',' reg
 				tmp.code_lo = B0111;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 muls_instr	: T_MULS reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_muls(CUR_STATE, $2, $4);
+					superH_muls(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4819,31 +5124,31 @@ muls_instr	: T_MULS reg ',' reg
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 muls_instr	: T_MULSW reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_muls(CUR_STATE, $2, $4);
+					superH_muls(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4851,31 +5156,31 @@ muls_instr	: T_MULSW reg ',' reg
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 mulu_instr	: T_MULU reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_mulu(CUR_STATE, $2, $4);
+					superH_mulu(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4883,31 +5188,31 @@ mulu_instr	: T_MULU reg ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 muluw_instr	: T_MULUW reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_mulu(CUR_STATE, $2, $4);
+					superH_mulu(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4915,31 +5220,31 @@ muluw_instr	: T_MULUW reg ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 neg_instr	: T_NEG reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_neg(CUR_STATE, $2, $4);
+					superH_neg(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -4947,31 +5252,31 @@ neg_instr	: T_NEG reg ',' reg
 				tmp.code_lo = B1011;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 negc_instr	: T_NEGC reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_negc(CUR_STATE, $2, $4);
+					superH_negc(yyengine, yyengine->cp, $2, $4);
 				}
 			
 				tmp.src = ($2&B1111);
@@ -4979,60 +5284,60 @@ negc_instr	: T_NEGC reg ',' reg
 				tmp.code_lo = B1010;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 nop_instr	: T_NOP
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_nop(CUR_STATE);
+					superH_nop(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000001001;
 			
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 not_instr	: T_NOT reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_not(CUR_STATE, $2, $4);
+					superH_not(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -5040,31 +5345,31 @@ not_instr	: T_NOT reg ',' reg
 				tmp.code_lo = B0111;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 or_instr	: T_OR reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_or(CUR_STATE, $2, $4);
+					superH_or(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -5072,391 +5377,391 @@ or_instr	: T_OR reg ',' reg
 				tmp.code_lo = B1011;
 				tmp.code_hi = B0010;
 	
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 ori_instr	: T_OR '#' simm ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_ori(CUR_STATE, $3);
+					superH_ori(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 orm_instr	: T_ORB '#' simm ',' '@' '(' T_R0 ',' T_GBR ')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_orm(CUR_STATE, $3);
+					superH_orm(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001111;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 pref_instr	: T_PREF '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_pref(CUR_STATE, $3);
+					superH_pref(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.dst = ($3&B1111);
 				tmp.code_lo = B10000011;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rfg_instr	: T_RFG '#' simm
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rfg(CUR_STATE, $3);
+					superH_rfg(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11110000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 rotcl_instr	: T_ROTCL reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rotcl(CUR_STATE, $2);
+					superH_rotcl(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00100100;
 				tmp.code_hi =  B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rotcr_instr	: T_ROTCR reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rotcr(CUR_STATE, $2);
+					superH_rotcr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00100101;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rotl_instr	: T_ROTL reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rotl(CUR_STATE, $2);
+					superH_rotl(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00000100;
 				tmp.code_hi = B0100;
 	
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rotr_instr	: T_ROTR reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rotr(CUR_STATE, $2);
+					superH_rotr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00000101;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rte_instr	: T_RTE
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rte(CUR_STATE);
+					superH_rte(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000101011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 rts_instr	: T_RTS
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_rts(CUR_STATE);
+					superH_rts(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000001011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 sets_instr	: T_SETS
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_sets(CUR_STATE);
+					superH_sets(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000001011000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 sett_instr	: T_SETT
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_sett(CUR_STATE);
+					superH_sett(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000011000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shad_instr	: T_SHAD reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shad(CUR_STATE, $2, $4);
+					superH_shad(yyengine, yyengine->cp, $2, $4);
 				}
 	
 				tmp.src = ($2&B1111);
@@ -5464,93 +5769,93 @@ shad_instr	: T_SHAD reg ',' reg
 				tmp.code_lo = B1100; 
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shal_instr	: T_SHAL reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shal(CUR_STATE, $2);
+					superH_shal(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00100000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shar_instr	: T_SHAR reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shar(CUR_STATE, $2);
+					superH_shar(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00100001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;	
+				yyengine->cp->PC += 2;	
 			}
 		}
 		;
 
 shld_instr	: T_SHLD reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shld(CUR_STATE, $2, $4);
+					superH_shld(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -5558,463 +5863,463 @@ shld_instr	: T_SHLD reg ',' reg
 				tmp.code_lo = B1101;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shll_instr	: T_SHLL reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shll(CUR_STATE, $2);
+					superH_shll(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00000000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shll2_instr	: T_SHLL2 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shll2(CUR_STATE, $2);
+					superH_shll2(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00001000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shll8_instr	: T_SHLL8 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shll8(CUR_STATE, $2);
+					superH_shll8(yyengine, yyengine->cp, $2);
 				}
 		
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00011000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shll16_instr	: T_SHLL16 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shll16(CUR_STATE, $2);
+					superH_shll16(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00101000;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shlr_instr	: T_SHLR reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shlr(CUR_STATE, $2);
+					superH_shlr(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00000001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shlr2_instr	: T_SHLR2 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shlr2(CUR_STATE, $2);
+					superH_shlr2(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00001001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shlr8_instr	: T_SHLR8 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shlr8(CUR_STATE, $2);
+					superH_shlr8(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00011001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 shlr16_instr	: T_SHLR16 reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_shlr16(CUR_STATE, $2);
+					superH_shlr16(yyengine, yyengine->cp, $2);
 				}
 
 				tmp.dst = ($2&B1111);
 				tmp.code_lo = B00101001;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 sleep_instr	: T_SLEEP
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_0 tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_sleep(CUR_STATE);
+					superH_sleep(yyengine, yyengine->cp);
 				}
 
 				tmp.code = B0000000000011011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcsr_instr	: T_STC T_SR ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcsr(CUR_STATE, $4);
+					superH_stcsr(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00000010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcgbr_instr	: T_STC T_GBR ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcgbr(CUR_STATE, $4);
+					superH_stcgbr(yyengine, yyengine->cp, $4);
 				}
 			
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00010010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcvbr_instr	: T_STC T_VBR ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcvbr(CUR_STATE, $4);
+					superH_stcvbr(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00100010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcssr_instr	: T_STC T_SSR ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcssr(CUR_STATE, $4);
+					superH_stcssr(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00110010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcspc_instr	: T_STC T_SPC ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcspc(CUR_STATE, $4);
+					superH_stcspc(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B01000010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcr_bank_instr	: T_STC reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nbank tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcr_bank(CUR_STATE, $2, $4);
+					superH_stcr_bank(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.code_lo = B0010;
@@ -6023,186 +6328,186 @@ stcr_bank_instr	: T_STC reg ',' reg
 				tmp.dst = ($4&B1111);
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmsr_instr	: T_STCL T_SR ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmsr(CUR_STATE, $6);
+					superH_stcmsr(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00000011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmgbr_instr	: T_STCL T_GBR ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmgbr(CUR_STATE, $6);
+					superH_stcmgbr(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00010011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmvbr_instr	: T_STCL T_VBR ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmvbr(CUR_STATE, $6);
+					superH_stcmvbr(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00100011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmssr_instr	: T_STCL T_SSR ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmssr(CUR_STATE, $6);
+					superH_stcmssr(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00110011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmspc_instr	: T_STCL T_SPC ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmspc(CUR_STATE, $6);
+					superH_stcmspc(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B01000011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stcmr_bank_instr: T_STCL reg ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nbank tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stcmr_bank(CUR_STATE, $2, $6);
+					superH_stcmr_bank(yyengine, yyengine->cp, $2, $6);
 				}
 
 				tmp.code_lo = B0011;
@@ -6211,217 +6516,217 @@ stcmr_bank_instr: T_STCL reg ',' '@' '-' reg
 				tmp.dst = ($6&B1111);
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stsmach_instr	: T_STS T_MACH ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stsmach(CUR_STATE, $4);
+					superH_stsmach(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00001010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stsmacl_instr	: T_STS T_MACL ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stsmacl(CUR_STATE, $4);
+					superH_stsmacl(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00011010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stspr_instr	: T_STS T_PR ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stspr(CUR_STATE, $4);
+					superH_stspr(yyengine, yyengine->cp, $4);
 				}
 
 				tmp.dst = ($4&B1111);
 				tmp.code_lo = B00101010;
 				tmp.code_hi = B0000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stsmmach_instr	: T_STSL T_MACH ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stsmmach(CUR_STATE, $6);
+					superH_stsmmach(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00000010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stsmmacl_instr	: T_STSL T_MACL ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stsmmacl(CUR_STATE, $6);
+					superH_stsmmacl(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00010010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 stsmpr_instr	: T_STSL T_PR ',' '@' '-' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_stsmpr(CUR_STATE, $6);
+					superH_stsmpr(yyengine, yyengine->cp, $6);
 				}
 
 				tmp.dst = ($6&B1111);
 				tmp.code_lo = B00100010;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 sub_instr	: T_SUB reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_sub(CUR_STATE, $2, $4);
+					superH_sub(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6429,31 +6734,31 @@ sub_instr	: T_SUB reg ',' reg
 				tmp.code_lo = B1000;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 subc_instr	: T_SUBC reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_subc(CUR_STATE, $2, $4);
+					superH_subc(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6461,31 +6766,31 @@ subc_instr	: T_SUBC reg ',' reg
 				tmp.code_lo = B1010;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 subv_instr	: T_SUBV reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_subv(CUR_STATE, $2, $4);
+					superH_subv(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6493,31 +6798,31 @@ subv_instr	: T_SUBV reg ',' reg
 				tmp.code_lo = B1011;
 				tmp.code_hi = B0011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 swapb_instr	: T_SWAPB reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_swapb(CUR_STATE, $2, $4);
+					superH_swapb(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6525,31 +6830,31 @@ swapb_instr	: T_SWAPB reg ',' reg
 				tmp.code_lo = B1000;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 swapw_instr	: T_SWAPW reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_swapw(CUR_STATE, $2, $4);
+					superH_swapw(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6557,92 +6862,92 @@ swapw_instr	: T_SWAPW reg ',' reg
 				tmp.code_lo = B1001;
 				tmp.code_hi = B0110;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 tas_instr	: T_TASB '@' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_n tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_tas(CUR_STATE, $3);
+					superH_tas(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.dst = ($3&B1111);
 				tmp.code_lo = B00011011;
 				tmp.code_hi = B0100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 trapa_instr	: T_TRAPA '#' simm
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_trapa(CUR_STATE, $3);
+					superH_trapa(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11000011;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 tst_instr	: T_TST reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_tst(CUR_STATE, $2, $4);
+					superH_tst(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6650,91 +6955,91 @@ tst_instr	: T_TST reg ',' reg
 				tmp.code_lo = B1000;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 tsti_instr	: T_TST '#' simm ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_tsti(CUR_STATE, $3);
+					superH_tsti(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001000;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 tstb_instr	: T_TSTB '#' simm ',''@''('T_R0','T_GBR')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_tstm(CUR_STATE, $3);
+					superH_tstm(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001100;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 xor_instr	: T_XOR reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_xor(CUR_STATE, $2, $4);
+					superH_xor(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6742,91 +7047,91 @@ xor_instr	: T_XOR reg ',' reg
 				tmp.code_lo = B1010;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 xori_instr	: T_XOR '#' simm ',' T_R0
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_xori(CUR_STATE, $3);
+					superH_xori(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 xorm_instr	: T_XORB '#' simm ',''@''('T_R0','T_GBR')'
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_i tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_xorm(CUR_STATE, $3);
+					superH_xorm(yyengine, yyengine->cp, $3);
 				}
 
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001110;
 	
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
 xtrct_instr	: T_XTRCT reg ',' reg
 		{
-			if (SCANNING)
+			if (yyengine->scanning)
 			{
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
-			else if (CUR_STATE->machinetype != MACHINE_SUPERH)
+			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
-				mprint(NULL, siminfo, 
+				mprint(yyengine, NULL, siminfo, 
 					"Inline assembler is for Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{
 				instr_nm tmp;
 
-				if (!CUR_STATE->pipelined)
+				if (!yyengine->cp->pipelined)
 				{
-					superH_xtrct(CUR_STATE, $2, $4);
+					superH_xtrct(yyengine, yyengine->cp, $2, $4);
 				}
 
 				tmp.src = ($2&B1111);
@@ -6834,13 +7139,633 @@ xtrct_instr	: T_XTRCT reg ',' reg
 				tmp.code_lo = B1101;
 				tmp.code_hi = B0010;
 
-				memmove(&CUR_STATE->MEM[CUR_STATE->PC - CUR_STATE->MEMBASE],
+				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
 					&tmp, sizeof(tmp));
-				CUR_STATE->PC += 2;
+				yyengine->cp->PC += 2;
 			}
 		}
 		;
 
+rnd		: rnd_const | rnd_var
+		;
+/*
+rnd		: rnd_exp		| rnd_gauss		| rnd_bpareto
+		| rnd_weibull		| rnd_xi2		| rnd_cauchy
+		| rnd_chi		| rnd_beta		| rnd_extremeval
+		| rnd_fdist		| rnd_fermidirac	| rnd_fisherz
+		| rnd_gumbel		| rnd_gamma		| rnd_halfnormal
+		| rnd_laplace		| rnd_logseries		| rnd_logistic
+		| rnd_maxwell		| rnd_negbinomial	| rnd_pearsontype3
+		| rnd_poisson		| rnd_rayleigh		| rnd_studentst
+		| rnd_studentsz		| rnd_betaprime		| rnd_erlang
+		| rnd_lognorm		| rnd_gibrat		| rnd_bathtub
+		| rnd_uniform
+		;
+*/
+
+rnd_const	: '<' "rnd" T_STRING dimm dimm dimm dimm '>'
+		{
+			if (!yyengine->scanning)
+			{
+				//$$->value = m_randgen(yyengine->cp, $3, $4, $5, $6, $7);
+			}
+		}
+		;
+
+rnd_var		: '{' "rnd" T_STRING dimm dimm dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				//$$->value = m_randgen(yyengine->cp, $3, $4, $5, $6, $7);
+				//$$->rv.pfunid = m_pfunname2id(yyengine->cp, $3);
+				//$$->rv.disttabid = m_disttabname2id(yyengine->cp, $3);
+				$$->rv.p1 = $4;
+				$$->rv.p2 = $5;
+				$$->rv.p3 = $6;
+				$$->rv.p4 = $7;
+			}
+		}
+		;
+
+/*
+rnd_exp		: '<' "rnd" "exp" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$->value = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
+			}
+		}
+		| '{' "rnd" "exp" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$->value = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
+				$$->rv.pfun = m_pfun_exp;
+				$$->rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_gauss	: '<' "rnd" "gauss" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_gauss($4,$5);
+			}
+		}
+		| '{' "rand" "gauss" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_gauss($4, $5);
+				$$.rv.pfun = m_pfun_gauss;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_bathtub	: '<' "rand" "bathtub" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_bathtub($4, $5);
+			}
+		}
+		| '{' "rand" "bathtub" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_bathtub($4, $5);
+				$$.rv.pfun = m_pfun_bathtub;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_beta	: '<' "rand" "beta" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_beta($4, $5);
+			}
+		}
+		| '{' "rand" "beta" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfun_beta($4, $5);
+				$$.rv.pfun = m_pfun_beta;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_betaprime	: '<' "rand" "betaprime" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunbetaprime($4, $5);
+			}
+		}
+		| '{' "rand" "betaprime" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunbetaprime($4, $5);
+				$$.rv.pfun = m_pfunbetaprime;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_bpareto	: '<' "rand" "bpareto" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunbpareto($4, $5);
+			}
+		}
+		| '{' "rand" "bpareto" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunbpareto($4, $5);
+				$$.rv.pfun = m_pfunbpareto;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_cauchy	: '<' "rand" "cauchy" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfuncauchy($4, $5);
+			}
+		}
+		| '{' "rand" "cauchy" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfuncauchy($4, $5);
+				$$.rv.pfun = m_pfuncauchy;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_chi		: '<' "rand" "chi" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunchi($4);
+			}
+		}
+		| '{' "rand" "chi" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunchi($4);
+				$$.rv.pfun = m_pfunchi;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_erlang	: '<' "rand" "erlang" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunerlang($4, $5);
+			}
+		}
+		| '{' "rand" "erlang" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunerlang($4, $5);
+				$$.rv.pfun = m_pfunerlang;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_extremeval	: '<' "rand" "extremeval" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunextremeval($4, $5);
+			}
+		}
+		| '{' "rand" "extremeval" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunextremeval($4, $5);
+				$$.rv.pfun = m_pfunextremeval;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_fdist	: '<' "rand" "f" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfdist($4, $5);
+			}
+		}
+		| '{' "rand" "f" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfdist($4, $5);
+				$$.rv.pfun = m_pfunfdist;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_fermidirac	: '<' "rand" "fermidirac" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfermidirac($4, $5);
+			}
+		}
+		| '{' "rand" "fermidirac" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfermidirac($4, $5);
+				$$.rv.pfun = m_pfunfermidirac;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_fisherz	: '<' "rand" "fisherz" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfisherz($4, $5);
+			}
+		}
+		| '{' "rand" "fisherz" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunfisherz($4, $5);
+				$$.rv.pfun = m_pfunfisherz;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_gamma	: '<' "rand" "gamma" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungamma($4, $5);
+			}
+		}
+		| '{' "rand" "gamma" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungamma($4, $5);
+				$$.rv.pfun = m_pfungamma;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_gibrat	: '<' "rand" "gibrat" '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungibrat();
+			}
+		}
+		| '{' "rand" "gibrat" '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungibrat();
+				$$.rv.pfun = m_pfungibrat;
+			}
+		}
+		;
+
+rnd_gumbel	: '<' "rand" "gumbel" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungumbel($4, $5);
+			}
+		}
+		| '{' "rand" "gumbel" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfungumbel($4, $5);
+				$$.rv.pfun = m_pfungumbel;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_halfnormal	: '<' "rand" "halfnormal" "," "t" "=" rdimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunhalfnormal($7);
+			}
+		}
+		| '{' "rand" "halfnormal" "," "t" "="  rdimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunhalfnormal($7);
+				$$.rv.pfun = m_pfungumbel;
+				$$.rv.p1 = $7;
+			}
+		}
+		;
+
+rnd_laplace	: '<' "rand" "laplace" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlaplace($4, $5);
+			}
+		}
+		| '{' "rand" "laplace" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlaplace($4, $5);
+				$$.rv.pfun = m_pfunlaplace;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_logistic	: '<' "rand" "logistic" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlogistic($4, $5);
+			}
+		}
+		| '{' "rand" "logistic" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlogistic($4, $5);
+				$$.rv.pfun = m_pfunlogistic;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_lognorm	: '<' "rand" "lognormal" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlognormal($4, $5);
+			}
+		}
+		| '{' "rand" "lognormal" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlognormal($4, $5);
+				$$.rv.pfun = m_pfunlognormal;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_logseries	: '<' "rand" "logseries" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlogseries($4);
+			}
+		}
+		| '{' "rand" "logseries" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunlogseries($4);
+				$$.rv.pfun = m_pfunlogseries;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_maxwell	: '<' "rand" "maxwell" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunmaxwell($4);
+			}
+		}
+		| '{' "rand" "maxwell" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunmaxwell($4);
+				$$.rv.pfun = m_pfunmaxwell;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_negbinomial	: '<' "rand" "negbinomial" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunnegbinomial($4, $5);
+			}
+		}
+		| '{' "rand" "negbinomial" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunnegbinomial($4, $5);
+				$$.rv.pfun = m_pfunnegbinomial;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_pearsontype3: '<' "rand" "pearsontype3" dimm dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunpearsontype3($4, $5, $6);
+			}
+		}
+		| '{' "rand" "negbinomial" dimm dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunnegbinomial($4, $5);
+				$$.rv.pfun = m_pfunnegbinomial;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_poisson	: '<' "rand" "poisson" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunpoisson($4);
+			}
+		}
+		| '{' "rand" "poisson" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunpoisson($4);
+				$$.rv.pfun = m_pfunpoisson;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_rayleigh	: '<' "rand" "rayleigh" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunrayleigh($4, $5);
+			}
+		}
+		| '{' "rand" "rayleigh" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunrayleigh($4, $5);
+				$$.rv.pfun = m_pfunrayleighl;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_studentst	: '<' "rand" "studentst" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunstudentst($4);
+			}
+		}
+		| '{' "rand" "studentst" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunstudentst($4);
+				$$.rv.pfun = m_pfunstudentst;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_studentsz	: '<' "rand" "studentsz" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunstudentsz($4);
+			}
+		}
+		| '{' "rand" "studentsz" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunstudentsz($4);
+				$$.rv.pfun = m_pfunstudentsz;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+
+rnd_uniform	: '<' "rand" "uniform" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfununiform($4, $5);
+			}
+		}
+		| '{' "rand" "uniform" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfununiform($4, $5);
+				$$.rv.pfun = m_pfununiform;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_weibull	: '<' "rand" "weibull" dimm dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunweibull($4, $5);
+			}
+		}
+		| '{' "rand" "weibull" dimm dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunweibull($4, $5);
+				$$.rv.pfun = m_pfunweibull;
+				$$.rv.p1 = $4;
+				$$.rv.p2 = $5;
+			}
+		}
+		;
+
+rnd_xi2		: '<' "rand" "xi2" dimm '>'  
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunxi2($4);
+			}
+		}
+		| '{' "rand" "xi2" dimm '}'
+		{
+			if (!yyengine->scanning)
+			{
+				$$.value = m_pfunxi2($4);
+				$$.rv.pfun = m_pfunxi2;
+				$$.rv.p1 = $4;
+			}
+		}
+		;
+*/
 
 uimm		: T_STRING
 		{
@@ -6851,7 +7776,7 @@ uimm		: T_STRING
 			
 			if (*ep != '\0')
 			{
-				merror("Invalid unsigned immediate data %s.", $1);
+				merror(yyengine, "Invalid unsigned immediate data %s.", $1);
 			}
 		}
 		;
@@ -6865,7 +7790,7 @@ simm		: T_STRING
 			
 			if (*ep != '\0')
 			{
-				merror("Invalid signed immediate data %s.", $1);
+				merror(yyengine, "Invalid signed immediate data %s.", $1);
 			}
 		}
 		| '-' T_STRING
@@ -6877,7 +7802,7 @@ simm		: T_STRING
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid signed immediate data %s.", $2);
+				merror(yyengine, "Invalid signed immediate data %s.", $2);
 			}
 		}
 		| '+' T_STRING
@@ -6889,12 +7814,12 @@ simm		: T_STRING
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid signed immediate data %s.", $2);
+				merror(yyengine, "Invalid signed immediate data %s.", $2);
 			}
 		}
 		;
 
-dimm	: T_STRING
+dimm		: T_STRING
 		{
 			char tmp;
 			char *ep = &tmp;
@@ -6903,7 +7828,7 @@ dimm	: T_STRING
 			
 			if (*ep != '\0')
 			{
-				merror("Invalid double immediate data %s.", $1);
+				merror(yyengine, "Invalid double immediate data %s.", $1);
 			}
 		}
 		| '-' T_STRING
@@ -6915,7 +7840,7 @@ dimm	: T_STRING
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid double immediate data %s.", $2);
+				merror(yyengine, "Invalid double immediate data %s.", $2);
 			}
 		}
 		| '+' T_STRING
@@ -6927,8 +7852,100 @@ dimm	: T_STRING
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid double immediate data %s.", $2);
+				merror(yyengine, "Invalid double immediate data %s.", $2);
 			}
+		}
+		;
+
+rdimm		: dimm
+		{
+			$$ = (Rval *) mcalloc(yyengine, 1, sizeof(Rval), "sf.y:rdimm/$$");
+			if ($$ == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+
+			$$->value = $1;
+		}
+		| rnd
+		;
+
+ruimm		: uimm
+		{
+			$$ = (Rval *) mcalloc(yyengine, 1, sizeof(Rval), "sf.y:ruimm/$$");
+			if ($$ == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+
+			$$->value = $1;
+		}
+		| rnd
+		{
+			$$ = $1;
+			$$->value = max(0, (ulong)ceil($1->value));
+		}
+		;
+
+rsimm		: simm
+		{
+			$$ = (Rval *) mcalloc(yyengine, 1, sizeof(Rval), "sf.y:rsimm/$$");
+			if ($$ == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+
+			$$->value = $1;
+		}
+		| rnd
+		{
+			$$ = $1;
+			$$->value = (int)ceil($1->value);
+		}
+		;
+
+
+dimmlist	: '{' dimmlistbody '}'
+		{
+			$$ = $2;
+		}
+		;
+
+dimmlistbody	: dimm
+		{
+			DoubleListItem	*item;
+
+			$$ = (DoubleList *) mcalloc(yyengine, 1, sizeof(DoubleList), "sf.y:dimmlistbody/$$");
+			if ($$ == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+
+			item = (DoubleListItem *)mcalloc(yyengine, 1, sizeof(DoubleListItem), "sf.y:dimmlistbody/item,1");
+			if (item == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+			item->value = $1;
+			item->next = NULL;
+
+			$$->hd = $$->tl = item;
+			$$->len = 1;
+		}
+		| dimmlistbody ',' dimm
+		{
+			DoubleListItem	*item;
+
+			item = (DoubleListItem *)mcalloc(yyengine, 1, sizeof(DoubleListItem), "sf.y:dimmlistbody/item,2");
+			if (item == NULL)
+			{
+				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
+			}
+			item->value = $3;
+			item->next = NULL;
+
+			$$->tl->next = item;
+			$$->tl = item;
 		}
 		;
 
@@ -6946,12 +7963,12 @@ disp		: T_LABEL
 			/*	of mem loacation, and instructions are placed in mem	*/
 			/*	at every other byte.					*/
 			/*								*/
-			$$ = ($1 - (CUR_STATE->PC+4)) >> 1;
+			$$ = ($1 - (yyengine->cp->PC+4)) >> 1;
 
 			/*	Warn if the PC calculated displacement was not a multiple of 2 */
-			if (($1 - (CUR_STATE->PC+4)) & 0x1)
+			if (($1 - (yyengine->cp->PC+4)) & 0x1)
 			{
-				merror("Disp in terms of mem addr was not on word boundary.");
+				merror(yyengine, "Disp in terms of mem addr was not on word boundary.");
 			}
 		}
 		| T_STRING
@@ -6964,7 +7981,7 @@ disp		: T_LABEL
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid DISP ([%s]). Possibly due to a .comm.", $1);
+				merror(yyengine, "Invalid DISP ([%s]). Possibly due to a .comm.", $1);
 			}
 		}
 		| '+' T_STRING
@@ -6977,7 +7994,7 @@ disp		: T_LABEL
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid DISP ([%s]). Possibly due to a .comm.", $2);
+				merror(yyengine, "Invalid DISP ([%s]). Possibly due to a .comm.", $2);
 			}
 		}
 		| '-' T_STRING
@@ -6990,7 +8007,7 @@ disp		: T_LABEL
 				
 			if (*ep != '\0')
 			{
-				merror("Invalid DISP ([%s]). Possibly due to a .comm.", $2);
+				merror(yyengine, "Invalid DISP ([%s]). Possibly due to a .comm.", $2);
 			}
 		}
 		;
@@ -7001,7 +8018,7 @@ optstring	: {
 			/*	To make handling of empty string in T_RUN rule 		*/
 			/*	uniform, we malloc a place holder.			*/
 			/*								*/
-			char *tmp = mmalloc(sizeof(char), "opstring rule in shasm.y");
+			char *tmp = mmalloc(yyengine, sizeof(char), "opstring rule in shasm.y");
 			tmp[0] = '\0';
 			$$ = tmp;
 		}
@@ -7010,6 +8027,7 @@ optstring	: {
 			$$ = $1;
 		}
 		;
+
 
 reg		: T_R0 {$$ = 0;}
 		| T_R1 {$$ = 1;}
@@ -7035,8 +8053,8 @@ reg		: T_R0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror("Invalid command!");
-	clearistream();
+	merror(yyengine, "Invalid command!");
+	clearistream(yyengine);
 	
 	return 0;
 }

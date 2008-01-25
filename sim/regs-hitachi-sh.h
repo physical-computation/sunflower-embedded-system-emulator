@@ -78,7 +78,8 @@ typedef struct
 	unsigned	:1;	/* pad */
 	/* 	Highest mem addr (MSB on lil-n) */
 } SuperHSREG;
-#elif SF_B_ENDIAN
+#else
+#ifdef SF_B_ENDIAN
 typedef struct
 {
 	/* 	Lowest mem addr (MSB on big-n) 	*/
@@ -102,6 +103,7 @@ typedef struct
 #error "and -DSF_B_ENDIAN for big-endian machines"
 #error "Files containing endian-dependent code are"
 #error "endian.h and regs.h"
+#endif
 #endif
 
 enum

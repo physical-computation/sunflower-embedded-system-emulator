@@ -33,9 +33,15 @@
 /*										*/	
 #ifdef SF_L_ENDIAN
 #	include "little-endian-hitachi-sh.h"
-#elif SF_B_ENDIAN
+#	define SF_ENDONE
+#endif
+
+#ifdef SF_B_ENDIAN
 #	include "big-endian-hitachi-sh.h"
-#else
+#	define SF_ENDONE
+#endif
+
+#ifndef SF_ENDONE
 #	error "You must define your host machine's endianness"
 #	error "in config.$(OSTYPE)."
 #	error "use -DSF_L_ENDIAN for little-endian machines"
