@@ -6,7 +6,7 @@ PROGRAM2	= dijkstra_large
 
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR)
 OPTFLAGS	= -O0 -gstabs3
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) $(OPTFLAGS) -Wall ##-Werror -Winline

@@ -6,7 +6,7 @@ PROGRAM	= lout
 
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) $(OPTFLAGS) -Wall ##-Werror -Winline
 LDFLAGS       	= -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map $(PROGRAM).map
 LOADADDR	= 0x08004000

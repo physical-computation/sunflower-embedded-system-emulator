@@ -53,7 +53,8 @@
 extern void	pexit(char*, int);
 extern vlong	osusectime(void);
 extern int	osmillisleep(ulong);
-extern int	devsfspawnscheduler(void);
+extern int	devsfspawnscheduler(Engine *);
+extern int	devsfkillscheduler(int);
 
 tuck void	checkh2o(int maxbufsz, int *h2o, char *circbuf, char *buf);
 
@@ -486,7 +487,7 @@ msnprint(char *dst, int size, char *fmt, ...)
 	int		n;
 
 	va_start(arg, fmt);
-	n = vsnprintf(dst, size, fmt, arg);
+	n = vsnprint(dst, size, fmt, arg);
 	va_end(arg);
 
 	return n;

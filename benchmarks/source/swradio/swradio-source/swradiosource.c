@@ -208,7 +208,7 @@ nic_hdlr(int evt)
 
         /*      Lower 12 bits of interrupt code specify IFC #   */
         whichifc = evt & 0xFFF;
-        rx_frame_size = devnet_getfsz(whichifc);
+        rx_frame_size = devnet_getmaxfsz(whichifc);
         devnet_recv(&rxbuf[0], rx_frame_size, whichifc);
 	memmove(&src_addr, &rxbuf[0], 16);
 

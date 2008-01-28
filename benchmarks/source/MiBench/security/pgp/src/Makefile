@@ -4,7 +4,7 @@ include $(TREEROOT)/conf/setup.conf
 
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(ROOT)/tools-lib
+TOOLSLIB      	= $(ROOT)/tools/tools-lib
 INCLUDES        = -I$(ROOT)/sys/include -I$(ROOT)/sys/kern/superH -I$(SIMDIR) -I$(PORT)
 OPTFLAGS	= -gstabs3 -O4
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) $(OPTFLAGS) -Wall ##-Werror -Winline

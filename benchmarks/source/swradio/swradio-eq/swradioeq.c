@@ -6,6 +6,7 @@
 /*	by								*/
 /*		pstanley@ece.cmu.edu					*/
 /*									*/
+#include <math.h>
 #include "e-types.h"
 #include "tag.h"
 #include "devsim7708.h"
@@ -24,7 +25,6 @@
 #include "interrupts-hitachi-sh.h"
 #include "network-hitachi-sh.h"
 #include "batt.h"
-#include <math.h>
 #include "swradio.h"
 
 
@@ -278,7 +278,7 @@ nic_hdlr(int evt)
 
         /*      Lower 12 bits of interrupt code specify IFC #   */
         whichifc = evt & 0xFFF;
-        rx_frame_size = devnet_getfsz(whichifc);
+        rx_frame_size = devnet_getmaxfsz(whichifc);
         devnet_recv(&rxbuf[0], rx_frame_size, whichifc);
 	memmove(&src_addr, (uchar *)&rxbuf[0], 16);
 

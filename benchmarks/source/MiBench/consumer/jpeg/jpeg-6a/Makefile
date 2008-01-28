@@ -25,7 +25,7 @@ include $(TREEROOT)/conf/setup.conf
 
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR)
 CFLAGS       	= -gstabs3 -O0 -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall ##-Werror -Winline $(INCLUDES) -I$(srcdir)
 LDFLAGS       	= -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map $(PROGRAM1).map

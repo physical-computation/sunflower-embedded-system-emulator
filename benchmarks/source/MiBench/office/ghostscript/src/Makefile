@@ -181,7 +181,7 @@ TREEROOT	= ../../../../../..
 include $(TREEROOT)/conf/setup.conf
 LIBOS		= mOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      = $(TREEROOT)/tools-lib
+TOOLSLIB      = $(TREEROOT)/tools/tools-lib
 INCLUDES	= -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR)
 SFLDFLAGS       = -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map gs.map
 LOADADDR	= 0x08004000

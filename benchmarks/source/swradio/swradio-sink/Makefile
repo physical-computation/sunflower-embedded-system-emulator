@@ -1,4 +1,4 @@
-TREEROOT	= /Users/pip/Desktop/sunflower-1.0-beta
+TREEROOT	= ../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
@@ -8,7 +8,7 @@ LIBOS2		= eOS
 
 PORT		= ../../port
 INCLUDEDIR      = $(TREEROOT)/sys/include
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(INCLUDEDIR) -I../ -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -O3 -Wall ##-Werror 
 LDFLAGS         = -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS1) -L$(TREEROOT)/sys/libOS/$(LIBOS2) -Map $(PROGRAM).map

@@ -14,7 +14,7 @@ LIBOS		= eOS
 PORT		= ../../port
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(MACPATH) -I$(ROUTEPATH) -I$(PORT)  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR) -I$(TREEROOT)/sys/libOS/port
 OPTFLAGS	= -gstabs3 -O0
 CFLAGS       	= -DEAR_ORACLE_LOCATIONS=1 -DEAR_ORACLE_NEIGHBORS=1 -DSIFT_RANDTABLE -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall -DLOGMARKERS ##-Werror -Winline

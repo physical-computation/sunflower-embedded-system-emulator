@@ -1,6 +1,6 @@
 Application: randomly query a node in network (same spatial setup as
 PARC-dam, same signal sources) for its current reading.
 
-MAC:	Sift
+MAC:	S-MAC
 
-Routing: Shar & Rabaey (EAR)
+Routing: Shah & Rabaey (EAR)

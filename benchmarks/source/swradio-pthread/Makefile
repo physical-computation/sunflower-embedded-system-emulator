@@ -8,7 +8,7 @@ PORT		= ../port
 
 PTHREAD		= ../libsfpthread
 SIMDIR		= $(TREEROOT)/sim
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR) -I$(PTHREAD) -I$(PORT)
 OPTFLAGS	= -O3 -funroll-loops -finline-functions -fomit-frame-pointer
 CFLAGS       	= -DSUPERH -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) #-Wall -Werror -Winline

@@ -35,7 +35,7 @@ LIBOS		= mOS
 
 PORT		= ../port
 INCLUDEDIR      = $(TREEROOT)/sys/include
-TOOLSLIB      	= $(TREEROOT)/tools-lib
+TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(INCLUDEDIR) -I../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim
 ##pip CFLAGS = -ax -pg -O2 $(USE_DISP) $(USE_SHMEM) $(INCLUDEDIR) $(TRACE) $(VERBOSE) $(VERIFY) $(WARNINGS)
 CFLAGS = -O2 $(TRACE) $(VERBOSE) $(VERIFY) $(WARNINGS)

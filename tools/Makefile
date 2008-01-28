@@ -56,12 +56,12 @@ gcc-pre:
 
 gcc-post:
 	cd $(GCC);\
-	mv $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.1.1/*.a\
-		$(SUNFLOWERROOT)/tools-lib/$(TARGET)/;\
-	mv $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.1.1/*.a\
-		$(SUNFLOWERROOT)/tools-lib/$(TARGET)/;\
-	mv $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools-lib/$(TARGET)/;\
-	mv $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.1.1/*.a\
+		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.1.1/*.a\
+		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
 	$(DEL) $(GCC)/objdir;\
 
 
@@ -80,7 +80,7 @@ newlib-pre:
 	$(MAKE) CC=$(TOOLCC) install;\
 
 newlib-post:
-	cp $(PREFIX)/$(TARGET-ARCH)/lib/*.a $(SUNFLOWERROOT)/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/$(TARGET-ARCH)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	#$(DEL) $(NEWLIB)/objdir;\
 
 

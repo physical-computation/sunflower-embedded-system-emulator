@@ -45,7 +45,7 @@
 #define	SF_MOBILITY		0
 #define	SF_SIMLOG		1
 #define	SF_PAU_DEFINED		0
-#define	SF_BITFLIP_ANALYSIS	0
+#define	SF_BITFLIP_ANALYSIS	1
 #define	SF_POWER_ANALYSIS	1
 #define	SF_MEMTRACE		0
 #define	SF_BATT			1
