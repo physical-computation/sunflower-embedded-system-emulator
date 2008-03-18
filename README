@@ -10,11 +10,11 @@
 	the simulator.
 
 (4)	To build the cross-compiler, first populate tools/source with the
-	appropriate distributions (there are currently empty placeholder
+	appropriate distributions (there are currently empty place-holder
 	directories therein). You should be able to obtain these distributions
 	from:
 
-	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1.tar.gz
+	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2
 	ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.16.1.tar.gz
 	ftp://sources.redhat.com/pub/newlib/newlib-1.9.0.tar.gz
 	
@@ -24,4 +24,4 @@
 	Next, type 'make cross' from the root of
 	the installation (the directory containing this README file).
 	That will start the process of configuring the aforementioned
-	distirbutions to build the cross-compiler suite for the simulator.
+	distributions to build the cross-compiler suite for the simulator.
