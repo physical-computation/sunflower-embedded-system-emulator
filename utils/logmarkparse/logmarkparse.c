@@ -8,6 +8,14 @@
 #define ulong   unsigned long
 #define uvlong  unsigned long long
 
+/*
+	Usage:
+		logmarkparse <tagstub> <start tag> <end tag> <statistic name> <stub min suffix> <stub max suffix> <netflag>
+	Example usage:
+		To capture "TIME" values for entries for "NODE0" through "NODE24", which are not network logs:
+		logmarkparse	NODE _LOGMARK_TAG_2 _LOGMARK_TAG_3 TIME 0 24 0 sunflower.out > alltag2-tag3-TIME
+*/
+
 typedef struct
 {
 	double	*statvals;
@@ -504,7 +512,7 @@ parsenetlog(Stats *stats, FILE *fp, char *start, char *end, int node)
 void
 usage(void)
 {
-	fprintf(stderr, "Usage: logmarkparse <tagstub> <stubmin> <stubmax> <log start tag> <log end tag> <statname>\n\n");
+	fprintf(stderr, "Usage: logmarkparse <tagstub> <start tag> <end tag> <statistic name> <stub min suffix> <stub max suffix> <netflag>\n\n");
 	exit(-1);
 }
 
