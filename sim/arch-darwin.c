@@ -211,9 +211,14 @@ int
 mkillscheduler(Engine *E)
 {
 	if (E->nodetach || !E->on)
+	{
 		return 0;
-		
-	return pthread_cancel(E->sched_handle);
+	}
+
+	/*	Scheduler will exit cleanly when E->on is cleared	*/
+	E->on = 0;
+
+	return 0;
 }
 
 int

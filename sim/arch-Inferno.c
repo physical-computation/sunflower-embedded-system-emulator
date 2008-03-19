@@ -288,9 +288,14 @@ int
 mkillscheduler(Engine *E)
 {
 	if (E->nodetach || !E->on)
+	{
 		return 0;
+	}
 		
-	return devsfkillscheduler(E->sched_pid);
+	/*	Scheduler will exit cleanly when E->on is cleared	*/
+	E->on = 0;
+
+	return 0;
 }
 
 int
