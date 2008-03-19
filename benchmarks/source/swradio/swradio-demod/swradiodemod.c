@@ -68,6 +68,11 @@ startup(void)
 	eq_base = my_id+1;
 
 	hdlr_install();
+
+	/*	Power up both RX interfaces	*/
+	devnet_ctl(NIC_NCR_WRITE, NIC_CMD_POWERUP, 0);
+	devnet_ctl(NIC_NCR_WRITE, NIC_CMD_POWERUP, 1);
+
 	print("swradio-demod [%d] installing vector code...\n", my_id);
 
 

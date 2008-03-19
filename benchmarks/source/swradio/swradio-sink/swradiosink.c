@@ -72,6 +72,10 @@ startup(void)
 	}
 
 	hdlr_install();
+
+	/*	Power up the RX interface	*/
+	devnet_ctl(NIC_NCR_WRITE, NIC_CMD_POWERUP, 0);
+
 	print("swradio-sink [%d] installing vector code...\n", my_id);
 
 

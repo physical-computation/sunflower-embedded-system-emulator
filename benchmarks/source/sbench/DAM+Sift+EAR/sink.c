@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "e-types.h"
+#include "sf-types.h"
 #include "tag.h"
 #include "devsim7708.h"
 #include "sh7708.h"

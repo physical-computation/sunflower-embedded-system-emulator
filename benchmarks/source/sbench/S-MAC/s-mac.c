@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "e-types.h"
+#include "sf-types.h"
 #include "errors.h"
 #include "sf-includes.h"
 #include "s-mac.h"

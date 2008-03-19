@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "e-types.h"
+#include "sf-types.h"
 #include "errors.h"
 #include "sf-includes.h"
 #include "sift-mac.h"

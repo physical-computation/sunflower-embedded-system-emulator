@@ -87,6 +87,11 @@ startup(void)
 	sprint(&sink_dst[0], "%d", 11);
 
 	hdlr_install();
+
+	/*	Power up both RX interfaces	*/
+	devnet_ctl(NIC_NCR_WRITE, NIC_CMD_POWERUP, 0);
+	devnet_ctl(NIC_NCR_WRITE, NIC_CMD_POWERUP, 1);
+
 	print("swradio-eq [%d] installing vector code...\n", my_id);
 
 
