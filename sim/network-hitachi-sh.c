@@ -929,7 +929,27 @@ network_clock(Engine *E)
 							dptr->superH->NIC_IFCS[k].rx_fifo_framesizes[idx] = tptr->actual_nbytes;
 
 							/*	We trigger the dst to eat if minsnr exceeds at point of end of frame */
-							if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
+							if (curseg->sigsrc != NULL)
+							{
+								if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
+								{
+									fifo_enqueue(E, dptr, RX_FIFO, k);
+
+									if (dptr->superH->rxok_intrenable_flag)
+									{
+										pic_intr_enqueue(E, dptr,
+											dptr->superH->nicintrQ,
+											NIC_RXOK_INTR, k, 0);
+									}
+
+									dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
+								}
+								else
+								{
+									/* snr too low, print debug warning if want to show these... */
+								}
+							}
+							else
 							{
 								fifo_enqueue(E, dptr, RX_FIFO, k);
 
@@ -941,10 +961,6 @@ network_clock(Engine *E)
 								}
 
 								dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
-							}
-							else
-							{
-								/* snr too low, print debug warning if want to show these... */
 							}
 						}
 					}
@@ -1065,7 +1081,27 @@ network_clock(Engine *E)
 					{
 						dptr->superH->NIC_IFCS[k].rx_fifo_framesizes[idx] = tptr->actual_nbytes;
 
-						if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
+						if (curseg->sigsrc != NULL)
+						{
+							if (check_snr(E, curseg, sptr, dptr) > curseg->minsnr)
+							{
+								fifo_enqueue(E, dptr, RX_FIFO, k);
+
+								if (dptr->superH->rxok_intrenable_flag)
+								{
+									pic_intr_enqueue(E, dptr,
+									dptr->superH->nicintrQ,
+									NIC_RXOK_INTR, k, 0);
+								}
+
+								dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
+							}
+							else
+							{	
+								// snr too low, print debug warning if want to show these...
+							}
+						}
+						else
 						{
 							fifo_enqueue(E, dptr, RX_FIFO, k);
 
@@ -1077,10 +1113,6 @@ network_clock(Engine *E)
 							}
 
 							dptr->superH->NIC_IFCS[k].IFC_CNTR_RXOK++;
-						}
-						else
-						{	
-							// snr too low, print debug warning if want to show these...
 						}
 					}
 				}
