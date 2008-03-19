@@ -3,7 +3,7 @@ include 	../../../conf/setup.conf
 PORT		= $(SUNFLOWERROOT)/sys/libOS/port
 DEV		= $(SUNFLOWERROOT)/sys/dev
 
-INCLUDEDIR      = $(SUNFLOWERROOT)/sys/include
+INCLUDEDIR      = $(SUNFLOWERROOT)/sim
 LIB 	     	= $(SUNFLOWERROOT)/tools-lib/$(TARGET)
 INCLUDES        = -I. -I$(INCLUDEDIR) -I$(PORT) -I$(GCCINCLUDEDIR) -I../../kern/port
 CCFLAGS       	= -g3 -O2 $(TARGET-ARCH-FLAGS) -nostdinc $(INCLUDES) -fno-builtin -Wall -Werror -c
