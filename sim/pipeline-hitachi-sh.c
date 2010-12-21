@@ -809,6 +809,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			{
 				S->superH->mem_access_type = MEM_ACCESS_IFETCH;
 				instrword = superHreadword(E, S, S->PC);
+				S->nfetched++;
 				S->superH->mem_access_type = MEM_ACCESS_NIL;
 			}
 

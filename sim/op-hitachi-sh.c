@@ -795,6 +795,7 @@ superH_bsr(Engine *E, State *S, long d)
 	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
 	S->PCSTACK[++S->pcstackheight] = S->PC;
 
+	//fprintf(stdout, "NODE%d, BSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
 	return;
 }
@@ -852,6 +853,7 @@ superH_bsrf(Engine *E, State *S, ulong n)
 	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
 	S->PCSTACK[++S->pcstackheight] = S->PC;
 
+	//fprintf(stdout, "NODE%d BSRF from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
 	return;
 }
@@ -1727,6 +1729,8 @@ superH_jsr(Engine *E, State *S, ulong n)
 	/*								*/
 	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
 	S->PCSTACK[++S->pcstackheight] = S->PC;
+
+	//fprintf(stdout, "NODE%d JSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
 	return;
 }
@@ -3429,8 +3433,12 @@ superH_rts(Engine *E, State *S)
 	{
 		sfatal(E, S, "Internal simulator error: PC stack underflow");
 	}
+
+	//fprintf(stdout, "NODE%d, RTS from " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->PCSTACK[S->pcstackheight]&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+
 	S->pcstackheight--;
 	S->fpstackheight--;
+
 
 	return;
 }

@@ -42,7 +42,7 @@ typedef struct Actuator Actuator;
 enum
 {
 	/*		Physical phenomena			*/
-	MAX_SIGNAL_SRCS	= 8,
+	MAX_SIGNAL_SRCS	= 32,
 	MAX_SIGNALSRC_SUBSCRIBERS = 512,
 	MAX_NODE_SENSORS = 8,
 };

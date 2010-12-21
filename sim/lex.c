@@ -188,6 +188,10 @@ TokenTab token_table [] =
 	{"PCBT", T_PCBT},				/*+	Dump PC backtrace.:none	*/
 	{"HWSEEREG", T_HWSEEREG},			/*+	Register a hardware structure or part thereof for inducement of SEEs.: <structure name> <actual bits> <logical bits> <bit offset>	*/
 	{"INITSEESTATE", T_INITSEESTATE},		/*+	Initialize SEE function and parameter state.: <loc pfun> <loc p1> <loc p2> <loc p3> <loc p4> <bit pfun> <bit p1> <bit p2> <bit p3> <bit p4> <duration pfun> <dur p1> <dur p2> <dur p3> <dur p4>	*/
+	{"SETMEMRLATENCY", T_SETMEMRLATENCY},		/*+	Set memory read latency.: <latency in clock cycles>	*/
+	{"SETMEMWLATENCY", T_SETMEMWLATENCY},		/*+	Set memory write latency.: <latency in clock cycles>	*/
+	{"SETFLASHRLATENCY", T_SETFLASHRLATENCY},	/*+	Set flash read latency.: <latency in clock cycles>	*/
+	{"SETFLASHWLATENCY", T_SETFLASHWLATENCY},	/*+	Set flash write latency.: <latency in clock cycles>	*/
 
 	/*										*/
 	/*	We should use these and get rid of NETSEGFAILPROB and NODEFAILPROB	*/

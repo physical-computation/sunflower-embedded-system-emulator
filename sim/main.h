@@ -60,14 +60,15 @@
 #define	PICOSEC_MAX		DBL_MAX
 
 
+/*	WIN32 compiler doesn't always know 'inline', and already has min/max */
 #ifdef	_WIN32_WINNT
-#	define	tuck
+#	define	tuck	
 #else
 #	define	tuck		inline
+#	define	max(x,y)	((x) > (y) ? (x) : (y))
+#	define	min(x,y)	((x) < (y) ? (x) : (y))
 #endif
 
-#define	max(x,y)	((x) > (y) ? (x) : (y))
-#define	min(x,y)	((x) < (y) ? (x) : (y))
 
 #define eventready(curtime, lastactivate, period)\
 				((((curtime) - (lastactivate)) >= (period)) ? 1 : 0)
@@ -77,6 +78,7 @@
 #define SF_FILE_MACRO		__FILE__
 
 #ifdef LIBSF
+#	define DBLFMT		"%E"
 #	define INTFMT		"%d"
 #	define UINTFMT		"%ud"
 #	define UVLONGFMT	"%llud"
@@ -85,6 +87,7 @@
 #	define UH8LONGFMT	"%08lux"
 #	define UH2XFMT		"%02X"
 #else
+#	define DBLFMT		"%E"
 #	define INTFMT		"%d"
 #	define UINTFMT		"%u"
 #	define UVLONGFMT	"%llu"
@@ -97,10 +100,10 @@
 
 enum
 {
-	DEFAULT_MEMREAD_LATENCY		= 1,
-	DEFAULT_MEMWRITE_LATENCY	= 1,
-	DEFAULT_FLASHREAD_LATENCY	= 1,
-	DEFAULT_FLASHWRITE_LATENCY	= 100,
+	DEFAULT_MEMREAD_LATENCY		= 0,
+	DEFAULT_MEMWRITE_LATENCY	= 0,
+	DEFAULT_FLASHREAD_LATENCY	= 0,
+	DEFAULT_FLASHWRITE_LATENCY	= 0,
 	DEFLT_MEMSIZE			= 1<<24,
 	DEFLT_FLASHSIZE			= 1<<4,
 };
@@ -143,8 +146,8 @@ enum
 	BASE_REGTRACER_DEVNTRACE	= 128,
 	MAX_NUMAREGION_VALUETRACE	= 1048576,
 	MAX_REGTRACER_VALUETRACE	= 1048576,
-	MAX_PCSTACK_HEIGHT		= 32,
-	MAX_FPSTACK_HEIGHT		= 32,
+	MAX_PCSTACK_HEIGHT		= 1024,
+	MAX_FPSTACK_HEIGHT		= 1024,
 	MAX_RANDTABLEENTRIES		= 8192,
 	MAX_RVARENTRIES			= 128,
 	MAX_NUM_ENGINES			= 4,
@@ -499,6 +502,8 @@ struct State
 	uchar		*MEM;
 	int		mem_r_latency;
 	int		mem_w_latency;
+	int		flash_r_latency;
+	int		flash_w_latency;
 	int		MEMSIZE;
 	int		MEMBASE;
 	int		MEMEND;
@@ -575,6 +580,7 @@ struct State
 	double		TIME;
 	double		CYCLETIME;
 	uvlong		dyncnt;
+	uvlong		nfetched;
 
 	
 	InterruptQ	*intrQ;

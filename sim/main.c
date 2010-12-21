@@ -188,7 +188,7 @@ main(int nargs, char *args[])
 {
 	Engine		*E;
 	char 		*buf = NULL;
-	State		*S;
+//	State		*S;
 	int		argn;
 
 	
@@ -204,7 +204,7 @@ main(int nargs, char *args[])
 	marchinit();	
 	m_version(E);
 	m_newnode(E, "superH", 0, 0, 0, nil, 0);
-	S = E->sp[0];
+//	S = E->sp[0];
 
 
         buf = (char *) mmalloc(E, sizeof(char)*(MAX_BUFLEN+1),
@@ -259,6 +259,9 @@ sched_step(Engine *E)
 	ulong		throttle_tripctr = 0;
 
 
+	/*
+		TODO: make the locking finer grained, possibly also splitting out into reader and writer locks
+	*/
 	mstatelock();
 	S = E->sp[E->cn];
 	min_secsleft = PICOSEC_MAX;
@@ -766,9 +769,10 @@ loadcmds(Engine *E, char *filename)
 	}
 
 	//streamchk();
+        /*      NOTE: scan_labels_and_globalvars does a yyparse(), so need yyengine set before  */
+	yyengine = E;
 	scan_labels_and_globalvars(E);
 	//streamchk();
-	yyengine = E;
 	yyparse();
 	mclose(fd);
 
@@ -2811,27 +2815,33 @@ printbpt(Engine *E, Breakpoint *b)
 	{
 		case BPT_GLOBALTIME:
 		{
-			mprint(E, NULL, siminfo, "Global time breakpoint\t@\t%E seconds\n", b->globaltime);
+			mprint(E, NULL, siminfo, "Global time breakpoint\t@\t" DBLFMT " seconds\n", b->globaltime);
 			break;
 		}
 
 		case BPT_CYCLES:
 		{
-			mprint(E, NULL, siminfo, "Node %d cycles breakpoint\t@\t" UVLONGFMT " cycles\n",
+			State	*tmp = E->sp[b->cyclesbpt.nodeid];
+
+			mprint(E, tmp, nodeinfo, "Node %d cycles breakpoint\t@\t" UVLONGFMT " cycles\n",
 				b->cyclesbpt.nodeid, b->cyclesbpt.cycles);
 			break;
 		}
 
 		case BPT_INSTRS:
 		{
-			mprint(E, NULL, siminfo, "Node %d instrs. breakpoint\t@\t" UVLONGFMT " instrs.\n",
+			State	*tmp = E->sp[b->cyclesbpt.nodeid];
+
+			mprint(E, tmp, nodeinfo, "Node %d instrs. breakpoint\t@\t" UVLONGFMT " instrs.\n",
 				b->instrsbpt.nodeid, b->instrsbpt.dyncnt);
 			break;
 		}
 
 		case BPT_SENSORREADING:
 		{
-			mprint(E, NULL, siminfo, "Node %d sensor %d  value breakpoint\t@\tvalue=" UVLONGFMT "\n",
+			State	*tmp = E->sp[b->cyclesbpt.nodeid];
+
+			mprint(E, tmp, nodeinfo, "Node %d sensor %d  value breakpoint\t@\tvalue=" DBLFMT "\n",
 					b->sensorreadingbpt.nodeid, b->sensorreadingbpt.sensor, b->sensorreadingbpt.value);
 			break;
 		}
@@ -2917,9 +2927,9 @@ bpts_feed(Engine *E)
 		{
 			case BPT_GLOBALTIME:
 			{
-				if (b->globaltime >= E->globaltimepsec)
+				if (E->globaltimepsec >= b->globaltime)
 				{
-					mprint(E, NULL, siminfo, "Breakpoint hit:\n\t%d\t", E->validbpts[i]);
+					mprint(E, NULL, siminfo, "\n\nGlobal breakpoint hit:\n\t%d\t", E->validbpts[i]);
 					printbpt(E, &E->bpts[E->validbpts[i]]);
 					E->on = 0;
 				}
@@ -2933,7 +2943,7 @@ bpts_feed(Engine *E)
 
 				if (tmp->runnable && tmp->ICLK >= b->cyclesbpt.cycles)
 				{
-					mprint(E, NULL, siminfo, "Breakpoint hit:\n\t%d\t", E->validbpts[i]);
+					mprint(E, tmp, nodeinfo, "\n\nNode %d breakpoint hit:\n\t%d\t", b->cyclesbpt.nodeid, E->validbpts[i]);
 					printbpt(E, &E->bpts[E->validbpts[i]]);
 					E->on = 0;
 				}
@@ -2947,7 +2957,7 @@ bpts_feed(Engine *E)
 
 				if (tmp->runnable && tmp->dyncnt >= b->instrsbpt.dyncnt)
 				{
-					mprint(E, NULL, siminfo, "Breakpoint hit:\n\t%d\t", E->validbpts[i]);
+					mprint(E, tmp, nodeinfo, "\n\nNode %d breakpoint hit:\n\t%d\t", b->instrsbpt.nodeid, E->validbpts[i]);
 					printbpt(E, &E->bpts[E->validbpts[i]]);
 					E->on = 0;
 				}
@@ -2959,9 +2969,9 @@ bpts_feed(Engine *E)
 			{
 				tmp = E->sp[b->instrsbpt.nodeid];
 
-				if (b->sensorreadingbpt.value >= tmp->sensors[b->sensorreadingbpt.sensor].reading)
+				if (tmp->sensors[b->sensorreadingbpt.sensor].reading >= b->sensorreadingbpt.value)
 				{
-					mprint(E, NULL, siminfo, "Breakpoint hit:\n\t%d\t", E->validbpts[i]);
+					mprint(E, tmp, nodeinfo, "\n\nNode %d breakpoint hit:\n\t%d\t", b->instrsbpt.nodeid, E->validbpts[i]);
 					printbpt(E, &E->bpts[E->validbpts[i]]);
 					E->on = 0;
 				}

@@ -761,6 +761,7 @@ superHresetcpu(Engine *E, State *S)
 	S->superH->TIMER_LASTACTIVATE = 0.0;
 	S->superH->TIMER_INTR_DELAY = 1E-3;
 	S->dyncnt = 0;
+	S->nfetched = 0;
 	S->CLK = 0;
 	S->ICLK = 0;
 	S->cmdbuf_nbytes = 0;

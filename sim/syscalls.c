@@ -104,7 +104,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			mprint(E, S, nodeinfo, "\n\n");
 			S->runnable = 0;
 			E->on = 0;
-mexit(E, "pip: exiting on Sys_exit", 0);
+			//mexit(E, "pip: exiting on Sys_exit", 0);
 
 			break;
 		}

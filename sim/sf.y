@@ -195,6 +195,10 @@
 %token	T_SETTAG
 %token	T_SETTIMERDELAY
 %token	T_SETVDD
+%token	T_SETMEMRLATENCY
+%token	T_SETMEMWLATENCY
+%token	T_SETFLASHRLATENCY
+%token	T_SETFLASHWLATENCY
 %token	T_SHAREBUS
 %token	T_SHOWCLK
 %token	T_SHOWPIPE
@@ -1298,8 +1302,8 @@ sf_cmd		: T_QUIT '\n'
 			if (!yyengine->scanning)
 			{
 				mprint(yyengine, yyengine->cp, nodeinfo,
-					"Dynamic Instruction Count = [" UVLONGFMT "]\n",
-					yyengine->cp->dyncnt);	
+					"Dynamic instruction count = [" UVLONGFMT "], fetched instructions = [" UVLONGFMT "]\n",
+					yyengine->cp->dyncnt, yyengine->cp->nfetched);	
 			}
 		}
 		| T_NODETACH uimm '\n'
@@ -1638,6 +1642,34 @@ sf_cmd		: T_QUIT '\n'
 			{
 				/*	Scale frequency accordingly for provided Vdd	*/
 				power_scaledelay(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_SETMEMRLATENCY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->mem_r_latency = $2;
+			}
+		}
+		| T_SETMEMWLATENCY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->mem_w_latency = $2;
+			}
+		}
+		| T_SETFLASHRLATENCY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->flash_r_latency = $2;
+			}
+		}
+		| T_SETFLASHWLATENCY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->flash_w_latency = $2;
 			}
 		}
 		| T_SETFREQ dimm '\n'

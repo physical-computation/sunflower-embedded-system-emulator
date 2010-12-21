@@ -1367,6 +1367,7 @@ netsegdump(Engine *E, char *dumpname, Segbuf *segbuf)
 		mprint(E, NULL, siminfo, 
 			"Could not open destination \"%s\" for NETSEG2FILE\n",
 			dumpname);
+		mfree(E, buf, "(char *)buf segbuf text in network-hitachi-sh.c");
 
 		return;
 	}
@@ -1418,6 +1419,7 @@ netsegdump(Engine *E, char *dumpname, Segbuf *segbuf)
 	mprintfd(fd, buf);
 
 	mclose(fd);
+	mfree(E, buf, "(char *)buf segbuf text in network-hitachi-sh.c");
 
 
 	return;

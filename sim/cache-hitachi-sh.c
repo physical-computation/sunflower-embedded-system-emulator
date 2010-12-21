@@ -217,6 +217,7 @@ superHwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 				latency = X->regions[i]->remote_write_latency;
 			}
 
+
 			D		= E->sp[id];
 			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
@@ -472,7 +473,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 			/*	underlying data, mask off excess.			*/
 			/*								*/
 			ulong	mask = ~0UL;
-			int	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
+			ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 			if (size < 4)
 			{
 				mask = (1 << (size << 3)) - 1;
@@ -777,7 +778,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 			/*	underlying data, mask off excess.			*/
 			/*								*/
 			ulong	mask = ~0UL;
-			int	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
+			ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 			if (size < 4)
 			{
 				mask = (1 << (size << 3)) - 1;
@@ -1394,7 +1395,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 				/*	underlying data, mask off excess.			*/
 				/*								*/
 				ulong	mask = ~0UL;
-				int	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
+				ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 				if (size < 4)
 				{
 					mask = (1 << (size << 3)) - 1;
@@ -1689,7 +1690,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 				/*	underlying data, mask off excess.			*/
 				/*								*/
 				ulong	mask = ~0UL;
-				int	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
+				ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 				if (size < 4)
 				{
 					mask = (1 << (size << 3)) - 1;
