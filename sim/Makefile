@@ -110,7 +110,7 @@ mspasm.tab.c: mspasm.y lex.c $(HEADERS) Makefile
 
 
 mversion.h: Makefile
-	echo 'char const MVERSION[] = "1.1-beta (build '`date '+%m-%d-%Y-%H:%M:%S'`-`whoami`@`hostname`-`uname`\)\"\; > mversion.h
+	echo 'char const MVERSION[] = "1.1 (build '`date '+%m-%d-%Y-%H:%M:%S'`-`whoami`@`hostname`-`uname`\)\"\; > mversion.h
 
 opstr-hitachi-sh.h: decode-hitachi-sh.h Makefile
 	./mkopstr-hitachi-sh $(GAWK) > opstr-hitachi-sh.h
