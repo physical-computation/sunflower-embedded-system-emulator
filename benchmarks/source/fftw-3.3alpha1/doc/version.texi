@@ -1,0 +1,4 @@
+@set UPDATED 25 October 2008
+@set UPDATED-MONTH October 2008
+@set EDITION 3.3alpha1
+@set VERSION 3.3alpha1
