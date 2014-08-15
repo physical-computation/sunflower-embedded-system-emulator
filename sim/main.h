@@ -347,22 +347,22 @@ typedef struct
 	{
 		struct	/*	dval	*/
 		{
-			double	value;
+			double	dval;
 		};
 
 		struct	/*	uval	*/
 		{
-			ulong	value;
+			ulong	uval;
 		};
 
 		struct	/*	sval	*/
 		{
-			long	value;
+			long	sval;
 		};
 
 		struct	/*	str	*/
 		{
-			char	*value;
+			char	*str;
 		};
 	};
 

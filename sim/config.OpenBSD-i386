@@ -2,7 +2,6 @@ CC			= gcc
 GAWK			= gawk
 LINT			= echo 
 LD			= ld
-CC			= gcc
 BISON			= bison
 ENDIAN			= SF_L_ENDIAN
 PLATFORM_CFLAGS 	= -pthread -D$(ENDIAN)

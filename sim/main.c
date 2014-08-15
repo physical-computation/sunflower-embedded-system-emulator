@@ -612,7 +612,7 @@ load_srec(Engine *E, State *S, char *filename)
 			{
 				/*	Data record with 32bit addr	*/
 				int	i;
-				char	*tptr, tmp[8];
+				char	*tptr, tmp[8+1];
 				
 				memmove(&tmp[0], &line[2], 2);
 				tmp[2] = '\0';

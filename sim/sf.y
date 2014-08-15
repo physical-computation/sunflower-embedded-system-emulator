@@ -637,7 +637,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				m_newnode(yyengine, $2, $3->value, $4->value, $5->value, NULL, 0);
+				m_newnode(yyengine, $2, $3->dval, $4->dval, $5->dval, NULL, 0);
 			}
 		}
 		| T_NEWNODE optstring '\n'
@@ -651,7 +651,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				m_newnode(yyengine, $2, $3->value, $3->value, $3->value, NULL, 0);
+				m_newnode(yyengine, $2, $3->dval, $3->dval, $3->dval, NULL, 0);
 			}
 		}
 		| T_NEWNODE optstring rdimm rdimm rdimm T_STRING uimm'\n'
@@ -666,7 +666,7 @@ sf_cmd		: T_QUIT '\n'
 				//	the corresponding parameter using m_register_rvar(), if the
 				//	rvar was declared as "{...}", or NULL if it was "<...>"
 				//
-				m_newnode(yyengine, $2, $3->value, $4->value, $5->value, $6, $7);
+				m_newnode(yyengine, $2, $3->dval, $4->dval, $5->dval, $6, $7);
 
 				//	The above should be changed to:
 				//m_newnode($2, $3.value, $4.value, $5.value, $6.value, $7.value,
@@ -7228,14 +7228,14 @@ rnd_exp		: '<' "rnd" "exp" dimm '>'
 		{
 			if (!yyengine->scanning)
 			{
-				$$->value = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
+				$$->dval = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
 			}
 		}
 		| '{' "rnd" "exp" dimm '}'
 		{
 			if (!yyengine->scanning)
 			{
-				$$->value = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
+				$$->dval = m_pfun_exp(yyengine->cp, $4, 0, 0, 0);
 				$$->rv.pfun = m_pfun_exp;
 				$$->rv.p1 = $4;
 			}
@@ -7901,7 +7901,7 @@ rdimm		: dimm
 				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
 			}
 
-			$$->value = $1;
+			$$->dval = $1;
 		}
 		| rnd
 		;
@@ -7914,12 +7914,12 @@ ruimm		: uimm
 				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
 			}
 
-			$$->value = $1;
+			$$->uval = $1;
 		}
 		| rnd
 		{
 			$$ = $1;
-			$$->value = max(0, (ulong)ceil($1->value));
+			$$->uval = max(0, (ulong)ceil($1->uval));
 		}
 		;
 
@@ -7931,12 +7931,12 @@ rsimm		: simm
 				sfatal(yyengine, yyengine->cp, "Mcalloc failed");
 			}
 
-			$$->value = $1;
+			$$->sval = $1;
 		}
 		| rnd
 		{
 			$$ = $1;
-			$$->value = (int)ceil($1->value);
+			$$->sval = (int)ceil($1->sval);
 		}
 		;
 
