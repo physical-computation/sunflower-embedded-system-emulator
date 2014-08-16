@@ -8,6 +8,7 @@
 #
 
 
+S3ROOT = ../..
 include $(S3ROOT)/Makefile.defines
 VPATH = .:..
 
@@ -15,11 +16,11 @@ TARGET = libio.a
 
 OBJS =	bio.o
 
-ROOT	= /home/pip/eEK
-CC	= $(ROOT)/tools/bin/sh-coff-gcc
-AR	= $(ROOT)/tools/bin/sh-coff-ar
-RANLIB	= $(ROOT)/tools/bin/sh-coff-ranlib
-CFLAGS = -I.. $(S3DEBUG) ${$(MACHINE)_CFLAGS}
+TREEROOT	= ../../../../..
+CC		= $(TREEROOT)/tools/bin/sh-coff-gcc
+AR		= $(TREEROOT)/tools/bin/sh-coff-ar
+RANLIB		= $(TREEROOT)/tools/bin/sh-coff-ranlib
+CFLAGS		= -I.. $(S3DEBUG) ${$(MACHINE)_CFLAGS}
 
 $(TARGET): $(OBJS)
 	$(AR) crv $@ $?

@@ -7,6 +7,7 @@
 # 		Created.
 #
 
+S3ROOT = ../..
 include $(S3ROOT)/Makefile.defines
 VPATH = .:..
 
@@ -24,11 +25,11 @@ OBJS = cmd_ln.o \
 	profile.o
 
 alpha_OBJS = rpcc.o
-ROOT	= /home/pip/eEK
-CC	= $(ROOT)/tools/bin/sh-coff-gcc
-AR	= $(ROOT)/tools/bin/sh-coff-ar
-RANLIB	= $(ROOT)/tools/bin/sh-coff-ranlib
-CFLAGS = -DMYRMIGKI ${$(MACHINE)_CFLAGS} ## -DMYRMIGKI is for check in lubutil/unlimit.h -- pip
+TREEROOT	= ../../../../..
+CC		= $(TREEROOT)/tools/bin/sh-coff-gcc
+AR		= $(TREEROOT)/tools/bin/sh-coff-ar
+RANLIB		= $(TREEROOT)/tools/bin/sh-coff-ranlib
+CFLAGS		= -DSFLRSIM ${$(MACHINE)_CFLAGS} ## -DSFLRSIM is for check in lubutil/unlimit.h -- pip
 
 $(TARGET): $(OBJS) ${$(MACHINE)_OBJS}
 	$(AR) crv $@ $?

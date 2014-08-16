@@ -7,6 +7,7 @@
 # 		Created.
 #
 
+S3ROOT		= ../..
 include $(S3ROOT)/Makefile.defines
 
 
@@ -43,7 +44,7 @@ LD	= $(TREEROOT)/tools/bin/sh-coff-ld
 CFLAGS = -I.. -I../../../port -I$(TREEROOT)/sim -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH $(S3DEBUG) $(S2HMMTOPO) ${$(MACHINE)_CFLAGS}
 
 $(TARGET): $(OBJS)
-	$(LD) -Ttext $(LOADADDR) -TsuperH.ld -Map s3decode.map $(CFLAGS) -L$(TOOLSLIB) -L$(LIBDIR) -o $(TARGET) $(OBJS) -lc -lm -lgcc -lfeat -lio -lutil -lc -lm -lgcc
+	$(LD) -Ttext $(LOADADDR) -TsuperH.ld -Map s3decode.map $(CFLAGS) -L$(TOOLSLIB) -L$(LIBDIR) -o $(TARGET) $(OBJS) -lc -lm -lgcc -L../libfeat -lfeat -L../libio -lio -L../libutil -lutil -lc -lm -lgcc
 	$(TREEROOT)/tools/bin/sh-coff-objcopy -O srec s3decode s3decode.sr
 
 install: $(TARGET)

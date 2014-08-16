@@ -4,10 +4,7 @@ DIRS =\
 	DAM+Sift\
 	DAM+Sift+EAR\
 	DAM+idealHWMAC+EAR\
-	EAR-route\
 	PARC-damv2\
-	S-MAC\
-	Sift-MAC\
 
 all:
 	@set -e; for dir in $(DIRS); do \

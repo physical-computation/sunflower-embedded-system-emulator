@@ -2,11 +2,12 @@ DIRS =\
 	bubblesort\
 	mpeg2dec\
 	mpegencoder\
-	sbench\
 	sphinx3/src/libfbs\
-	sunflower-pthread\
 	swradio\
-	swradio-pthread
+	sbench\
+
+#	swradio-pthread\
+#	libsfpthread\
 #	ALPBench\
 #	MiBench\
 

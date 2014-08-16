@@ -28,7 +28,7 @@
  */
 void unlimit ( void )
 {
-#if ((!MYRMIGKI) && (! WIN32) && (! _HPUX_SOURCE))
+#if ((!SFLRSIM) && (! WIN32) && (! _HPUX_SOURCE))
   struct rlimit rl;
 
   getrlimit(RLIMIT_DATA,&rl);
