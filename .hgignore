@@ -2,6 +2,4 @@ syntax: glob
 *.o
 *~
 .DS_Store
-tools/source/binutils-2.16.1/*
-tools/source/newlib-1.9.0/*
-tools/source/gcc-4.1.1/*
+tools/source/*

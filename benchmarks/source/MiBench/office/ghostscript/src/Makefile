@@ -339,7 +339,7 @@ AK=
 
 CCC=$(CC) $(CCFLAGS) -c
 #CCAUX=$(CC)
-CCAUX=gcc-3.3
+CCAUX=gcc
 
 #We can't use -fomit-frame-pointer with -pg....
 #CCLEAF=$(CCC)

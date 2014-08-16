@@ -1,7 +1,7 @@
-CC			= gcc
+CC			= clang
 GAWK			= gawk
 LINT			= echo 
-LD			= gcc -arch x86_64 
+LD			= clang
 BISON			= bison
 ENDIAN			= SF_L_ENDIAN
 PLATFORM_CFLAGS 	= -arch x86_64 -D$(ENDIAN) -mmacosx-version-min=10.4 #-no-cpp-precomp -mno-fused-madd -pipe -multiply_defined suppress -malign-natural -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -Wno-deprecated-declarations -Wunused -Wreturn-type -Wimplicit -D$(ENDIAN)

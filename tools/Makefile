@@ -1,6 +1,6 @@
 include ../conf/setup.conf
 
-GCC		= $(TOOLS)/source/gcc-4.1.1
+GCC		= $(TOOLS)/source/gcc-4.2.4
 BINUTILS	= $(TOOLS)/source/binutils-2.16.1
 NEWLIB		= $(TOOLS)/source/newlib-1.9.0
 
@@ -16,7 +16,7 @@ binutils-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(BINUTILS);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	../configure --target=$(TARGET-ARCH) --host=$(HOST)\
+	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST)\
 		--prefix=$(PREFIX) --disable-libssp --disable-nls -v;\
 	$(MAKE) -r CC=$(TOOLCC) all install;\
 
@@ -34,11 +34,11 @@ g++-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) ;\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-ansi";\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 gcc-pre:
@@ -46,19 +46,19 @@ gcc-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) all-gcc;\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-ansi" all-gcc;\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 
 gcc-post:
 	cd $(GCC);\
-	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.1.1/*.a\
+	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
 		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.1.1/*.a\
+	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
 		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\

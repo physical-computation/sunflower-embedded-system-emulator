@@ -1,6 +1,4 @@
 DIRS =\
-	ALPBench\
-	MiBench\
 	bubblesort\
 	mpeg2dec\
 	mpegencoder\
@@ -8,7 +6,9 @@ DIRS =\
 	sphinx3/src/libfbs\
 	sunflower-pthread\
 	swradio\
-	swradio-pthread\
+	swradio-pthread
+#	ALPBench\
+#	MiBench\
 
 
 all:

@@ -15,12 +15,22 @@
 	empty place-holder directories therein). You should be able
 	to obtain these distributions from:
 
-	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2
-	ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.16.1.tar.gz
+	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.2.4/gcc-4.2.4.tar.bz2
+	ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.16.1.tar.bz2
 	ftp://sources.redhat.com/pub/newlib/newlib-1.9.0.tar.gz
 
 	Download the above into tools/source.  You can delete or
 	overwrite the existing empty stub directories.
+
+	Add $SUNFLOWERROOT/tools/bin to your path (substitute
+	SUNFLOWERROOT as appropriate)
+
+	NOTE: Due to some bugs in the binutils documentation
+	texinfo files, which are caught by newer versions of
+	makeinfo, you must make sure that your version of
+	makeinfo is older than 5.0 (or you can temporarily
+	make makeinfo unexecutable so that the build skips 
+	generating the man pages).
 
 	Next, type 'make cross' from the root of the installation
 	(the directory containing this README file).  That will
