@@ -2,6 +2,9 @@ DIRS =\
 	bubblesort\
 	mpeg2dec\
 	mpegencoder\
+	sphinx3/src/libfeat\
+	sphinx3/src/libio\
+	sphinx3/src/libutil\
 	sphinx3/src/libfbs\
 	swradio\
 	sbench\
