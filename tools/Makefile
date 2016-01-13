@@ -18,7 +18,7 @@ binutils-pre:
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
 	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST)\
 		--prefix=$(PREFIX) --disable-libssp --disable-nls -v;\
-	$(MAKE) -r CC=$(TOOLCC) all install;\
+	$(MAKE) -r CC=$(TOOLCC) CFLAGS="-D_FORTIFY_SOURCE=1" LD=$(TOOLCC) all install;\
 
 binutils-post:
 	mv $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
@@ -38,7 +38,7 @@ g++-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-ansi";\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi";\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 gcc-pre:
@@ -50,7 +50,7 @@ gcc-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-ansi" all-gcc;\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi" all-gcc;\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 

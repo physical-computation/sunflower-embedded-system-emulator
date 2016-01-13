@@ -32,9 +32,9 @@
 	make makeinfo unexecutable so that the build skips 
 	generating the man pages).
 
-	Next, type 'make cross' from the root of the installation
-	(the directory containing this README file).  That will
-	start the process of configuring the aforementioned
+	Next, type 'make cross' (see NOTE below!) from the root of 
+	the installation (the directory containing this README file)
+	That will start the process of configuring the aforementioned
 	distributions to build the cross-compiler suite for the
 	simulator.
 
