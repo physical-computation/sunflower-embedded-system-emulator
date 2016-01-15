@@ -2270,7 +2270,7 @@ m_dumpnode(Engine *E, int i, char *filename, int mode, char *tag, char *pre)
 	mlog(E, S, "\n\n%sTag %s{\n", pre, tag);
 
 	/*  Abbreviate to reduce size of dist logs */
-	if (0)
+	if (1)
 	{
 		mlog(E, S, "%sNode%d\t\tUser Time elapsed = %.6f seconds.\n",
 			pre, X->NODE_ID,

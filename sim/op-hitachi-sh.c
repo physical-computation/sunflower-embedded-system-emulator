@@ -3431,7 +3431,9 @@ superH_rts(Engine *E, State *S)
 	/*								*/
 	if (S->pcstackheight == 0)
 	{
-		sfatal(E, S, "Internal simulator error: PC stack underflow");
+		//sfatal(E, S, "Internal simulator error: PC stack underflow");
+		//debug:
+		return;
 	}
 
 	//fprintf(stdout, "NODE%d, RTS from " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->PCSTACK[S->pcstackheight]&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
