@@ -35,13 +35,15 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdint.h>
+
 #define nil	((void*)0)	
 #define USED(x)
-#define uchar	unsigned char
-#define	ushort	unsigned short
-#define	uint	unsigned int
-#define	ulong	unsigned long
-#define	uvlong	unsigned long long
+#define uchar	uint8_t	
+#define	ushort	uint16_t	
+#define	uint	uint32_t
+#define	ulong	uint32_t
+#define	uvlong	uint64_t
 
 
 #if defined M64

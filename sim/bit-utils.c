@@ -39,7 +39,7 @@
 #include "sf.h"
 
 void
-mbitprint(Engine *E, State *S, short nbits, unsigned long num)
+mbitprint(Engine *E, State *S, short nbits, ulong num)
 {
         int	i = 0;
 
