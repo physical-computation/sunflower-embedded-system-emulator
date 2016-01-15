@@ -47,13 +47,13 @@
 
 
 #if defined M64
-#	define	Maddr	unsigned long long
+#	define	Maddr	uint64_t
 #elif defined M32
-#	define	Maddr	unsigned long
+#	define	Maddr	uint32_t
 #elif defined M16
-#	define Maddr	unsigned int
+#	define Maddr	uint16_t
 #elif defined  M8
-#	define Maddr	unsigned char
+#	define Maddr	uint8_t
 #else
 #	error "You must define one of M64/M32/M16/M8"
 #endif
