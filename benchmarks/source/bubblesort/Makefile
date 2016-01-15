@@ -6,9 +6,8 @@ LIBOS		= eOS
 
 PORT		= ../port
 LIBOS		= eOS
-SIMDIR		= $(TREEROOT)/sim
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
-INCLUDES        = -I../port/  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR) -I$(TREEROOT)/sys/libOS/port
+INCLUDES        = -I../port/  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/benchmarks/include -I$(TREEROOT)/sys/libOS/port
 OPTFLAGS	= -gstabs3 -O0
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall ##-Werror -Winline
 LDFLAGS       	= -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map $(PROGRAM1).map
