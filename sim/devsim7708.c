@@ -429,6 +429,7 @@ devportreadbyte(Engine *E, State *S, ulong addr)
 		memmove(&tmp, &S->xloc, sizeof(uvlong));
 		offset = addr - SUPERH_XLOC_BEGIN;
 		data = (uchar)(tmp >> (offset*8))&0xFF;
+//fprintf(stderr, "S->xloc = [%f], offset=[%d], XLOC returning [%d]\n", S->xloc, offset, data);
 	}
 	else if ((addr >= SUPERH_YLOC_BEGIN) && (addr < SUPERH_YLOC_END))
 	{

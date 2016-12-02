@@ -65,7 +65,7 @@ static void	spinbaton(Engine *, int);
 static void	do_numaregion(Engine *, State *, char *, ulong, ulong, long, long, long, long, int, ulong, int, int, int, ulong, int, int);
 static void	updaterandsched(Engine *);
 static void	bpts_feed(Engine *);
-static void	readnodetrajectory(Engine *, State *, char*, int);
+static void	readnodetrajectory(Engine *, State *, char*, int, int);
 
 
 
@@ -203,7 +203,7 @@ main(int nargs, char *args[])
 	E->verbose = 1;
 	marchinit();	
 	m_version(E);
-	m_newnode(E, "superH", 0, 0, 0, nil, 0);
+	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);
 //	S = E->sp[0];
 
 
@@ -1052,7 +1052,7 @@ m_version(Engine *E)
 }
 
 void
-m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilename, int looptrajectory)
+m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilename, int looptrajectory, int trajectoryrate)
 {
 	State	*S = NULL;
 
@@ -1083,14 +1083,14 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 
 	if ((trajfilename!= NULL) && (strlen(trajfilename) > 0))
 	{
-		readnodetrajectory(E, S, trajfilename, looptrajectory);
+		readnodetrajectory(E, S, trajfilename, looptrajectory, trajectoryrate);
 	}
 	
 	return;
 }
 
 static void
-readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory)
+readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory, int trajectoryrate)
 {	
 	enum		{MAX_LINELEN = 1024};
 	char		c, buf[MAX_LINELEN], *ep = &c;
@@ -1188,7 +1188,7 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory)
 						{
 							merror(E, "Invalid xloc in trajectory file.");
 						}
-
+//fprintf(stderr, "Read S->path.xloc[%d] = [%f], S->path.xloc = [%x]\n", S->path.nlocations, S->path.xloc[S->path.nlocations], S->path.xloc);
 						break;
 					}
 
@@ -1259,6 +1259,8 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory)
 		}
 		linesread++;
 	}
+	S->path.trajectory_rate = trajectoryrate;
+	S->path.looptrajectory = looptrajectory;
 
 	return;
 }
@@ -1303,6 +1305,9 @@ traj_feed(Engine *E)
 			S->rho	= lskew*S->path.rho[(int)idx_low]	+ hskew*S->path.rho[(int)idx_high];
 			S->theta= lskew*S->path.theta[(int)idx_low]	+ hskew*S->path.theta[(int)idx_high];
 			S->phi	= lskew*S->path.phi[(int)idx_low]	+ hskew*S->path.phi[(int)idx_high];
+
+//fprintf(stderr, "In traj_feed, idx_real=%f, S->path.nlocations=%d, S->path.looptrajectory=%d, E->globaltimepsec=[%f], S->path.trajectory_rate=[%d], idx_low=%f, idx_high=%f, lskew=%f, hskew=%f,  S->path.xloc[%d]=[%f], S->xloc = [%f]\n", idx_real, S->path.nlocations, S->path.looptrajectory, E->globaltimepsec, S->path.trajectory_rate, idx_low, idx_high, lskew, hskew, (int)idx_low, S->path.xloc[(int)idx_low], S->xloc);
+
 		}
 	}
 

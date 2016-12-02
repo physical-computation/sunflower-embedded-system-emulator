@@ -95,7 +95,7 @@ TokenTab token_table [] =
 	{"HELP",	T_HELP},		/*+	Print list of commands.:none						*/
 	{"MAN",		T_MAN},			/*+	Print synopsis for command usage.:<command name>			*/
 	{"SHOWCLK",	T_SHOWCLK},		/*+	Show the number of clock cycles simulated since processor reset.:none	*/
-	{"NEWNODE",	T_NEWNODE},		/*+	Create a new node (Simulated system).:<type=superH|msp430> [<x> <y> <z> [<speed> <orbit type>] | [<trajectory file name> <loopsamples>]]	*/
+	{"NEWNODE",	T_NEWNODE},		/*+	Create a new node (simulated system).:<type=superH|msp430> [<x location> <y location> <z location>] [<trajectory file name> <loopsamples> <picoseconds per trajectory sample>]	*/
 	{"SETNODE",	T_SETNODE},		/*+	Set the current simulated node.:<node id>				*/
 	{"PAUINFO",	T_PAUINFO},		/*+	Show information about all valid PAU entries.:none			*/
 	{"PI",		T_PAUINFO},		/*+	Synonym for PAUINFO.:none						*/

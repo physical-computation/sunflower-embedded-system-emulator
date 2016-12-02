@@ -16,7 +16,7 @@ binutils-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(BINUTILS);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST)\
+	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST)\
 		--prefix=$(PREFIX) --disable-libssp --disable-nls -v;\
 	$(MAKE) -r CC=$(TOOLCC) CFLAGS="-D_FORTIFY_SOURCE=1" LD=$(TOOLCC) all install;\
 
@@ -34,7 +34,7 @@ g++-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
@@ -46,7 +46,7 @@ gcc-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
@@ -96,6 +96,7 @@ nuke:
 	@echo '==> $(BINUTILS)'; $(DEL) $(BINUTILS)/objdir
 	@echo '==> $(GCC)'; $(DEL) $(GCC)/objdir
 	@echo '==> $(TOOLS)'; $(DEL) $(TOOLS)/bin
+	@echo '==> $(NEWLIB)'; $(DEL) $(NEWLIB)/objdir
 	@set -e; for dir in $(SUPPORTED-TARGETS); do\
 		($(DEL) $$dir; echo 'rm -rf' $$dir);\
 	done;\

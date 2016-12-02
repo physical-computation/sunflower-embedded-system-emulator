@@ -110,7 +110,7 @@ ulong	mwallclockusecs(void);
 void	m_dumpall(Engine *, char *filename, int mode, char *tag, char *pre);
 void	m_dumpnode(Engine *, int i, char *filename, int mode, char *tag, char *pre);
 void	m_version(Engine *E);
-void	m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilename, int looptrajectory);
+void	m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilename, int looptrajectory, int trajectoryrate);
 void	m_powertotal(Engine *);
 void	m_renumbernodes(Engine *);
 void	m_run(Engine *, State *S, char *args);

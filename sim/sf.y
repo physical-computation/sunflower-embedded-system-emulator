@@ -632,30 +632,38 @@ sf_cmd		: T_QUIT '\n'
 				mexit(yyengine, "Exiting as per user's request.", 0);
 			}
 		}
-		//	TODO: we temporarily accept old-style velocity and orbit definitions
-		| T_NEWNODE optstring rdimm rdimm rdimm rdimm rdimm '\n'
-		{
-			if (!yyengine->scanning)
-			{
-				m_newnode(yyengine, $2, $3->dval, $4->dval, $5->dval, NULL, 0);
-			}
-		}
+
+		/*
+		 *	NOTE: We no longer accept the old-style velocity and orbit syntax, though we allow you to omit either the x/y/z location, or the trajectory file, rate, and loop flag
+		 */
+
 		| T_NEWNODE optstring '\n'
 		{
+			/*
+			 *	Only give the architecture type:
+			 */
 			if (!yyengine->scanning)
 			{
-				m_newnode(yyengine, $2, 0, 0, 0, NULL, 0);
+				m_newnode(yyengine, $2, 0, 0, 0, NULL, 0, 0);
 			}
 		}
 		| T_NEWNODE optstring rdimm rdimm rdimm '\n'
 		{
+			/*
+			 *	Give the architecture type and the (fixed) x/y/z location
+			 */
 			if (!yyengine->scanning)
 			{
-				m_newnode(yyengine, $2, $3->dval, $3->dval, $3->dval, NULL, 0);
+				m_newnode(yyengine, $2, $3->dval, $3->dval, $3->dval, NULL, 0, 0);
 			}
 		}
-		| T_NEWNODE optstring rdimm rdimm rdimm T_STRING uimm'\n'
+		| T_NEWNODE optstring rdimm rdimm rdimm T_STRING uimm uimm '\n'
 		{
+			/*
+			 *	Give the architecture type and the (initial) x/y/z location, and the
+			 *	trajectory file, loop flag, and trajectory rate (the number of picoseconds
+			 *	per sample in the trajectory file).
+			 */
 			if (!yyengine->scanning)
 			{
 				//	rdimm example: 	READ THE FOLLOWING!!!!
@@ -666,7 +674,7 @@ sf_cmd		: T_QUIT '\n'
 				//	the corresponding parameter using m_register_rvar(), if the
 				//	rvar was declared as "{...}", or NULL if it was "<...>"
 				//
-				m_newnode(yyengine, $2, $3->dval, $4->dval, $5->dval, $6, $7);
+				m_newnode(yyengine, $2, $3->dval, $4->dval, $5->dval, $6, $7, $8);
 
 				//	The above should be changed to:
 				//m_newnode($2, $3.value, $4.value, $5.value, $6.value, $7.value,
@@ -676,7 +684,7 @@ sf_cmd		: T_QUIT '\n'
 				//	see if it is non-null, and if so, do approp. registration
 				//	of state as an rvar
 			}
-		}
+		}		
 		| T_BATTNODEATTACH uimm '\n'
 		{
 			if (!yyengine->scanning)
