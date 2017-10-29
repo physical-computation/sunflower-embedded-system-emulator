@@ -34,24 +34,24 @@ g++-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export CFLAGS='-O2 -fbracket-depth' CXXFLAGS='-O2 -fbracket-depth' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi";\
-	$(MAKE) CC=$(TOOLCC) install;\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) install;\				# CXX=$(TOOLCXX) install;\
 
 gcc-pre:
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export CFLAGS='-O2 -fbracket-depth' CXXFLAGS='-O2 -fbracket-depth' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi" all-gcc;\
-	$(MAKE) CC=$(TOOLCC) install;\
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi" all-gcc;\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
 
 
 gcc-post:

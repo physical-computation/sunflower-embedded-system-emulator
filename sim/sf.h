@@ -43,6 +43,7 @@
 #	include <pthread.h>
 #	include <sys/stat.h>
 #	include <utime.h>
+#	include <stdint.h>
 #endif
 
 #ifndef LIB9

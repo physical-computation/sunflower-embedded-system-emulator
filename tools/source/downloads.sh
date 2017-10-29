@@ -11,3 +11,5 @@ bunzip2 binutils-2.16.1.tar.bz2
 tar -xvf binutils-2.16.1.tar
 
 tar -xzvf newlib-1.9.0.tar.gz
+
+rm gcc-4.2.4.tar binutils-2.16.1.tar newlib-1.9.0.tar.gz

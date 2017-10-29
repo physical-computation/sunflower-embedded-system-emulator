@@ -1,0 +1,23 @@
+conf/setup.conf
+simlog.node*
+sunflower.out
+
+#
+#	Binaries
+#
+*.o
+*.a
+*.sr
+*.map
+init.i
+
+#
+#	Built cross compiler binaries
+#
+tools/bin
+tools/superH
+
+#
+#	Downloaded sources
+#
+tools/source/*
