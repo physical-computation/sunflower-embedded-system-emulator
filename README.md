@@ -5,7 +5,7 @@ Installation Instructions
 
 Step 1
 ------
-Read manual.pdf if you can.
+Read manual.pdf if you can. Building the simulator depends on `gawk`, so install it.
 
 Step 2
 ------
