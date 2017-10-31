@@ -37,12 +37,12 @@ Notes
 + If the cross compiler build fails due, e.g., to difference in behavior between the `perl` or `makeinfo` expected by the GCC build versus what is on your system, you might be able to recover by going into `tools/source/gcc-4.2.4/objdir`, running `make install`, then going to `tools/` and completing the cross compilation by running `make gcc-post; make newlib`
 
 # Cite this as
-Stanley-Marbell, Phillip and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
+Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
 
 **BibTeX:**
 ````
-@inproceedings{Stanley-Marbell:2001:FFC:383082.383120,
- author = {Stanley-Marbell, Phillip and Hsiao, Michael},
+@inproceedings{Stanley-Marbell:2001:FFC,
+ author = {Phillip Stanley-Marbell and Michael Hsiao},
  title = {Fast, Flexible, Cycle-accurate Energy Estimation},
  booktitle = {Proceedings of the 2001 International Symposium 
               on Low Power Electronics and Design},
@@ -57,12 +57,12 @@ Stanley-Marbell, Phillip and Michael Hsiao. “Fast, Flexible, Cycle-accurate En
 }
 ````
 
-Stanley-Marbell, Phillip and Diana Marculescu. “Sunﬂower: Full-system, Embedded, Microarchitecture Evaluation”. In *Proceedings of the 2nd International Conference on High Performance Embedded Architectures and Compilers. HiPEAC’07*. Ghent, Belgium: Springer-Verlag, pp. 168–182. ISBN: 978-3-540-69337-6.
+Phillip Stanley-Marbell and Diana Marculescu. “Sunﬂower: Full-system, Embedded, Microarchitecture Evaluation”. In *Proceedings of the 2nd International Conference on High Performance Embedded Architectures and Compilers. HiPEAC’07*. Ghent, Belgium: Springer-Verlag, pp. 168–182. ISBN: 978-3-540-69337-6.
 
 **BibTeX:**
 ````
-@inproceedings{Stanley-Marbell:2007:SFE:1762146.1762163,
- author = {Stanley-Marbell, Phillip and Marculescu, Diana},
+@inproceedings{Stanley-Marbell:2007:SFE,
+ author = {Phillip Stanley-Marbell and Diana Marculescu},
  title = {Sunflower: Full-system, Embedded, Microarchitecture Evaluation},
  booktitle = {Proceedings of the 2nd International Conference on 
               High Performance Embedded Architectures and Compilers},
