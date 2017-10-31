@@ -44,7 +44,8 @@ Stanley-Marbell, Phillip and Michael Hsiao. “Fast, Flexible, Cycle-accurate En
 @inproceedings{Stanley-Marbell:2001:FFC:383082.383120,
  author = {Stanley-Marbell, Phillip and Hsiao, Michael},
  title = {Fast, Flexible, Cycle-accurate Energy Estimation},
- booktitle = {Proceedings of the 2001 International Symposium on Low Power Electronics and Design},
+ booktitle = {Proceedings of the 2001 International Symposium 
+              on Low Power Electronics and Design},
  series = {ISLPED '01},
  year = {2001},
  isbn = {1-58113-371-5},
@@ -63,7 +64,8 @@ Stanley-Marbell, Phillip and Diana Marculescu. “Sunﬂower: Full-system, Embed
 @inproceedings{Stanley-Marbell:2007:SFE:1762146.1762163,
  author = {Stanley-Marbell, Phillip and Marculescu, Diana},
  title = {Sunflower: Full-system, Embedded, Microarchitecture Evaluation},
- booktitle = {Proceedings of the 2nd International Conference on High Performance Embedded Architectures and Compilers},
+ booktitle = {Proceedings of the 2nd International Conference on 
+              High Performance Embedded Architectures and Compilers},
  series = {HiPEAC'07},
  year = {2007},
  isbn = {978-3-540-69337-6},
