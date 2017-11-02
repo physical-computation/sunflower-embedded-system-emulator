@@ -220,7 +220,7 @@ TokenTab token_table [] =
 	{"RANDPRINT",		T_RANDPRINT},		/*+	Print a random value from the selected distribution with given parameters.:<distribution name> <min> <max> <p1> <p2> <p3> <p4> */
 	{"SETLOC",		T_SETLOC},		/*+	Set or change node location.:<xloc> <yloc> <zloc>	*/
 	{"INITRANDTABLE",		T_INITRANDTABLE},		/*+	Set or change node location.:<distname> <pfun name> <basis min> <basis max> <granularity> <p1> <p2> <p3> <p4>	*/
-	{"DEFNDIST",		T_DEFNDIST},		/*+	Define a discrete probability measure as a set of badis value probability tuples.:<list of basis value> <list of probabilities>	*/
+	{"DEFNDIST",		T_DEFNDIST},		/*+	Define a discrete probability measure as a set of basis value probability tuples.:<list of basis value> <list of probabilities>	*/
 	{"REGISTERRVAR",		T_REGISTERRVAR},		/*+	Register a simulator internal implementation variable or structure for periodic updates either overwriting values or summing determined by the mode parameter.: <sim var name> <index for array structures> <value dist name> <value dist p1> <value dist p2> <value dist p3> <value dist p4> <duration dist name> <duration dist p1> <duration dist p2> <duration dist p3> <duration dist p4> <mode>	*/
 
 
