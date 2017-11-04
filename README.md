@@ -5,7 +5,7 @@ Installation Instructions
 
 Step 1
 ------
-Read manual.pdf if you can.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can.
 
 Step 2
 ------
