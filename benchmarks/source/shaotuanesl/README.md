@@ -52,4 +52,4 @@ The node `"dyncnt"` would be the **Dynamic Instruction Counts** for this applica
 Finally, `"TIME"` would be the **CPU time** elapsed, listed in column 3 of Table 2.
 
 
-1. If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
+NOTE: If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
