@@ -1,0 +1,83 @@
+
+
+Tag NODE0_LOGMARK_TAG_0{
+Node0		User Time elapsed = 0.000102 seconds.
+Node0		Instruction Simulation Rate = 0.00 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	105
+Node0		"CYCLETIME"	=	2.091684E-08
+Node0		NTRANS	=	315255
+Node0		CPU-only ETOT	=	1.635697E-09 Joules
+Node0		CPU-only AVG POWER	=	2.057895E-03 Watts
+Node0		"ICLK"	=	38
+Node0		"CLK"	=	38
+Node0		"TIME"	=	7.948398E-07
+Node0		"dyncnt"	=	23
+} Tag NODE0_LOGMARK_TAG_0.
+
+
+Tag NODE0_LOGMARK_TAG_1{
+Node0		User Time elapsed = 1.635388 seconds.
+Node0		Instruction Simulation Rate = 0.00 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	95
+Node0		"CYCLETIME"	=	2.091684E-08
+Node0		NTRANS	=	669757087
+Node0		CPU-only ETOT	=	4.319198E-04 Joules
+Node0		CPU-only AVG POWER	=	2.085714E-03 Watts
+Node0		"ICLK"	=	9900390
+Node0		"CLK"	=	9900390
+Node0		"TIME"	=	2.070848E-01
+Node0		"dyncnt"	=	7085492
+} Tag NODE0_LOGMARK_TAG_1.
+
+
+Tag NODE0_LOGMARK_TAG_2{
+Node0		User Time elapsed = 1.635406 seconds.
+Node0		Instruction Simulation Rate = 0.00 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	95
+Node0		"CYCLETIME"	=	2.091684E-08
+Node0		NTRANS	=	669757439
+Node0		CPU-only ETOT	=	4.319200E-04 Joules
+Node0		CPU-only AVG POWER	=	2.085714E-03 Watts
+Node0		"ICLK"	=	9900393
+Node0		"CLK"	=	9900393
+Node0		"TIME"	=	2.070849E-01
+Node0		"dyncnt"	=	7085495
+} Tag NODE0_LOGMARK_TAG_2.
+
+
+Tag Exit{
+Random seed used = [1526190640]
+
+
+Tag Exit{
+Node0		User Time elapsed = 5.028178 seconds.
+Node0		Instruction Simulation Rate = 5519669.35 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	0
+Node0		"CYCLETIME"	=	2.091684E-08
+Node0		NTRANS	=	1859351742
+Node0		CPU-only ETOT	=	1.206321E-03 Joules
+Node0		CPU-only AVG POWER	=	2.077989E-03 Watts
+Node0		"ICLK"	=	27753880
+Node0		"CLK"	=	27753880
+Node0		"TIME"	=	5.805233E-01
+Node0		"dyncnt"	=	19794861
+} Tag Exit.
+} Tag Exit.
+
+ni
+Dynamic instruction count = [19794861], fetched instructions = [23621064]
+[ID=0 of 1][PC=0x8004016][3.0E+00V, 4.8E+01MHz] ps
+
+Vdd	= 3.000000E+00
+Vt	= 0.000000E+00
+K	= 5.500000E-08
+alpha	= 1.880000E+00
+
+Cumulative Signal Transitions to date	= 1859351742
+CPU-only Total Energy			= 1.206321E-03 Joules
+CPU-only Average Power			= 2.077989E-03 Watts
+
