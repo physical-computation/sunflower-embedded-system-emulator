@@ -21,7 +21,7 @@ Steps to run the sunflower emulator to reproduce the result in the paper:
  
 1. Open your terminal, change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
 
-1.If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
+1. If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
 
 1. Start the Sunflower emulator. One way to do this is to specify the entire path in your current directory in terminal by typing `/Users/yourdir/sunflower-simulator/sim/sf `, where `yourdir` should be changed appropriately to your own path.
 
