@@ -14,19 +14,19 @@ Steps to run the run the sunflower emulator:
 
 1. The results will be saved in a output file `sunflower.out`. Open `sunflower.out` with a text editor, and you will see the results similar as:
 
-
-`Tag NODE0_LOGMARK_TAG_1{`
-`Node0		User Time elapsed = 0.248921 seconds.`
-`Node0		Instruction Simulation Rate = 0.00 Cycles/Second.`
-`Node0		"machinetype"	=	0`
-`Node0		"Cycletrans"	=	90`
-`Node0		"CYCLETIME"	=	2.083333E-08`
-`Node0		NTRANS	=	93949908`
-`Node0		CPU-only ETOT	=	1.363683E-04 Joules`
-`Node0		CPU-only AVG POWER	=	4.227543E-03 Watts`
-`Node0		"ICLK"	=	1548341`
-`Node0		"CLK"	=	1548341`
-`Node0		"TIME"	=	3.225710E-02`
-`Node0		"dyncnt"	=	1124291`
-`} Tag NODE0_LOGMARK_TAG_1.`
-
+```
+Tag NODE0_LOGMARK_TAG_1{
+Node0		User Time elapsed = 0.248921 seconds.
+Node0		Instruction Simulation Rate = 0.00 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	90
+Node0		"CYCLETIME"	=	2.083333E-08
+Node0		NTRANS	=	93949908
+Node0		CPU-only ETOT	=	1.363683E-04 Joules
+Node0		CPU-only AVG POWER	=	4.227543E-03 Watts
+Node0		"ICLK"	=	1548341
+Node0		"CLK"	=	1548341
+Node0		"TIME"	=	3.225710E-02
+Node0		"dyncnt"	=	1124291
+} Tag NODE0_LOGMARK_TAG_1.
+```
