@@ -30,3 +30,4 @@ Node0		"TIME"	=	3.225710E-02
 Node0		"dyncnt"	=	1124291
 } Tag NODE0_LOGMARK_TAG_1.
 ```
+, where the Node "CPU-only ETOT" would be the **Total Energy** listed in column 2 of Table 2 in the paper. "dyncnt" would be the dynamic instruction counts for this partiulcar application run on this particular microproccor, listed in column 3 of Table 2, finally "TIME" would be the CPU time elapsed, listed in column 3 of Table 2.
