@@ -1,0 +1,52 @@
+#!/bin/sh
+
+##	usage run.sh $PWD <Path to simulator executable>
+
+cd $1/automotive/basicmath; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/automotive/basicmath; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/automotive/bitcount/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/automotive/bitcount/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/automotive/qsort/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/automotive/qsort/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/automotive/susan/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/automotive/susan/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/automotive/susan/; $2 large3.m; mv sunflower.out sunflower.out.large3; chmod 755 out*
+cd $1/automotive/susan/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/automotive/susan/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
+cd $1/automotive/susan/; $2 small3.m; mv sunflower.out sunflower.out.small3; chmod 755 out*
+cd $1/consumer/jpeg/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/consumer/jpeg/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/consumer/jpeg/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/consumer/jpeg/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
+cd $1/consumer/lame/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/consumer/lame/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/consumer/typeset/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/consumer/typeset/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/network/dijkstra/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/network/dijkstra/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/network/patricia/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/network/patricia/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/office/ghostscript/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/office/ghostscript/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/office/stringsearch/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/office/stringsearch/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/security/blowfish/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/security/blowfish/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/security/blowfish/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/security/blowfish/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
+cd $1/security/rijndael/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/security/rijndael/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/security/rijndael/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/security/rijndael/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
+cd $1/security/sha/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/security/sha/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/telecomm/CRC32/; $2 large.m; mv sunflower.out sunflower.out.large; chmod 755 out*
+cd $1/telecomm/CRC32/; $2 small.m; mv sunflower.out sunflower.out.small; chmod 755 out*
+cd $1/telecomm/FFT/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/telecomm/FFT/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/telecomm/FFT/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/telecomm/FFT/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
+cd $1/telecomm/gsm/; $2 large1.m; mv sunflower.out sunflower.out.large1; chmod 755 out*
+cd $1/telecomm/gsm/; $2 large2.m; mv sunflower.out sunflower.out.large2; chmod 755 out*
+cd $1/telecomm/gsm/; $2 small1.m; mv sunflower.out sunflower.out.small1; chmod 755 out*
+cd $1/telecomm/gsm/; $2 small2.m; mv sunflower.out sunflower.out.small2; chmod 755 out*
