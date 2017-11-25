@@ -1,6 +1,6 @@
 # This directory contains files to reproduce the results in *Shao-Tuan Chen and Phillip Stanley-Marbell, 2017*.
 
-Steps to run the run the sunflower emulator:
+Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. Download and build the Sunflower emulator, on the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
 
