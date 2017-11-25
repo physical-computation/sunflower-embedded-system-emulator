@@ -3,12 +3,14 @@
 Files in this directory:
 
 * `main.c` : C program containing the accelerometer and gyroscope data from Figure 3 in the paper. The output of the program will be the inferred angular rate based on the accelerometer data and Equation (10) in the paper.
-* `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
-* `infer.m` : Configuration file for Sunflower to emulate an ARM Cortex M0+ microprocessor. 
-* `init.S` : Source file needed to create the S-RECORD binary.
-* `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
-Sub-directory `Exp-data` contains the emulation output for this paper.
+* `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
+
+* `infer.m` : Configuration file for Sunflower to emulate an ARM Cortex M0+ microprocessor. 
+
+* `init.S` : Source file needed to create the S-RECORD binary.
+
+* `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
 
 Steps to run the sunflower emulator to reproduce the result in the paper:
