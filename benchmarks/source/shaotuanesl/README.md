@@ -1,4 +1,4 @@
-# This is the directory containing files to reproduce the results in "Exploiting Physical Invariants for Embedded Sensor Platforms"
+# This directory contains files to reproduce the results in "Exploiting Physical Invariants for Embedded Sensor Platforms"
 
 Steps to run the run the sunflower emulator:
 
