@@ -49,7 +49,7 @@ The node `"CPU-only ETOT"` would be the **Total Energy** listed in column 2 of T
 
 The node `"dyncnt"` would be the **Dynamic Instruction Counts** for this application run on this particular microprocessor, listed in column 3 of Table 2.
 
-Finally, `"TIME"` would be the **CPU time** elapsed in seconds, listed in column 3 of Table 2.
+Finally, `"TIME"` would be the **CPU time** elapsed in seconds, listed in column 4 of Table 2.
 
 
-**NOTE** : If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
+**NOTE** : If you want to build on top of this implementation, make the changes you need in `main.c` and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`. First run `make clean`, and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower as input. You can acquire and interpret your results follwing steps 3 ~ 6 described above.
