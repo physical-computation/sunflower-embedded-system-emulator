@@ -32,8 +32,8 @@ Node0		"dyncnt"	=	1124291
 ```
 , where: 
 
-The node "CPU-only ETOT" would be the **Total Energy** listed in column 2 of Table 2 in the paper. 
+The node `"CPU-only ETOT"` would be the **Total Energy** listed in column 2 of Table 2 in the paper. 
 
-The node "dyncnt" would be the **Dynamic Instruction Counts** for this partiulcar application run on this particular microproccor, listed in column 3 of Table 2.
+The node `"dyncnt"` would be the **Dynamic Instruction Counts** for this partiulcar application run on this particular microproccor, listed in column 3 of Table 2.
 
-Finally "TIME" would be the **CPU time** elapsed, listed in column 3 of Table 2.
+Finally, `"TIME"` would be the **CPU time** elapsed, listed in column 3 of Table 2.
