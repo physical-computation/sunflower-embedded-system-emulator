@@ -14,7 +14,7 @@ Steps to run the run the sunflower emulator:
 
 1. The results will be saved in a output file `sunflower.out`. Open `sunflower.out` with a text editor, and you will see the results similar as:
 
-`
+
 `Tag NODE0_LOGMARK_TAG_1{`
 `Node0		User Time elapsed = 0.248921 seconds.`
 `Node0		Instruction Simulation Rate = 0.00 Cycles/Second.`
@@ -29,4 +29,4 @@ Steps to run the run the sunflower emulator:
 `Node0		"TIME"	=	3.225710E-02`
 `Node0		"dyncnt"	=	1124291`
 `} Tag NODE0_LOGMARK_TAG_1.`
-`
+
