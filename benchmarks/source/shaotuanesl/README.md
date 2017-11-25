@@ -1,18 +1,27 @@
 # This directory contains files to reproduce the results in *Shao-Tuan Chen and Phillip Stanley-Marbell, 2017*.
 
+Files in this directory:
+
+* main.c
+* infer.sr
+* infer.m
+
+Sub-directory `Exp-data` contains the emulation output for this paper.
+
+
 Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. Download and build the Sunflower emulator, on the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
 
 1. Clone this branch, as: `git clone https://github.com/shaotuanchen/sunflower-simulator/tree/ESL2017`
  
-1. Open your terminal, change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` and run `make`, This will build the implementaion of inferring angular rate from accelrometer signal application from the C program `main.c` and generate a binary in S-RECORD format, `infer.sr`.This file which would be the input to Sunflower.
+1. Open your terminal, change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides.This file would be the input to Sunflower.
 
 1. Start the Sunflower emulator. One way to do this is to specify the entire path in your current directory in terminal by typing `/Users/yourdir/sunflower-simulator/sim/sf `, where `yourdir` should be changed appropriately to your own path.
 
-1. After the emulator startup, load the configuration file `infer.m` which specifies the power consumption, supply voltage and clock frequency of the microprocessor ARM Cortex M0+. You can type `load infer.m` directly in the terminal if you're still in the `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` directory.
+1. After the emulator starts, load the configuration file `infer.m` which specifies the power consumption, supply voltage and clock frequency of the ARM Cortex M0+ microprocessor. You can type `load infer.m` directly in the terminal if you're still in the `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` directory.
 
-1. The results will be saved in an output file `sunflower.out`. Open `sunflower.out` with a text editor, and you will see the results similar as:
+1. The results will be saved in an output file `sunflower.out` when you quit Sunflower. Open `sunflower.out` with a text editor, and you will see the results similar as:
 
 ```
 Tag NODE0_LOGMARK_TAG_1{
@@ -34,6 +43,6 @@ Node0		"dyncnt"	=	1124291
 
 The node `"CPU-only ETOT"` would be the **Total Energy** listed in column 2 of Table 2 in the paper. 
 
-The node `"dyncnt"` would be the **Dynamic Instruction Counts** for this partiulcar application run on this particular microproccor, listed in column 3 of Table 2.
+The node `"dyncnt"` would be the **Dynamic Instruction Counts** for this application run on this particular microprocessor, listed in column 3 of Table 2.
 
 Finally, `"TIME"` would be the **CPU time** elapsed, listed in column 3 of Table 2.
