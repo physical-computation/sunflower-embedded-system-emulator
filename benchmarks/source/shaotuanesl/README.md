@@ -5,6 +5,8 @@ Files in this directory:
 * `main.c` : C program containing the accelerometer and gyroscope data from Figure 3 in the paper. The output of the program will be the inferred angular rate based on the accelerometer data and Equation (10) in the paper.
 * `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
 * `infer.m` : Configuration file for Sunflower to emulate an ARM Cortex M0+ microprocessor. 
+* `init.S` : Source file needed to create the S-RECORD binary.
+* `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
 Sub-directory `Exp-data` contains the emulation output for this paper.
 
@@ -15,7 +17,9 @@ Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. Clone this branch, as: `git clone https://github.com/shaotuanchen/sunflower-simulator/tree/ESL2017`
  
-1. Open your terminal, change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower.
+1. Open your terminal, change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
+
+1.If you want to build on top of this program, make changes in `main.c`, navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`, first run `make clean` and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower.
 
 1. Start the Sunflower emulator. One way to do this is to specify the entire path in your current directory in terminal by typing `/Users/yourdir/sunflower-simulator/sim/sf `, where `yourdir` should be changed appropriately to your own path.
 
