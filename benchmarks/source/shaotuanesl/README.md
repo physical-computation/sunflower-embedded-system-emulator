@@ -12,7 +12,7 @@ Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. After the emulator startup, load the configuration file `infer.m` which specifies the power consumption, supply voltage and clock frequency of the microprocessor ARM Cortex M0+. You can type `load infer.m` directly in the terminal if you're still in the `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` directory.
 
-1. The results will be saved in a output file `sunflower.out`. Open `sunflower.out` with a text editor, and you will see the results similar as:
+1. The results will be saved in an output file `sunflower.out`. Open `sunflower.out` with a text editor, and you will see the results similar as:
 
 ```
 Tag NODE0_LOGMARK_TAG_1{
