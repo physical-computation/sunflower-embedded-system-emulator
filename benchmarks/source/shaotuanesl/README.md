@@ -10,6 +10,8 @@ Files in this directory:
 
 * `init.S` : Source file needed to create the S-RECORD binary.
 
+* `superH.ld` : Linker file needed to create the S-RECORD binary.
+
 * `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
 
