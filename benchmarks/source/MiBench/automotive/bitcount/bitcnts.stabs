@@ -1,0 +1,540 @@
+
+bitcnts:     file format coff-sh
+
+Contents of .stab section:
+
+Symnum n_type n_othr n_desc n_value  n_strx String
+
+-1     HdrSym 0      531    0000000000001f56 1     
+0      SO     0      2      0000000008004020 1      bitcnt_1.c
+1      OPT    0      0      0000000000000000 12     gcc2_compiled.
+2      LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+3      LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+4      LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+5      LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+6      LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+7      LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+8      LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+9      LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+10     LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+11     LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+12     LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+13     LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+14     LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+15     LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+16     LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+17     BINCL  0      0      000000000000197b 575    bitops.h
+18     BINCL  0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+19     BINCL  0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+20     BINCL  0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+21     LSYM   0      0      0000000000000000 913    __int32_t:t(4,1)=(0,1)
+22     LSYM   0      0      0000000000000000 936    __uint32_t:t(4,2)=(0,4)
+23     EINCL  0      0      0000000000000000 0      
+24     EINCL  0      0      0000000000000000 0      
+25     BINCL  0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+26     LSYM   0      0      0000000000000000 1045   size_t:t(5,1)=(0,4)
+27     EINCL  0      0      0000000000000000 0      
+28     BINCL  0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+29     LSYM   0      0      0000000000000000 1150   __gnuc_va_list:t(6,1)=(6,2)=*(0,15)
+30     EINCL  0      0      0000000000000000 0      
+31     BINCL  0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+32     BINCL  0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+33     BINCL  0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+34     BINCL  0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+35     LSYM   0      0      0000000000000000 1517   ptrdiff_t:t(10,1)=(0,1)
+36     LSYM   0      0      0000000000000000 1541   wchar_t:t(10,2)=(0,9)
+37     EINCL  0      0      0000000000000000 0      
+38     LSYM   0      0      0000000000000000 1563   u_char:t(9,1)=(0,11)
+39     LSYM   0      0      0000000000000000 1584   u_short:t(9,2)=(0,9)
+40     LSYM   0      0      0000000000000000 1605   u_int:t(9,3)=(0,4)
+41     LSYM   0      0      0000000000000000 1624   u_long:t(9,4)=(0,5)
+42     LSYM   0      0      0000000000000000 1644   ushort:t(9,5)=(0,9)
+43     LSYM   0      0      0000000000000000 1664   uint:t(9,6)=(0,4)
+44     LSYM   0      0      0000000000000000 1682   clock_t:t(9,7)=(0,5)
+45     LSYM   0      0      0000000000000000 1703   time_t:t(9,8)=(0,3)
+46     LSYM   0      0      0000000000000000 1723   timespec:T(9,9)=s8tv_sec:(9,8),0,32;tv_nsec:(0,3),32,32;;
+47     LSYM   0      0      0000000000000000 1781   itimerspec:T(9,10)=s16it_interval:(9,9),0,64;it_value:(9,9),64,64;;
+48     LSYM   0      0      0000000000000000 1849   daddr_t:t(9,11)=(0,3)
+49     LSYM   0      0      0000000000000000 1871   caddr_t:t(9,12)=(9,13)=*(0,2)
+50     LSYM   0      0      0000000000000000 1901   ino_t:t(9,14)=(0,9)
+51     LSYM   0      0      0000000000000000 1921   dev_t:t(9,15)=(0,8)
+52     LSYM   0      0      0000000000000000 1941   off_t:t(9,16)=(0,3)
+53     LSYM   0      0      0000000000000000 1961   uid_t:t(9,17)=(0,9)
+54     LSYM   0      0      0000000000000000 1981   gid_t:t(9,18)=(0,9)
+55     LSYM   0      0      0000000000000000 2001   pid_t:t(9,19)=(0,1)
+56     LSYM   0      0      0000000000000000 2021   key_t:t(9,20)=(0,3)
+57     LSYM   0      0      0000000000000000 2041   ssize_t:t(9,21)=(0,3)
+58     LSYM   0      0      0000000000000000 2063   mode_t:t(9,22)=(0,4)
+59     LSYM   0      0      0000000000000000 2084   nlink_t:t(9,23)=(0,9)
+60     LSYM   0      0      0000000000000000 2106   fd_mask:t(9,24)=(0,3)
+61     LSYM   0      0      0000000000000000 2128   _types_fd_set:T(9,25)=s8fds_bits:(9,26)=ar(9,27)=r(9,27);0;-1;;0;1;(9,24),0,64;;
+62     LSYM   0      0      0000000000000000 2209   _types_fd_set:t(9,28)=(9,25)
+63     EINCL  0      0      0000000000000000 0      
+64     LSYM   0      0      0000000000000000 2238   tm:T(8,1)=s36tm_sec:(0,1),0,32;tm_min:(0,1),32,32;tm_hour:(0,1),64,32;tm_mday:(0,1),96,32;tm_mon:(0,1),128,32;tm_year:(0,1),160,32;tm_wday:(0,1),192,32;tm_yday:(0,1),224,32;tm_isdst:(0,1),256,32;;
+65     EINCL  0      0      0000000000000000 0      
+66     LSYM   0      0      0000000000000000 2435   __ULong:t(7,1)=(0,5)
+67     LSYM   0      0      0000000000000000 2456   _glue:T(7,2)=s12_next:(7,3)=*(7,2),0,32;_niobs:(0,1),32,32;_iobs:(7,4)=*(7,5)=xs__sFILE:,64,32;;
+68     LSYM   0      0      0000000000000000 2553   _Bigint:T(7,6)=s24_next:(7,7)=*(7,6),0,32;_k:(0,1),32,32;_maxwds:(0,1),64,32;_sign:(0,1),96,32;_wds:(0,1),128,32;_x:(7,8)=ar(9,27);0;0;(7,1),160,32;;
+69     LSYM   0      0      0000000000000000 2703   _atexit:T(7,9)=s136_next:(7,10)=*(7,9),0,32;_ind:(0,1),32,32;_fns:(7,11)=ar(9,27);0;31;(7,12)=*(7,13)=f(0,15),64,1024;;
+70     LSYM   0      0      0000000000000000 2823   __sbuf:T(7,14)=s8_base:(7,15)=*(0,11),0,32;_size:(0,1),32,32;;
+71     LSYM   0      0      0000000000000000 2886   _fpos_t:t(7,16)=(0,3)
+72     LSYM   0      0      0000000000000000 2908   __sFILE:T(7,5)=s88_p:(7,15),0,32;_r:(0,1),32,32;_w:(0,1),64,32;_flags:(0,8),96,16;_file:(0,8),112,16;_bf:(7,14),128,64;_lbfsize:(0,1),192,32;_cookie:(6,2),224,32;_read:(7,17)=*(7,18)=f(0,1),256,32;_write:(7,19)=*(7,20)=f(0,1),288,32;_seek:(7,21)=*(7,22)=f(7,16),320,32;_close:(7,23)=*(7,24)=f(0,1),352,32;_ub:(7,14),384,64;_up:(7,15),448,32;_ur:(0,1),480,32;_ubuf:(7,25)=ar(9,27);0;2;(0,11),512,24;_nbuf:(7,26)=ar(9,27);0;0;(0,11),536,8;_lb:(7,14),544,64;_blksize:(0,1),608,32;_offset:(0,1),640,32;_data:(7,27)=*(7,28)=xs_reent:,672,32;;
+73     LSYM   0      0      0000000000000000 3446   _reent:T(7,28)=s748_errno:(0,1),0,32;_stdin:(7,4),32,32;_stdout:(7,4),64,32;_stderr:(7,4),96,32;_inc:(0,1),128,32;_emergency:(7,29)=ar(9,27);0;24;(0,2),160,200;_current_category:(0,1),384,32;_current_locale:(7,30)=*(0,2),416,32;__sdidinit:(0,1),448,32;__cleanup:(7,31)=*(7,32)=f(0,15),480,32;_result:(7,7),512,32;_result_k:(0,1),544,32;_p5s:(7,7),576,32;_freelist:(7,33)=*(7,7),608,32;_cvtlen:(0,1),640,32;_cvtbuf:(9,13),672,32;_new:(7,34)=u240_reent:(7,35)=s84_unused_rand:(0,4),0,32;_strtok_last:(9,13),32,32;_asctime_buf:(7,36)=ar(9,27);0;25;(0,2),64,208;_localtime_buf:(8,1),288,288;_gamma_signgam:(0,1),576,32;_rand_next:(0,7),608,64;;,0,672;_unused:(7,37)=s240_nextf:(7,38)=ar(9,27);0;29;(7,15),0,960;_nmalloc:(7,39)=ar(9,27);0;29;(0,4),960,960;;,0,1920;;,704,1920;_atexit:(7,10),2624,32;_atexit0:(7,9),2656,1088;_sig_func:(7,40)=*(7,41)=*(7,42)=f(0,15),3744,32;__sglue:(7,2),3776,96;__sf:(7,43)=ar(9,27);0;2;(7,5),3872,2112;;
+74     EINCL  0      0      0000000000000000 0      
+75     LSYM   0      0      0000000000000000 4379   fpos_t:t(2,1)=(7,16)
+76     LSYM   0      0      0000000000000000 4400   FILE:t(2,2)=(7,5)
+77     EINCL  0      0      0000000000000000 0      
+78     BINCL  0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+79     LSYM   0      0      0000000000000000 4527   div_t:t(11,1)=(11,2)=s8quot:(0,1),0,32;rem:(0,1),32,32;;
+80     LSYM   0      0      0000000000000000 4584   ldiv_t:t(11,3)=(11,4)=s8quot:(0,3),0,32;rem:(0,3),32,32;;
+81     EINCL  0      0      0000000000000000 0      
+82     BINCL  0      0      0000000000001f70 4642   sniptype.h
+83     LSYM   0      0      0000000000000000 4653    :T(12,1)=eError_:-1,Success_:0,False_:0,True_:1,;
+84     LSYM   0      0      0000000000000000 4704   Boolean_T:t(12,2)=(12,1)
+85     LSYM   0      0      0000000000000000 4729   BYTE:t(12,3)=(0,11)
+86     LSYM   0      0      0000000000000000 4749   DWORD:t(12,4)=(0,5)
+87     LSYM   0      0      0000000000000000 4769   WORD:t(12,5)=(0,9)
+88     EINCL  0      0      0000000000000000 0      
+89     LSYM   0      0      0000000000000000 4788   bfile:t(1,1)=(1,2)=s8file:(1,3)=*(2,2),0,32;rbuf:(0,2),32,8;rcnt:(0,2),40,8;wbuf:(0,2),48,8;wcnt:(0,2),56,8;;
+90     EINCL  0      0      0000000000000000 0      
+91     FUN    0      0      0000000008004020 4898   bit_count:F(0,1)
+92     PSYM   0      0      0000000000000000 4915   x:p(0,3)
+93     SLINE  0      10     0000000000000000 0      
+94     SLINE  0      11     000000000000000c 0      
+95     SLINE  0      18     0000000000000014 0      
+96     SLINE  0      19     000000000000001e 0      
+97     SLINE  0      20     000000000000002c 0      
+98     SLINE  0      23     000000000000004e 0      
+99     SLINE  0      24     0000000000000056 0      
+100    LSYM   0      0      0000000000000004 4924   n:(0,1)
+101    LBRAC  0      0      0000000000000000 0      
+102    RBRAC  0      0      0000000000000060 0      
+103    SO     0      0      0000000008004080 0      
+104    SO     0      2      0000000008004080 4932   bitcnt_2.c
+105    OPT    0      0      0000000000000000 12     gcc2_compiled.
+106    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+107    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+108    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+109    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+110    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+111    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+112    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+113    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+114    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+115    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+116    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+117    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+118    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+119    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+120    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+121    EXCL   0      0      000000000000197b 575    bitops.h
+122    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+123    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+124    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+125    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+126    EXCL   0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+127    EXCL   0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+128    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+129    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+130    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+131    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+132    EXCL   0      0      0000000000001f70 4642   sniptype.h
+133    FUN    0      0      0000000008004080 4943   bitcount:F(0,1)
+134    PSYM   0      0      0000000000000000 4959   i:p(0,3)
+135    SLINE  0      10     0000000000000000 0      
+136    SLINE  0      11     000000000000000c 0      
+137    SLINE  0      12     000000000000002e 0      
+138    SLINE  0      13     0000000000000050 0      
+139    SLINE  0      14     0000000000000074 0      
+140    SLINE  0      15     0000000000000096 0      
+141    SLINE  0      16     00000000000000b8 0      
+142    SLINE  0      17     00000000000000c0 0      
+143    SO     0      0      0000000008004174 0      
+144    SO     0      2      0000000008004180 4968   bitcnt_3.c
+145    OPT    0      0      0000000000000000 12     gcc2_compiled.
+146    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+147    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+148    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+149    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+150    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+151    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+152    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+153    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+154    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+155    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+156    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+157    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+158    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+159    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+160    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+161    EXCL   0      0      000000000000197b 575    bitops.h
+162    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+163    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+164    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+165    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+166    EXCL   0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+167    EXCL   0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+168    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+169    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+170    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+171    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+172    EXCL   0      0      0000000000001f70 4642   sniptype.h
+173    FUN    0      0      0000000008004180 4979   ntbl_bitcount:F(0,1)
+174    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+175    SLINE  0      43     0000000000000000 0      
+176    SLINE  0      44     000000000000000c 0      
+177    SLINE  0      53     00000000000000bc 0      
+178    FUN    0      0      0000000008004260 5000   BW_btbl_bitcount:F(0,1)
+179    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+180    SLINE  0      62     0000000000000000 0      
+181    SLINE  0      70     000000000000000c 0      
+182    SLINE  0      73     0000000000000018 0      
+183    SLINE  0      75     0000000000000062 0      
+184    LSYM   0      0      0000000000000004 5024   U:(0,16)=u4ch:(0,17)=ar(9,27);0;3;(0,11),0,32;y:(0,3),0,32;;
+185    LBRAC  0      0      0000000000000000 0      
+186    RBRAC  0      0      0000000000000070 0      
+187    FUN    0      0      00000000080042d0 5085   AR_btbl_bitcount:F(0,1)
+188    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+189    SLINE  0      84     0000000000000000 0      
+190    SLINE  0      85     000000000000000c 0      
+191    SLINE  0      89     0000000000000014 0      
+192    SLINE  0      90     0000000000000038 0      
+193    SLINE  0      91     0000000000000066 0      
+194    SLINE  0      92     0000000000000094 0      
+195    SLINE  0      95     00000000000000b4 0      
+196    SLINE  0      96     00000000000000bc 0      
+197    LSYM   0      0      0000000000000004 5109   Ptr:(7,15)
+198    LSYM   0      0      0000000000000008 5120   Accu:(0,1)
+199    LBRAC  0      0      0000000000000000 0      
+200    RBRAC  0      0      00000000000000cc 0      
+201    STSYM  0      0      000000000800bca0 5131   bits:S(0,18)=ar(9,27);0;255;(0,2)
+202    SO     0      0      000000000800439c 0      
+203    SO     0      2      00000000080043a0 5165   bitcnt_4.c
+204    OPT    0      0      0000000000000000 12     gcc2_compiled.
+205    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+206    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+207    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+208    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+209    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+210    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+211    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+212    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+213    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+214    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+215    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+216    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+217    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+218    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+219    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+220    EXCL   0      0      000000000000197b 575    bitops.h
+221    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+222    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+223    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+224    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+225    EXCL   0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+226    EXCL   0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+227    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+228    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+229    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+230    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+231    EXCL   0      0      0000000000001f70 4642   sniptype.h
+232    FUN    0      0      00000000080043a0 5176   ntbl_bitcnt:F(0,1)
+233    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+234    SLINE  0      39     0000000000000000 0      
+235    SLINE  0      43     000000000000000e 0      
+236    SLINE  0      45     0000000000000020 0      
+237    SLINE  0      46     000000000000003e 0      
+238    SLINE  0      49     000000000000005a 0      
+239    SLINE  0      50     0000000000000062 0      
+240    LSYM   0      0      0000000000000004 5195   cnt:(0,1)
+241    LBRAC  0      0      0000000000000000 0      
+242    RBRAC  0      0      0000000000000078 0      
+243    FUN    0      0      0000000008004418 5205   btbl_bitcnt:F(0,1)
+244    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+245    SLINE  0      57     0000000000000000 0      
+246    SLINE  0      61     000000000000000e 0      
+247    SLINE  0      63     000000000000001e 0      
+248    SLINE  0      64     000000000000003e 0      
+249    SLINE  0      67     000000000000005a 0      
+250    SLINE  0      68     0000000000000062 0      
+251    LSYM   0      0      0000000000000004 5195   cnt:(0,1)
+252    LBRAC  0      0      0000000000000000 0      
+253    RBRAC  0      0      000000000000007c 0      
+254    STSYM  0      0      000000000800bda0 5224   bits:S(0,16)=ar(9,27);0;255;(0,2)
+255    SO     0      0      0000000008004494 0      
+256    SO     0      2      00000000080044a0 5258   bitcnts.c
+257    OPT    0      0      0000000000000000 12     gcc2_compiled.
+258    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+259    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+260    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+261    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+262    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+263    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+264    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+265    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+266    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+267    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+268    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+269    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+270    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+271    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+272    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+273    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+274    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+275    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+276    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+277    EXCL   0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+278    EXCL   0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+279    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+280    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+281    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+282    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+283    EXCL   0      0      000000000000197b 575    bitops.h
+284    EXCL   0      0      0000000000001f70 4642   sniptype.h
+285    FUN    0      0      000000000800460c 5268   startup:F(0,1)
+286    PSYM   0      0      0000000000000004 5283   argc:p(0,1)
+287    PSYM   0      0      0000000000000000 5295   argv:p(0,16)=*(8,13)
+288    SLINE  0      22     0000000000000000 0      
+289    SLINE  0      24     0000000000000016 0      
+290    SLINE  0      51     000000000000002e 0      
+291    SLINE  0      52     000000000000003a 0      
+292    SLINE  0      53     000000000000004c 0      
+293    SLINE  0      55     0000000000000054 0      
+294    SLINE  0      57     000000000000006c 0      
+295    SLINE  0      59     0000000000000076 0      
+296    SLINE  0      62     0000000000000082 0      
+297    SLINE  0      63     00000000000000a6 0      
+298    SLINE  0      62     00000000000000ce 0      
+299    SLINE  0      66     00000000000000fa 0      
+300    SLINE  0      67     0000000000000132 0      
+301    SLINE  0      68     0000000000000150 0      
+302    SLINE  0      69     0000000000000160 0      
+303    SLINE  0      71     000000000000016c 0      
+304    SLINE  0      72     000000000000018a 0      
+305    SLINE  0      73     000000000000019a 0      
+306    SLINE  0      76     00000000000001a6 0      
+307    SLINE  0      59     00000000000001da 0      
+308    SLINE  0      78     00000000000001f8 0      
+309    SLINE  0      79     0000000000000212 0      
+310    SLINE  0      81     000000000000022c 0      
+311    SLINE  0      82     0000000000000230 0      
+312    LSYM   0      0      0000000000000008 5316   start:(8,7)
+313    LSYM   0      0      000000000000000c 5328   stop:(8,7)
+314    LSYM   0      0      0000000000000010 5339   ct:(0,13)
+315    LSYM   0      0      0000000000000018 5349   cmin:(0,13)
+316    LSYM   0      0      0000000000000020 5361   cmax:(0,13)
+317    LSYM   0      0      0000000000000028 5373   i:(0,1)
+318    LSYM   0      0      000000000000002c 5381   cminix:(0,1)
+319    LSYM   0      0      0000000000000030 5394   cmaxix:(0,1)
+320    LSYM   0      0      0000000000000034 5407   j:(0,3)
+321    LSYM   0      0      0000000000000038 5415   n:(0,3)
+322    LSYM   0      0      000000000000003c 5423   seed:(0,3)
+323    LSYM   0      0      0000000000000040 5434   iterations:(0,1)
+324    STSYM  0      0      000000000800bebc 5451   pBitCntFunc:V(0,17)=ar(8,27);0;6;(0,18)=*(0,19)=f(0,1)
+325    STSYM  0      0      000000000800bea0 5506   text:V(0,20)=ar(8,27);0;6;(8,13)
+326    LBRAC  0      0      0000000000000000 0      
+327    RBRAC  0      0      0000000000000290 0      
+328    FUN    0      0      000000000800489c 5539   bit_shifter:f(0,1)
+329    PSYM   0      0      0000000000000000 4915   x:p(0,3)
+330    SLINE  0      85     0000000000000000 0      
+331    SLINE  0      89     000000000000000c 0      
+332    SLINE  0      90     0000000000000024 0      
+333    SLINE  0      89     000000000000003a 0      
+334    SLINE  0      91     000000000000006c 0      
+335    SLINE  0      92     0000000000000074 0      
+336    LSYM   0      0      0000000000000004 5373   i:(0,1)
+337    LSYM   0      0      0000000000000008 4924   n:(0,1)
+338    LBRAC  0      0      0000000000000000 0      
+339    RBRAC  0      0      000000000000007e 0      
+340    STSYM  0      0      000000000800bebc 5558   pBitCntFunc:V(0,17)
+341    STSYM  0      0      000000000800bea0 5578   text:V(0,20)
+342    SO     0      0      000000000800491a 0      
+343    SO     0      2      0000000008004920 5591   bitfiles.c
+344    OPT    0      0      0000000000000000 12     gcc2_compiled.
+345    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+346    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+347    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+348    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+349    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+350    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+351    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+352    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+353    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+354    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+355    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+356    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+357    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+358    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+359    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+360    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+361    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+362    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+363    BINCL  0      0      0000000000000a10 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+364    LSYM   0      0      0000000000000000 5602   size_t:t(4,1)=(0,4)
+365    LSYM   0      0      0000000000000000 5622   wchar_t:t(4,2)=(0,9)
+366    EINCL  0      0      0000000000000000 0      
+367    BINCL  0      0      000000000001d57b 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+368    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+369    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+370    BINCL  0      0      0000000000000609 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+371    LSYM   0      0      0000000000000000 5643   ptrdiff_t:t(8,1)=(0,1)
+372    EINCL  0      0      0000000000000000 0      
+373    LSYM   0      0      0000000000000000 5666   __ULong:t(5,1)=(0,5)
+374    LSYM   0      0      0000000000000000 5687   _glue:T(5,2)=s12_next:(5,3)=*(5,2),0,32;_niobs:(0,1),32,32;_iobs:(5,4)=*(5,5)=xs__sFILE:,64,32;;
+375    LSYM   0      0      0000000000000000 5784   _Bigint:T(5,6)=s24_next:(5,7)=*(5,6),0,32;_k:(0,1),32,32;_maxwds:(0,1),64,32;_sign:(0,1),96,32;_wds:(0,1),128,32;_x:(5,8)=ar(7,27);0;0;(5,1),160,32;;
+376    LSYM   0      0      0000000000000000 5934   _atexit:T(5,9)=s136_next:(5,10)=*(5,9),0,32;_ind:(0,1),32,32;_fns:(5,11)=ar(7,27);0;31;(5,12)=*(5,13)=f(0,15),64,1024;;
+377    LSYM   0      0      0000000000000000 6054   __sbuf:T(5,14)=s8_base:(5,15)=*(0,11),0,32;_size:(0,1),32,32;;
+378    LSYM   0      0      0000000000000000 6117   _fpos_t:t(5,16)=(0,3)
+379    LSYM   0      0      0000000000000000 6139   __sFILE:T(5,5)=s88_p:(5,15),0,32;_r:(0,1),32,32;_w:(0,1),64,32;_flags:(0,8),96,16;_file:(0,8),112,16;_bf:(5,14),128,64;_lbfsize:(0,1),192,32;_cookie:(5,17)=*(0,15),224,32;_read:(5,18)=*(5,19)=f(0,1),256,32;_write:(5,20)=*(5,21)=f(0,1),288,32;_seek:(5,22)=*(5,23)=f(5,16),320,32;_close:(5,24)=*(5,25)=f(0,1),352,32;_ub:(5,14),384,64;_up:(5,15),448,32;_ur:(0,1),480,32;_ubuf:(5,26)=ar(7,27);0;2;(0,11),512,24;_nbuf:(5,27)=ar(7,27);0;0;(0,11),536,8;_lb:(5,14),544,64;_blksize:(0,1),608,32;_offset:(0,1),640,32;_data:(5,28)=*(5,29)=xs_reent:,672,32;;
+380    LSYM   0      0      0000000000000000 6686   _reent:T(5,29)=s748_errno:(0,1),0,32;_stdin:(5,4),32,32;_stdout:(5,4),64,32;_stderr:(5,4),96,32;_inc:(0,1),128,32;_emergency:(5,30)=ar(7,27);0;24;(0,2),160,200;_current_category:(0,1),384,32;_current_locale:(5,31)=*(0,2),416,32;__sdidinit:(0,1),448,32;__cleanup:(5,32)=*(5,33)=f(0,15),480,32;_result:(5,7),512,32;_result_k:(0,1),544,32;_p5s:(5,7),576,32;_freelist:(5,34)=*(5,7),608,32;_cvtlen:(0,1),640,32;_cvtbuf:(7,13),672,32;_new:(5,35)=u240_reent:(5,36)=s84_unused_rand:(0,4),0,32;_strtok_last:(7,13),32,32;_asctime_buf:(5,37)=ar(7,27);0;25;(0,2),64,208;_localtime_buf:(6,1),288,288;_gamma_signgam:(0,1),576,32;_rand_next:(0,7),608,64;;,0,672;_unused:(5,38)=s240_nextf:(5,39)=ar(7,27);0;29;(5,15),0,960;_nmalloc:(5,40)=ar(7,27);0;29;(0,4),960,960;;,0,1920;;,704,1920;_atexit:(5,10),2624,32;_atexit0:(5,9),2656,1088;_sig_func:(5,41)=*(5,42)=*(5,43)=f(0,15),3744,32;__sglue:(5,2),3776,96;__sf:(5,44)=ar(7,27);0;2;(5,5),3872,2112;;
+381    EINCL  0      0      0000000000000000 0      
+382    EXCL   0      0      000000000000197b 575    bitops.h
+383    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+384    BINCL  0      0      000000000000083a 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+385    LSYM   0      0      0000000000000000 7619   __gnuc_va_list:t(11,1)=(5,17)
+386    EINCL  0      0      0000000000000000 0      
+387    EXCL   0      0      0000000000001f70 4642   sniptype.h
+388    FUN    0      0      0000000008004920 7649   bfopen:F(0,16)=*(9,1)
+389    PSYM   0      0      0000000000000008 7671   name:p(7,13)
+390    PSYM   0      0      0000000000000004 7684   mode:p(7,13)
+391    SLINE  0      13     0000000000000000 0      
+392    SLINE  0      17     0000000000000014 0      
+393    SLINE  0      18     0000000000000022 0      
+394    SLINE  0      19     000000000000002c 0      
+395    SLINE  0      20     0000000000000034 0      
+396    SLINE  0      21     0000000000000052 0      
+397    SLINE  0      23     000000000000005e 0      
+398    SLINE  0      24     000000000000006c 0      
+399    SLINE  0      26     0000000000000074 0      
+400    SLINE  0      27     0000000000000082 0      
+401    SLINE  0      30     0000000000000090 0      
+402    SLINE  0      31     000000000000009a 0      
+403    LSYM   0      0      000000000000000c 7697   bf:(0,16)
+404    LBRAC  0      0      0000000000000000 0      
+405    RBRAC  0      0      00000000000000b4 0      
+406    FUN    0      0      00000000080049d4 7707   bfread:F(0,1)
+407    PSYM   0      0      0000000000000000 7721   bf:p(0,16)
+408    SLINE  0      34     0000000000000000 0      
+409    SLINE  0      36     000000000000000e 0      
+410    SLINE  0      38     000000000000001c 0      
+411    SLINE  0      39     0000000000000038 0      
+412    SLINE  0      41     0000000000000046 0      
+413    SLINE  0      44     000000000000005e 0      
+414    SLINE  0      45     0000000000000080 0      
+415    FUN    0      0      0000000008004a68 7732   bfwrite:F(0,15)
+416    PSYM   0      0      0000000000000004 7748   bit:p(0,1)
+417    PSYM   0      0      0000000000000000 7721   bf:p(0,16)
+418    SLINE  0      48     0000000000000000 0      
+419    SLINE  0      50     0000000000000014 0      
+420    SLINE  0      52     0000000000000022 0      
+421    SLINE  0      53     0000000000000040 0      
+422    SLINE  0      55     000000000000004e 0      
+423    SLINE  0      56     0000000000000066 0      
+424    SLINE  0      57     000000000000007e 0      
+425    SLINE  0      60     00000000000000a4 0      
+426    FUN    0      0      0000000008004b1c 7759   bfclose:F(0,15)
+427    PSYM   0      0      0000000000000000 7721   bf:p(0,16)
+428    SLINE  0      63     0000000000000000 0      
+429    SLINE  0      64     000000000000000e 0      
+430    SLINE  0      65     000000000000001e 0      
+431    SLINE  0      66     000000000000002c 0      
+432    SO     0      0      0000000008004b5c 0      
+433    SO     0      2      0000000008004b60 7775   bitstrng.c
+434    OPT    0      0      0000000000000000 12     gcc2_compiled.
+435    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+436    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+437    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+438    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+439    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+440    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+441    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+442    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+443    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+444    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+445    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+446    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+447    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+448    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+449    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+450    EXCL   0      0      000000000000197b 575    bitops.h
+451    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+452    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+453    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+454    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+455    EXCL   0      0      000000000000094e 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+456    EXCL   0      0      000000000001d3fa 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+457    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+458    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+459    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+460    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+461    EXCL   0      0      0000000000001f70 4642   sniptype.h
+462    FUN    0      0      0000000008004b60 7786   bitstring:F(0,15)
+463    PSYM   0      0      000000000000000c 7804   str:p(9,13)
+464    PSYM   0      0      0000000000000008 7816   byze:p(0,3)
+465    PSYM   0      0      0000000000000004 7828   biz:p(0,1)
+466    PSYM   0      0      0000000000000000 7839   strwid:p(0,1)
+467    SLINE  0      32     0000000000000000 0      
+468    SLINE  0      36     0000000000000020 0      
+469    SLINE  0      37     0000000000000050 0      
+470    SLINE  0      38     000000000000005c 0      
+471    SLINE  0      37     0000000000000074 0      
+472    SLINE  0      39     0000000000000092 0      
+473    SLINE  0      41     0000000000000096 0      
+474    SLINE  0      42     00000000000000ce 0      
+475    SLINE  0      43     00000000000000e4 0      
+476    SLINE  0      39     00000000000000fc 0      
+477    SLINE  0      45     0000000000000114 0      
+478    SLINE  0      47     000000000000011e 0      
+479    LSYM   0      0      0000000000000010 5373   i:(0,1)
+480    LSYM   0      0      0000000000000014 7853   j:(0,1)
+481    LBRAC  0      0      0000000000000000 0      
+482    RBRAC  0      0      0000000000000130 0      
+483    SO     0      0      0000000008004c90 0      
+484    SO     0      2      0000000008004c90 7861   bstr_i.c
+485    OPT    0      0      0000000000000000 12     gcc2_compiled.
+486    LSYM   0      0      0000000000000000 27     int:t(0,1)=r(0,1);-2147483648;2147483647;
+487    LSYM   0      0      0000000000000000 69     char:t(0,2)=r(0,2);0;127;
+488    LSYM   0      0      0000000000000000 95     long int:t(0,3)=r(0,3);-2147483648;2147483647;
+489    LSYM   0      0      0000000000000000 142    unsigned int:t(0,4)=r(0,4);0;4294967295;
+490    LSYM   0      0      0000000000000000 183    long unsigned int:t(0,5)=r(0,5);0;4294967295;
+491    LSYM   0      0      0000000000000000 229    long long int:t(0,6)=r(0,6);-0;4294967295;
+492    LSYM   0      0      0000000000000000 272    long long unsigned int:t(0,7)=r(0,7);0;-1;
+493    LSYM   0      0      0000000000000000 315    short int:t(0,8)=r(0,8);-32768;32767;
+494    LSYM   0      0      0000000000000000 353    short unsigned int:t(0,9)=r(0,9);0;65535;
+495    LSYM   0      0      0000000000000000 395    signed char:t(0,10)=r(0,10);-128;127;
+496    LSYM   0      0      0000000000000000 433    unsigned char:t(0,11)=r(0,11);0;255;
+497    LSYM   0      0      0000000000000000 470    float:t(0,12)=r(0,1);4;0;
+498    LSYM   0      0      0000000000000000 496    double:t(0,13)=r(0,1);8;0;
+499    LSYM   0      0      0000000000000000 523    long double:t(0,14)=r(0,1);8;0;
+500    LSYM   0      0      0000000000000000 555    void:t(0,15)=(0,15)
+501    BINCL  0      0      0000000000000000 7870   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/string.h
+502    EXCL   0      0      0000000000000000 692    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/_ansi.h
+503    EXCL   0      0      0000000000000b89 800    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/config.h
+504    EXCL   0      0      000000000001d57b 1186   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/reent.h
+505    EXCL   0      0      0000000000003278 1298   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/time.h
+506    EXCL   0      0      00000000000004d8 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+507    EXCL   0      0      000000000000a710 1405   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/sys/types.h
+508    EXCL   0      0      0000000000000b41 960    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stddef.h
+509    EINCL  0      0      0000000000000000 0      
+510    EXCL   0      0      000000000000197b 575    bitops.h
+511    EXCL   0      0      0000000000000874 584    /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdio.h
+512    EXCL   0      0      000000000000083a 1065   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/include/stdarg.h
+513    EXCL   0      0      0000000000001a3a 4418   /Users/Hippo/sunflower-simulator/tools/superH/lib/gcc/sh-coff/4.2.4/../../../../sh-coff/sys-include/stdlib.h
+514    EXCL   0      0      0000000000001f70 4642   sniptype.h
+515    FUN    0      0      0000000008004c94 7979   bstr_i:F(0,4)
+516    PSYM   0      0      0000000000000000 7993   cptr:p(7,13)
+517    SLINE  0      13     0000000000000000 0      
+518    SLINE  0      14     000000000000000e 0      
+519    SLINE  0      17     0000000000000016 0      
+520    SLINE  0      19     000000000000001a 0      
+521    SLINE  0      20     000000000000003a 0      
+522    SLINE  0      21     0000000000000048 0      
+523    SLINE  0      17     000000000000005e 0      
+524    SLINE  0      25     000000000000008e 0      
+525    SLINE  0      26     0000000000000096 0      
+526    LSYM   0      0      0000000000000004 8006   i:(0,4)
+527    LSYM   0      0      0000000000000008 8014   j:(0,4)
+528    LBRAC  0      0      0000000000000000 0      
+529    RBRAC  0      0      00000000000000ac 0      
+530    SO     0      0      0000000008004d40 0      
+

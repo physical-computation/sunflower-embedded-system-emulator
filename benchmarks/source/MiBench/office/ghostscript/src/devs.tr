@@ -1,0 +1,18 @@
+-include unix_.dev
+level2.dev pdf.dev pipe.dev
+
+
+
+
+
+
+
+
+
+pbm.dev pbmraw.dev pgm.dev pgmraw.dev pgnm.dev pgnmraw.dev pnm.dev pnmraw.dev ppm.dev ppmraw.dev
+
+
+
+
+
+pdfwrite.dev pswrite.dev epswrite.dev pxlmono.dev pxlcolor.dev
