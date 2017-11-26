@@ -10,12 +10,14 @@ Files in this directory:
 
 * `init.S` : Source file needed to create the S-RECORD binary.
 
+* `superH.ld` : Linker file needed to create the S-RECORD binary.
+
 * `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
 
 Steps to run the sunflower emulator to reproduce the result in the paper:
 
-1. Download and build the Sunflower emulator, on the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
+1. Download and build both the cross-compiler and Sunflower emulator. On the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
 
 1. Clone this branch, as: `git clone https://github.com/shaotuanchen/sunflower-simulator/tree/ESL2017`
  
