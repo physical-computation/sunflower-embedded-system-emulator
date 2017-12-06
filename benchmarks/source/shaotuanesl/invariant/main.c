@@ -21,7 +21,7 @@
 	 */
 
 void 
-create_csv(char *filename, double logcsv[][2], int m, int n)
+create_csv(char *filename, double logcsv[ ][2], int m, int n)
 {
  
 	printf("\n Creating %s.csv file",filename);
@@ -38,14 +38,12 @@ create_csv(char *filename, double logcsv[][2], int m, int n)
  
 	for(i = 0; i < m; i++)
 	{
+    		fprintf(fp,"\n%d",i+1);
  
-    	fprintf(fp,"\n%d",i+1);
+    		for(j = 0;j < n;j++)
  
-    	for(j = 0;j < n;j++)
- 
-        fprintf(fp,",%f ",logcsv[i][j]);
- 
-    }
+        	fprintf(fp,",%f ",logcsv[i][j]);
+ 	}
  
 	fclose(fp);
  
@@ -86,8 +84,7 @@ create_csv(char *filename, double logcsv[][2], int m, int n)
 int
 startup(int argc, char *argv[]) 
 {
-	
-    int i, j;
+	int i, j;
 					
 	double acceleration[205] = 
 		{ 
@@ -297,15 +294,13 @@ startup(int argc, char *argv[])
 			,-9.812236328
 			,-9.814013672
 
-		 };
+		};
 
 	double gcos[205];
 	
 	for ( i = 0; i < 205; i++ ) 
 	{
-	
-		gcos[i] = 9.8 * cos (5*3.14/180 * cos(sqrt(9.8/0.1)*i));
-		
+		gcos[i] = 9.8 * cos (5*3.14/180 * cos(sqrt(9.8/0.1)*i));	
 	}
  
 	double inferred[205];
@@ -316,7 +311,7 @@ startup(int argc, char *argv[])
 
 	for ( i = 0; i < 205; i++ ) 
 	{
-    	inferred[ i ] = sqrt ((acceleration[i] + gcos[i])/0.1)); 
+		inferred[ i ] = sqrt ((acceleration[i] + gcos[i])/0.1)); 
 
 		logcsv[ i ][0] = acceleration[i] ; 
 
