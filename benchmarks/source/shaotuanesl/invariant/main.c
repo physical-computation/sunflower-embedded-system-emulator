@@ -8,7 +8,6 @@
 #include <string.h>
 #include "logmarkers.h"
 
-
 	/*
 	 *	Notes:
 	 *
@@ -23,7 +22,7 @@
 void 
 create_csv(char *filename, double logcsv[ ][2], int m, int n)
 {
- 
+	
 	printf("\n Creating %s.csv file",filename);
  
 	FILE *fp;
@@ -84,6 +83,7 @@ create_csv(char *filename, double logcsv[ ][2], int m, int n)
 int
 startup(int argc, char *argv[]) 
 {
+
 	int i, j;
 					
 	double acceleration[205] = 
