@@ -76,7 +76,7 @@ create_csv(char *filename, double logcsv[][2], int m, int n)
  * 		angular rate with the acceleration data. 
  *
  *	(3)	double inferred [205] : array for inferred angular rate based on Equation 4
- *      in the paper, where 0.1 is the length of the pendulum used in the experiment.
+ *      	in the paper, where 0.1 is the length of the pendulum used in the experiment.
  *
  *	(4)	double logcsv [205][2] : storing both acceleration and inferred array.
  *
