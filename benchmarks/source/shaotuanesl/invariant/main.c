@@ -13,10 +13,10 @@
 	 *	Notes:
 	 *
 	 *	(1)	"logmarkers.h" is the header file for LOGMARK, a MACRO to specify 
-	 *       performance counting for Sunflower.
+	 * 		performance counting for Sunflower.
 	 *
 	 *	(2)	"void creat_csv" is the helper function to store the acceleration 
-	 *	     data and the inferrederred angular rate into a csv file.
+	 *		data and the inferrederred angular rate into a csv file.
 	 *
 	 */
 
@@ -60,20 +60,20 @@ create_csv(char *filename, double logcsv[][2], int m, int n)
  *	(1)	double acceleration [205] : acceleration data from MPU-9250 
  *
  *	(2)	double gcos [205] : cosine component of gravity g. According to 
- *	    Equation 4 in the paper, we can obtain theta, the angular displacment
- *      as a function of time, given the length and the initial angular
- *      displacement of the pendulum. In the paper, the initial angle is 5
- *      degrees, and the length is 10 cm. We then caculate "g cos (theta)"
- *      based on theta, and use as the input to Sunflower. This calculation
- *      can be done offline, since it doesn't require any experimental data,
- *      and it is a sinusoidal signal with constant amplitude. This is the 
- *      reason why we've put "LOGMARK" after generating the arrays. The constant 
- *      amplitude approximation is the cause as in Figure 3, at the start of
- *      the pendulum swing there's an overshoot for the inferred angular rate
- *      compared to the angular rate from the gyroscope. For large angle swings,
- *      we can further consider a second-order approximation for gcos, where we
- *      treat theta as a damped response to improve the accuracy for the inferred
- *      angular rate with the acceleration data. 
+ *		Equation 4 in the paper, we can obtain theta, the angular displacment
+ * 		as a function of time, given the length and the initial angular
+ * 		displacement of the pendulum. In the paper, the initial angle is 5
+ * 		degrees, and the length is 10 cm. We then caculate "g cos (theta)"
+ * 		based on theta, and use as the input to Sunflower. This calculation
+ * 		can be done offline, since it doesn't require any experimental data,
+ * 		and it is a sinusoidal signal with constant amplitude. This is the 
+ * 		reason why we've put "LOGMARK" after generating the arrays. The constant 
+ * 		amplitude approximation is the cause as in Figure 3, at the start of
+ * 		the pendulum swing there's an overshoot for the inferred angular rate
+ * 		compared to the angular rate from the gyroscope. For large angle swings,
+ * 		we can further consider a second-order approximation for gcos, where we
+ * 		treat theta as a damped response to improve the accuracy for the inferred
+ * 		angular rate with the acceleration data. 
  *
  *	(3)	double inferred [205] : array for inferred angular rate based on Equation 4
  *      in the paper, where 0.1 is the length of the pendulum used in the experiment.
