@@ -15,8 +15,8 @@
 	 * 		performance counting for Sunflower.
 	 *
 	 *	(2)	"void store_csv" is a helper function to store acceleration data
-	 *		and the inferred angular rate into a csv file. This was adapted from 
-	 *		a post on Codingstreet. http://codingstreet.com/create-csv-file-in-c/
+	 *		and the inferred angular rate into a csv file. This was adapted from : 
+	 *		http://codingstreet.com/create-csv-file-in-c/
 	 */
 
 void 
@@ -75,7 +75,7 @@ store_csv(char *filename, double logcsv[ ][2], int m, int n)
  *		improve the accuracy for the inferred angular rate with acceleration data. 
  *
  *	(3)	double inferred [205] : output array for inferred angular rate based on 
- *		Equation 10 in the paper, where 0.1 is the length of the pendulum.
+ *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *
  *	(4)	double logcsv [205][2] : storing both acceleration and inferred array and 
  *		log the result into a csv file.
@@ -299,11 +299,13 @@ startup(int argc, char *argv[])
 
 		};
 
+	/* timestep is 0.01 for gcos */
+	
 	double gcos[205];
 	
 	for ( i = 0; i < 205; i++ ) 
 	{
-		gcos[i] = 9.8 * cos (5 * 3.14 / 180 * cos(sqrt(9.8 / 0.1) * i));	
+		gcos[i] = 9.8 * cos (5 * 3.14 / 180 * cos(sqrt(9.8 / 0.1) * 0.01 * i));	
 	}
  
 	double inferred[205];
