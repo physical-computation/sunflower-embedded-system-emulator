@@ -1,5 +1,7 @@
 /*
-	Authored 2017. Shao-Tuan Chen.
+	C program to infer the angular rate of the pendulum based on acceleration data.
+	
+	Authored 2017 by Shao-Tuan Chen.
 */
 
 #include <stdio.h>
@@ -15,7 +17,7 @@
 	 * 		performance counting for Sunflower.
 	 *
 	 *	(2)	"void store_csv" is a helper function to store acceleration data
-	 *		and the inferred angular rate into a csv file. This was adapted from : 
+	 *		and the inferred angular rate into a csv file. This is adapted from : 
 	 *		http://codingstreet.com/create-csv-file-in-c/
 	 */
 
@@ -57,19 +59,19 @@ store_csv(char *filename, double logcsv[ ][2], int m, int n)
  *	(1)	double acceleration [205] : acceleration data acquired with MPU-9250. 
  *
  *	(2)	double gcos [205] : cosine component of gravity g. According to 
- *		Equation 4 in the paper, we can obtain theta, the angular displacment
+ *		Equation 4 in the paper, we can obtain theta, the angular displacement
  * 		as a function of time, given the length and the initial angular
  * 		displacement of the pendulum. In the paper, the initial angle is 5
- * 		degrees, and the length is 10 cm. We then caculate "g cos (theta)"
+ * 		degrees, and the length is 10 cm. We then calculate "g cos (theta)"
  * 		based on theta, and use as the input to Sunflower. This calculation
  * 		can be done offline, since it doesn't require any experimental data,
  * 		and it is a sinusoidal signal with constant amplitude. This is the 
  * 		reason why we've put "LOGMARK" after generating the gcos array. Constant 
  * 		amplitude approximation is the cause as in Figure 3, at the start of
- * 		the pendulum swing there's an overshoot for the inferred angular rate
+ * 		the pendulum swing there's an overshoot for the inferred angular rate,
  * 		compared to the angular rate from the gyroscope. However, the results 
- *		show the inferred angular rate with high accuracy to gyroscope data, as 
- *		becaure the initial angle is small, and constant approximation for gcos 
+ *		show the inferred angular rate with high coherence to gyroscope data, as 
+ *		because the initial angle is small, and constant approximation for gcos 
  * 		can hold. For larger angle swings, we can further consider a second-order 
  *		approximation for gcos, where we treat theta as a damped response to 
  *		improve the accuracy for the inferred angular rate with acceleration data. 
@@ -77,8 +79,8 @@ store_csv(char *filename, double logcsv[ ][2], int m, int n)
  *	(3)	double inferred [205] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *
- *	(4)	double logcsv [205][2] : storing both acceleration and inferred array and 
- *		log the result into a csv file.
+ *	(4)	double logcsv [205][2] : store both acceleration and inferred array and 
+ *		log the results into a csv file.
  *
  */
 
@@ -299,7 +301,7 @@ startup(int argc, char *argv[])
 
 		};
 
-	/* timestep is 0.01 for gcos */
+	/* time step is 0.01 for gcos */
 	
 	double gcos[205];
 	
