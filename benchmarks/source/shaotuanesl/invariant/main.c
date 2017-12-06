@@ -316,7 +316,7 @@ startup(int argc, char *argv[])
 
 	for ( i = 0; i < 205; i++ ) 
 	{
-		inferred[i] = sqrt ((acceleration[i] + gcos[i]) / 0.1)); 
+		inferred[i] = sqrt ((acceleration[i] + gcos[i]) / 0.1) ; 
 
 		logcsv[i][0] = acceleration[i] ; 
 
