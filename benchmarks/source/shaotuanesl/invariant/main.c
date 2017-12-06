@@ -11,16 +11,16 @@
 	/*
 	 *	Notes:
 	 *
-	 *	(1)	"logmarkers.h" is the header file for LOGMARK, a MACRO to specify 
+	 *	(1)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
 	 * 		performance counting for Sunflower.
 	 *
-	 *	(2)	"void creat_csv" is the helper function to store the acceleration 
-	 *		data and the inferrederred angular rate into a csv file.
-	 *
+	 *	(2)	"void store_csv" is a helper function to store acceleration data
+	 *		and the inferred angular rate into a csv file. This was adapted from 
+	 *		a post on Codingstreet. http://codingstreet.com/create-csv-file-in-c/
 	 */
 
 void 
-create_csv(char *filename, double logcsv[ ][2], int m, int n)
+store_csv(char *filename, double logcsv[ ][2], int m, int n)
 {
 	
 	printf("\n Creating %s.csv file",filename);
@@ -39,7 +39,7 @@ create_csv(char *filename, double logcsv[ ][2], int m, int n)
 	{
     		fprintf(fp,"\n%d",i+1);
  
-    		for(j = 0;j < n;j++)
+    		for(j = 0; j < n; j++)
  
         	fprintf(fp,",%f ",logcsv[i][j]);
  	}
@@ -54,7 +54,7 @@ create_csv(char *filename, double logcsv[ ][2], int m, int n)
 /*
  *	Arrays:
  *
- *	(1)	double acceleration [205] : acceleration data from MPU-9250 
+ *	(1)	double acceleration [205] : acceleration data acquired with MPU-9250. 
  *
  *	(2)	double gcos [205] : cosine component of gravity g. According to 
  *		Equation 4 in the paper, we can obtain theta, the angular displacment
@@ -64,18 +64,21 @@ create_csv(char *filename, double logcsv[ ][2], int m, int n)
  * 		based on theta, and use as the input to Sunflower. This calculation
  * 		can be done offline, since it doesn't require any experimental data,
  * 		and it is a sinusoidal signal with constant amplitude. This is the 
- * 		reason why we've put "LOGMARK" after generating the arrays. The constant 
+ * 		reason why we've put "LOGMARK" after generating the gcos array. Constant 
  * 		amplitude approximation is the cause as in Figure 3, at the start of
  * 		the pendulum swing there's an overshoot for the inferred angular rate
- * 		compared to the angular rate from the gyroscope. For large angle swings,
- * 		we can further consider a second-order approximation for gcos, where we
- * 		treat theta as a damped response to improve the accuracy for the inferred
- * 		angular rate with the acceleration data. 
+ * 		compared to the angular rate from the gyroscope. However, the results 
+ *		show the inferred angular rate with high accuracy to gyroscope data, as 
+ *		becaure the initial angle is small, and constant approximation for gcos 
+ * 		can hold. For larger angle swings, we can further consider a second-order 
+ *		approximation for gcos, where we treat theta as a damped response to 
+ *		improve the accuracy for the inferred angular rate with acceleration data. 
  *
- *	(3)	double inferred [205] : array for inferred angular rate based on Equation 4
- *      	in the paper, where 0.1 is the length of the pendulum used in the experiment.
+ *	(3)	double inferred [205] : output array for inferred angular rate based on 
+ *		Equation 10 in the paper, where 0.1 is the length of the pendulum.
  *
- *	(4)	double logcsv [205][2] : storing both acceleration and inferred array.
+ *	(4)	double logcsv [205][2] : storing both acceleration and inferred array and 
+ *		log the result into a csv file.
  *
  */
 
@@ -300,7 +303,7 @@ startup(int argc, char *argv[])
 	
 	for ( i = 0; i < 205; i++ ) 
 	{
-		gcos[i] = 9.8 * cos (5*3.14/180 * cos(sqrt(9.8/0.1)*i));	
+		gcos[i] = 9.8 * cos (5 * 3.14 / 180 * cos(sqrt(9.8 / 0.1) * i));	
 	}
  
 	double inferred[205];
@@ -311,18 +314,18 @@ startup(int argc, char *argv[])
 
 	for ( i = 0; i < 205; i++ ) 
 	{
-		inferred[ i ] = sqrt ((acceleration[i] + gcos[i])/0.1)); 
+		inferred[i] = sqrt ((acceleration[i] + gcos[i]) / 0.1)); 
 
-		logcsv[ i ][0] = acceleration[i] ; 
+		logcsv[i][0] = acceleration[i] ; 
 
-		logcsv[ i ][1] = inferred[i] ; 
+		logcsv[i][1] = inferred[i] ; 
 	}
 
 	LOGMARK(1);
 
-	char str [ 205 ] = "inferred";
+	char str [205] = "inferred";
  
-	create_csv(str,logcsv,205,2);
+	store_csv(str,logcsv,205,2);
  
 	return 0;
  
