@@ -19,7 +19,9 @@ Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. Download and build both the cross-compiler and Sunflower emulator. On the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
 
-1. Open your terminal, clone this branch, as: `git clone https://github.com/shaotuanchen/sunflower-simulator/tree/ESL2017`
+1. Open your terminal, clone this repository, as: `git clone https://github.com/shaotuanchen/sunflower-simulator`
+
+1. Switch to the branch `ESL2017` which contains the source files for this implementation, as: `git checkout ESL2017`
  
 1. Change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
 
