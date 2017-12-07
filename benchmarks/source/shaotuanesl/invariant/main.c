@@ -323,7 +323,7 @@ startup(int argc, char *argv[])
 
 	LOGMARK(1);
 
-	char str [205] = "inferred";
+	char str[205] = "inferred";
  
 	store_csv(str, logcsv, 205, 2);
  
