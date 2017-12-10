@@ -23,7 +23,7 @@ Steps to run the sunflower emulator to reproduce the result in the paper:
 
 1. Change directory (`cd`) to your clone (e.g., `cd sunflower-simulator`), and switch to the branch `ESL2017` which contains the source files for this implementation, as: `git checkout ESL2017`
  
-1. Change directory (`cd`) and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
+1. Change directory (`cd`) and navigate to `benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
 
 1. Start the Sunflower emulator. One way to do this is to specify the entire path in your current directory in terminal by typing `/Users/yourdir/sunflower-simulator/sim/sf `, where `yourdir` should be changed appropriately to your own path.
 
