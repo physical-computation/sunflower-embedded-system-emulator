@@ -10,46 +10,12 @@
 #include <string.h>
 #include "logmarkers.h"
 
-	/*
-	 *	Notes:
-	 *
-	 *	(1)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
-	 * 		performance counting for Sunflower.
-	 *
-	 *	(2)	"void store_csv" is a helper function to store acceleration data
-	 *		and the inferred angular rate into a csv file. This is adapted from : 
-	 *		http://codingstreet.com/create-csv-file-in-c/
-	 */
-
-void 
-store_csv(char *filename, double logcsv[ ][2], int m, int n)
-{	
-	printf("\n Creating %s.csv file",filename);
- 
-	FILE *fp;
- 
-	int i, j;
- 
-	filename = strcat(filename, ".csv");
- 
-	fp = fopen(filename, "w+");
- 
-	fprintf(fp, "Time Steps, Accelerometer, Inferred Gyro");
- 
-	for(i = 0; i < m; i++)
-	{
-    		fprintf(fp, "\n%d", i+1);
- 
-    		for (j = 0; j < n; j++)
- 
-        	fprintf(fp, ",%f ", logcsv[i][j]);
- 	}
- 
-	fclose(fp);
- 
-	printf("\n %sfile created", filename);
-}
-
+/*
+ *	Notes:
+ *
+ *	(0)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
+ * 		performance counting for Sunflower.
+/*
 
 /*
  *	Arrays:
@@ -76,9 +42,6 @@ store_csv(char *filename, double logcsv[ ][2], int m, int n)
  *
  *	(3)	double inferred [147] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
- *
- *	(4)	double logcsv [147][2] : store both acceleration and inferred array and 
- *		log the results into a csv file.
  *
  */
 
@@ -249,27 +212,15 @@ startup(int argc, char *argv[])
 	}
  
 	double inferred[147];
-	
-	double logcsv[147][2];	
-	
+		
 	LOGMARK(0);
 
 	for ( i = 0; i < 147; i++ ) 
 	{
 		inferred[i] = sqrt ((acceleration[i] + gcos[i]) / 0.1) ; 
-
-		logcsv[i][0] = acceleration[i] ; 
-
-		logcsv[i][1] = inferred[i] ; 
 	}
 
 	LOGMARK(1);
-
-	char str[147] = "inferred";
- 
-	store_csv(str, logcsv, 147, 2);
- 
-	LOGMARK(2); 
  
 	return 0;
 }
