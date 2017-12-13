@@ -66,7 +66,7 @@
  *
  *		PI : mathematical constant.
  *
- *  	t : time step, 0.1s since the sampling rate is 10 Hz.
+ *  		t : time step, 0.1 second since the sampling rate is 10 Hz.
  *
  *		l : length of the pendulum, 0.1 meter.
  *
