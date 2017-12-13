@@ -47,7 +47,7 @@
  *		of "+1", when the value of gcos array is positive, and "-1" when the value 
  *		of gcos array is negative.
  *
- *	(5)	double inferred [63] : output array for inferred angular rate based on 
+ *	(5)	long double inferred [63] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *		Measurement noise causes erroneous computation of "NaN", in the inferred 
  *		angular rate when |acceleration[i]| < |gcos[i]|. 
