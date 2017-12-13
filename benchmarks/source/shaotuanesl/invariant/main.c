@@ -21,17 +21,18 @@
  *	(0)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
  * 		performance counting for Sunflower.
  *
- *	
+ *  	Arrays:
  *
- *  Arrays:
+ *	(1)	long double acceleration [63] : acceleration data acquired with MPU-9250. 
  *
- *	(1)	double acceleration [63] : acceleration data acquired with MPU-9250. 
+ *	(2)	long theta[63] : angular displacement as a function of time, according to 
+ *		Equation 4 in the paper. 
  *
- *	(2)	double gcos [63] : cosine component of gravity g. According to 
+ *	(2)	long double gcos [63] : cosine component of gravity g. According to 
  *		Equation 4 in the paper, we can obtain theta, the angular displacement
  * 		as a function of time, given the length and the initial angular
  * 		displacement of the pendulum. In the paper, the initial angle is 5
- * 		degrees, and the length is 10 cm. We then calculate "g cos (theta)"
+ * 		degrees, and the length is 10 cm. We then calculate "g cos (theta(t))"
  * 		based on theta, and use as the input to Sunflower. This calculation
  * 		can be done offline, since it doesn't require any experimental data,
  * 		and it is a sinusoidal signal with constant amplitude. This is the 
