@@ -74,8 +74,6 @@
  *
  */
 
-<<<<<<< HEAD
-=======
 #define PI 3.14159265359
 #define t 0.1
 #define l 0.1
@@ -94,7 +92,6 @@
  *   
  */
 
->>>>>>> dfda963b22d0600eaa3250046c4dec5f0d8246d6
 int
 startup(int argc, char *argv[]) 
 {
