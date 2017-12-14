@@ -65,7 +65,7 @@
  *		of "+1", when the value of gcos array is positive, and "-1" when the value 
  *		of gcos array is negative.
  *
- *	(5)	double inferred [63] : output array for inferred angular rate based on 
+ *	(5)	long double inferred [63] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *		Measurement noise causes erroneous computation of "NaN", in the inferred 
  *		angular rate when |acceleration[i]| < |gcos[i]|. 
@@ -74,6 +74,27 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#define PI 3.14159265359
+#define t 0.1
+#define l 0.1
+#define g 9.81
+
+/*
+ *	Variable declaration:
+ *
+ *		PI : mathematical constant.
+ *
+ *  		t : time step, 0.1 second since the sampling rate is 10 Hz.
+ *
+ *		l : length of the pendulum, 0.1 meter.
+ *
+ *		g : acceleration due to gravity, 9.81 m/s^2.
+ *   
+ */
+
+>>>>>>> dfda963b22d0600eaa3250046c4dec5f0d8246d6
 int
 startup(int argc, char *argv[]) 
 {
