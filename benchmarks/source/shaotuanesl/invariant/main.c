@@ -15,7 +15,7 @@
  *
  *		PI : mathematical constant.
  *
- *  	t : time step, 0.1s since the sampling rate is 10 Hz.
+ *  		t : time step, 0.1s since the sampling rate is 10 Hz.
  *
  *		l : length of the pendulum, 0.1 meter.
  *
@@ -36,12 +36,12 @@
  *
  *  	Arrays:  
  *
- *	(1)	long double acceleration [63] : acceleration data acquired with MPU-9250. 
+ *	(1)	long double acceleration[61] : acceleration data acquired with MPU-9250. 
  *
- *	(2)	long double radian[63] : radian as a function of time, based on the length 
+ *	(2)	long double radian[infer_length] : radian as a function of time, based on the length 
  *		of the pendulum "l" and gravity "g".
  *
- *	(3)	long double gcos [63] : cosine component of gravity g. According to 
+ *	(3)	long double gcos[infer_length] : cosine component of gravity g. According to 
  *		Equation 4 in the paper, we can obtain theta, the angular displacement
  * 		as a function of time, given the length and the initial angular
  * 		displacement of the pendulum. In the paper, the initial angle is 5
@@ -59,13 +59,13 @@
  *		approximation for gcos, where we treat theta as a damped response to 
  *		improve the accuracy for the inferred angular rate with acceleration data.
  *
- *	(4)	long double sign[63]: sign direction array, based on the period of the 
+ *	(4)	long double sign[infer_length]: sign direction array, based on the period of the 
  *		pendulum. This array creates a square wave, which is applied to give the 
  *		correct direction of the inferred angular rate. The sign array gives a value 
  *		of "+1", when the value of gcos array is positive, and "-1" when the value 
  *		of gcos array is negative.
  *
- *	(5)	long double inferred [63] : output array for inferred angular rate based on 
+ *	(5)	long double inferred[infer_length] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *		Measurement noise causes erroneous computation of "NaN", in the inferred 
  *		angular rate when |acceleration[i]| < |gcos[i]|. 
@@ -210,7 +210,7 @@ startup(int argc, char *argv[])
 *	Notes:
 *
 *	(1)	Here we print out the value and index of the measured acceleration which is aligned 
-*		with gcos for us to manually check whether the start condition is truly satisfied.
+*		with gcos for us to manually check whether the start condition is satisfied.
 *
 */	
 		
