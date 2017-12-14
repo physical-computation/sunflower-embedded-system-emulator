@@ -11,6 +11,24 @@
 #include "logmarkers.h"
 
 /*
+ *	Variable declaration:
+ *
+ *		PI : mathematical constant.
+ *
+ *  	t : time step, 0.1s since the sampling rate is 10 Hz.
+ *
+ *		l : length of the pendulum, 0.1 meter.
+ *
+ *		g : acceleration due to gravity, 9.81 m/s^2.
+ *   
+ */
+
+#define PI 3.14159265359
+#define t 0.1
+#define l 0.1
+#define g 9.81
+
+/*
  *	Notes:
  *
  *	(0)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
@@ -56,42 +74,30 @@
  *
  */
 
-#define PI 3.14159265359
-#define t 0.1
-#define l 0.1
-#define g 9.81
-
-/*
- *	Variable declaration:
- *
- *		PI : mathematical constant.
- *
- *  	t : time step, 0.1s since the sampling rate is 10 Hz.
- *
- *		l : length of the pendulum, 0.1 meter.
- *
- *		g : acceleration due to gravity, 9.81 m/s^2.
- *   
- */
-
 int
 startup(int argc, char *argv[]) 
 {
-		int i;
 					
-		long double acceleration[63] = 
+		long double acceleration[61] = 
 			{ 
-				-9.772714,
-				-9.798804,
-				-9.804063,
-				-9.773774,
-				-9.810173,
-				-9.843967,
+				-9.770898,
+				-9.766672,
+				-9.770842,
+				-9.773954,
+				-9.769031,
+				-9.766070,
+				-9.770710,
+				-9.772675,
+				-9.816317,
+				-9.852140,
+				-9.774437,
+				-9.831465,
+				-9.818206,
 				-9.777526,
 				-9.797795,
 				-9.838834,
 				-9.781586,
-				-9.794288,
+				-9.802683,
 				-9.815384,
 				-9.787777,
 				-9.801776,
@@ -135,24 +141,70 @@ startup(int argc, char *argv[])
 				-9.774934,
 				-9.806862,
 				-9.796848,
-				-9.772907,
-				-9.801904,
-				-9.801979,
-				-9.772991,
-				-9.795726,
-				-9.807166,
-				-9.775240,
-				-9.789308,
-				-9.809207,
 			};
-	
-		long double radian[63]; 
-	
-		long double gcos[63];
+			
+/*
+*	Notes:
+*
+*	(1)	The acceleration and gcos need to be in sync with a 180 degrees phase angle
+*		to calculate the inferred angular rate from acceleration and gcos. 
+*
+*	(2)	We set the start condition for aligning acceleration with gcos to be when
+*		the change of measured acceleration exceeds certain value, here we choose 
+*		the threshold to be 0.03 m/s^2.	This is possible since we are measuring the
+* 		dynamics of the pendulum from standstill, therefore we can be sure the pendulum
+*		has started swinging when the measured acceleration changes significantly.
+*
+*	(3)	When performing experiment, we always record the angular rate to start from 
+*		negative value to positive value. If the sign order is reversed, we just need
+*		to change the condition in sign[i] array from ">= PI ? 1 : -1" to ">= PI ? -1 : 1".
+*		However, this won't affect the start condition we have set in (2), since either the
+*		angular rate changes from positive to negative, or negative to positive, the 
+*		measured acceleration in both cases increase in value.
+*
+*/	
 		
-		long double sign[63];
+		int acc_length = 61;
+			
+		int start_index = 0;
+			
+		int i = 0;
+				
+		long double start_value = acceleration[start_index];
+
+		for (i = 0; i < acc_length; i++)
+		{
+				if ((acceleration[i] - acceleration[i+1]) > 0.03) 
+			    {
+						start_index = i;
+	        
+						start_value = acceleration[start_index];
+			
+						break;
+			    }
+		}
 		
-		for (i = 0; i < 63; i++ ) 
+		printf ("Start value: %Lf \n",start_value);
+			
+		printf ("Start index: %i \n",start_index);
+		
+/*
+*	Notes:
+*
+*	(1)	Here we print out the value and index of the measured acceleration which is aligned 
+*		with gcos for us to manually check whether the start condition is truly satisfied.
+*
+*/	
+		
+		int infer_length = acc_length - start_index;
+		
+		long double radian[infer_length]; 
+	
+		long double gcos[infer_length];
+		
+		long double sign[infer_length];
+		
+		for (i = 0; i < infer_length; i++ ) 
 		{
 				radian[i] = sqrt(g / l) * t * i;
 		
@@ -160,16 +212,16 @@ startup(int argc, char *argv[])
 		
 				sign[i] = fmod(radian[i], 2 * PI) >= PI ? 1 : -1;
 		}
- 	   
-		long double inferred[63];
+	   
+		long double inferred[infer_length];
 		
 		LOGMARK(0);
 
-		for ( i = 0; i < 63; i++ ) 
+		for ( i = 0; i < infer_length; i++ ) 
 		{
-				if (fabs(acceleration[i]) > fabs(gcos[i]))
+				if (fabs(acceleration[i + start_index]) > fabs(gcos[i]))
 				{
-						inferred[i] = sign[i] * sqrt ((-acceleration[i] - gcos[i]) / l) ; 
+						inferred[i] = sign[i] * sqrt ((-acceleration[i + start_index] - gcos[i]) / l) ; 
 				} 
 				else 
 				{
@@ -179,7 +231,7 @@ startup(int argc, char *argv[])
 
 		LOGMARK(1);
 	
-		for ( i = 0; i < 63; i++ ) 
+		for ( i = 0; i < infer_length; i++ ) 
 		{
 		    	printf ("%Lf \n",inferred[i]);
 		}
@@ -187,4 +239,4 @@ startup(int argc, char *argv[])
 		LOGMARK(2);
  
 		return 0;
-}
+	}
