@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
+#include "l45InSync.h"
 
 /*
  *	Variable declaration:
@@ -25,8 +26,9 @@
 
 #define PI 3.14159265359
 #define t 0.1
-#define l 0.1
 #define g 9.81
+#define theta0 5
+
 
 /*
  *	Notes:
@@ -38,10 +40,10 @@
  *
  *	(1)	long double acceleration[61] : acceleration data acquired with MPU-9250. 
  *
- *	(2)	long double radian[infer_length] : radian as a function of time, based on the length 
+ *	(2)	long double radian[inferLength] : radian as a function of time, based on the length 
  *		of the pendulum "l" and gravity "g".
  *
- *	(3)	long double gcos[infer_length] : cosine component of gravity g. According to 
+ *	(3)	long double gcos[inferLength] : cosine component of gravity g. According to 
  *		Equation 4 in the paper, we can obtain theta, the angular displacement
  * 		as a function of time, given the length and the initial angular
  * 		displacement of the pendulum. In the paper, the initial angle is 5
@@ -59,13 +61,13 @@
  *		approximation for gcos, where we treat theta as a damped response to 
  *		improve the accuracy for the inferred angular rate with acceleration data.
  *
- *	(4)	long double sign[infer_length]: sign direction array, based on the period of the 
+ *	(4)	long double sign[inferLength]: sign direction array, based on the period of the 
  *		pendulum. This array creates a square wave, which is applied to give the 
  *		correct direction of the inferred angular rate. The sign array gives a value 
  *		of "+1", when the value of gcos array is positive, and "-1" when the value 
  *		of gcos array is negative.
  *
- *	(5)	long double inferred[infer_length] : output array for inferred angular rate based on 
+ *	(5)	long double inferred[inferLength] : output array for inferred angular rate based on 
  *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
  *		Measurement noise causes erroneous computation of "NaN", in the inferred 
  *		angular rate when |acceleration[i]| < |gcos[i]|. 
@@ -74,10 +76,7 @@
  *
  */
 
-#define PI 3.14159265359
-#define t 0.1
-#define l 0.1
-#define g 9.81
+
 
 /*
  *	Variable declaration:
@@ -95,71 +94,6 @@
 int
 startup(int argc, char *argv[]) 
 {
-					
-		long double acceleration[61] = 
-			{ 
-				-9.770898,
-				-9.766672,
-				-9.770842,
-				-9.773954,
-				-9.769031,
-				-9.766070,
-				-9.770710,
-				-9.772675,
-				-9.816317,
-				-9.852140,
-				-9.774437,
-				-9.831465,
-				-9.818206,
-				-9.777526,
-				-9.797795,
-				-9.838834,
-				-9.781586,
-				-9.802683,
-				-9.815384,
-				-9.787777,
-				-9.801776,
-				-9.824968,
-				-9.794776,
-				-9.783875,
-				-9.809954,
-				-9.802066,
-				-9.772747,
-				-9.799950,
-				-9.812172,
-				-9.785635,
-				-9.794366,
-				-9.816803,
-				-9.780145,
-				-9.785876,
-				-9.813944,
-				-9.789288,
-				-9.779901,
-				-9.813481,
-				-9.793507,
-				-9.776321,
-				-9.814372,
-				-9.795508,
-				-9.775270,
-				-9.806280,
-				-9.801828,
-				-9.772852,
-				-9.799093,
-				-9.806290,
-				-9.774644,
-				-9.792571,
-				-9.810519,
-				-9.778481,
-				-9.784913,
-				-9.811959,
-				-9.786848,
-				-9.778827,
-				-9.809833,
-				-9.791220,
-				-9.774934,
-				-9.806862,
-				-9.796848,
-			};
 			
 /*
 *	Notes:
@@ -182,30 +116,25 @@ startup(int argc, char *argv[])
 *
 */	
 		
-		int acc_length = 61;
-			
-		int start_index = 0;
-			
+		int numberOfSamples = sizeof(acceleration)/sizeof(long double);	
+		int startIndex = 0;	
 		int i = 0;
 				
-		long double start_value = acceleration[start_index];
+		long double startValue = acceleration[startIndex];
 
-		for (i = 0; i < acc_length; i++)
+		for (i = 0; i < numberOfSamples; i++)
 		{
-				if ((acceleration[i] - acceleration[i+1]) > 0.03) 
-			    {
-						start_index = i;
-	        
-						start_value = acceleration[start_index];
+				if ((acceleration[i] - acceleration[i+1]) > 0.7) 
+				{
+					startIndex = i;
+					startValue = acceleration[startIndex];
 			
-						break;
-			    }
+					break;
+				}
 		}
 		
-		printf ("Start value: %Lf \n",start_value);
-			
-		printf ("Start index: %i \n",start_index);
-		
+		printf ("Start value: %Lf \n", startValue);	
+		printf ("Start index: %i, numberOfSamples: %d\n", startIndex, numberOfSamples);
 /*
 *	Notes:
 *
@@ -214,45 +143,51 @@ startup(int argc, char *argv[])
 *
 */	
 		
-		int infer_length = acc_length - start_index;
+		int 			inferLength = numberOfSamples - startIndex;
+		int				noInfer = startIndex;
 		
-		long double radian[infer_length]; 
-	
-		long double gcos[infer_length];
+		long double		radian[numberOfSamples];
+		long double		gcos[numberOfSamples];
+		long double		inferred[numberOfSamples];
+		long double		sign[inferLength];
 		
-		long double sign[infer_length];
+		for (i = 0; i < noInfer; i++) 
+		{
+				gcos[i] = g ;
+				inferred[i] = angularRate[i] ; 
+		}
 		
-		for (i = 0; i < infer_length; i++ ) 
+		for (i = 0; i < inferLength; i++) 
 		{
 				radian[i] = sqrt(g / l) * t * i;
-		
-				gcos[i] = g * cos(5 * PI / 180 * cos(radian[i]));
-		
-				sign[i] = fmod(radian[i], 2 * PI) >= PI ? 1 : -1;
+				gcos[i + startIndex] = g * cos(theta0 * PI / 180 * cos(radian[i]));
+				sign[i] = fmod(radian[i], 2 * PI) >= PI ? -1 : 1;
 		}
-	   
-		long double inferred[infer_length];
-		
+					
 		LOGMARK(0);
-
-		for ( i = 0; i < infer_length; i++ ) 
+		
+		for (i = 0; i < inferLength; i++) 
 		{
-				if (fabs(acceleration[i + start_index]) > fabs(gcos[i]))
+				if (fabs(acceleration[i + startIndex]) > fabs(gcos[i + startIndex]))
 				{
-						inferred[i] = sign[i] * sqrt ((-acceleration[i + start_index] - gcos[i]) / l) ; 
-				} 
+						inferred[i + startIndex] = sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
+				}
 				else 
 				{
-						inferred[i] = inferred[i-1] ; 
+						inferred[i + startIndex] = inferred[i + startIndex - 1] ; 
 				}		
 		}
 
 		LOGMARK(1);
 	
-		for ( i = 0; i < infer_length; i++ ) 
+		for ( i = 0; i < numberOfSamples; i++ ) 
 		{
-		    	printf ("%Lf \n",inferred[i]);
+				/*printf ("%Lf, %Lf, %Lf, %Lf \n", acceleration[i], angularRate[i], inferred[i], gcos[i]);
+				*/
+			
+			printf("%Lf \n", gcos[i]);
 		}
+			
 	
 		LOGMARK(2);
  
