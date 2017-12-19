@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "l345Robust.h"
+#include "l45Robust.h"
 
 /*
  *	Variable declaration:
@@ -156,13 +156,7 @@ double
 	* 		dynamics of the pendulum from standstill, therefore we can be sure the pendulum
 	*		has started swinging when the measured acceleration changes significantly.
 	*
-	*	(3)	When performing experiment, we always record the angular rate to start from 
-	*		negative value to positive value. If the sign order is reversed, we just need
-	*		to change the condition in sign[i] array from ">= PI ? 1 : -1" to ">= PI ? -1 : 1".
-	*		However, this won't affect the start condition we have set in (2), since either the
-	*		angular rate changes from positive to negative, or negative to positive, the 
-	*		measured acceleration in both cases increase in value.
-	*
+
 	*/	
 	
 	int 			i;
