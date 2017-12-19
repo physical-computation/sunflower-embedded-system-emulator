@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "l45Robust.h"
+#include "l345Robust.h"
 
 /*
  *	Variable declaration:
@@ -22,7 +22,7 @@
  *
  *		G : acceleration due to gravity, 9.81 m/s^2.
  *
- *		THETA0: initial angle in degrees.
+ *		THETA0: initial angle in degrees for the swinging pendulum.
  *   
  */
 
