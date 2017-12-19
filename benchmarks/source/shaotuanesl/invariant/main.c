@@ -9,26 +9,27 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "l45InSync.h"
+#include "l45Robust.h"
 
 /*
  *	Variable declaration:
  *
  *		PI : mathematical constant.
  *
- *  	t : time step, 0.1s since the sampling rate is 10 Hz.
+ *  	T : time step, 0.1s since the sampling rate is 10 Hz.
  *
- *		l : length of the pendulum, 0.1 meter.
+ *		L : length of the pendulum, defined in the measurement header file.
  *
- *		g : acceleration due to gravity, 9.81 m/s^2.
+ *		G : acceleration due to gravity, 9.81 m/s^2.
+ *
+ *		THETA0: initial angle in degrees.
  *   
  */
 
 
 #define PI 3.14159265359
-#define t 0.1
-#define g 9.81
-#define theta0 5
+#define T 0.1
+#define G 9.81
 
 
 /*
@@ -92,12 +93,12 @@
  *   
  */
 
-double *inferGyroBasic(double *acceleration, double *angularRate, int numberOfSamples, 
+double *inferGyroRobust(double *acceleration, double *angularRate, int numberOfSamples, 
 						int startIndex, int inferLength);
 int
 startup(int argc, char *argv[]) 
 {			
-	int 			numberOfSamples = length;
+	int 			numberOfSamples = sizeof(acceleration)/sizeof(double);
 	int 			startIndex = 0;	
 	int 			i;
 	
@@ -132,7 +133,7 @@ startup(int argc, char *argv[])
 	
 	double *inferredPointer;
 	
-	inferredPointer = inferGyroBasic(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
+	inferredPointer = inferGyroRobust(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
 	 		
 	return 0;
 }
@@ -163,35 +164,33 @@ double
 	*		measured acceleration in both cases increase in value.
 	*
 	*/	
+	
+	int 			i;
+	int				sign[inferLength];
 		
 	double			radian[numberOfSamples];
 	double			gcos[numberOfSamples];
 	double			inferred[numberOfSamples];
-	int			sign[inferLength];
 	
-	int i;
-
-	for (i = 0; i < inferLength; i++) 
-	{
-			radian[i] = sqrt(g / l) * t * i;
-			gcos[i + startIndex] = g * cos(theta0 * PI / 180 * cos(radian[i]));
-			sign[i] = fmod(radian[i], 2 * PI) >= PI ? -1 : 1;
-	}
-			
 	LOGMARK(0);
-
+	
 	for (i = 0; i < inferLength; i++) 
 	{
+			radian[i] = sqrt(G / l) * T * i;
+			sign[i] = fmod(radian[i], 2 * PI) >= PI ? -1 : 1;
+			gcos[i + startIndex] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
+			
 			if (fabs(acceleration[i + startIndex]) > fabs(gcos[i + startIndex]))
 			{
-					inferred[i + startIndex] = sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
+					inferred[i + startIndex] = 
+						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
 			}
 			else 
 			{
 					inferred[i + startIndex] = inferred[i + startIndex - 1] ; 
 			}		
 	}
-
+			
 	LOGMARK(1);
 
 	for ( i = 0; i < numberOfSamples; i++ ) 
@@ -211,9 +210,30 @@ double
 				int startIndex, int inferLength)
 {
 	
+   /*
+	*	Notes:
+	*
+	*	(1)	The acceleration and gcos need to be in sync with a 180 degrees phase angle
+	*		to calculate the inferred angular rate from acceleration and gcos. 
+	*
+	*	(2)	We set the start condition for aligning acceleration with gcos to be when
+	*		the change of measured acceleration exceeds certain value, here we choose 
+	*		the threshold to be 0.03 m/s^2.	This is possible since we are measuring the
+	* 		dynamics of the pendulum from standstill, therefore we can be sure the pendulum
+	*		has started swinging when the measured acceleration changes significantly.
+	*
+	*	(3)	When performing experiment, we always record the angular rate to start from 
+	*		negative value to positive value. If the sign order is reversed, we just need
+	*		to change the condition in sign[i] array from ">= PI ? 1 : -1" to ">= PI ? -1 : 1".
+	*		However, this won't affect the start condition we have set in (2), since either the
+	*		angular rate changes from positive to negative, or negative to positive, the 
+	*		measured acceleration in both cases increase in value.
+	*
+	*/	
 	
 
-	int 			i,j;
+	int 			i;
+	int 			j;
 	int				sign[inferLength];
 
 	double			radian[numberOfSamples];
@@ -227,42 +247,44 @@ double
 
 	do
 	{			
-			if ((acceleration[i + startIndex] > acceleration[i + startIndex -1]) && (acceleration[i + startIndex] > acceleration[i + startIndex +1])) 
+			if ((acceleration[i + startIndex] > acceleration[i + startIndex -1]) && 
+				(acceleration[i + startIndex] > acceleration[i + startIndex +1])) 
 			{
-		
-				radian[i] = 0;
-				gcos[i] = g * cos(10 * PI / 180 * cos(radian[i]));
+					radian[i] = 0;
+					gcos[i] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
 				
-				if (i == 0) { sign[i] = 1; }
-				else
-				{
-					sign[i] = -1 * sign[i - 1];
-				}
+					if (i == 0) { sign[i] = START; }
+					else
+					{
+						sign[i] = -1 * sign[i - 1];
+					}
 				
-				printf("%d \n", sign[i]);
-				i = i + 1;
+					printf("%d \n", sign[i]);
+					i = i + 1;
 			}
 			else
 			{
-				radian[i] = sqrt(g / l) * t * i;
-				gcos[i] = g * cos(10 * PI / 180 * cos(radian[i]));
+					radian[i] = sqrt(G / l) * T * i;
+					gcos[i] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
 				
-				if (i == 0) { sign[i] = 1; }
-				else
-				{
-					sign[i] = sign[i - 1];
-				}
+					if (i == 0) { sign[i] = START; }
+					else
+					{
+						sign[i] = sign[i - 1];
+					}
 				
-				printf("%d \n", sign[i]);
-				i = i + 1;
+					printf("%d \n", sign[i]);
+					i = i + 1;
 			}
+			
 	} while (i < inferLength);
 
 	for (i = 0; i < inferLength; i++) 
 	{
 			if (fabs(acceleration[i + startIndex]) > fabs(gcos[i + startIndex]))
 			{
-					inferred[i + startIndex] = sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + 					startIndex]) / l) ; 
+					inferred[i + startIndex] = 
+						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
 			}
 			else 
 			{
@@ -280,7 +302,6 @@ double
 
 	LOGMARK(2);
 					
-
 	return 0;
 
 }
