@@ -413,3 +413,6 @@ long double angularRate[] = {
 	-0.01530588,
 	-0.07360132,	
 };
+
+
+	int length = sizeof(acceleration)/sizeof(double);

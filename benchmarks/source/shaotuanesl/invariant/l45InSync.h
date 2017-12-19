@@ -1,6 +1,6 @@
 #define l 0.45
-long double acceleration[] = {
-	
+
+double acceleration[] = {	
 	-10.19873606,
 	-10.12520974,
 	-9.932813309,
@@ -206,11 +206,11 @@ long double acceleration[] = {
 	-9.850121175,
 	-9.807519806,
 	-9.786601714,
-
-
 };
 
-long double angularRate[] = {
+int length = sizeof(acceleration)/sizeof(double);
+
+double angularRate[] = {
 	-0.017100358,
 	-0.187197717,
 	-0.165435389,
@@ -416,6 +416,4 @@ long double angularRate[] = {
 	-0.298630857,
 	-0.101102876,
 	-0.017745988,
-
-
 };
