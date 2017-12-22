@@ -16,7 +16,7 @@
  *
  *		PI : mathematical constant.
  *
- *  	T : time step, 0.1s since the sampling rate is 10 Hz.
+ *		T : time step, 0.1s since the sampling rate is 10 Hz.
  *
  *		L : length of the pendulum, defined in the measurement header file.
  *
@@ -38,7 +38,7 @@
  *	(0)	"logmarkers.h" is the header file for LOGMARK, a macro to specify 
  * 		performance counting for Sunflower.
  *
- *  Arrays:  
+ * 	Arrays:  
  *
  *	(1)	double acceleration[] : acceleration data acquired with MPU-9250, which is
  * 		included with the header file.
@@ -169,7 +169,7 @@ double
 	*/	
 	
 	int 			i;
-	int				sign[inferLength];
+	int			sign[inferLength];
 		
 	double			radian[numberOfSamples];
 	double			gcos[numberOfSamples];
@@ -230,7 +230,7 @@ double
 
 	int 			i;
 	int 			j;
-	int				sign[inferLength];
+	int			sign[inferLength];
 
 	double			radian[numberOfSamples];
 	double			gcos[numberOfSamples];
