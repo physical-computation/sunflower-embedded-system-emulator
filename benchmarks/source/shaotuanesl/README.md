@@ -4,6 +4,8 @@ Files in this directory:
 
 * `main.c` : C program containing the accelerometer data from Figure 3(a) in the paper. The output of the program will be the inferred angular rate based on the accelerometer data and Equation (10) in the paper.
 
+* `measurement-x.h` : Header files containing the experimental data from the MPU-9250, which specify the length of the pendulum, the initial starting angle, the initial sign of the angular rate, and the starting condition for inferring the angular rate with acceleration data.
+
 * `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
 
 * `infer.m` : Configuration file for Sunflower to emulate an ARM Cortex M0+ microprocessor. 
@@ -13,6 +15,8 @@ Files in this directory:
 * `superH.ld` : Linker file needed to create the S-RECORD binary.
 
 * `Makefile`: Makefile to generate `infer.sr` from `main.c`
+
+* InferredResult: Contains the program output for inferring the angular rate with acceleration data based on two different functions (‘basic’ and ‘robust’) in ‘main.c’.
 
 
 Steps to run the sunflower emulator to reproduce the result in the paper:
