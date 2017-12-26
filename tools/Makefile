@@ -1,8 +1,8 @@
 include ../conf/setup.conf
 
-GCC		= $(TOOLS)/source/gcc-4.2.4
-BINUTILS	= $(TOOLS)/source/binutils-2.16.1
-NEWLIB		= $(TOOLS)/source/newlib-1.9.0
+GCC		= $(TOOLS)/source/gcc-7.2.0
+BINUTILS	= $(TOOLS)/source/binutils-2.28
+NEWLIB		= $(TOOLS)/source/newlib-2.5.0
 
 
 
@@ -34,11 +34,11 @@ g++-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export CFLAGS='-O2 -fbracket-depth' CXXFLAGS='-O2 -fbracket-depth' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export CFLAGS='-O2' CXXFLAGS='-O2' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
 	$(MAKE) CC=$(TOOLCC) install;\				# CXX=$(TOOLCXX) install;\
 
 gcc-pre:
@@ -46,23 +46,19 @@ gcc-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export CFLAGS='-O2 -fbracket-depth' CXXFLAGS='-O2 -fbracket-depth' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
-		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
-		--enable-languages=c\
+	export CFLAGS='-O2 -D_XOPEN_SOURCE=600' CXXFLAGS='-O2' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+		--disable-libssp  --with-gnu-as --with-gnu-ld --with-newlib\
+		--enable-languages=c --with-arch=rv32i --disable-multilib\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi" all-gcc;\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
-	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
+	$(MAKE) -j5 CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600";\
+	$(MAKE) CC=$(TOOLCC) install;\
 
 
 gcc-post:
 	cd $(GCC);\
-	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
+	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/7.2.0/*.a\
 		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
-		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
-	$(DEL) $(GCC)/objdir;\
 
 
 
@@ -76,7 +72,7 @@ newlib-pre:
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
 	../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		-v --with-stabs --nfp --disable-multilib;\
-	$(MAKE) CC=$(TOOLCC) all;\
+	$(MAKE) -j5 CC=$(TOOLCC) all;\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 newlib-post:
