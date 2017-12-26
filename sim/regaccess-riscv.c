@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+	Copyright (c) 1999-2017, Zhengyang Gu (author)
  
 	All rights reserved.
 
@@ -34,59 +34,48 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
+#include "sf.h"
+#include <stdint.h>
 
-#include "config.h"
+tuck
+uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
+{
+	uint32_t data;
 
-#ifndef LIBSF
-#	include <stdio.h>
-#	include <setjmp.h>
-#	include <pthread.h>
-#	include <sys/stat.h>
-#	include <utime.h>
-#	include <stdint.h>
-#endif
-
-#ifndef LIB9
-#	include "sf-types.h"
-#endif
-
-/*
-	we are yet to make the switch to using picoseconds for time
-	#define	Picosec	unsigned long long
-*/
-#define	Picosec	double
+	if (n <= RISCV_GPR)
+	{
+		data = S->riscv->R[n];
+	}
 
 
-#include <setjmp.h>
-#include "merror.h"
-#include "bit.h"
-#include "listutils.h"
-#include "parserlib.h"
-#include "mmalloc.h"
-#include "batt.h"
-#include "physics.h"
-#include "interrupts-hitachi-sh.h"
-#include "dev7708.h"
-#include "devsim7708.h"
-#include "regs-hitachi-sh.h"
-#include "regs-ti-msp430.h"
-#include "regs-riscv.h"
-#include "cache-hitachi-sh.h"
-#include "decode-hitachi-sh.h"
-#include "decode-ti-msp430.h"
-#include "power.h"
-#include "pipeline-hitachi-sh.h"
-#include "pipeline-ti-msp430.h"
-#include "pipeline-riscv.h"
-#include "pau.h"
-#include "fault.h"
-#include "network-hitachi-sh.h"
-#include "pic.h"
-#include "interrupts-ti-msp430.h"
-#include "machine-hitachi-sh.h"
-#include "machine-riscv.h"
-#include "dev430x1xx.h"
-#include "machine-ti-msp430.h"
-#include "main.h"
-#include "mfns.h"
-#include "randgen.h"
+
+	switch(n)
+	{
+		default:
+		{
+		}
+	}
+
+	return data; 
+}
+
+tuck
+void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
+{
+	if (n <= RISCV_GPR && n != RISCV_X0)
+	{
+		S->riscv->R[n] = data;
+	}
+
+	switch(n)
+	{
+		case RISCV_X0:
+		{
+		}
+		default:
+		{
+		}
+	}
+
+	return;
+}

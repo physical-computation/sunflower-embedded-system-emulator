@@ -410,6 +410,8 @@ void	dev7708writebyte(Engine *E, State *S, ulong addr, uchar data);
 //void	dev7708write(State *S, ulong, uchar);
 //uchar	dev7708read(State *S, ulong);
 
+int riscvstep(Engine *E, State *S, int drain_pipe);
+
 int	superHtlb_init(Engine *, State *S, int size, int blocksize, int assoc);
 void	superHvmtranslate(Engine *, State *S, int op, TransAddr *transladdr);
 void	superHtlb_exception(State *S, int code, ulong vaddr);
@@ -677,4 +679,63 @@ void	msp430_jnc(Engine *E, State *S, short offset, MSP430Pipestage *p);
 void	msp430_jn(Engine *E, State *S, short offset, MSP430Pipestage *p);
 void	msp430_jge(Engine *E, State *S, short offset, MSP430Pipestage *p);
 void	msp430_jl(Engine *E, State *S, short offset, MSP430Pipestage *p);
-void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);	
+void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
+
+/*									*/
+/*			RISC-V instruction functions			*/
+/*									*/
+
+State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
+void    riscvdumpregs(Engine *E, State *S);
+void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
+uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
+void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
+
+void 	riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_slt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_sltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_and(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_or(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_xor(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_sll(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	riscv_srl(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_sra(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void 	riscv_addi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_slti(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_sltiu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_andi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_ori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void 	riscv_lui(Engine *E, State *S, uint8_t rd, uint32_t imm0);
+void 	riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0);
+void 	riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, uint8_t imm12, uint8_t imm20);
+void 	riscv_jalr(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_beq(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_bne(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_blt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_bltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_bge(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_bgeu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint8_t imm5, uint8_t imm11, uint8_t imm12);
+void 	riscv_lw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_lh(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_lhu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_lb(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void 	riscv_sw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
+void 	riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
+void 	riscv_sb(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
+void 	riscv_fence(Engine *E, State *S);
+void 	riscv_fence_i(Engine *E, State *S);
+void 	riscv_cor(Engine *E, State *S);
+void 	riscv_ecall(Engine *E, State *S);
+void 	riscv_ebreak(Engine *E, State *S);
+void 	riscv_csrrw(Engine *E, State *S);
+void 	riscv_csrrs(Engine *E, State *S);
+void 	riscv_csrrc(Engine *E, State *S);
+void 	riscv_csrrwi(Engine *E, State *S);
+void 	riscv_csrrsi(Engine *E, State *S);
+void 	riscv_csrrci(Engine *E, State *S);
