@@ -16,7 +16,7 @@ Files in this directory:
 
 * `Makefile`: Makefile to generate `infer.sr` from `main.c`
 
-* InferredResult: Contains the program output for inferring the angular rate with acceleration data based on two different functions (‘basic’ and ‘robust’) in ‘main.c’.
+* InferredResult: Contains the program output for inferring the angular rate with acceleration data based on two different functions (‘basic’ and ‘robust’) in `main.c`, also the MATLAB script for Quality factor calculation based on Equation 2,3,11 in the paper.
 
 
 Steps to run the sunflower emulator to reproduce the result in the paper:

@@ -1,4 +1,4 @@
-#define l 0.345
+#define L 0.345
 #define THETA0 10
 #define STARTSIGN -1
 #define GCOSSIGN  ? -1 : 1

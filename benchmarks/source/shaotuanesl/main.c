@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "measurement-5.h"
+#include "measurement-3.h"
 
 /*
  *	Variable declaration:
@@ -47,10 +47,10 @@
  * 		included with the header file, the angular rate data will serve as a comparison
  * 		between the inferred and the measured angular rate.
  *
- *	(2)	double radian[inferLength] : radian as a function of time, based on the length 
+ *	(2)	double radian[] : radian as a function of time, based on the length 
  *		of the pendulum "L" and gravity "G".
  *
- *	(3)	double gcos[inferLength] : cosine component of gravity G. According to 
+ *	(3)	double gcos[] : cosine component of gravity G. According to 
  *		Equation 4 in the paper, we can obtain theta, the angular displacement
  * 		as a function of time, given the length and the initial angular
  * 		displacement of the pendulum. In the paper, the initial angle is 5
@@ -68,14 +68,14 @@
  *		approximation for gcos, where we treat theta as a damped response to 
  *		improve the accuracy for the inferred angular rate with acceleration data.
  *
- *	(4)	double sign[inferLength]: sign direction array, based on the period of the 
+ *	(4)	double sign[]: sign direction array, based on the period of the 
  *		pendulum. This array creates a square wave, which is applied to give the 
  *		correct direction of the inferred angular rate. The sign array gives a value 
  *		of "+1", when the value of gcos array is positive, and "-1" when the value 
  *		of gcos array is negative.
  *
- *	(5)	double inferred[inferLength] : output array for inferred angular rate based on 
- *		Equation 10 in the paper, where 0.1 (meter) is the length of the pendulum.
+ *	(5)	double inferred[] : output array for inferred angular rate based on 
+ *		Equation 10 in the paper, where L (meter) is the length of the pendulum.
  *		Measurement noise causes erroneous computation of "NaN", in the inferred 
  *		angular rate when |acceleration[i]| < |gcos[i]|. 
  *		To ensure no erroneous value is present, the value of inferred[i] is assigned 
@@ -84,7 +84,7 @@
  */
 
 
-double *inferGyroRobust(double *acceleration, double *angularRate, int numberOfSamples, 
+double *inferGyroBasic(double *acceleration, double *angularRate, int numberOfSamples, 
 						int startIndex, int inferLength);
 int
 startup(int argc, char *argv[]) 
@@ -142,7 +142,7 @@ startup(int argc, char *argv[])
 	
 	double 			*inferredResult;
 	
-	inferredResult = inferGyroRobust(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
+	inferredResult = inferGyroBasic(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
 	 		
 	return 0;
 }
@@ -169,30 +169,35 @@ double
 	*/	
 	
 	int 			i;
-	int			sign[inferLength];
+	int				sign[inferLength];
 		
 	double			radian[numberOfSamples];
 	double			gcos[numberOfSamples];
 	double			inferred[numberOfSamples];
 	
+	for (i = 0; i < inferLength; i++) 
+	{
+			radian[i] = sqrt(G / L)* T * i;
+			sign[i] = fmod(radian[i], 2 * PI) < PI GCOSSIGN;
+			gcos[i + startIndex] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
+			
+	}
+	
 	LOGMARK(0);
 	
 	for (i = 0; i < inferLength; i++) 
 	{
-			radian[i] = sqrt(G / l) * T * i;
-			sign[i] = fmod(radian[i], 2 * PI) < PI GCOSSIGN;
-			gcos[i + startIndex] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
-			
+		
 			if (fabs(acceleration[i + startIndex]) > fabs(gcos[i + startIndex]))
 			{
 					inferred[i + startIndex] = 
-						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
-					printf("%f \n", gcos[i]);
+						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / L); 
+					//printf("%f \n", gcos[i]);
 			}
 			else 
 			{
 					inferred[i + startIndex] = inferred[i + startIndex - 1] ; 
-					printf("%f \n", gcos[i]);
+					//printf("%f \n", gcos[i]);
 			}		
 	}
 			
@@ -230,11 +235,13 @@ double
 
 	int 			i;
 	int 			j;
-	int			sign[inferLength];
+	int				sign[inferLength];
 
 	double			radian[numberOfSamples];
 	double			gcos[numberOfSamples];
 	double			inferred[numberOfSamples];
+	
+	LOGMARK(0);
 
 	for (j = 0; j < inferLength; ++j) 
 		{ 
@@ -255,12 +262,12 @@ double
 						sign[i] = -1 * sign[i - 1];
 					}
 				
-					printf("%d \n", sign[i]);
+					//printf("%d \n", sign[i]);
 					i = i + 1;
 			}
 			else
 			{
-					radian[i] = sqrt(G / l) * T * i;
+					radian[i] = sqrt(G / L)* T * i;
 					gcos[i + startIndex] = G * cos(THETA0 * PI / 180 * cos(radian[i]));
 				
 					if (i == 0) { sign[i] = STARTSIGN; }
@@ -269,7 +276,7 @@ double
 						sign[i] = sign[i - 1];
 					}
 				
-					printf("%d \n", sign[i]);
+					//printf("%d \n", sign[i]);
 					i = i + 1;
 			}
 			
@@ -280,7 +287,7 @@ double
 			if (fabs(acceleration[i + startIndex]) > fabs(gcos[i + startIndex]))
 			{
 					inferred[i + startIndex] = 
-						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / l) ; 
+						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / L); 
 			}
 			else 
 			{
