@@ -1,4 +1,4 @@
-data = xlsread('QfactorCalculation.xlsx');
+data = xlsread('QfactorCalculation1.xlsx'); % Data from "measurement.h"
 gyro = data(:,2);
 
 absgyro = abs(gyro);

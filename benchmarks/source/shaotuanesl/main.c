@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "measurement-3.h"
+#include "measurement.h"
 
 /*
  *	Variable declaration:
@@ -84,7 +84,7 @@
  */
 
 
-double *inferGyroBasic(double *acceleration, double *angularRate, int numberOfSamples, 
+double *inferGyroRobust(double *acceleration, double *angularRate, int numberOfSamples, 
 						int startIndex, int inferLength);
 int
 startup(int argc, char *argv[]) 
@@ -134,7 +134,7 @@ startup(int argc, char *argv[])
 	*		acceleration and the calculated "gcos" array. The robust impelmentation therefore scans
 	*		through the entire acceleration data and finds each peak, then the "gcos" and "sign" arrays
 	*		will be recalibrated to the start condition at each peak of the acceleration data. This 
-	*		approach largely improve the accuracy in the direction of the sign of the angular rate. 
+	*		approach largely improve the accuracy in the sign and the inferred value of the angular rate. 
 	*
 	*/	
 		
@@ -142,7 +142,7 @@ startup(int argc, char *argv[])
 	
 	double 			*inferredResult;
 	
-	inferredResult = inferGyroBasic(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
+	inferredResult = inferGyroRobust(acceleration, angularRate, numberOfSamples, startIndex, inferLength);
 	 		
 	return 0;
 }

@@ -1,4 +1,4 @@
-data = xlsread('QfactorCalculation.xlsx');
+data = xlsread('QfactorCalculation1.xlsx'); % Data from "measurement.h"
 acc = data(:,1);
 absacc = abs(acc);
 [peakValue, index] = findpeaks(absacc);
