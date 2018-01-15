@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "logmarkers.h"
-#include "measurement.h"
+#include "measurement-3-15.h"
 
 /*
  *	Variable declaration:
@@ -105,6 +105,7 @@ startup(int argc, char *argv[])
 	*		has started swinging when the measured acceleration changes significantly.
 	*/
 
+
 	for (i = 0; i < numberOfSamples; i++)
 	{
 			if (fabs((acceleration[i] - acceleration[i+1])) > THRESHOLD) 
@@ -118,6 +119,7 @@ startup(int argc, char *argv[])
 
 	printf ("Start value: %f \n", startValue);	
 	printf ("Start index: %i, numberOfSamples: %d\n", startIndex, numberOfSamples);
+	
 	
    /*
 	*	Notes:
@@ -138,6 +140,7 @@ startup(int argc, char *argv[])
 	*
 	*/	
 		
+		
 	int 			inferLength = numberOfSamples - startIndex;
 	
 	double 			*inferredResult;
@@ -153,6 +156,7 @@ double
 				int startIndex, int inferLength)
 {
 		
+		
    /*
 	*	Notes:
 	*
@@ -167,6 +171,7 @@ double
 	*		measured acceleration in both cases increase in value.
 	*
 	*/	
+	
 	
 	int 			i;
 	int				sign[inferLength];
@@ -192,12 +197,10 @@ double
 			{
 					inferred[i + startIndex] = 
 						sign[i] * sqrt ((-acceleration[i + startIndex] - gcos[i + startIndex]) / L); 
-					//printf("%f \n", gcos[i]);
 			}
 			else 
 			{
 					inferred[i + startIndex] = inferred[i + startIndex - 1] ; 
-					//printf("%f \n", gcos[i]);
 			}		
 	}
 			
@@ -228,7 +231,7 @@ double
 	*	(2)	For the robust implementation, we scan through the acceleration data and find 
 	*		peaks in each cycle, the corresponding "gcos" array will be aligned to each peak
 	*		and the sign changes will also take place at each peak of the acceleration. The
-	*		calculated "gcos" and "sign" are therefore used to derive the inferred angular rate
+	*		calculated "gcos" and "sign" are then used to derive the inferred angular rate
 	*		of the swinging pendulum. 
 	*/	
 	
@@ -262,7 +265,6 @@ double
 						sign[i] = -1 * sign[i - 1];
 					}
 				
-					//printf("%d \n", sign[i]);
 					i = i + 1;
 			}
 			else
@@ -276,7 +278,6 @@ double
 						sign[i] = sign[i - 1];
 					}
 				
-					//printf("%d \n", sign[i]);
 					i = i + 1;
 			}
 			
