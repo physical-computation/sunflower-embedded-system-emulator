@@ -6,7 +6,6 @@ absacc = abs(acc); %take absolute value of acceleration data to identify peaks
 
 qPeaks = zeros(length(peakValue)-1,1); % denominator term in Eqn.11
 
-
 for i = 1 : (length(peakValue)-1)
     qPeaks(i) = abs((peakValue(i)-peakValue(i+1)));
 end
