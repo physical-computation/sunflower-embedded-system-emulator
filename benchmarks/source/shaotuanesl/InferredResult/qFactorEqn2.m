@@ -6,10 +6,9 @@ absacc = abs(acc); %take absolute value of acceleration data to identify peaks
 integral = zeros(length(peakValue),1);
 doubleIntegral = zeros(length(peakValue),1);
 
-
 for i = 1 : length(index)-1
-integral(i) = (trapz(absacc((index(i):index(i+1))))); % numerical integration
-doubleIntegral(i) = trapz(integral(i:(i+1)));
+    integral(i) = (trapz(absacc((index(i):index(i+1))))); % numerical integration
+    doubleIntegral(i) = trapz(integral(i:(i+1)));
 end
 
 qPeaks = zeros(length(peakValue)-1,1); % denominator term in Eqn.2
