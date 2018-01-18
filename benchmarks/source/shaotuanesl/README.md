@@ -4,7 +4,7 @@ Files in this directory:
 
 * `main.c` : C program containing the accelerometer data from Figure 3(a) in the paper. The output of the program will be the inferred angular rate based on the accelerometer data and Equation (10) in the paper.
 
-* `measurement-x.h` : Header files containing the experimental data from the MPU-9250, which specify the length of the pendulum, the initial starting angle, the initial sign of the angular rate, and the starting condition for inferring the angular rate with acceleration data.
+* `measurement-x-y.h` : Header files containing the experimental data from the MPU-9250, which specify the length of the pendulum, the initial starting angle, the initial sign of the angular rate, and the starting condition for inferring the angular rate with acceleration data. File names are based on the following convention, where "x" = 1, 3, 4 represent the length of the pendulum to be 10, 34.5 and 40 cm respectively. "y" = 5, 10, 15, 20 represent the initial angle of the pendulum to be 5, 10, 15 and 20 degrees respectively.
 
 * `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
 
