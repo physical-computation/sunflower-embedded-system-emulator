@@ -71,7 +71,7 @@ TokenTab token_table [] =
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
 	{"DUMPPIPE",	T_DUMPPIPE},				/*+	Show the contents of the pipeline stages.:none									*/
 	{"RESETCPU",	T_RESETCPU},				/*+	Reset entire simulated CPU state.:none										*/ 
-	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename> (string)	*/
+	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
 	{"PD",		T_DISABLEPIPELINE},			/*+	Disable simulation of processor's pipeline.:none								*/
@@ -88,14 +88,14 @@ TokenTab token_table [] =
 	{"L",		T_LOCSTATS},				/*+	Synonym for LOCSTATS.:none											*/
 	{"SHOWPIPE",	T_SHOWPIPE},				/*+	Show contents of the processor pipeline.:none									*/
 	{"N",		T_STEP},				/*+	Step through simulation for a number (default 1) of cycles.:[# cycles] (integer)				*/
-	{"LOAD",	T_LOAD},				/*+	Load a script file.:<filename> (string)										*/
+	{"LOAD",	T_LOAD},				/*+	Load a script file.:<filename (string)>										*/
 	{"SRECL",	T_SRECL},				/*+	Load a binary program in Motorola S-Record format.:none								*/
 	{"SETPC",	T_SETPC},				/*+	Set the value of the program counter.:<PC value (integer)>							*/
 	{"CONT",	T_CONT},				/*+	Continue execution while PC is not equal to specified PC.:<until PC (hexadecimal)>				*/
 	{"HELP",	T_HELP},				/*+	Print list of commands.:none											*/
 	{"MAN",		T_MAN},					/*+	Print synopsis for command usage.:<command name>								*/
 	{"SHOWCLK",	T_SHOWCLK},				/*+	Show the number of clock cycles simulated since processor reset.:none						*/
-	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|msp430> (string) [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name> (string) <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
+	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
 	{"SETNODE",	T_SETNODE},				/*+	Set the current simulated node.:<node id (integer)>								*/
 	{"PAUINFO",	T_PAUINFO},				/*+	Show information about all valid PAU entries.:none								*/
 	{"PI",		T_PAUINFO},				/*+	Synonym for PAUINFO.:none											*/
@@ -124,10 +124,10 @@ TokenTab token_table [] =
 	{"PAUSE",	T_PAUSE},				/*+	Pause the simulation for arg seconds.:<duration of pause in seconds (integer)>					*/
 
 	/*	Interfaces and Networks		*/
-	{"NETNEWSEG",		T_NETNEWSEG},			/*+	Add a new network segment to simulation.:<which (if exists) (integer)> <frame bits (integer)> <propagation speed (integer)> <bitrate (integer)> <medium width (integer)> <link failure probability distribution> (string) <link failure distribution mu (real)> <link failure probability distribution sigma (real)> <link failure probability distribution lambda (real)> <link failure duration distribution> (string) <link failure duration distribution mu (real)> <link failure duration distribution sigma (real)> <link failure duration distribution lambda (real)>	*/
+	{"NETNEWSEG",		T_NETNEWSEG},			/*+	Add a new network segment to simulation.:<which (if exists) (integer)> <frame bits (integer)> <propagation speed (integer)> <bitrate (integer)> <medium width (integer)> <link failure probability distribution (string)> <link failure distribution mu (real)> <link failure probability distribution sigma (real)> <link failure probability distribution lambda (real)> <link failure duration distribution (string)> <link failure duration distribution mu (real)> <link failure duration distribution sigma (real)> <link failure duration distribution lambda (real)>	*/
 	{"NETSEGNICATTACH",	T_NETSEGNICATTACH},		/*+	Attach a current node's IFC to a network segment.:<which IFC (integer)>	<which segment (integer)>													*/
 	{"NETCORREL",		T_NETCORREL},			/*+	Specify correlation coefficient between failure of a network segment and failure of an IFC on a node @@NOTE that it is not using the current node so we can specify in a matrix-like form@@.:<which seg (integer)> <which node (integer)> <coefficient (real)>	*/
-	{"NETNODENEWIFC",	T_NETNODENEWIFC},		/*+	Add a new IFC to current node frame bits and segno are set at attach time.:<ifc num (if valid) (integer)> <tx pwr (watts) (real)> <rx pwr (watts) (real)> <idle pwr (watts) (real)> <listen pwr (watts) (real)> <fail distribution> (string) <fail distribution mu (real)> <fail distribution sigma (real)> <fail distribution lambda (real)> <transmit FIFO size (integer)> <receive FIFO size (integer)> */
+	{"NETNODENEWIFC",	T_NETNODENEWIFC},		/*+	Add a new IFC to current node frame bits and segno are set at attach time.:<ifc num (if valid) (integer)> <tx pwr (watts) (real)> <rx pwr (watts) (real)> <idle pwr (watts) (real)> <listen pwr (watts) (real)> <fail distribution (string)> <fail distribution mu (real)> <fail distribution sigma (real)> <fail distribution lambda (real)> <transmit FIFO size (integer)> <receive FIFO size (integer)> */
 	{"NETSEGDELETE",	T_NETSEGDELETE},		/*+	Disable a specified network segment.:<which segment (integer)>																		*/
 	{"NETSEGFAILPROB",	T_NETSEGFAILPROB},		/*+	Set probability of failure for a setseg.:<which segment (integer)> <probability (real)>															*/
 	{"NODEFAILPROB",	T_NODEFAILPROB},		/*+	Set probability of failure for current node.:<probability (real)>																	*/
@@ -140,9 +140,9 @@ TokenTab token_table [] =
 	{"STOP",		T_STOP},			/*+	Mark the current node as unrunnable.:none																				*/
 	{"VERBOSE",		T_VERBOSE},			/*+	Enable the various prints.:none																						*/
 	{"V",			T_VERBOSE},			/*+	Synonym for VERBOSE.:none																						*/
-	{"DUMPALL",		T_DUMPALL},			/*+	Dump the State structure info for all nodes to the file using given tag and prefix.:<filename> (string) <tag> (string) <prefix> (string)								*/
-	{"D",			T_DUMPALL},			/*+	Synonym for DUMPALL.:<filename> (string) <tag> (string) <prefix> (string)																*/
-	{"RETRYALG",		T_RETRYALG},			/*+	set NIC retransmission backoff algorithm.:<ifc # (integer)> <algname> (string)																*/
+	{"DUMPALL",		T_DUMPALL},			/*+	Dump the State structure info for all nodes to the file using given tag and prefix.:<filename (string)> <tag (string)> <prefix (string)>								*/
+	{"D",			T_DUMPALL},			/*+	Synonym for DUMPALL.:<filename (string)> <tag (string)> <prefix (string)>																*/
+	{"RETRYALG",		T_RETRYALG},			/*+	set NIC retransmission backoff algorithm.:<ifc # (integer)> <algname (string)>																*/
 	{"IGN",			T_IGNORENODEDEATHS},		/*+	Ignore node fatalities and continue sim without pausing.:<flag (Boolean)>																*/
 	{"SETSCALEALPHA",	T_SETSCALEALPHA},		/*+	Set technology alpha parameter for use in voltage scaling.:<Sakurai alpha (real)>															*/
 	{"SETSCALEK",		T_SETSCALEK},			/*+	Set technology K parameter for use in voltage scaling.:<Sakurai K (real)>																*/
@@ -150,10 +150,10 @@ TokenTab token_table [] =
 	{"SETQUANTUM",		T_SETQUANTUM},			/*+	Set simulation instruction group quantum.:<quantum (integer)>																		*/
 	{"SETBASENODEID",	T_SETBASENODEID},		/*+	Set ID of first node from which all node IDs will be offset.:<base (integer)>																*/
 	{"RENUMBERNODES",	T_RENUMBERNODES},		/*+	Renumber nodes based on base node ID.:none																				*/
-	{"FILE2NETSEG",		T_FILE2NETSEG},			/*+	Connect file to netseg.:<file> (string)	<netseg (integer)>																		*/
-	{"NETSEG2FILE",		T_NETSEG2FILE},			/*+	Connect netseg to file.:<netseg (integer)> <file> (string)																		*/
+	{"FILE2NETSEG",		T_FILE2NETSEG},			/*+	Connect file to netseg.:<file (string)>	<netseg (integer)>																		*/
+	{"NETSEG2FILE",		T_NETSEG2FILE},			/*+	Connect netseg to file.:<netseg (integer)> <file (string)>																		*/
 	{"PWD",			T_PWD},				/*+	Get current working directory.:none																					*/
-	{"CD",			T_CD},				/*+	Change current working directory.:<path> (string)																			*/
+	{"CD",			T_CD},				/*+	Change current working directory.:<path (string)>																			*/
 	{"SETTIMERDELAY",	T_SETTIMERDELAY},		/*+	Change granularity of timer intrs.:<granularity in microseconds (integer)>																*/
 	{"VERSION",		T_VERSION},			/*+	Display the simulator version and build.:none																				*/
 	{"THROTTLE",		T_THROTTLE},			/*+	Set the throttling delay in nanoseconds.:<throttle delay in nanoseconds (integer)>															*/
@@ -161,7 +161,7 @@ TokenTab token_table [] =
 	{"RESETNODECTRS",	T_RESETNODECTRS},		/*+	Reset simulation rate measurement trip counters for current node only.:none																*/
 	{"RESETALLCTRS",	T_RESETALLCTRS},		/*+	Reset simulation rate measurement trip counters for all nodes.:none																	*/
 
-	{"SIGSRC",		T_SIGNALSRC},			/*+	Create a physical phenomenon signal source.:<type (integer)> <description> (string) <tau (real)> <propagationspeed (real)> <A (real)> <B (real)> <C (real)> <D (real)> <E (real)> <F (real)> <G (real)> <H (real)> <I (real)> <J (real)> <K (real)> <m (real)> <n (real)> <o (real)> <p (real)> <q (real)> <r (real)> <s (real)> <t (real)> <x (real)> <y (real)> <z (real)> <trajectoryfile> (string) <trajectoryrate (real)> <looptrajectory (Boolean)> <samplesfile> (string) <samplerate (integer)> <fixedsampleval (real)> <loopsamples (Boolean)>	*/
+	{"SIGSRC",		T_SIGNALSRC},			/*+	Create a physical phenomenon signal source.:<type (integer)> <description (string)> <tau (real)> <propagationspeed (real)> <A (real)> <B (real)> <C (real)> <D (real)> <E (real)> <F (real)> <G (real)> <H (real)> <I (real)> <J (real)> <K (real)> <m (real)> <n (real)> <o (real)> <p (real)> <q (real)> <r (real)> <s (real)> <t (real)> <x (real)> <y (real)> <z (real)> <trajectoryfile (string)> <trajectoryrate (real)> <looptrajectory (Boolean)> <samplesfile (string)> <samplerate (integer)> <fixedsampleval (real)> <loopsamples (Boolean)>	*/
 	{"SIGSUBSCRIBE",	T_SIGNALSUBSCRIBE},		/*+	Subscribe sensor X on the current node to a signal source Y.:<X (integer)> <Y (integer)>														*/
 	{"SENSORSDEBUG",	T_SENSORSDEBUG},		/*+	Display various statistics on sensors and signals.:none 																		*/
 	{"SETPHYSICSPERIOD",	T_SETPHYSICSPERIOD},		/*+	Set update periodicity for physical phenomenon simulation.:<period in picoseconds (integer)>														*/
@@ -169,25 +169,25 @@ TokenTab token_table [] =
 	{"SETDUMPPWRPERIOD",	T_SETDUMPPWRPERIOD},		/*+	Set periodicity power logging to simlog.:<period in picoseconds (integer)>																*/
 	{"FORCEAVGPWR",		T_FORCEAVGPWR},			/*+	Bypass ILPA analysis and set avg pwr consumption.:<avg pwr in Watts (real)> <sleep pwr in Watts (real)>													*/
 	{"NETSEGPROPMODEL",	T_NETSEGPROPMODEL},		/*+	Associate a network segment with a signal propagation model.:<netseg ID (integer)> <sigsrc ID (integer)> <minimum SNR (real)>										*/
-	{"NUMAREGION",		T_NUMAREGION},			/*+	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.:<name string> (string) <start address (inclusive) (hexadecimal)> <end address (non-inclusive) (hexadecimal)> <local read latency in cycles (integer)> <local write latency in cycles (integer)> <remote read latency in cycles (integer)> <remote write latency in cycles (integer)> <Map ID (integer)> <Map offset (integer)> <private flag (Boolean)> */
+	{"NUMAREGION",		T_NUMAREGION},			/*+	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.:<name string (string)> <start address (inclusive) (hexadecimal)> <end address (non-inclusive) (hexadecimal)> <local read latency in cycles (integer)> <local write latency in cycles (integer)> <remote read latency in cycles (integer)> <remote write latency in cycles (integer)> <Map ID (integer)> <Map offset (integer)> <private flag (Boolean)> */
 
 	{"NUMASTATS",		T_NUMASTATS},			/*+	Display access statistics for all NUMA regions for current node.:none																	*/
 	{"NUMASTATSALL",	T_NUMASTATSALL},		/*+	Display access statistics for all NUMA regions for all nodes.:none																	*/
 	{"NUMASETMAPID",	T_NUMASETMAPID},		/*+	Change the mapid for nth map table entry on all nodes to i.:<n (integer)> <i (integer)>															*/
 	{"DUMPTLB",		T_DUMPTLB},			/*+	Display all TLB entries.:none																						*/
-	{"PARSEOBJDUMP",	T_PARSEOBJDUMP},		/*+	Parse a GNU objdump file and load into memory.:<objdump file path> (string)																*/
+	{"PARSEOBJDUMP",	T_PARSEOBJDUMP},		/*+	Parse a GNU objdump file and load into memory.:<objdump file path (string)>																*/
 	{"SPLIT",		T_SPLIT},			/*+	Split current CPU to execute from a new PC and stack.:<newpc (hexadecimal)> <newstackaddr (hexadecimal)> <argaddr (hexadecimal)> <newcpuidstr (integer)>						*/
-	{"SFATAL",		T_SFATAL},			/*+	Induce a node death and state dump.:<suicide note> (string)																		*/
+	{"SFATAL",		T_SFATAL},			/*+	Induce a node death and state dump.:<suicide note (string)>																		*/
 	{"SHAREBUS",		T_SHAREBUS},			/*+	Share bus structure with ther named node.:<Bus donor nodeid (integer)>																	*/
-	{"ADDVALUETRACE",	T_ADDVALUETRACE},		/*+	Install an address monitor to track data values.:<name string> (string) <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>			*/
-	{"DELVALUETRACE",	T_DELVALUETRACE},		/*+	Delete an installed address monitor for tracking data values.:<name string> (string) <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>	*/
+	{"ADDVALUETRACE",	T_ADDVALUETRACE},		/*+	Install an address monitor to track data values.:<name string (string)> <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>			*/
+	{"DELVALUETRACE",	T_DELVALUETRACE},		/*+	Delete an installed address monitor for tracking data values.:<name string (string)> <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>	*/
 	{"VALUESTATS",		T_VALUESTATS},			/*+	Print data value tracking statistics.:none																				*/
-	{"REGISTERSTABS",	T_REGISTERSTABS},		/*+	Register variables in a STABS file with value tracing framework.:<STABS filename> (string)														*/
+	{"REGISTERSTABS",	T_REGISTERSTABS},		/*+	Register variables in a STABS file with value tracing framework.:<STABS filename (string)>														*/
 	{"SETRANDOMSEED",	T_SETRANDOMSEED},		/*+	Reinitialize random number generation system with a specific seed useful in conjunction with GETRANDOMSEED for reproducing same pseudorandom state.:<seed value negative one to use current time (integer)>	*/
 	{"GETRANDOMSEED",	T_GETRANDOMSEED},		/*+	Query seed used to initialize random number generation system useful for reinitializing generator to same seed for reproducibility.:none								*/
 	{"PCBT",		T_PCBT},			/*+	Dump PC backtrace.:none																							*/
-	{"HWSEEREG",		T_HWSEEREG},			/*+	Register a hardware structure or part thereof for inducement of SEEs.: <structure name> (string) <actual bits (integer)> <logical bits (integer)> <bit offset (integer)>				*/
-	{"INITSEESTATE",	T_INITSEESTATE},		/*+	Initialize SEE function and parameter state.: <loc pfun> (string) <loc p1 (real)> <loc p2 (real)> <loc p3 (real)> <loc p4 (real)> <bit pfun> (string) <bit p1 (real)> <bit p2 (real)> <bit p3 (real)> <bit p4 (real)> <duration pfun> (string) <dur p1 (real)> <dur p2 (real)> <dur p3 (real)> <dur p4 (real)>		*/
+	{"HWSEEREG",		T_HWSEEREG},			/*+	Register a hardware structure or part thereof for inducement of SEEs.: <structure name (string)> <actual bits (integer)> <logical bits (integer)> <bit offset (integer)>				*/
+	{"INITSEESTATE",	T_INITSEESTATE},		/*+	Initialize SEE function and parameter state.: <loc pfun (string)> <loc p1 (real)> <loc p2 (real)> <loc p3 (real)> <loc p4 (real)> <bit pfun (string)> <bit p1 (real)> <bit p2 (real)> <bit p3 (real)> <bit p4 (real)> <duration pfun (string)> <dur p1 (real)> <dur p2 (real)> <dur p3 (real)> <dur p4 (real)>		*/
 	{"SETMEMRLATENCY",	T_SETMEMRLATENCY},		/*+	Set memory read latency.: <latency in clock cycles (integer)>																		*/
 	{"SETMEMWLATENCY",	T_SETMEMWLATENCY},		/*+	Set memory write latency.: <latency in clock cycles (integer)>																		*/
 	{"SETFLASHRLATENCY",	T_SETFLASHRLATENCY},		/*+	Set flash read latency.: <latency in clock cycles (integer)>																		*/
@@ -196,8 +196,8 @@ TokenTab token_table [] =
 	/*										*/
 	/*	We should use these and get rid of NETSEGFAILPROB and NODEFAILPROB	*/
 	/*										*/
-	{"NODEFAILPROBFN", T_NODEFAILPROBFN},			/*+	Specify Node failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@> (string)				*/
-	{"NETSEGFAILPROBFN", T_NETSEGFAILPROBFN},		/*+	Specify Netseg failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@> (string)			*/
+	{"NODEFAILPROBFN", T_NODEFAILPROBFN},			/*+	Specify Node failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@ (string)>				*/
+	{"NETSEGFAILPROBFN", T_NETSEGFAILPROBFN},		/*+	Specify Netseg failure Probability Distribution Function (fxn of time).:<expression in terms of constants and 'pow(a,b)' and 't' @@eg '1E-8 + 0.8*pow(2.7182818, t)'@@ (string)>			*/
 
 	{"BATTILEAK",		T_BATTILEAK},			/*+	Set Battery self-discharge current.:<current in Amperes (real)>																		*/
 	{"BATTCF",		T_BATTCF},			/*+	Set Battery Vrate lowpass filter capacitance.:<capacitance in Farads (real)>																*/
@@ -217,11 +217,11 @@ TokenTab token_table [] =
 	{"BPT",			T_BPT},				/*+	Set breakpoint.: 'cycles' <ncycles on current node (integer)> | 'instrs' <ninstrs on current node (integer)> | 'sensorreading' <which sensor (integer)> <value (real)> | 'globaltime' <global time in picoseconds (integer)>	*/
 	{"BPTLS",		T_BPTLS},			/*+	List breakpoints and their IDs.:none																					*/
 	{"BPTDEL",		T_BPTDEL},			/*+	Delete breakpoint.:<breakpoint ID (integer)>																				*/
-	{"RANDPRINT",		T_RANDPRINT},			/*+	Print a random value from the selected distribution with given parameters.:<distribution name> (string) <min (real)> <max (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			*/
+	{"RANDPRINT",		T_RANDPRINT},			/*+	Print a random value from the selected distribution with given parameters.:<distribution name (string)> <min (real)> <max (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			*/
 	{"SETLOC",		T_SETLOC},			/*+	Set or change node location.:<xloc (real)> <yloc>  (real) <zloc (real)>																	*/
-	{"INITRANDTABLE",	T_INITRANDTABLE},		/*+	Set or change node location.:<distname> (string) <pfun name> (string) <basis min (real)> <basis max (real)> <granularity (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			*/
+	{"INITRANDTABLE",	T_INITRANDTABLE},		/*+	Set or change node location.:<distname (string)> <pfun name (string)> <basis min (real)> <basis max (real)> <granularity (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			*/
 	{"DEFNDIST",		T_DEFNDIST},			/*+	Define a discrete probability measure as a set of basis value probability tuples.:<list of basis value> (integer list) <list of probabilities>	(real list)						*/
-	{"REGISTERRVAR",	T_REGISTERRVAR},		/*+	Register a simulator internal implementation variable or structure for periodic updates either overwriting values or summing determined by the mode parameter.: <sim var name> (string) <index for array structures (integer)> <value dist name> (string) <value dist p1 (real)> <value dist p2 (real)> <value dist p3 (real)> <value dist p4 (real)> <duration dist name> (string) <duration dist p1 (real)> <duration dist p2 (real)> <duration dist p3 (real)> <duration dist p4 (real)> <mode (integer)>	*/
+	{"REGISTERRVAR",	T_REGISTERRVAR},		/*+	Register a simulator internal implementation variable or structure for periodic updates either overwriting values or summing determined by the mode parameter.: <sim var name (string)> <index for array structures (integer)> <value dist name (string)> <value dist p1 (real)> <value dist p2 (real)> <value dist p3 (real)> <value dist p4 (real)> <duration dist name (string)> <duration dist p1 (real)> <duration dist p2 (real)> <duration dist p3 (real)> <duration dist p4 (real)> <mode (integer)>	*/
 
 
 
