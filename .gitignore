@@ -6,7 +6,7 @@ sunflower.out
 #	Binaries
 #
 *.o
-*.a
+#*.a
 *.sr
 *.map
 init.i
