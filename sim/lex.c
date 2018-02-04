@@ -214,7 +214,7 @@ TokenTab token_table [] =
 	{"SETSCHEDROUNDROBIN",	T_SETSCHEDROUNDROBIN},		/*+	Use a round-robin order for node simulation.:none																			*/
 	{"SETNETPERIOD",	T_SETNETPERIOD},		/*+	Set period for activting network scheduling.:<period in picoseconds (integer)>																*/
 	{"SETFAULTPERIOD",	T_SETFAULTPERIOD},		/*+	Set period for activating fault scheduling.:<period in picoseconds (integer)>																*/
-	{"BPT",			T_BPT},				/*+	Set breakpoint.: "cycles" <ncycles on current node (integer)> | "instrs" <ninstrs on current node (integer)> | ""sensorreading <which sensor (integer)> <value (real)> | "globaltime" <global time in picoseconds (integer)>	*/
+	{"BPT",			T_BPT},				/*+	Set breakpoint.: 'cycles' <ncycles on current node (integer)> | 'instrs' <ninstrs on current node (integer)> | 'sensorreading' <which sensor (integer)> <value (real)> | 'globaltime' <global time in picoseconds (integer)>	*/
 	{"BPTLS",		T_BPTLS},			/*+	List breakpoints and their IDs.:none																					*/
 	{"BPTDEL",		T_BPTDEL},			/*+	Delete breakpoint.:<breakpoint ID (integer)>																				*/
 	{"RANDPRINT",		T_RANDPRINT},			/*+	Print a random value from the selected distribution with given parameters.:<distribution name> (string) <min (real)> <max (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			*/
