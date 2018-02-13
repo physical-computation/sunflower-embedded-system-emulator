@@ -1,0 +1,63 @@
+# This directory contains files to reproduce the results in *Shao-Tuan Chen and Phillip Stanley-Marbell, 2017*.
+
+Files in this directory:
+
+* `main.c` : C program containing the accelerometer data from Figure 3(a) in the paper. The output of the program will be the inferred angular rate based on the accelerometer data and Equation (10) in the paper.
+
+* `measurement-x-y.h` : Header files containing the experimental data from the MPU-9250, which specify the length of the pendulum, the initial starting angle, the initial sign of the angular rate, and the starting condition for inferring the angular rate with acceleration data. File names are based on the following convention, where "x" = 1, 3, 4 represent the length of the pendulum to be 10, 34.5 and 40 cm respectively. "y" = 5, 10, 15, 20 represent the initial angle of the pendulum to be 5, 10, 15 and 20 degrees respectively.
+
+* `infer.sr` : Generated S-RECORD file from `main.c`, which would be the input of Sunflower.
+
+* `infer.m` : Configuration file for Sunflower to emulate an ARM Cortex M0+ microprocessor. 
+
+* `init.S` : Source file needed to create the S-RECORD binary.
+
+* `superH.ld` : Linker file needed to create the S-RECORD binary.
+
+* `Makefile`: Makefile to generate `infer.sr` from `main.c`
+
+* InferredResult: Contains the program output for inferring the angular rate with acceleration data based on two different functions (‘basic’ and ‘robust’) in `main.c`, also the MATLAB script for Quality factor calculation based on Equation 2,3,11 in the paper.
+
+
+Steps to run the sunflower emulator to reproduce the result in the paper:
+
+1. Download and build both the cross-compiler and Sunflower emulator. On the installation steps readers are advised to refer to Sunflower manual (sunflowersim-manual-and-cover.pdf) available at: https://github.com/phillipstanleymarbell/sunflower-simulator 
+
+1. Open your terminal, clone this repository, as: `git clone https://github.com/shaotuanchen/sunflower-simulator`
+
+1. Change directory (`cd`) to your clone (e.g., `cd sunflower-simulator`), and switch to the branch `ESL2017` which contains the source files for this implementation, as: `git checkout ESL2017`
+ 
+1. Change directory (`cd`) and navigate to `benchmarks/source/shaotuanesl/invariant` where the binary in S-RECORD format, `infer.sr` resides. This file would be the input to Sunflower. 
+
+1. Start the Sunflower emulator. One way to do this is to specify the entire path in your current directory in terminal by typing `/Users/yourdir/sunflower-simulator/sim/sf `, where `yourdir` should be changed appropriately to your own path.
+
+1. After the emulator starts, load the configuration file `infer.m` which specifies the power consumption, supply voltage and clock frequency of the ARM Cortex M0+ microprocessor. You can type `load infer.m` directly in the terminal if you're still in the `sunflower-simulator/benchmarks/source/shaotuanesl/invariant` directory.
+
+1. The results will be saved in an output file `sunflower.out` when you quit Sunflower. Open `sunflower.out` with a text editor, and you will see the results similar as:
+
+```
+Tag NODE0_LOGMARK_TAG_1{
+Node0		User Time elapsed = 0.248921 seconds.
+Node0		Instruction Simulation Rate = 0.00 Cycles/Second.
+Node0		"machinetype"	=	0
+Node0		"Cycletrans"	=	90
+Node0		"CYCLETIME"	=	2.083333E-08
+Node0		NTRANS	=	93949908
+Node0		CPU-only ETOT	=	1.363683E-04 Joules
+Node0		CPU-only AVG POWER	=	4.227543E-03 Watts
+Node0		"ICLK"	=	1548341
+Node0		"CLK"	=	1548341
+Node0		"TIME"	=	3.225710E-02
+Node0		"dyncnt"	=	1124291
+} Tag NODE0_LOGMARK_TAG_1.
+```
+, where: 
+
+The node `"CPU-only ETOT"` would be the **total energy consumed** reported in the paper. 
+
+The node `"dyncnt"` would be the **dynamic instruction count** for this application run on this particular microprocessor.
+
+Finally, `"TIME"` would be the **CPU time** elapsed in seconds, also reported in the paper.
+
+
+**NOTE** : If you want to build on top of this implementation, make the changes you need in `main.c` and navigate to `sunflower-simulator/benchmarks/source/shaotuanesl/invariant`. First run `make clean`, and run `make`. This will generate a new binary in S-RECORD format called `infer.sr` which can be fed to Sunflower as input. You can acquire and interpret your results follwing steps 3 ~ 6 described above.
