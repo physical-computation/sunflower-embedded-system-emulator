@@ -50,7 +50,7 @@ gcc-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi" all-gcc;\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -D_XOPEN_SOURCE=600" all-gcc;\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
 	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
 
 
