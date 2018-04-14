@@ -531,8 +531,8 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			D->MEM[destoffset] = (uchar)((data>>8)&0xFF);
-			D->MEM[destoffset+1] = (uchar)data&0xFF;
+			D->MEM[destoffset+1] = (uchar)((data>>8)&0xFF);
+			D->MEM[destoffset] = (uchar)data&0xFF;
 			paddr = D->MEMBASE + destoffset;
 
 			if (SF_BITFLIP_ANALYSIS)
@@ -637,8 +637,8 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 				/*  Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*  memmove will screw up byte order  */
-				S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-				S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+				S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
+				S->MEM[paddr - S->MEMBASE] = (uchar)data&0xFF;
 
 				return;
 			}
@@ -680,8 +680,8 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
+		S->MEM[paddr - S->MEMBASE] = (uchar)data&0xFF;
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -836,10 +836,10 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			D->MEM[destoffset] =(uchar)((data>>24)&0xFF);
-			D->MEM[destoffset+1] =(uchar)((data>>16)&0xFF);
-			D->MEM[destoffset+2] =(uchar)((data>>8)&0xFF);
-			D->MEM[destoffset+3] =(uchar)data&0xFF;
+			D->MEM[destoffset+3] =(uchar)((data>>24)&0xFF);
+			D->MEM[destoffset+2] =(uchar)((data>>16)&0xFF);
+			D->MEM[destoffset+1] =(uchar)((data>>8)&0xFF);
+			D->MEM[destoffset] =(uchar)data&0xFF;
 			paddr = D->MEMBASE + destoffset;
 
 			if (SF_BITFLIP_ANALYSIS)
@@ -944,10 +944,10 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				/* Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*	memmove will screw up byte order   */
-				S->MEM[paddr - S->MEMBASE] =(uchar)((data>>24)&0xFF);
-				S->MEM[paddr+1 - S->MEMBASE] =(uchar)((data>>16)&0xFF);
-				S->MEM[paddr+2 - S->MEMBASE] =(uchar)((data>>8)&0xFF);
-				S->MEM[paddr+3 - S->MEMBASE] =(uchar)data&0xFF;
+				S->MEM[paddr+3 - S->MEMBASE] =(uchar)((data>>24)&0xFF);
+				S->MEM[paddr+2 - S->MEMBASE] =(uchar)((data>>16)&0xFF);
+				S->MEM[paddr+1 - S->MEMBASE] =(uchar)((data>>8)&0xFF);
+				S->MEM[paddr - S->MEMBASE] =(uchar)data&0xFF;
 
 				return;
 			}
@@ -988,10 +988,10 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
-		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>16)&0xFF);
-		S->MEM[paddr+2 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;
+		S->MEM[paddr+3 - S->MEMBASE] = (uchar)((data>>24)&0xFF);
+		S->MEM[paddr+2 - S->MEMBASE] = (uchar)((data>>16)&0xFF);
+		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
+		S->MEM[paddr - S->MEMBASE] = (uchar)data&0xFF;
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -1378,7 +1378,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			data = (ushort)(D->MEM[destoffset]<<8)|D->MEM[destoffset + 1];
+			data = (ushort)(D->MEM[destoffset + 1]<<8)|D->MEM[destoffset];
 			paddr = D->MEMBASE + destoffset;
 
 			/*										*/
@@ -1479,7 +1479,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ushort)(S->MEM[paddr - S->MEMBASE]<<8)|S->MEM[paddr+1 - S->MEMBASE];
+		data = (ushort)(S->MEM[paddr+1 - S->MEMBASE]<<8)|S->MEM[paddr - S->MEMBASE];
 	}
 
 	if (!inram)
@@ -1670,10 +1670,10 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			data = (ulong)(D->MEM[destoffset]<<24)	|
-				(D->MEM[destoffset+1]<<16)	|
-				(D->MEM[destoffset+2]<<8)	|
-				D->MEM[destoffset+3];
+			data = (ulong)(D->MEM[destoffset+3]<<24)	|
+				(D->MEM[destoffset+2]<<16)	|
+				(D->MEM[destoffset+1]<<8)	|
+				D->MEM[destoffset];
 			paddr = D->MEMBASE + destoffset;
 
 			/*										*/
@@ -1774,10 +1774,10 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
-				(S->MEM[paddr+1 - S->MEMBASE]<<16)|\
-				(S->MEM[paddr+2 - S->MEMBASE]<<8)|\
-				S->MEM[paddr+3 - S->MEMBASE];
+		data = (ulong)(S->MEM[paddr+3 - S->MEMBASE]<<24)|\
+				(S->MEM[paddr+2 - S->MEMBASE]<<16)|\
+				(S->MEM[paddr+1 - S->MEMBASE]<<8)|\
+				S->MEM[paddr - S->MEMBASE];
 	}
 
 	if (!inram)
