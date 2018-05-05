@@ -24,6 +24,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
     S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
     S->dumpregs = riscvdumpregs;
+	S->dumppipe = riscvdumppipe;
 	S->machinetype = MACHINE_RISCV;
 
     if (S->riscv == NULL)

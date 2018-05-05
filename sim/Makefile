@@ -35,6 +35,7 @@ HEADERS =\
 	network-hitachi-sh.h\
 	op-ti-msp430.h\
 	opstr-hitachi-sh.h\
+	opstr-riscv.h\
 	pau.h\
 	physics.h\
 	pic.h\
@@ -131,6 +132,9 @@ opstr-hitachi-sh.h: decode-hitachi-sh.h Makefile
 
 opstr-ti-msp430.h: decode-ti-msp430.h Makefile
 	./mkopstr-ti-msp430 $(GAWK) > opstr-ti-msp430.h
+
+opstr-riscv.h: decode-ti-msp430.h Makefile
+	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 help.h: lex.c Makefile
 	./mkhelp $(GAWK) > help.h

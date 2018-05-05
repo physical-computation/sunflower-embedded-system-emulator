@@ -1,0 +1,13 @@
+#!/bin/sh
+
+
+	if [ $# -ne 1 ]; then
+		echo 1>&2 Usage: $0 "<path to Gnu awk>" 
+		exit 127
+	fi
+
+
+	echo 'char *riscv_opstrs[] =\'
+	echo '{'
+	cat decode-riscv.h | grep OP | $1 -F',|_' '{print "\t[RISCV_OP_"$3"] \t\t\""$3"\","}'
+	echo '};'

@@ -39,6 +39,7 @@
 #include <string.h>
 #include "sf.h"
 #include "instr-riscv.h"
+#include "opstr-riscv.h"
 #include "mextern.h"
 
 int
@@ -158,10 +159,27 @@ riscvstep(Engine *E, State *S, int drain_pipe)
 			S->Cycletrans = 0;
 		}
 
+		if (S->pipeshow)
+		{
+			riscvdumppipe(E, S);
+		}
+
 		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 	}
 	E->globaltimepsec = saved_globaltime;
 	S->last_stepclks = i;
 
 	return i;
+}
+
+
+void
+riscvdumppipe(Engine *E, State *S)
+{
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
+		S->NODE_ID, S->PC, S->ICLK, S->sleep);
+
+	mprint(E, S, nodeinfo, "EX: [%s]\n", riscv_opstrs[S->riscv->P.EX.op]);
+	
+	return;
 }

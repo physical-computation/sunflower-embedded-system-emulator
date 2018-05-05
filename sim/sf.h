@@ -74,6 +74,7 @@
 #include "cache-hitachi-sh.h"
 #include "decode-hitachi-sh.h"
 #include "decode-ti-msp430.h"
+#include "decode-riscv.h"
 #include "power.h"
 #include "pipeline-hitachi-sh.h"
 #include "pipeline-ti-msp430.h"
