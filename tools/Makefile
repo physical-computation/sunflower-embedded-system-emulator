@@ -2,7 +2,7 @@ include ../conf/setup.conf
 
 GCC		= $(TOOLS)/source/gcc-7.2.0
 BINUTILS	= $(TOOLS)/source/binutils-2.28
-NEWLIB		= $(TOOLS)/source/newlib-2.5.0
+NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
 
 
 
