@@ -1,15 +1,20 @@
 #!/bin/sh
 
-wget	ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.2.4/gcc-4.2.4.tar.bz2
-wget	ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.16.1.tar.bz2
-wget	ftp://sources.redhat.com/pub/newlib/newlib-1.9.0.tar.gz
+GCC_VER="gcc-7.2.0"
+GCC_TAR=${GCC_VER}.tar.gz
+BINUTILS_VER="binutils-2.28"
+BINUTILS_TAR=${BINUTILS_VER}.tar.gz
+NEWLIB_VER="newlib-2.5.0"
+NEWLIB_TAR=${NEWLIB_VER}.tar.gz
 
-bunzip2 gcc-4.2.4.tar.bz2
-tar -xvf gcc-4.2.4.tar
+wget	ftp://ftp.gnu.org/pub/gnu/gcc/$GCC_VER/$GCC_TAR
+wget	ftp://ftp.gnu.org/pub/gnu/binutils/$BINUTILS_TAR
+wget	ftp://sources.redhat.com/pub/newlib/$NEWLIB_TAR
 
-bunzip2 binutils-2.16.1.tar.bz2
-tar -xvf binutils-2.16.1.tar
+tar -xvf $GCC_TAR
 
-tar -xzvf newlib-1.9.0.tar.gz
+tar -xvf $BINUTILS_TAR
 
-rm gcc-4.2.4.tar binutils-2.16.1.tar newlib-1.9.0.tar.gz
+tar -xzvf $NEWLIB_TAR
+
+rm $NEWLIB_TAR $GCC_TAR $BINUTILS_TAR
