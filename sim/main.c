@@ -1061,6 +1061,16 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	/*  newnode xloc yloc zloc orbit velocity  */
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
+		/*		Prime the decode caches		*/		
+ 		for (i = 0; i < (1 << 16); i++)		
+ 		{		
+ 			superHdecode(S, (ushort)(i&0xFFFF), &S->superHDC[i].dc_p);		
+ 		}		
+		
+		S = superHnewstate(E, x, y, z, trajfilename);
+	}
+	else if (!strncmp(type, "riscv", strlen("riscv")))
+	{
 		S = riscvnewstate(E, x, y, z, trajfilename);
 	}
 	else
