@@ -53,8 +53,8 @@ gcc-pre:
 		--disable-libssp  --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c --with-arch=rv32i --disable-multilib\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) -j5 CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600";\
-	$(MAKE) CC=$(TOOLCC) install;\
+	$(MAKE) -j5 CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600";\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
 
 
 gcc-post:
