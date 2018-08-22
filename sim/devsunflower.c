@@ -324,7 +324,6 @@ print("devsf: Done allocating a new engine...\n");
 	/*	By default, create one Hitachi SH node	*/
 	if (E->nnodes == 0)
 	{
-		//riscv_newstate(E, 0, 0, 0, nil);
 		superHnewstate(E, 0, 0, 0, nil);
 	}
 
