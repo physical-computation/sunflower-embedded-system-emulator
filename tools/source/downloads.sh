@@ -1,10 +1,16 @@
 #!/bin/sh
 
+# riscv: GCC_VER="gcc-7.2.0"
+# riscv: BINUTILS_VER="binutils-2.28"
+# riscv: NEWLIB_VER="newlib-2.5.0.20170922"
+
 GCC_VER="gcc-7.2.0"
-GCC_TAR=${GCC_VER}.tar.gz
 BINUTILS_VER="binutils-2.28"
+NEWLIB_VER="newlib-2.5.0.20170922"
+
+GCC_TAR=${GCC_VER}.tar.gz
 BINUTILS_TAR=${BINUTILS_VER}.tar.gz
-NEWLIB_TAR="newlib-2.5.0.20170922.tar.gz"
+NEWLIB_TAR=${NEWLIB_VER}.tar.gz"
 
 wget	ftp://ftp.gnu.org/pub/gnu/gcc/$GCC_VER/$GCC_TAR
 wget	ftp://ftp.gnu.org/pub/gnu/binutils/$BINUTILS_TAR
