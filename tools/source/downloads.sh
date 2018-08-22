@@ -4,9 +4,9 @@
 # riscv: BINUTILS_VER="binutils-2.28"
 # riscv: NEWLIB_VER="newlib-2.5.0.20170922"
 
-GCC_VER="gcc-7.2.0"
-BINUTILS_VER="binutils-2.28"
-NEWLIB_VER="newlib-2.5.0.20170922"
+GCC_VER="gcc-4.2.4"
+BINUTILS_VER="binutils-2.16.1"
+NEWLIB_VER="newlib-1.9.0"
 
 GCC_TAR=${GCC_VER}.tar.gz
 BINUTILS_TAR=${BINUTILS_VER}.tar.gz
