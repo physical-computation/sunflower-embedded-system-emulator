@@ -1,4 +1,6 @@
-This repository is a fork from phillipstanleymarbell/sunflower-simulator, with added support for RISC-V (RV32I) simulation. The following changes are made in each commit:
+The RISC-V implementation is by Zhengyang Gu
+
+The following changes are made in each commit from the incoming pull request to merge into phillipstanleymarbell/sunflower-simulator:
 * Modify makefiles and setup.conf for riscv-toolchain   147f500
  * Upgrade gcc and binutils to versions that support RISV-V
  * Change the directory of gcc from $(TOOLS)/bin to $(TOOLS)/riscv/bin to avoid gcc errors where cc1 cannot be found
