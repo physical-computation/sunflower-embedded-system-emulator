@@ -1,9 +1,12 @@
 include ../conf/setup.conf
 
+# riscv: GCC		= $(TOOLS)/source/gcc-7.2.0
+# riscv: BINUTILS	= $(TOOLS)/source/binutils-2.28
+# riscv: NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
+
 GCC		= $(TOOLS)/source/gcc-4.2.4
 BINUTILS	= $(TOOLS)/source/binutils-2.16.1
 NEWLIB		= $(TOOLS)/source/newlib-1.9.0
-
 
 
 all: binutils gcc newlib
@@ -38,7 +41,7 @@ g++-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
 	$(MAKE) CC=$(TOOLCC) install;\				# CXX=$(TOOLCXX) install;\
 
 gcc-pre:
@@ -47,24 +50,25 @@ gcc-pre:
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
 	export CFLAGS='-O2 -D_XOPEN_SOURCE=600' CXXFLAGS='-O2' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
-		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
-		--enable-languages=c\
+		--disable-libssp  --with-gnu-as --with-gnu-ld --with-newlib\
+		--enable-languages=c --with-arch=rv32i --disable-multilib\
 		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -D_XOPEN_SOURCE=600" all-gcc;\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
+	$(MAKE) -j5 CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600";\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
 	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
 
 
 gcc-post:
-	cd $(GCC);\
-	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
-		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
-		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+# riscv:	cd $(GCC);\
+# riscv:	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/7.2.0/*.a\
+# riscv:		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+# riscv:	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
+	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
+	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
 	$(DEL) $(GCC)/objdir;\
-
-
 
 
 newlib: newlib-pre newlib-post
@@ -76,7 +80,7 @@ newlib-pre:
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
 	../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
 		-v --with-stabs --nfp --disable-multilib;\
-	$(MAKE) CC=$(TOOLCC) all;\
+	$(MAKE) -j5 CC=$(TOOLCC) all;\
 	$(MAKE) CC=$(TOOLCC) install;\
 
 newlib-post:

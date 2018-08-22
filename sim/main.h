@@ -179,6 +179,7 @@ typedef enum
 {
 	MACHINE_SUPERH,
 	MACHINE_MSP430,
+	MACHINE_RISCV,
 } Machinetype;
 
 enum
@@ -493,6 +494,7 @@ struct State
 	/*								*/
 	SuperHState	*superH;
 	MSP430State	*msp430;
+	RiscvState	*riscv;
 
 
 	Machinetype	machinetype;
@@ -585,7 +587,7 @@ struct State
 	
 	InterruptQ	*intrQ;
 
-	ulong 		PC;
+	uint32_t 		PC;
 	ulong		STARTPC;
 	ulong		PCSTACK[MAX_PCSTACK_HEIGHT];
 	int		pcstackheight;

@@ -35,6 +35,122 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+void
+SH_big_endian_write_2(uchar * target, uint16_t data)
+{
+	target[0] = (uchar)((data>>8)&0xFF);
+	target[1] = (uchar)data&0xFF;
+
+	return;
+}
+
+void
+SH_little_endian_write_2(uchar * target, uint16_t data)
+{
+	target[1] = (uchar)((data>>8)&0xFF);
+	target[0] = (uchar)data&0xFF;
+
+	return;
+}
+
+void
+SH_write_2(State *S, uchar * target, uint16_t data)
+{
+	if (S->endian == Little)
+	{
+		SH_little_endian_write_2(target, data);
+	}
+	else
+	{
+		SH_big_endian_write_2(target, data);
+	}
+}
+
+void
+SH_big_endian_write_4(uchar * target, uint16_t data)
+{
+	target[0] = (uchar)((data>>24)&0xFF);
+	target[1] = (uchar)((data>>16)&0xFF);
+	target[2] = (uchar)((data>>8)&0xFF);
+	target[3] = (uchar)data&0xFF;
+
+	return;
+}
+
+void
+SH_little_endian_write_4(uchar * target, uint16_t data)
+{
+	target[3] = (uchar)((data>>24)&0xFF);
+	target[2] = (uchar)((data>>16)&0xFF);
+	target[1] = (uchar)((data>>8)&0xFF);
+	target[0] = (uchar)data&0xFF;
+
+	return;
+}
+
+void
+SH_write_4(State * S, uchar * target, uint16_t data)
+{
+	if (S->endian == Little)
+	{
+		SH_little_endian_write_4(target, data);
+	}
+	else
+	{
+		SH_big_endian_write_4(target, data);
+	}
+}
+
+uint16_t
+SH_big_endian_read_2(uchar * target)
+{
+	return (target[0]<<8 | target[1]);
+}
+
+uint16_t
+SH_little_endian_read_2(uchar * target)
+{
+	return (target[1]<<8 | target[0]);
+}
+
+uint16_t
+SH_read_2(State * S, uchar * target)
+{
+	if (S->endian == Little)
+	{
+		SH_little_endian_read_2(target);
+	}
+	else
+	{
+		SH_big_endian_read_2(target);
+	}
+}
+
+uint32_t
+SH_big_endian_read_4(uchar * target)
+{
+	return (target[0]<<24 | target[1]<<16 | target[2]<<8 | target[3]);
+}
+
+uint32_t
+SH_little_endian_read_4(uchar * target)
+{
+	return (target[3]<<24 | target[2]<<16 | target[1]<<8 | target[0]);
+}
+
+uint32_t
+SH_read_4(State * S, uchar * target)
+{
+	if (S->endian == Little)
+	{
+		SH_little_endian_read_4(target);
+	}
+	else
+	{
+		SH_big_endian_read_4(target);
+	}
+}
+
 int
 superHcache_init(Engine *E, State *S, int size, int blocksize, int assoc)
 {	
@@ -531,8 +647,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			D->MEM[destoffset] = (uchar)((data>>8)&0xFF);
-			D->MEM[destoffset+1] = (uchar)data&0xFF;
+			SH_write_2(S, &(D->MEM[destoffset]), data);
 			paddr = D->MEMBASE + destoffset;
 
 			if (SF_BITFLIP_ANALYSIS)
@@ -637,8 +752,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 				/*  Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*  memmove will screw up byte order  */
-				S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-				S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+				SH_write_2(S, &(S->MEM[paddr - S->MEMBASE]), data);
 
 				return;
 			}
@@ -680,8 +794,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+		SH_write_2(S, &(S->MEM[paddr - S->MEMBASE]), data);
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -836,10 +949,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			D->MEM[destoffset] =(uchar)((data>>24)&0xFF);
-			D->MEM[destoffset+1] =(uchar)((data>>16)&0xFF);
-			D->MEM[destoffset+2] =(uchar)((data>>8)&0xFF);
-			D->MEM[destoffset+3] =(uchar)data&0xFF;
+			SH_write_4(S, &(D->MEM[destoffset]), data);
 			paddr = D->MEMBASE + destoffset;
 
 			if (SF_BITFLIP_ANALYSIS)
@@ -944,10 +1054,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				/* Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*	memmove will screw up byte order   */
-				S->MEM[paddr - S->MEMBASE] =(uchar)((data>>24)&0xFF);
-				S->MEM[paddr+1 - S->MEMBASE] =(uchar)((data>>16)&0xFF);
-				S->MEM[paddr+2 - S->MEMBASE] =(uchar)((data>>8)&0xFF);
-				S->MEM[paddr+3 - S->MEMBASE] =(uchar)data&0xFF;
+				SH_write_4(S, &(S->MEM[paddr - S->MEMBASE]), data);
 
 				return;
 			}
@@ -988,10 +1095,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
-		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>16)&0xFF);
-		S->MEM[paddr+2 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;
+		SH_write_4(S, &(S->MEM[paddr - S->MEMBASE]), data);
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -1378,7 +1482,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			data = (ushort)(D->MEM[destoffset]<<8)|D->MEM[destoffset + 1];
+			data = (ushort)(D->MEM[destoffset + 1]<<8)|D->MEM[destoffset];
 			paddr = D->MEMBASE + destoffset;
 
 			/*										*/
@@ -1479,7 +1583,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ushort)(S->MEM[paddr - S->MEMBASE]<<8)|S->MEM[paddr+1 - S->MEMBASE];
+		data = SH_read_2(S, &(S->MEM[paddr - S->MEMBASE]));
 	}
 
 	if (!inram)
@@ -1670,10 +1774,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			data = (ulong)(D->MEM[destoffset]<<24)	|
-				(D->MEM[destoffset+1]<<16)	|
-				(D->MEM[destoffset+2]<<8)	|
-				D->MEM[destoffset+3];
+			data = SH_read_4(S, &(D->MEM[destoffset]));
 			paddr = D->MEMBASE + destoffset;
 
 			/*										*/
@@ -1774,10 +1875,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
-				(S->MEM[paddr+1 - S->MEMBASE]<<16)|\
-				(S->MEM[paddr+2 - S->MEMBASE]<<8)|\
-				S->MEM[paddr+3 - S->MEMBASE];
+		data = SH_read_4(S, &(S->MEM[paddr - S->MEMBASE]));
 	}
 
 	if (!inram)

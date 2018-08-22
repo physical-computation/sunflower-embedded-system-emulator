@@ -155,12 +155,6 @@ m_allocengine(uvlong seed)
 			"Initialized random number generator with seed %d...\n",
 			tmp->randseed); 
 
-	/*		Prime the decode caches		*/
-	for (i = 0; i < (1 << 16); i++)
-	{
-		superHdecode(tmp, (ushort)(i&0xFFFF), &tmp->superHDC[i].dc_p);
-	}
-
 	engines[nengines++] = tmp;
 
 
@@ -1067,7 +1061,17 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	/*  newnode xloc yloc zloc orbit velocity  */
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
+		/*		Prime the decode caches		*/		
+ 		for (i = 0; i < (1 << 16); i++)		
+ 		{		
+ 			superHdecode(S, (ushort)(i&0xFFFF), &S->superHDC[i].dc_p);		
+ 		}		
+		
 		S = superHnewstate(E, x, y, z, trajfilename);
+	}
+	else if (!strncmp(type, "riscv", strlen("riscv")))
+	{
+		S = riscvnewstate(E, x, y, z, trajfilename);
 	}
 	else
 	{
@@ -2130,6 +2134,18 @@ m_run(Engine *E, State *S, char *args)
 			args, argc);
 		mprint(E, S, nodeinfo, "R4 = [0x" UH8LONGFMT "], R5 = [0x" UH8LONGFMT "]\n",
 			S->superH->R[4], S->superH->R[5]);
+
+		S->runnable = 1;
+		mprint(E, S, nodeinfo, "Running...\n\n");
+	}
+	else if (S->machinetype == MACHINE_RISCV)
+	{
+		S->riscv->R[2] = S->MEMEND - argvptroffset + align;
+
+		mprint(E, S, nodeinfo, "args = [%s], argc = %d\n",
+			args, argc);
+		mprint(E, S, nodeinfo, "R2 = [0x %016lx]\n",
+			S->riscv->R[2]);
 
 		S->runnable = 1;
 		mprint(E, S, nodeinfo, "Running...\n\n");
