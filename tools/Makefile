@@ -58,12 +58,17 @@ gcc-pre:
 
 
 gcc-post:
-	cd $(GCC);\
-	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/7.2.0/*.a\
-		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
-
-
+# riscv:	cd $(GCC);\
+# riscv:	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/7.2.0/*.a\
+# riscv:		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+# riscv:	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
+	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
+	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+	$(DEL) $(GCC)/objdir;\
 
 
 newlib: newlib-pre newlib-post
