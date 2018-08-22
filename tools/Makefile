@@ -1,9 +1,12 @@
 include ../conf/setup.conf
 
-GCC		= $(TOOLS)/source/gcc-7.2.0
-BINUTILS	= $(TOOLS)/source/binutils-2.28
-NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
+# riscv: GCC		= $(TOOLS)/source/gcc-7.2.0
+# riscv: BINUTILS	= $(TOOLS)/source/binutils-2.28
+# riscv: NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
 
+GCC		= $(TOOLS)/source/gcc-4.2.4
+BINUTILS	= $(TOOLS)/source/binutils-2.16.1
+NEWLIB		= $(TOOLS)/source/newlib-1.9.0
 
 
 all: binutils gcc newlib
