@@ -89,7 +89,6 @@ Engine *
 m_allocengine(uvlong seed)
 {
 	Engine	*tmp;
-	int	i;
 
 
 	tmp = (Engine *) calloc(1, sizeof(Engine));
@@ -1062,9 +1061,9 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
 		/*		Prime the decode caches		*/		
- 		for (i = 0; i < (1 << 16); i++)		
+ 		for (int i = 0; i < (1 << 16); i++)		
  		{		
- 			superHdecode(S, (ushort)(i&0xFFFF), &S->superHDC[i].dc_p);		
+ 			superHdecode(S, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
  		}		
 		
 		S = superHnewstate(E, x, y, z, trajfilename);
