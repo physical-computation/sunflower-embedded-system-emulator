@@ -1478,7 +1478,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 				sfatal(E, S, "Bad NUMA destination address access!");
 			}
 
-			data = (ushort)(D->MEM[destoffset + 1]<<8)|D->MEM[destoffset];
+			data = SH_read_2(S, &(D->MEM[destoffset]));
 			paddr = D->MEMBASE + destoffset;
 
 			/*										*/

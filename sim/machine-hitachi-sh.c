@@ -978,6 +978,7 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
+	S->endian = Big;
 	S->dumpregs = superHdumpregs;
 	S->dumpsysregs = superHdumpsysregs;
 	S->fatalaction = superHfatalaction;

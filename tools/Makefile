@@ -1,6 +1,6 @@
 include ../conf/setup.conf
 
-GCCVER		= 7.2.0
+GCCVER		= 8.2.0
 GCC		= $(TOOLS)/source/gcc-$(GCCVER)
 BINUTILS	= $(TOOLS)/source/binutils-2.29.1
 NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
@@ -28,6 +28,13 @@ binutils-post:
 
 gcc: gcc-pre gcc-post
 
+#
+#	On macOS with macports, add
+#
+#		--with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local
+#
+#	to the configure flags for both g++-pre and gcc-pre.
+#
 g++-pre:
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
@@ -36,7 +43,7 @@ g++-pre:
 	export CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS='-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
-		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local -v;\	# On macOS with macports, add --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local
+		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local -v;\
 	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 
@@ -47,8 +54,8 @@ gcc-pre:
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
 	export CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS='-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
-		--enable-languages=c $(ADDITIONAL_ARCH_FLAGS) --disable-multilib\
-		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local -v;\
+		--enable-languages=c $(ADDITIONAL_ARCH_FLAGS) --disable-multilib --disable-libssp --disable-libstdcxx-pch --disable-libmudflap --disable-libgomp\
+		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local -v;\
 	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 

@@ -5,7 +5,7 @@ Installation Instructions
 
 Step 1
 ------
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Building the simulator depends on `gawk`, so install it. Building the gcc cross-compilers depends on `libmpc`, `mpfr`, and `gmp`, so make sure you have them installed or the cross-compiler build will fail.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Building the simulator depends on `gawk`, so install it. Building the gcc cross-compilers depends on `gcc` (you will likely run into issues trying to build the cross-compiler using `clang`), `libmpc`, `mpfr`, and `gmp`, so make sure you have them installed or the cross-compiler build will fail.
 
 Step 2
 ------

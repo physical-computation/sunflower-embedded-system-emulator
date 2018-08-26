@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GCC_VER="gcc-7.2.0"
+GCC_VER="gcc-8.2.0"
 BINUTILS_VER="binutils-2.29.1"
 NEWLIB_VER="newlib-2.5.0.20170922"
 
