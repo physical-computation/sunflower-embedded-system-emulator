@@ -846,7 +846,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				if (($2 >= yyengine->nbatts) || ($2 < 0))
+				if ($2 >= yyengine->nbatts)
 				{
 					merror(yyengine, "Battery ID out of range.");
 				}
@@ -1229,8 +1229,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				if (($2 > yyengine->nnodes) || ($2 < 0)\
-					|| ($3 > yyengine->nnodes) || ($3 < 0))
+				if (($2 > yyengine->nnodes) || ($3 > yyengine->nnodes))
 				{
 					merror(yyengine, "Node indeces out of range in call to MMAP!");
 				}

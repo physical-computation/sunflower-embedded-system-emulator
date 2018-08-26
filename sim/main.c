@@ -216,7 +216,7 @@ main(int nargs, char *args[])
 	/*	In the non-LIBSF version, we use fprintf to write to console	*/
 	fprintf(stderr, "\n");
   	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
-		E->cp->NODE_ID, E->nnodes, E->cp->PC,
+		E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 		E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
 	while (1)
 	{
@@ -228,7 +228,7 @@ main(int nargs, char *args[])
 			yyengine = E;
 			yyparse();
   			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
-				E->cp->NODE_ID, E->nnodes, E->cp->PC,
+				E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 				E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
 			mstateunlock();
 
@@ -1063,7 +1063,7 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 		/*		Prime the decode caches		*/		
  		for (int i = 0; i < (1 << 16); i++)		
  		{		
- 			superHdecode(S, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
+ 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
  		}		
 		
 		S = superHnewstate(E, x, y, z, trajfilename);

@@ -338,7 +338,7 @@ pau_feed(Engine *E, State *S, int feed_type, ulong addr)
 			}
 
 			/*	Hit in PAU	*/
-			if ((S->superH->PAUs[i].trigger_pc == S->superH->P.EX.fetchedpc))
+			if (S->superH->PAUs[i].trigger_pc == S->superH->P.EX.fetchedpc)
 			{
 			/*
 				mprint(E, NULL, siminfo, "Hit in PAU, CLK = " UVLONGFMT "\n", S->CLK);

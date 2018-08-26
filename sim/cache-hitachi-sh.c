@@ -118,12 +118,10 @@ SH_read_2(State * S, uchar * target)
 {
 	if (S->endian == Little)
 	{
-		SH_little_endian_read_2(target);
+		return SH_little_endian_read_2(target);
 	}
-	else
-	{
-		SH_big_endian_read_2(target);
-	}
+
+	return SH_big_endian_read_2(target);
 }
 
 uint32_t
@@ -143,12 +141,10 @@ SH_read_4(State * S, uchar * target)
 {
 	if (S->endian == Little)
 	{
-		SH_little_endian_read_4(target);
+		return SH_little_endian_read_4(target);
 	}
-	else
-	{
-		SH_big_endian_read_4(target);
-	}
+
+	return SH_big_endian_read_4(target);
 }
 
 int

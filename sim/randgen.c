@@ -118,8 +118,6 @@ SimRvar SF_RVAR_NAMES[] =
 	[SF_RVAR_txundrrunerr_intrenable_flag]	{SF_RVAR_TYPE_int, "txundrrunerr_intrenable_flag"},
 	[SF_RVAR_csumerr_intrenable_flag]	{SF_RVAR_TYPE_int, "csumerr_intrenable_flag"},
 	[SF_RVAR_TIMER_INTR_DELAY]		{SF_RVAR_TYPE_double, "TIMER_INTR_DELAY"},
-	[SF_RVAR_VDD]				{SF_RVAR_TYPE_double, "VDD"},
-	[SF_RVAR_LOWVDD]			{SF_RVAR_TYPE_double, "LOWVDD"},		
 	[SF_RVAR_TRA]				{SF_RVAR_TYPE_ulong, "TRA"},
 	[SF_RVAR_EXPEVT]			{SF_RVAR_TYPE_ulong, "EXPEVT"},
 	[SF_RVAR_INTEVT]			{SF_RVAR_TYPE_ulong, "INTEVT"},

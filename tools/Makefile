@@ -1,12 +1,9 @@
 include ../conf/setup.conf
 
-# riscv: GCC		= $(TOOLS)/source/gcc-7.2.0
-# riscv: BINUTILS	= $(TOOLS)/source/binutils-2.28
-# riscv: NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
-
-GCC		= $(TOOLS)/source/gcc-4.2.4
-BINUTILS	= $(TOOLS)/source/binutils-2.16.1
-NEWLIB		= $(TOOLS)/source/newlib-1.9.0
+GCCVER		= 7.2.0
+GCC		= $(TOOLS)/source/gcc-$(GCCVER)
+BINUTILS	= $(TOOLS)/source/binutils-2.29.1
+NEWLIB		= $(TOOLS)/source/newlib-2.5.0.20170922
 
 
 all: binutils gcc newlib
@@ -19,14 +16,13 @@ binutils-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(BINUTILS);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST)\
+	export MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH)\
 		--prefix=$(PREFIX) --disable-libssp --disable-nls -v;\
 	$(MAKE) -r CC=$(TOOLCC) CFLAGS="-D_FORTIFY_SOURCE=1" LD=$(TOOLCC) all install;\
 
 binutils-post:
 	mv $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
 	$(DEL) $(BINUTILS)/objdir;\
-
 
 
 
@@ -37,38 +33,33 @@ g++-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export CFLAGS='-O2' CXXFLAGS='-O2' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	export CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS='-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --prefix=$(PREFIX)\
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
-		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) CC=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi";\ 	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
-	$(MAKE) CC=$(TOOLCC) install;\				# CXX=$(TOOLCXX) install;\
+		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local -v;\	# On macOS with macports, add --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 
 gcc-pre:
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(GCC);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	export CFLAGS='-O2 -D_XOPEN_SOURCE=600' CXXFLAGS='-O2' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
-		--disable-libssp  --with-gnu-as --with-gnu-ld --with-newlib\
-		--enable-languages=c --with-arch=rv32i --disable-multilib\
-		--with-headers=$(NEWLIB)/newlib/libc/include -v;\
-	$(MAKE) -j5 CC=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600";\	# CXX=$(TOOLCXX) CFLAGS="-ansi";\ 
-	$(MAKE) CC=$(TOOLCC) install;\					# CXX=$(TOOLCXX) AR=ar install;\
+	export CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS='-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' MAKEINFO=missing && ../configure --disable-docs --target=$(TARGET-ARCH) --prefix=$(PREFIX)\
+		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
+		--enable-languages=c $(ADDITIONAL_ARCH_FLAGS) --disable-multilib\
+		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local -v;\
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
 
 
 gcc-post:
-# riscv:	cd $(GCC);\
-# riscv:	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/7.2.0/*.a\
-# riscv:		$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-# riscv:	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
-cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/4.2.4/*.a\
-	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/4.2.4/*.a\
-	$(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
-cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
+	cp $(PREFIX)/lib/gcc-lib/$(TARGET-ARCH)/$(GCCVER)/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/lib/gcc/$(TARGET-ARCH)/$(GCCVER)/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
+	cp $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
 	$(DEL) $(GCC)/objdir;\
+
 
 
 newlib: newlib-pre newlib-post
@@ -78,7 +69,7 @@ newlib-pre:
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(NEWLIB);\
 	$(DEL) objdir; mkdir -p objdir; cd objdir;\
-	../configure --target=$(TARGET-ARCH) --host=$(HOST) --prefix=$(PREFIX)\
+	../configure --target=$(TARGET-ARCH) --prefix=$(PREFIX)\
 		-v --with-stabs --nfp --disable-multilib;\
 	$(MAKE) -j5 CC=$(TOOLCC) all;\
 	$(MAKE) CC=$(TOOLCC) install;\
@@ -86,8 +77,6 @@ newlib-pre:
 newlib-post:
 	cp $(PREFIX)/$(TARGET-ARCH)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	#$(DEL) $(NEWLIB)/objdir;\
-
-
 
 
 

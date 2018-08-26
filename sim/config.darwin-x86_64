@@ -9,5 +9,5 @@ PLATFORM_LFLAGS 	= #-mmacosx-version-min=10.4 -multiply_defined suppress -lpthre
 PLATFORM_OPTFLAGS	=
 OPTFLAGS		= -O2 ## -Wuninitialized -O2 -funroll-loops -finline-functions
 DBGFLAGS		= -g
-CCFLAGS			= $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
+CCFLAGS			= -Wno-gnu-designator $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
 LDFLAGS 		= -lm $(PLATFORM_LFLAGS)

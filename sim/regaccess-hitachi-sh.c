@@ -208,7 +208,7 @@ do_tandem(Engine *E, State *S,  ulong *data, int n, Regvt **match)
 	{
 		ulong	devn;
 
-		devn = abs(*data - E->sp[0]->superH->R[n]);
+		devn = (*data - E->sp[0]->superH->R[n]);
 		if (devn != 0)
 		{
 			(*match)->devns[(*match)->validx] = devn;

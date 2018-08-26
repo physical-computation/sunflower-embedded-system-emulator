@@ -60,7 +60,7 @@ typedef struct
 	double		sumIload;
 	void*		node_ptrs[MAX_BATTNODES];
 
-	int		ileak;
+	double		ileak;
 	double		C;
 	double		Cf;
 	double		Ibatt;
