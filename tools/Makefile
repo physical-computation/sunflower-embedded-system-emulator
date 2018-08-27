@@ -29,11 +29,13 @@ binutils-post:
 gcc: gcc-pre gcc-post
 
 #
-#	On macOS with macports, add
+#	On macOS with MacPorts, add
 #
 #		--with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local
 #
-#	to the configure flags for both g++-pre and gcc-pre.
+#	to the configure flags for both g++-pre and gcc-pre, and add
+#
+#		"-D_DARWIN_C_SOURCE" to both CFLAGS and CXXFLAGS flags
 #
 g++-pre:
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
@@ -44,8 +46,8 @@ g++-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages="c,c++"\
 		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local -v;\
-	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
-	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -std=c99 -ansi -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\
 
 gcc-pre:
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
@@ -56,8 +58,8 @@ gcc-pre:
 		--disable-libssp --with-gnu-as --with-gnu-ld --with-newlib\
 		--enable-languages=c $(ADDITIONAL_ARCH_FLAGS) --disable-multilib --disable-libssp --disable-libstdcxx-pch --disable-libmudflap --disable-libgomp\
 		--with-headers=$(NEWLIB)/newlib/libc/include --with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local -v;\
-	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\		# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
-	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\	# On MacOS, add "-D_DARWIN_C_SOURCE" to both flags
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE';\
+	$(MAKE) CC=$(TOOLCC) CXX=$(TOOLCXX) LD=$(TOOLCC) CFLAGS="-fgnu89-inline -ansi -std=c99 -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE" CXXFLAGS='-D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE' install;\
 
 
 gcc-post:
