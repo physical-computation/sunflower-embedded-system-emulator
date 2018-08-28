@@ -9,7 +9,7 @@ Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Building the sim
 
 Step 2
 ------
-Edit `conf/setup.conf` and set `$SUNFLOWERROOT`, and `$HOST` appropriately.  You might need to set your `$OSTYPE` environment variable in your shell if it is not already set.  Examples include `darwin` for MacOSX, and the eponymous `OpenBSD`, `linux`, and `solaris`.
+Edit `conf/setup.conf` and set `$SUNFLOWERROOT`, `$HOST`, `TOOLCC`, and `TOOLCXX` appropriately. You will need to set your `$OSTYPE` environment variable in your shell if it is not already set.  Examples include `darwin` for MacOSX, and the eponymous `OpenBSD`, `linux`, and `solaris`. You will also need to set `MACHTYPE`. A common correct value (depends on your host platform) is `i386`.
 
 Step 3
 ------
