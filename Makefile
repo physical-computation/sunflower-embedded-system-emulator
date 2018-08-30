@@ -16,7 +16,7 @@ sflr:
 
 cross:
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=$(TARGET) TARGET-ARCH=$(TARGET-ARCH) all;\
+	TARGET=superH TARGET-ARCH=sh-elf all;\
 
 cross-all:
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
