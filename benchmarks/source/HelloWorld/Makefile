@@ -21,7 +21,7 @@ OBJS	=\
 all:	$(PROGRAM) $(PROGRAM).sr
 
 $(PROGRAM): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lgcc -lm -l$(LIBOS)-$(TARGET)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lgcc
 
 $(PROGRAM).sr:$(PROGRAM)
 	$(OBJCOPY) -O srec $(PROGRAM) $@

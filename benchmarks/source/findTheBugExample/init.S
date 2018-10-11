@@ -4,6 +4,7 @@
 	.global _vec_stub_end
 	.global _sleep
 	.global _atexit
+	.global _malloc
 
 	.align	2
 start:
