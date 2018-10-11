@@ -7,8 +7,8 @@ You can use the command `valuestats` to get a report of the history of values ta
 
 The program will work if you:
 
-1.	Change printf to print
+1.	Change `printf` to `print` in findTheBugExample.c.
 
-2.	Change the linking of libmOS to link libeOS
+2.	Change the Makefile to link `libeOS.a` rather than linking `libmOS.a`.
 
-What is the root cause of the bug?
+From looking at the map file, you will be able to figure out where the function `print` is implemented. What is the root cause of the bug?
