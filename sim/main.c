@@ -1033,7 +1033,7 @@ m_version(Engine *E)
 	mprint(E, NULL, siminfo,
 		"\nSunflower %s\n", MVERSION);
 	mprint(E, NULL, siminfo,
-		"Authored, 1999-2008, by p stanley-marbell <phillip.stanleymarbell@gmail.com>\n");
+		"Authored, 1999-2018, by Phillip Stanley-Marbell <phillip.stanleymarbell@gmail.com>\n");
 	mprint(E, NULL, siminfo,
 		"Public key fingerprint 62A1 E95D 304D 9876 D5B1  1FB2 BF7E B65F BD89 20AB\n");
 	mprint(E, NULL, siminfo,
