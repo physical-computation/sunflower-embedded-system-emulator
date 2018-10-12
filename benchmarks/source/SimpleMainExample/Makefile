@@ -21,7 +21,7 @@ OBJS	=\
 all:	$(PROGRAM) $(PROGRAM).sr Makefile
 
 $(PROGRAM): $(OBJS) superH.ld
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lgcc -lm -l$(LIBOS)-$(TARGET)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@
 
 $(PROGRAM).sr:$(PROGRAM)
 	$(OBJCOPY) -O srec $(PROGRAM) $@
