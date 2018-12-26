@@ -100,6 +100,40 @@ SH_write_4(State * S, uchar * target, uint16_t data)
 	}
 }
 
+/***************************** TODO *****************************/
+
+void
+riscv_big_endian_write_4(ulong * target, uchar * data)
+{
+	*target = (ulong)(data[3])|(data[2]<<8)|(data[1]<<16)|(data[0]<<24);
+
+	return;
+}
+
+void
+riscv_little_endian_write_4(ulong * target, uchar * data)
+{
+	*target = (ulong)(data[0])|(data[1]<<8)|(data[2]<<16)|(data[3]<<24);
+
+	return;
+}
+
+void
+riscv_write_4(State * S, ulong * target, uchar * data)
+{
+	if (S->endian == Little)
+	{
+		riscv_little_endian_write_4(target, data);
+	}
+	else
+	{
+		riscv_big_endian_write_4(target, data);
+	}
+}
+
+/***************************** TODO *****************************/
+
+
 uint16_t
 SH_big_endian_read_2(uchar * target)
 {
@@ -1885,10 +1919,13 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
+		/*data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
 				(S->MEM[paddr+1 - S->MEMBASE]<<16)|\
 				(S->MEM[paddr+2 - S->MEMBASE]<<8)|\
 				S->MEM[paddr+3 - S->MEMBASE];
+		*/			
+		
+		riscv_write_4(S, &data, &(S->MEM[paddr - S->MEMBASE]));
 	}
 
 	if (!inram)

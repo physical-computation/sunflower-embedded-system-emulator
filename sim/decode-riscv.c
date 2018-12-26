@@ -159,7 +159,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -195,7 +195,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -283,7 +283,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -291,7 +291,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -323,7 +323,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -383,7 +383,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -408,7 +408,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -436,7 +436,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -513,7 +513,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -521,7 +521,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
         }
         default:
         {
-            
+            break;
         }
     }
 }

@@ -196,7 +196,7 @@ main(int nargs, char *args[])
 	E->verbose = 1;
 	marchinit();	
 	m_version(E);
-	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);
+	m_newnode(E, "riscv", 0, 0, 0, nil, 0, 0.0);
 //	S = E->sp[0];
 
 
@@ -218,6 +218,7 @@ main(int nargs, char *args[])
   	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 		E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 		E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
+		
 	while (1)
 	{
   		fgets(buf, MAX_BUFLEN, stdin);
