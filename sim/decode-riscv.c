@@ -107,7 +107,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -519,6 +519,132 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
             break;
         }
+        
+        
+        /*
+        *RV32F implementation
+        */
+        case 0b0000111: //FLW
+        {
+        	
+        	break;
+        }
+        
+        case 0b0100111: //FSW
+        {
+        	
+        	break;
+        }
+        
+        case 0b1000011: //FMADD.S
+        {
+        	
+        	break;
+        }
+        
+        case 0b1000111: //FMSUB.S
+        {
+        	
+        	break;
+        }
+        
+        case 0b1001011: //FNMSUB.S
+        {
+        	
+        	break;
+        }
+        
+        case 0b1001111: //FNMADD.S
+        {
+        	
+        	break;
+        }
+        
+        case 0b1010011:
+        {
+        	switch(tmp->funct7)
+          {
+          	case 0b0000000: //FADD.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0000100: //FSUB.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0001000: //FMUL.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0001100: //FDIV.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0101100: //FSQRT.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0010000: //FSGNJ*
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b0010100: //FMIN.S, FMAX.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b1100000: //FCVT.W*
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b1110000: //FMV.X.W, FCLASS.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b1010000: //FEQ.S, FLT.S, FLE.S
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b1101000: //FCVT.S*
+          	{
+          		
+          		break;
+          	}
+          	
+          	case 0b1111000: //FMV.W.X
+          	{
+          		
+          		break;
+          	}
+          	
+          	default:
+          	{
+          		break;
+          	}
+          }
+          
+        	break;
+        }
+                
         default:
         {
             break;
