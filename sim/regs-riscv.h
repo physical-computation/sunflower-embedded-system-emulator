@@ -140,3 +140,105 @@ enum
 	RISCV_XMAX, 
 };
 
+enum
+{
+	RV32F_f0   = 0,
+	RV32F_ft0  = 0,
+	
+	RV32F_f1   = 1,
+	RV32F_ft1  = 1,
+	
+	RV32F_f2   = 2,
+	RV32F_ft2  = 2,
+	
+	RV32F_f3   = 3,
+	RV32F_ft3  = 3,
+	
+	RV32F_f4   = 4,
+	RV32F_ft4  = 4,
+	
+	RV32F_f5   = 5,
+	RV32F_ft5  = 5,
+	
+	RV32F_f6   = 6,
+	RV32F_ft6  = 6,
+	
+	RV32F_f7   = 7,
+	RV32F_ft7  = 7,
+	
+	RV32F_f8   = 8,
+	RV32F_fs0  = 8,
+	
+	RV32F_f9   = 9,
+	RV32F_fs1  = 9,
+	
+	RV32F_f10  = 10,
+	RV32F_fa0  = 10,
+	
+	RV32F_f11  = 11,
+	RV32F_fa1  = 11,
+	
+	RV32F_f12  = 12,
+	RV32F_fa2  = 12,
+	
+	RV32F_f13  = 13,
+	RV32F_fa3  = 13,
+	
+	RV32F_f14  = 14,
+	RV32F_fa4  = 14,
+	
+	RV32F_f15  = 15,
+	RV32F_fa5  = 15,
+	
+	RV32F_f16  = 16,
+	RV32F_fa6  = 16,
+	
+	RV32F_f17  = 17,
+	RV32F_fa7  = 17,
+	
+	RV32F_f18  = 18,
+	RV32F_fs2  = 18,
+	
+	RV32F_f19  = 19,
+	RV32F_fs3  = 19,
+	
+	RV32F_f20  = 20,
+	RV32F_fs4  = 20,
+	
+	RV32F_f21  = 21,
+	RV32F_fs5  = 21,
+	
+	RV32F_f22  = 22,
+	RV32F_fs6  = 22,
+	
+	RV32F_f23  = 23,
+	RV32F_fs7  = 23,
+	
+	RV32F_f24  = 24,
+	RV32F_fs8  = 24,
+	
+	RV32F_f25  = 25,
+	RV32F_fs9  = 25,
+	
+	RV32F_f26  = 26,
+	RV32F_fs10 = 26,
+	
+	RV32F_f27  = 27,
+	RV32F_fs11 = 27,
+	
+	RV32F_f28  = 28,
+	RV32F_ft8  = 28,
+	
+	RV32F_f29  = 29,
+	RV32F_ft9  = 29,
+	
+	RV32F_f30  = 30,
+	RV32F_ft10 = 30,
+	
+	RV32F_f31  = 31,
+	RV32F_ft11 = 31,
+	
+	/*Number of floating point registers*/
+	RF32F_fMAX = 32
+}
+
