@@ -140,6 +140,8 @@ enum
 	RISCV_XMAX, 
 };
 
+
+/* RISC-V floating point registers */
 enum
 {
 	RV32F_f0   = 0,
@@ -242,3 +244,8 @@ enum
 	RF32F_fMAX = 32
 }
 
+typedef union
+{
+	uint32_t bit_value;
+	float float_value;
+} rv32f_rep;
