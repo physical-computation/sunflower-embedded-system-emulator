@@ -734,6 +734,7 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1;
 	
+	uint8_t frm;
 	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
 	
 	src1.bit_value = freg_read_riscv(E, S, rs1);
@@ -769,7 +770,7 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			break;
 		
 		case 0b111: //Dynamic rounding mode, read from frm
-			uint8_t frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
+			frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
 			switch (frm)
 			{
 				case 0b000: //Round to nearest (ties to Even)
@@ -813,6 +814,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	
+	uint8_t frm;
 	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
 	
 	/*
@@ -846,7 +848,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			break;
 		
 		case 0b111: //Dynamic rounding mode, read from frm
-			uint8_t frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
+			frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
 			switch (frm)
 			{
 				case 0b000: //Round to nearest (ties to Even)
@@ -941,7 +943,7 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	switch (class)
 	{
 		case FP_NAN:
-			shift = (issignaling(src1.float_value)) ? 8 : 9;
+			shift = (__issignaling(src1.float_value)) ? 8 : 9;
 			break;
 		
 		case FP_INFINITE:

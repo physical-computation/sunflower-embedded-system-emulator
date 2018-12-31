@@ -242,7 +242,7 @@ enum
 	
 	/*Number of floating point registers*/
 	RF32F_fMAX = 32
-}
+};
 
 typedef union
 {
