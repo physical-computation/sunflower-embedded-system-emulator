@@ -142,3 +142,4 @@ typedef struct
 	unsigned unused:2;
 	unsigned rs3:5;
 } instr_r4;
+
