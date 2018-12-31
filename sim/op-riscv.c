@@ -550,7 +550,7 @@ void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	rv32f_rep src1, src2, result;
 	
@@ -571,7 +571,7 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	rv32f_rep src1, src2, result;
 	
@@ -592,7 +592,8 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	rv32f_rep src1, src2, result;
 	
@@ -613,7 +614,7 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	rv32f_rep src1, src2, result;
 	
@@ -634,7 +635,7 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_f_sqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	rv32f_rep src1, result;
 	
@@ -735,7 +736,7 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	rv32f_rep src1;
 	
 	uint8_t frm;
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	
@@ -815,7 +816,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	
 	uint8_t frm;
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
 	/*
 	*Rounding modes - Reference
@@ -973,7 +974,7 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 	
 	rv32f_rep result; //TODO test this
 	
@@ -986,7 +987,7 @@ void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint8_t rm = ((instr_r *)S->riscv->P.EX.instr)->funct3;
+	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 	
 	rv32f_rep result; //TODO test this
 	
