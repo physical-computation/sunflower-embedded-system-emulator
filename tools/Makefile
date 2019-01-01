@@ -75,6 +75,7 @@ gcc-post:
 newlib: newlib-pre newlib-post
 
 newlib-pre:
+	export PATH=$(PATH):$(TOOLS)/$(TARGET)/bin:$(TOOLS)/bin;\
 	if test -d $(TOOLS)/bin; then true; else mkdir $(TOOLS)/bin; fi;\
 	if test -d $(TOOLS)/$(TARGET); then true; else mkdir $(TOOLS)/$(TARGET); fi;\
 	cd $(NEWLIB);\

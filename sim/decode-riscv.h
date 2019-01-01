@@ -59,4 +59,46 @@ enum
     RISCV_OP_CSRRCI,
 
     RISCV_OP_MAX,        
+    
+    
+    /* RV32F */
+    RV32F_OP_FLW,
+    RV32F_OP_FSW,
+    
+    RV32F_OP_FMADDS,
+    RV32F_OP_FMSUBS,
+    RV32F_OP_FNMSUBS,
+    RV32F_OP_FNMADDS,
+    
+    RV32F_OP_FADDS,
+    RV32F_OP_FSUBS,
+    RV32F_OP_FMULS,
+    RV32F_OP_FDIVS,
+    RV32F_OP_FSQRTS,
+    
+    RV32F_OP_FSGNJS,
+    RV32F_OP_FSGNJNS,
+    RV32F_OP_FSGNJXS,
+    
+    RV32F_OP_FMINS,
+    RV32F_OP_FMAXS,
+    
+    RV32F_OP_FCVTWS,
+    RV32F_OP_FCVTWUS,
+    
+    RV32F_OP_FMVXW,
+    
+    RV32F_OP_FEQS,
+    RV32F_OP_FLTS,
+    RV32F_OP_FLES,
+    
+    RV32F_OP_FCLASSS,
+    
+    RV32F_OP_FCVTSW,
+    RV32F_OP_FCVTSWU,
+    
+    RV32F_OP_FMVWX,
+    
+    RV32F_OP_FMAX
+    
 };

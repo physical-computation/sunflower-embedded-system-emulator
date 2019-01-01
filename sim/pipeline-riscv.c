@@ -139,6 +139,15 @@ riscvstep(Engine *E, State *S, int drain_pipe)
 				(*(S->riscv->P.EX.fptr))(E, S, tmp->rd, tmp->imm1, tmp->imm11, tmp->imm12, tmp->imm20);
 				break;
 			}
+			
+			case INSTR_R4:
+			{
+				instr_r4 *tmp;
+
+				tmp = (instr_r4 *)&S->riscv->P.EX.instr;
+				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm, tmp->rd);
+				break;
+			}
 
 			case INSTR_N:
 			{
@@ -158,6 +167,8 @@ riscvstep(Engine *E, State *S, int drain_pipe)
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
 			S->Cycletrans = 0;
 		}
+		
+		S->pipeshow = 1;
 
 		if (S->pipeshow)
 		{

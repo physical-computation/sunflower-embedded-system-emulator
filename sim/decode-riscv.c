@@ -107,7 +107,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -159,7 +159,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -195,7 +195,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -256,7 +256,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 case 0b001:
                 {
                     stage->fptr = (void *) riscv_slli;
-                    stage->format = INSTR_I;
+                    stage->format = INSTR_R;
                     stage->op = RISCV_OP_SLLI;
 
                     break;
@@ -283,7 +283,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -291,7 +291,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -323,7 +323,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -383,7 +383,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         }
                         default:
                         {
-                            
+                            break;
                         }
                     }
 
@@ -408,7 +408,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -436,7 +436,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
@@ -513,15 +513,319 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 }
                 default:
                 {
-                    
+                    break;
                 }
             }
 
             break;
         }
+        
+        
+        /*
+        *RV32F implementation
+        */
+        case 0b0000111: //FLW
+        {
+        	stage->fptr = (void *) rv32f_flw;
+		      stage->format = INSTR_I;
+		      stage->op = RV32F_OP_FLW;
+        	
+        	break;
+        }
+        
+        case 0b0100111: //FSW
+        {
+        	stage->fptr = (void *) rv32f_fsw;
+		      stage->format = INSTR_S;
+		      stage->op = RV32F_OP_FSW;
+        	
+        	break;
+        }
+        
+        case 0b1000011: //FMADD.S
+        {
+        	stage->fptr = (void *) rv32f_fmadd_s;
+		      stage->format = INSTR_R4;
+		      stage->op = RV32F_OP_FMADDS;
+        	
+        	break;
+        }
+        
+        case 0b1000111: //FMSUB.S
+        {
+        	stage->fptr = (void *) rv32f_fmsub_s;
+		      stage->format = INSTR_R4;
+		      stage->op = RV32F_OP_FMSUBS;
+        	
+        	break;
+        }
+        
+        case 0b1001011: //FNMSUB.S
+        {
+        	stage->fptr = (void *) rv32f_fnmsub_s;
+		      stage->format = INSTR_R4;
+		      stage->op = RV32F_OP_FNMSUBS;
+        	
+        	break;
+        }
+        
+        case 0b1001111: //FNMADD.S
+        {
+        	stage->fptr = (void *) rv32f_fnmadd_s;
+		      stage->format = INSTR_R4;
+		      stage->op = RV32F_OP_FNMADDS;
+        	
+        	break;
+        }
+        
+        case 0b1010011:
+        {
+        	switch(tmp->funct7)
+          {
+          	case 0b0000000: //FADD.S
+          	{
+          		stage->fptr = (void *) rv32f_fadd_s;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FADDS;
+          		
+          		break;
+          	}
+          	
+          	case 0b0000100: //FSUB.S
+          	{
+          		stage->fptr = (void *) rv32f_fsub_s;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FSUBS;
+          		
+          		break;
+          	}
+          	
+          	case 0b0001000: //FMUL.S
+          	{
+          		stage->fptr = (void *) rv32f_fmul_s;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FMULS;
+          		
+          		break;
+          	}
+          	
+          	case 0b0001100: //FDIV.S
+          	{
+          		stage->fptr = (void *) rv32f_fdiv_s;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FDIVS;
+          		
+          		break;
+          	}
+          	
+          	case 0b0101100: //FSQRT.S
+          	{
+          		stage->fptr = (void *) rv32f_f_sqrt_s;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FSQRTS;
+          		
+          		break;
+          	}
+          	
+          	case 0b0010000: //FSGNJ*
+          	{
+          		switch (tmp->funct3)
+            	{
+            		case 0b000: //FSGNJ.S
+            		{
+            			stage->fptr = (void *) rv32f_fsgnj_s;
+									stage->format = INSTR_R;
+									stage->op = RV32F_OP_FSGNJS;
+									
+            			break;
+            		}
+            		
+            		case 0b001: //FSGNJN.S
+            		{
+            			stage->fptr = (void *) rv32f_fsgnjn_s;
+									stage->format = INSTR_R;
+									stage->op = RV32F_OP_FSGNJNS;
+            			
+            			break;
+            		}
+            		
+            		case 0b010: //FSGNJX.S
+            		{
+            			stage->fptr = (void *) rv32f_fsgnjx_s;
+									stage->format = INSTR_R;
+									stage->op = RV32F_OP_FSGNJXS;
+            			
+            			break;
+            		}
+            		
+            		default:
+            		{
+            			break;
+            		}
+            	}
+          		
+          		break;
+          	}
+          	
+          	case 0b0010100: //FMIN.S, FMAX.S
+          	{
+          		switch (tmp->funct3)
+            	{
+            		case 0b000://FMIN.S
+            		{
+            			stage->fptr = (void *) rv32f_fmin_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FMINS;
+            			
+            			break;
+            		}
+            		
+            		case 0b001://FMAX.S
+            		{
+            			stage->fptr = (void *) rv32f_fmax_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FMAXS;
+            			
+            			break;
+            		}
+            		
+            		default:
+            		{
+            			break;
+            		}
+            	} 
+          		
+          		break;
+          	}
+          	
+          	case 0b1100000: //FCVT.W*
+          	{
+          		if (tmp->b20) //FCVT.WU.S
+            	{
+            		stage->fptr = (void *) rv32f_fcvt_wu_s;
+            		stage->format = INSTR_R;
+								stage->op = RV32F_OP_FCVTWUS;
+            	}
+            	else //FCVT.W.S
+            	{
+            		stage->fptr = (void *) rv32f_fcvt_w_s;
+            		stage->format = INSTR_R;
+								stage->op = RV32F_OP_FCVTWS;
+            	}
+          		
+          		break;
+          	}
+          	
+          	case 0b1110000: //FMV.X.W, FCLASS.S
+          	{
+          		switch (tmp->funct3)
+            	{
+            		case 0b000: //FMV.X.W
+            		{
+            			stage->fptr = (void *) rv32f_fmv_x_w;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FMVXW;
+            			
+            			break;
+            		}
+            		
+            		case 0b001: //FCLASS.S
+            		{
+            			stage->fptr = (void *) rv32f_fclass_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FCLASSS;
+            			
+            			break;
+            		}
+            		
+            		default:
+            		{
+            			break;
+            		}
+            	}
+          		
+          		break;
+          	}
+          	
+          	case 0b1010000: //FEQ.S, FLT.S, FLE.S
+          	{
+          		switch (tmp->funct3)
+            	{
+            		case 0b010: //FEQ.S
+            		{
+            			stage->fptr = (void *) rv32f_feq_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FEQS;
+            			
+            			break;
+            		}
+            		
+            		case 0b001: //FLT.S
+            		{
+            			stage->fptr = (void *) rv32f_flt_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FLTS;
+            			
+            			break;
+            		}
+            		
+            		case 0b000: //FLE.S
+            		{
+            			stage->fptr = (void *) rv32f_fle_s;
+            			stage->format = INSTR_R;
+            			stage->op = RV32F_OP_FLES;
+            			
+            			break;
+            		}
+            		
+            		default:
+            		{
+            			break;
+            		}
+            	}
+          		
+          		break;
+          	}
+          	
+          	case 0b1101000: //FCVT.S*
+          	{
+          		if (tmp->b20) //FCVT.S.WU
+            	{
+            		stage->fptr = (void *) rv32f_fcvt_s_wu;
+            		stage->format = INSTR_R;
+								stage->op = RV32F_OP_FCVTSWU;
+            	}
+            	else //FCVT.S.W
+            	{
+            		stage->fptr = (void *) rv32f_fcvt_s_w;
+            		stage->format = INSTR_R;
+								stage->op = RV32F_OP_FCVTSW;
+            	}
+          		
+          		break;
+          	}
+          	
+          	case 0b1111000: //FMV.W.X
+          	{
+          		stage->fptr = (void *) rv32f_fmv_w_x;
+						  stage->format = INSTR_R;
+						  stage->op = RV32F_OP_FMVWX;
+          		
+          		break;
+          	}
+          	
+          	default:
+          	{
+          		break;
+          	}
+          }
+          
+        	break;
+        }
+                
         default:
         {
-            
+        	break;
         }
     }
 }

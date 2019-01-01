@@ -218,34 +218,34 @@ void riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 	return;
 }
 
-void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
+	uint8_t shift = shamt & mask; 
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) << shift));
 
 	return;
 }
 
-void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
+	uint8_t shift = shamt & mask; 
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) >> shift));
 
 	return;
 }
 
-void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
-	uint32_t data = ((signed int) reg_read_riscv(E, S, rs1)) >> shift;
+	uint8_t shift = shamt & mask; 
+	int32_t data = (signed int)reg_read_riscv(E, S, rs1) >> shift;
 	reg_set_riscv(E, S, rd, data);
 
 	return;
@@ -277,12 +277,12 @@ void riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, ui
 
 void riscv_jalr(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
-	int32_t offset = (int32_t) sign_extend(imm0, 12) + (int32_t) reg_read_riscv(E, S, rs1);
+	int32_t addr = (int32_t) sign_extend(imm0, 12) + (int32_t) reg_read_riscv(E, S, rs1);
 	
 	uint32_t mask = -2;
 
 	reg_set_riscv(E, S, rd, S->PC);
-	S->PC = (S->PC + offset - 4) & mask;
+	S->PC = (addr) & mask;
 
 	return;
 }
@@ -369,8 +369,10 @@ void riscv_bgeu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 void riscv_lw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0, 12);
-
-	reg_set_riscv(E, S, rd, superHreadlong(E, S, addr));
+	
+	uint32_t value = superHreadlong(E, S, addr);
+	
+	reg_set_riscv(E, S, rd, value);
 
 	return;
 }
@@ -418,8 +420,10 @@ void riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 void riscv_sw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
 {
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
-
-	superHwritelong(E, S,addr, reg_read_riscv(E,S, rs2));
+	
+	uint32_t value = reg_read_riscv(E,S, rs2);
+	
+	superHwritelong(E, S, addr, value);
 }
 
 void riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
@@ -447,3 +451,562 @@ void 	riscv_csrrc(Engine *E, State *S) {}
 void 	riscv_csrrwi(Engine *E, State *S) {}
 void 	riscv_csrrsi(Engine *E, State *S) {}
 void 	riscv_csrrci(Engine *E, State *S) {}
+
+
+/* RISC-V RV32F instructions */
+void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
+{
+	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0, 12);
+
+	freg_set_riscv(E, S, rd, superHreadlong(E, S, addr));
+
+	return;
+}
+
+void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
+{
+	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
+
+	superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
+	
+	return;
+}
+
+void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd)
+{
+	rv32f_rep src1, src2, src3, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src3.bit_value = freg_read_riscv(E, S, rs3);
+	
+	result.float_value = (src1.float_value * src2.float_value) + src3.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd)
+{	
+	rv32f_rep src1, src2, src3, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src3.bit_value = freg_read_riscv(E, S, rs3);
+	
+	result.float_value = (src1.float_value * src2.float_value) - src3.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd)
+{
+	rv32f_rep src1, src2, src3, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src3.bit_value = freg_read_riscv(E, S, rs3);
+	
+	result.float_value = (-1.0 * src1.float_value * src2.float_value) + src3.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd)
+{
+	rv32f_rep src1, src2, src3, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src3.bit_value = freg_read_riscv(E, S, rs3);
+	
+	result.float_value = (-1.0 * src1.float_value * src2.float_value) - src3.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	rv32f_rep src1, src2, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	result.float_value = src1.float_value + src2.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	rv32f_rep src1, src2, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	result.float_value = src1.float_value - src2.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	rv32f_rep src1, src2, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	result.float_value = src1.float_value * src2.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	rv32f_rep src1, src2, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	result.float_value = src1.float_value / src2.float_value;
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_f_sqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	rv32f_rep src1, result;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	
+	result.float_value = (float)sqrt((double)src1.float_value);
+	
+	switch (rm) //TODO check rm value for rounding
+	{
+		
+	}
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint32_t src1 = freg_read_riscv(E, S, rs1);
+	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	
+	uint32_t result = (src1 & (-1 - (1 << 31))) | (src2 & (1 << 31));
+	
+	freg_set_riscv(E, S, rd, result);
+	
+	return;
+}
+
+void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint32_t src1 = freg_read_riscv(E, S, rs1);
+	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	
+	uint32_t result = (src1 & (-1 - (1 << 31))) | (~src2 & (1 << 31));
+	
+	freg_set_riscv(E, S, rd, result);
+	
+	return;
+}
+
+void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uint32_t src1 = freg_read_riscv(E, S, rs1);
+	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	
+	uint32_t result = (src1 & (-1 - (1 << 31))) | ((src1 ^ src2) & (1 << 31));
+	
+	freg_set_riscv(E, S, rd, result);
+	
+	return;
+}
+
+void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1, src2;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	freg_set_riscv(E, S, rd, (src1.float_value <= src2.float_value) ? src1.bit_value : src2.bit_value);
+	
+	/*if(src1.float_value <= src2.float_value) //TODO remove if unused
+	{
+		freg_set_riscv(E, S, rd, src1.bit_value);
+	}
+	else
+	{
+		freg_set_riscv(E, S, rd, src2.bit_value);
+	}*/
+	
+	return;
+}
+
+void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1, src2;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	freg_set_riscv(E, S, rd, (src1.float_value >= src2.float_value) ? src1.bit_value : src2.bit_value);
+	
+	/*if(src1.float_value >= src2.float_value) //TODO remove if unused
+	{
+		freg_set_riscv(E, S, rd, src1.bit_value);
+	}
+	else
+	{
+		freg_set_riscv(E, S, rd, src2.bit_value);
+	}*/
+	
+	return;
+}
+
+void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1;
+	
+	uint8_t frm;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	
+	/*
+	*Rounding modes - Reference
+	*https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
+	*/
+	switch (rm) //TODO check rm value for rounding
+	{
+		case 0b000: //Round to nearest (ties to Even)
+			reg_set_riscv(E, S, rd, (int32_t)rintf(src1.float_value));
+			break;
+		
+		case 0b001: //Round towards zero
+			reg_set_riscv(E, S, rd, (int32_t)truncf(src1.float_value));
+			break;
+		
+		case 0b010:	//Round down (towards -inf)
+			reg_set_riscv(E, S, rd, (int32_t)floorf(src1.float_value));
+			break;
+		
+		case 0b011: //Round up (towards +inf)
+			reg_set_riscv(E, S, rd, (int32_t)ceilf(src1.float_value));
+			break;
+		
+		case 0b100: //Round to nearest (ties to Max Magnitude)
+			reg_set_riscv(E, S, rd, (int32_t)roundf(src1.float_value));
+			break;
+		
+		case 0b101: //Invalid. Reserved for future use
+		case 0b110: //Do nothing for now
+			break;
+		
+		case 0b111: //Dynamic rounding mode, read from frm
+			frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
+			switch (frm)
+			{
+				case 0b000: //Round to nearest (ties to Even)
+					reg_set_riscv(E, S, rd, (int32_t)rintf(src1.float_value));
+					break;
+				
+				case 0b001: //Round towards zero
+					reg_set_riscv(E, S, rd, (int32_t)truncf(src1.float_value));
+					break;
+				
+				case 0b010:	//Round down (towards -inf)
+					reg_set_riscv(E, S, rd, (int32_t)floorf(src1.float_value));
+					break;
+				
+				case 0b011: //Round up (towards +inf)
+					reg_set_riscv(E, S, rd, (int32_t)ceilf(src1.float_value));
+					break;
+				
+				case 0b100: //Round to nearest (ties to Max Magnitude)
+					reg_set_riscv(E, S, rd, (int32_t)roundf(src1.float_value));
+					break;
+				
+				case 0b101: //Invalid
+				case 0b110: //Do nothing for now
+				case 0b111:
+				default:
+					break;
+			}
+			break;
+		
+		default:
+			break;
+	}
+	
+	return;
+}
+
+void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	
+	uint8_t frm;
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+	
+	/*
+	*Rounding modes - Reference
+	*https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
+	*/
+	switch (rm) //TODO check rm value for rounding
+	{
+		case 0b000: //Round to nearest (ties to Even)
+			reg_set_riscv(E, S, rd, (uint32_t)rintf(src1.float_value));
+			break;
+		
+		case 0b001: //Round towards zero
+			reg_set_riscv(E, S, rd, (uint32_t)truncf(src1.float_value));
+			break;
+		
+		case 0b010:	//Round down (towards -inf)
+			reg_set_riscv(E, S, rd, (uint32_t)floorf(src1.float_value));
+			break;
+		
+		case 0b011: //Round up (towards +inf)
+			reg_set_riscv(E, S, rd, (uint32_t)ceilf(src1.float_value));
+			break;
+		
+		case 0b100: //Round to nearest (ties to Max Magnitude)
+			reg_set_riscv(E, S, rd, (uint32_t)roundf(src1.float_value));
+			break;
+		
+		case 0b101: //Invalid. Reserved for future use
+		case 0b110: //Do nothing for now
+			break;
+		
+		case 0b111: //Dynamic rounding mode, read from frm
+			frm = (S->riscv->fCSR & (0b111 << 5)) >> 5;
+			switch (frm)
+			{
+				case 0b000: //Round to nearest (ties to Even)
+					reg_set_riscv(E, S, rd, (uint32_t)rintf(src1.float_value));
+					break;
+				
+				case 0b001: //Round towards zero
+					reg_set_riscv(E, S, rd, (uint32_t)truncf(src1.float_value));
+					break;
+				
+				case 0b010:	//Round down (towards -inf)
+					reg_set_riscv(E, S, rd, (uint32_t)floorf(src1.float_value));
+					break;
+				
+				case 0b011: //Round up (towards +inf)
+					reg_set_riscv(E, S, rd, (uint32_t)ceilf(src1.float_value));
+					break;
+				
+				case 0b100: //Round to nearest (ties to Max Magnitude)
+					reg_set_riscv(E, S, rd, (uint32_t)roundf(src1.float_value));
+					break;
+				
+				case 0b101: //Invalid
+				case 0b110: //Do nothing for now
+				case 0b111:
+				default:
+					break;
+			}
+			break;
+		
+		default:
+			break;
+	}
+	
+	return;
+}
+
+void rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	reg_set_riscv(E, S, rd, freg_read_riscv(E, S, rs1));
+	
+	return;
+}
+
+void rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1, src2;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	reg_set_riscv(E, S, rd, (src1.float_value == src2.float_value) ? 1 : 0);
+	
+	return;
+}
+
+void rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1, src2;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	reg_set_riscv(E, S, rd, (src1.float_value < src2.float_value) ? 1 : 0);
+	
+	return;
+}
+
+void rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep src1, src2;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src2.bit_value = freg_read_riscv(E, S, rs2);
+	
+	reg_set_riscv(E, S, rd, (src1.float_value <= src2.float_value) ? 1 : 0);
+	
+	return;
+}
+
+void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	//https://www.gnu.org/software/libc/manual/html_node/Floating-Point-Classes.html
+	//TODO
+	uint32_t shift;
+	rv32f_rep src1;
+	
+	src1.bit_value = freg_read_riscv(E, S, rs1);
+	
+	int class = fpclassify(src1.float_value);
+	
+	switch (class)
+	{
+		case FP_NAN:
+			shift = (__issignaling(src1.float_value)) ? 8 : 9;
+			break;
+		
+		case FP_INFINITE:
+			shift = (signbit(src1.float_value)==0) ? 7 : 0;
+			break;
+		
+		case FP_ZERO:
+			shift = (signbit(src1.float_value)==0) ? 4 : 3;
+			break;
+		
+		case FP_SUBNORMAL:
+			shift = (signbit(src1.float_value)==0) ? 5 : 2;
+			break;
+		
+		case FP_NORMAL:
+			shift = (signbit(src1.float_value)==0) ? 6 : 1;
+			break;
+		
+		default:
+			break;
+	}
+	
+	reg_set_riscv(E, S, rd, (uint32_t)(1 << shift));
+	
+	return;
+}
+
+void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
+	
+	rv32f_rep result; //TODO test this
+	
+	result.float_value = (float)reg_read_riscv(E, S, rs1); //cast to float
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
+	
+	rv32f_rep result; //TODO test this
+	
+	uint32_t src1 = reg_read_riscv(E, S, rs1);
+	
+	result.float_value = (float)src1; //cast to float
+	
+	freg_set_riscv(E, S, rd, result.bit_value);
+	
+	return;
+}
+
+void rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{	
+	freg_set_riscv(E, S, rd, reg_read_riscv(E, S, rs1));
+	
+	return;
+}
