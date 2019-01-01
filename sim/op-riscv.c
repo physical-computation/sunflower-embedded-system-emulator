@@ -277,12 +277,12 @@ void riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, ui
 
 void riscv_jalr(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
-	int32_t offset = (int32_t) sign_extend(imm0, 12) + (int32_t) reg_read_riscv(E, S, rs1);
+	int32_t addr = (int32_t) sign_extend(imm0, 12) + (int32_t) reg_read_riscv(E, S, rs1);
 	
 	uint32_t mask = -2;
 
 	reg_set_riscv(E, S, rd, S->PC);
-	S->PC = (S->PC + offset - 4) & mask;
+	S->PC = (addr) & mask;
 
 	return;
 }
@@ -369,8 +369,10 @@ void riscv_bgeu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 void riscv_lw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0, 12);
-
-	reg_set_riscv(E, S, rd, superHreadlong(E, S, addr));
+	
+	uint32_t value = superHreadlong(E, S, addr);
+	
+	reg_set_riscv(E, S, rd, value);
 
 	return;
 }
@@ -418,8 +420,10 @@ void riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 void riscv_sw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
 {
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
-
-	superHwritelong(E, S,addr, reg_read_riscv(E,S, rs2));
+	
+	uint32_t value = reg_read_riscv(E,S, rs2);
+	
+	superHwritelong(E, S, addr, value);
 }
 
 void riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)

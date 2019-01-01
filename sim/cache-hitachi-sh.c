@@ -102,8 +102,9 @@ SH_write_4(State * S, uchar * target, uint16_t data)
 
 /***************************** TODO *****************************/
 
+//Read from memory
 void
-riscv_big_endian_write_4(ulong * target, uchar * data)
+riscv_big_endian_read_4(ulong * target, uchar * data)
 {
 	*target = (ulong)(data[3])|(data[2]<<8)|(data[1]<<16)|(data[0]<<24);
 
@@ -111,7 +112,7 @@ riscv_big_endian_write_4(ulong * target, uchar * data)
 }
 
 void
-riscv_little_endian_write_4(ulong * target, uchar * data)
+riscv_little_endian_read_4(ulong * target, uchar * data)
 {
 	*target = (ulong)(data[0])|(data[1]<<8)|(data[2]<<16)|(data[3]<<24);
 
@@ -119,17 +120,55 @@ riscv_little_endian_write_4(ulong * target, uchar * data)
 }
 
 void
-riscv_write_4(State * S, ulong * target, uchar * data)
+riscv_read_4(State * S, ulong * target, uchar * data)
 {
 	if (S->endian == Little)
 	{
-		riscv_little_endian_write_4(target, data);
+		riscv_little_endian_read_4(target, data);
 	}
 	else
 	{
-		riscv_big_endian_write_4(target, data);
+		riscv_big_endian_read_4(target, data);
 	}
 }
+
+
+//Write to memory endianness
+void
+riscv_big_endian_write_4(ulong data, uchar * target)
+{
+	target[3] = (uchar)(data&0xFF);
+	target[2] = (uchar)((data>>8)&0xFF);
+	target[1] = (uchar)((data>>16)&0xFF);
+	target[0] = (uchar)((data>>24)&0xFF);
+	
+	return;
+}
+
+void
+riscv_little_endian_write_4(ulong data, uchar * target)
+{
+	target[0] = (uchar)(data&0xFF);
+	target[1] = (uchar)((data>>8)&0xFF);
+	target[2] = (uchar)((data>>16)&0xFF);
+	target[3] = (uchar)((data>>24)&0xFF);
+
+	return;
+}
+
+void
+riscv_write_4(State * S, ulong data, uchar * target)
+{
+	if (S->endian == Little)
+	{
+		riscv_little_endian_write_4(data, target);
+	}
+	else
+	{
+		riscv_big_endian_write_4(data, target);
+	}
+}
+
 
 /***************************** TODO *****************************/
 
@@ -1093,7 +1132,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				S->MEM[paddr+1 - S->MEMBASE] =(uchar)((data>>16)&0xFF);
 				S->MEM[paddr+2 - S->MEMBASE] =(uchar)((data>>8)&0xFF);
 				S->MEM[paddr+3 - S->MEMBASE] =(uchar)data&0xFF;
-
+				
 				return;
 			}
 		}
@@ -1133,10 +1172,13 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
+		 //TODO add support for different endianness
+		/*S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
 		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>16)&0xFF);
 		S->MEM[paddr+2 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;
+		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;*/
+		
+		riscv_write_4(S, data, &(S->MEM[paddr - S->MEMBASE]));
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -1925,7 +1967,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 				S->MEM[paddr+3 - S->MEMBASE];
 		*/			
 		
-		riscv_write_4(S, &data, &(S->MEM[paddr - S->MEMBASE]));
+		riscv_read_4(S, &data, &(S->MEM[paddr - S->MEMBASE]));
 	}
 
 	if (!inram)
