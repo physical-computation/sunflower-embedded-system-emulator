@@ -245,8 +245,7 @@ void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
 	uint8_t shift = shamt & mask; 
-	signed int src1 = reg_read_riscv(E, S, rs1);
-	int32_t data = src1 >> shift;
+	int32_t data = (signed int)reg_read_riscv(E, S, rs1) >> shift;
 	reg_set_riscv(E, S, rd, data);
 
 	return;
