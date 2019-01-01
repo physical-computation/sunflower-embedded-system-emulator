@@ -218,34 +218,35 @@ void riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 	return;
 }
 
-void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
+	uint8_t shift = shamt & mask; 
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) << shift));
 
 	return;
 }
 
-void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
+	uint8_t shift = shamt & mask; 
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) >> shift));
 
 	return;
 }
 
-void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
+void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t shamt, uint8_t rd)
 {
 	int xlen_b = 5;
 	int mask = ((1 << xlen_b) - 1);
-	uint8_t shift = imm0 & mask; 
-	uint32_t data = ((signed int) reg_read_riscv(E, S, rs1)) >> shift;
+	uint8_t shift = shamt & mask; 
+	signed int src1 = reg_read_riscv(E, S, rs1);
+	int32_t data = src1 >> shift;
 	reg_set_riscv(E, S, rd, data);
 
 	return;
