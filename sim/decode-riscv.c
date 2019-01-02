@@ -524,56 +524,124 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
         /*
         *RV32F implementation
         */
-        case 0b0000111: //FLW
+        case 0b0000111: //FLW, FLD
         {
-        	stage->fptr = (void *) rv32f_flw;
-		      stage->format = INSTR_I;
-		      stage->op = RV32F_OP_FLW;
+        	switch (tmp->funct3)
+          {
+          	case 0b010: //FLW
+          	{
+          		stage->fptr = (void *) rv32f_flw;
+						  stage->format = INSTR_I;
+						  stage->op = RV32F_OP_FLW;
+          		
+          		break
+          	}
+          	
+          	case 0b011: //FLD
+          	{
+          		
+          		
+          		break
+          	}
+          	
+          	default:
+          	{
+          		break;
+          	}
+        	}
         	
         	break;
         }
         
-        case 0b0100111: //FSW
+        case 0b0100111: //FSW, FSD
         {
-        	stage->fptr = (void *) rv32f_fsw;
-		      stage->format = INSTR_S;
-		      stage->op = RV32F_OP_FSW;
+        	switch (tmp->funct3)
+          {
+          	case 0b010: //FSW
+          	{
+          		stage->fptr = (void *) rv32f_fsw;
+						  stage->format = INSTR_S;
+						  stage->op = RV32F_OP_FSW;
+          		
+          		break
+          	}
+          	
+          	case 0b011: //FSD
+          	{
+          		
+          		
+          		break
+          	}
+          	
+          	default:
+          	{
+          		break;
+          	}
+        	}
         	
         	break;
         }
         
-        case 0b1000011: //FMADD.S
+        case 0b1000011: //FMADD.S, FMADD.D
         {
-        	stage->fptr = (void *) rv32f_fmadd_s;
-		      stage->format = INSTR_R4;
-		      stage->op = RV32F_OP_FMADDS;
+        	if ((tmp->funct7)&1) //FMADD.D
+        	{
+        		
+        	}
+        	else //FMADD.S
+        	{
+        		stage->fptr = (void *) rv32f_fmadd_s;
+				    stage->format = INSTR_R4;
+				    stage->op = RV32F_OP_FMADDS;
+        	}
         	
         	break;
         }
         
-        case 0b1000111: //FMSUB.S
+        case 0b1000111: //FMSUB.S, FMSUB.D
         {
-        	stage->fptr = (void *) rv32f_fmsub_s;
-		      stage->format = INSTR_R4;
-		      stage->op = RV32F_OP_FMSUBS;
+        	if ((tmp->funct7)&1) //FMSUB.D
+        	{
+        		
+        	}
+        	else //FMSUB.S
+        	{
+        		stage->fptr = (void *) rv32f_fmsub_s;
+				    stage->format = INSTR_R4;
+				    stage->op = RV32F_OP_FMSUBS;
+        	}
         	
         	break;
         }
         
-        case 0b1001011: //FNMSUB.S
+        case 0b1001011: //FNMSUB.S, FNMSUB.D
         {
-        	stage->fptr = (void *) rv32f_fnmsub_s;
-		      stage->format = INSTR_R4;
-		      stage->op = RV32F_OP_FNMSUBS;
+        	if ((tmp->funct7)&1) //FNMSUB.D
+        	{
+        		
+        	}
+        	else //FNMSUB.S
+        	{
+        		stage->fptr = (void *) rv32f_fnmsub_s;
+				    stage->format = INSTR_R4;
+				    stage->op = RV32F_OP_FNMSUBS;
+        	}
         	
         	break;
         }
         
-        case 0b1001111: //FNMADD.S
+        case 0b1001111: //FNMADD.S, //FNMADD.D
         {
-        	stage->fptr = (void *) rv32f_fnmadd_s;
-		      stage->format = INSTR_R4;
-		      stage->op = RV32F_OP_FNMADDS;
+        	if ((tmp->funct7)&1) //FNMADD.D
+        	{
+        		
+        	}
+        	else //FNMADD.S
+        	{
+        		stage->fptr = (void *) rv32f_fnmadd_s;
+				    stage->format = INSTR_R4;
+				    stage->op = RV32F_OP_FNMADDS;
+        	}
         	
         	break;
         }
@@ -810,6 +878,187 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           		stage->fptr = (void *) rv32f_fmv_w_x;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FMVWX;
+          		
+          		break;
+          	}
+          	
+          	
+          	/* Rest of the RV32D instructions */
+          	case 0b0000001: //FADD.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0000101: //FSUB.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0001001: //FMUL.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0001101: //FDIV.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0101101: //FSQRT.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0010001: //FSGNJ*.D
+          	{
+          		switch(tmp->funct3)
+          		{
+          			case 0b000: //FSGNJ.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			case 0b001: //FSGNJN.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			case 0b010: //FSGNJX.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			default:
+          			{
+          				break;
+          			}
+          		}
+          		
+          		break;
+          	}
+          	
+          	case 0b0010101: //FMIN.D, FMAX.D
+          	{
+          		switch(tmp->funct3)
+          		{
+          			case 0b000: //FMIN.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			case 0b001: //FMAX.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			default:
+          			{
+          				break;
+          			}
+          		}
+          		
+          		break;
+          	}
+          	
+          	case 0b0100000: //FCVT.S.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b0100001: //FCVT.D.S
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b1010001: //FEQ.D, FLT.D, FLE.D
+          	{
+          		switch(tmp->funct3)
+          		{
+          			case 0b010: //FEQ.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			case 0b001: //FLT.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			case 0b000: //FLE.D
+          			{
+          				
+          				
+          				break;
+          			}
+          			
+          			default:
+          			{
+          				break;
+          			}
+          		}
+          		
+          		break;
+          	}
+          	
+          	case 0b1110001: //FCLASS.D
+          	{
+          		
+          		
+          		break;
+          	}
+          	
+          	case 0b1100001: //FCVT.W.D, FCVT.WU.D
+          	{
+          		if(tmp->b20) //FCVT.WU.D
+          		{
+          			
+          		}
+          		else //FCVT.W.D
+          		{
+          			
+          		}
+          		
+          		break;
+          	}
+          	
+          	case 0b1101001: //FCVT.D.W, FCVT.D.WU
+          	{
+          		if(tmp->b20) //FCVT.D.WU
+          		{
+          			
+          		}
+          		else //FCVT.D.W
+          		{
+          			
+          		}
           		
           		break;
           	}
