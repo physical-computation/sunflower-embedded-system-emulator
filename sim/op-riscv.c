@@ -637,7 +637,7 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	return;
 }
 
-void rv32f_f_sqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	
@@ -645,7 +645,7 @@ void rv32f_f_sqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	
-	result.float_value = (float)sqrt((double)src1.float_value);
+	result.float_value = sqrtf(src1.float_value);
 	
 	switch (rm) //TODO check rm value for rounding
 	{
