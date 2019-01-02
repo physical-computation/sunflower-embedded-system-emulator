@@ -700,7 +700,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           	
           	case 0b0101100: //FSQRT.S
           	{
-          		stage->fptr = (void *) rv32f_f_sqrt_s;
+          		stage->fptr = (void *) rv32f_fsqrt_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FSQRTS;
           		
