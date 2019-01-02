@@ -256,7 +256,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 case 0b001:
                 {
                     stage->fptr = (void *) riscv_slli;
-                    stage->format = INSTR_R;
+                    stage->format = INSTR_I;
                     stage->op = RISCV_OP_SLLI;
 
                     break;
@@ -268,7 +268,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         case 0b0000000:
                         {
                             stage->fptr = (void *) riscv_srli;
-                            stage->format = INSTR_R;
+                            stage->format = INSTR_I;
                             stage->op = RISCV_OP_SRLI;
 
                             break;
@@ -276,7 +276,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                         case 0b0100000:
                         {
                             stage->fptr = (void *) riscv_srai;
-                            stage->format = INSTR_R;
+                            stage->format = INSTR_I;
                             stage->op = RISCV_OP_SRAI;
 
                             break;
