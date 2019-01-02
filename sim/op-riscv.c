@@ -1351,6 +1351,48 @@ void rv32d_fle_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	return;
 }
 
+void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	//https://www.gnu.org/software/libc/manual/html_node/Floating-Point-Classes.html
+	//TODO
+	uint32_t shift;
+	rv32d_rep src1;
+	
+	src1.bit64_value = freg_read_riscv(E, S, rs1);
+	
+	int class = fpclassify(src1.double_value);
+	
+	switch (class)
+	{
+		case FP_NAN:
+			shift = (__issignaling(src1.double_value)) ? 8 : 9;
+			break;
+		
+		case FP_INFINITE:
+			shift = (signbit(src1.double_value)==0) ? 7 : 0;
+			break;
+		
+		case FP_ZERO:
+			shift = (signbit(src1.double_value)==0) ? 4 : 3;
+			break;
+		
+		case FP_SUBNORMAL:
+			shift = (signbit(src1.double_value)==0) ? 5 : 2;
+			break;
+		
+		case FP_NORMAL:
+			shift = (signbit(src1.double_value)==0) ? 6 : 1;
+			break;
+		
+		default:
+			break;
+	}
+	
+	reg_set_riscv(E, S, rd, (uint32_t)(1 << shift));
+	
+	return;
+}
+
 void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//rs2 unused
