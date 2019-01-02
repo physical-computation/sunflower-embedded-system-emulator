@@ -776,3 +776,35 @@ void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 
+
+
+/*									*/
+/*			RISC-V RV32D additional functions			*/
+/*									*/
+
+void rv32d_fld(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void rv32d_fsd(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
+void rv32d_fmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void rv32d_fmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void rv32d_fnmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void rv32d_fnmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void rv32d_fadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fmul_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fdiv_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fsqrt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fsgnj_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fsgnjn_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_s_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_feq_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_flt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fle_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+
