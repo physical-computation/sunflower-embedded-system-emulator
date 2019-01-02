@@ -167,8 +167,6 @@ riscvstep(Engine *E, State *S, int drain_pipe)
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
 			S->Cycletrans = 0;
 		}
-		
-		S->pipeshow = 1;
 
 		if (S->pipeshow)
 		{
