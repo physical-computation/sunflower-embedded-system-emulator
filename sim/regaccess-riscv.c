@@ -86,7 +86,7 @@ uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
 {
 	uint64_t data;
 
-	if (n < RF32F_fMAX)
+	if (n < RF32FD_fMAX)
 	{
 		data = S->riscv->fR[n];
 	}
@@ -97,7 +97,7 @@ uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
 tuck
 void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 {
-	if (n < RF32F_fMAX)
+	if (n < RF32FD_fMAX)
 	{
 		S->riscv->fR[n] = data;
 	}

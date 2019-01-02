@@ -747,8 +747,8 @@ void 	riscv_csrrci(Engine *E, State *S);
 /*			RISC-V RV32F additional functions			*/
 /*									*/
 
-uint32_t freg_read_riscv(Engine *E, State *S, uint8_t n);
-void freg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
+uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n);
+void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data);
 void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
 void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
 void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);

@@ -534,7 +534,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 							stage->format = INSTR_I;
 							stage->op = RV32F_OP_FLW;
           		
-          		break
+          		break;
           	}
           	
           	case 0b011: //FLD
@@ -543,7 +543,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 							stage->format = INSTR_I;
 							stage->op = RV32D_OP_FLD;
           		
-          		break
+          		break;
           	}
           	
           	default:
@@ -565,7 +565,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 						  stage->format = INSTR_S;
 						  stage->op = RV32F_OP_FSW;
           		
-          		break
+          		break;
           	}
           	
           	case 0b011: //FSD
@@ -574,7 +574,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 							stage->format = INSTR_S;
 							stage->op = RV32D_OP_FSD;
           		
-          		break
+          		break;
           	}
           	
           	default:

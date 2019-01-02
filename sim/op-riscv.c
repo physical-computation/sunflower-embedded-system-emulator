@@ -1012,7 +1012,7 @@ void rv32d_fld(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 	
 	uint64_t data = (data_msw << 32) | data_lsw;
 	
-	freg_set_riscv(E, S, rd, superHreadlong(E, S, addr));
+	freg_set_riscv(E, S, rd, data);
 
 	return;
 }
@@ -1224,7 +1224,7 @@ void rv32d_fsgnj_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint64_t src1 = freg_read_riscv(E, S, rs1);
 	uint64_t src2 = freg_read_riscv(E, S, rs2);
 	
-	uint64_t result = (src1 & ((long)(-1) - ((long)1 << 63))) | (src2 & ((long)1 << 63));
+	uint64_t result = (src1 & ((uint64_t)(-1) - ((uint64_t)1 << 63))) | (src2 & ((uint64_t)1 << 63));
 	
 	freg_set_riscv(E, S, rd, result);
 	
@@ -1236,7 +1236,7 @@ void rv32d_fsgnjn_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint64_t src1 = freg_read_riscv(E, S, rs1);
 	uint64_t src2 = freg_read_riscv(E, S, rs2);
 	
-	uint64_t result = (src1 & ((long)(-1) - ((long)1 << 63))) | (~src2 & ((long)1 << 63));
+	uint64_t result = (src1 & ((uint64_t)(-1) - ((uint64_t)1 << 63))) | (~src2 & ((uint64_t)1 << 63));
 	
 	freg_set_riscv(E, S, rd, result);
 	
@@ -1248,7 +1248,7 @@ void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint64_t src1 = freg_read_riscv(E, S, rs1);
 	uint64_t src2 = freg_read_riscv(E, S, rs2);
 	
-	uint64_t result = (src1 & ((long)(-1) - ((long)1 << 63))) | ((src1 ^ src2) & ((long)1 << 63));
+	uint64_t result = (src1 & ((uint64_t)(-1) - ((uint64_t)1 << 63))) | ((src1 ^ src2) & ((uint64_t)1 << 63));
 	
 	freg_set_riscv(E, S, rd, result);
 	
