@@ -99,6 +99,46 @@ enum
     
     RV32F_OP_FMVWX,
     
-    RV32F_OP_FMAX
+    RV32F_OP_FMAX,
+    
+    
+    /* RV32D */
+    RV32D_OP_FLD,
+    RV32D_OP_FSD,
+    
+    RV32D_OP_FMADDD,
+    RV32D_OP_FMSUBD,
+    RV32D_OP_FNMSUBD,
+    RV32D_OP_FNMADDD,
+    
+    RV32D_OP_FADDD,
+    RV32D_OP_FSUBD,
+    RV32D_OP_FMULD,
+    RV32D_OP_FDIVD,
+    RV32D_OP_FSQRTD,
+    
+    RV32D_OP_FSGNJD,
+    RV32D_OP_FSGNJND,
+    RV32D_OP_FSGNJXD,
+    
+    RV32D_OP_FMIND,
+    RV32D_OP_FMAXD,
+    
+    RV32D_OP_FCVTSD,
+    RV32D_OP_FCVTDS,
+    
+    RV32D_OP_FEQD,
+    RV32D_OP_FLTD,
+    RV32D_OP_FLED,
+    
+    RV32D_OP_FCLASSD,
+    
+    RV32D_OP_FCVTWD,
+    RV32D_OP_FCVTWUD,
+    RV32D_OP_FCVTDW,
+    RV32D_OP_FCVTDWU,
+    
+    RV32D_OP_DMAX
+    
     
 };

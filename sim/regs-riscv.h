@@ -144,104 +144,104 @@ enum
 /* RISC-V floating point registers */
 enum
 {
-	RV32F_f0   = 0,
-	RV32F_ft0  = 0,
+	RV32FD_f0   = 0,
+	RV32FD_ft0  = 0,
 	
-	RV32F_f1   = 1,
-	RV32F_ft1  = 1,
+	RV32FD_f1   = 1,
+	RV32FD_ft1  = 1,
 	
-	RV32F_f2   = 2,
-	RV32F_ft2  = 2,
+	RV32FD_f2   = 2,
+	RV32FD_ft2  = 2,
 	
-	RV32F_f3   = 3,
-	RV32F_ft3  = 3,
+	RV32FD_f3   = 3,
+	RV32FD_ft3  = 3,
 	
-	RV32F_f4   = 4,
-	RV32F_ft4  = 4,
+	RV32FD_f4   = 4,
+	RV32FD_ft4  = 4,
 	
-	RV32F_f5   = 5,
-	RV32F_ft5  = 5,
+	RV32FD_f5   = 5,
+	RV32FD_ft5  = 5,
 	
-	RV32F_f6   = 6,
-	RV32F_ft6  = 6,
+	RV32FD_f6   = 6,
+	RV32FD_ft6  = 6,
 	
-	RV32F_f7   = 7,
-	RV32F_ft7  = 7,
+	RV32FD_f7   = 7,
+	RV32FD_ft7  = 7,
 	
-	RV32F_f8   = 8,
-	RV32F_fs0  = 8,
+	RV32FD_f8   = 8,
+	RV32FD_fs0  = 8,
 	
-	RV32F_f9   = 9,
-	RV32F_fs1  = 9,
+	RV32FD_f9   = 9,
+	RV32FD_fs1  = 9,
 	
-	RV32F_f10  = 10,
-	RV32F_fa0  = 10,
+	RV32FD_f10  = 10,
+	RV32FD_fa0  = 10,
 	
-	RV32F_f11  = 11,
-	RV32F_fa1  = 11,
+	RV32FD_f11  = 11,
+	RV32FD_fa1  = 11,
 	
-	RV32F_f12  = 12,
-	RV32F_fa2  = 12,
+	RV32FD_f12  = 12,
+	RV32FD_fa2  = 12,
 	
-	RV32F_f13  = 13,
-	RV32F_fa3  = 13,
+	RV32FD_f13  = 13,
+	RV32FD_fa3  = 13,
 	
-	RV32F_f14  = 14,
-	RV32F_fa4  = 14,
+	RV32FD_f14  = 14,
+	RV32FD_fa4  = 14,
 	
-	RV32F_f15  = 15,
-	RV32F_fa5  = 15,
+	RV32FD_f15  = 15,
+	RV32FD_fa5  = 15,
 	
-	RV32F_f16  = 16,
-	RV32F_fa6  = 16,
+	RV32FD_f16  = 16,
+	RV32FD_fa6  = 16,
 	
-	RV32F_f17  = 17,
-	RV32F_fa7  = 17,
+	RV32FD_f17  = 17,
+	RV32FD_fa7  = 17,
 	
-	RV32F_f18  = 18,
-	RV32F_fs2  = 18,
+	RV32FD_f18  = 18,
+	RV32FD_fs2  = 18,
 	
-	RV32F_f19  = 19,
-	RV32F_fs3  = 19,
+	RV32FD_f19  = 19,
+	RV32FD_fs3  = 19,
 	
-	RV32F_f20  = 20,
-	RV32F_fs4  = 20,
+	RV32FD_f20  = 20,
+	RV32FD_fs4  = 20,
 	
-	RV32F_f21  = 21,
-	RV32F_fs5  = 21,
+	RV32FD_f21  = 21,
+	RV32FD_fs5  = 21,
 	
-	RV32F_f22  = 22,
-	RV32F_fs6  = 22,
+	RV32FD_f22  = 22,
+	RV32FD_fs6  = 22,
 	
-	RV32F_f23  = 23,
-	RV32F_fs7  = 23,
+	RV32FD_f23  = 23,
+	RV32FD_fs7  = 23,
 	
-	RV32F_f24  = 24,
-	RV32F_fs8  = 24,
+	RV32FD_f24  = 24,
+	RV32FD_fs8  = 24,
 	
-	RV32F_f25  = 25,
-	RV32F_fs9  = 25,
+	RV32FD_f25  = 25,
+	RV32FD_fs9  = 25,
 	
-	RV32F_f26  = 26,
-	RV32F_fs10 = 26,
+	RV32FD_f26  = 26,
+	RV32FD_fs10 = 26,
 	
-	RV32F_f27  = 27,
-	RV32F_fs11 = 27,
+	RV32FD_f27  = 27,
+	RV32FD_fs11 = 27,
 	
-	RV32F_f28  = 28,
-	RV32F_ft8  = 28,
+	RV32FD_f28  = 28,
+	RV32FD_ft8  = 28,
 	
-	RV32F_f29  = 29,
-	RV32F_ft9  = 29,
+	RV32FD_f29  = 29,
+	RV32FD_ft9  = 29,
 	
-	RV32F_f30  = 30,
-	RV32F_ft10 = 30,
+	RV32FD_f30  = 30,
+	RV32FD_ft10 = 30,
 	
-	RV32F_f31  = 31,
-	RV32F_ft11 = 31,
+	RV32FD_f31  = 31,
+	RV32FD_ft11 = 31,
 	
 	/*Number of floating point registers*/
-	RF32F_fMAX = 32
+	RF32FD_fMAX = 32
 };
 
 typedef union
@@ -249,3 +249,10 @@ typedef union
 	uint32_t bit_value;
 	float float_value;
 } rv32f_rep;
+
+typedef union
+{
+	uint64_t bit64_value;
+	double double_value;
+} rv32d_rep;
+
