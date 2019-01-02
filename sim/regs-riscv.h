@@ -241,11 +241,18 @@ enum
 	RV32FD_ft11 = 31,
 	
 	/*Number of floating point registers*/
-	RF32F_fMAX = 32
+	RF32FD_fMAX = 32
 };
 
 typedef union
 {
-	uint64_t bit_value;
-	double float_value;
-} rv32fd_rep;
+	uint32_t bit_value;
+	float float_value;
+} rv32f_rep;
+
+typedef union
+{
+	uint64_t bit64_value;
+	double double_value;
+} rv32d_rep;
+
