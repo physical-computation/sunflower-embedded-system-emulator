@@ -5,11 +5,11 @@ Installation Instructions
 
 Step 1
 ------
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Building the simulator depends on `gawk`, so install it. Building the gcc cross-compilers depends on `gcc` (you will likely run into issues trying to build the cross-compiler using `clang`), `libmpc`, `mpfr`, and `gmp`, so make sure you have them installed or the cross-compiler build will fail.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Building the simulator depends on `gawk`, so install it. Building the gcc cross-compilers depends on `gcc` (you will likely run into issues trying to build the cross-compiler using `clang`), `libmpc`, `mpfr`, and `gmp`, so make sure you have them installed or the cross-compiler build will fail. On newer versions of macOS, you will need to install gcc (as opposed to using the gcc alias on modern macOS that is just an alias for clang). Because of various design choices made in the implementation of gcc (mixing of C and C++) conventions for source file name extensions, you will need to have a separate g++ binary that treats its input as either C++ source or C++ object file (you won't be able to get away with calling gcc with `-x c++ -lstdc++ -shared-libgcc`). One version of gcc that fulfils this requirement is gcc version 4.9. MacPorts no longer installs separate binaries for gcc versus	g++, so you will need to use homebrew (or some other alternative) to install gcc4.9 and to set the TOOLCC and TOOLCXX in appropriately to this gcc-4.9 (more details below).
 
 Step 2
 ------
-Edit `conf/setup.conf` and set `$SUNFLOWERROOT`, `$HOST`, `TOOLCC`, and `TOOLCXX` appropriately. You will need to set your `$OSTYPE` environment variable in your shell if it is not already set.  Examples include `darwin` for MacOSX, and the eponymous `OpenBSD`, `linux`, and `solaris`. You will also need to set `MACHTYPE`. A common correct value (depends on your host platform) is `i386`.
+Edit `conf/setup.conf` and set `$SUNFLOWERROOT`, `TOOLCC`, and `TOOLCXX` appropriately. You will need to set your `$OSTYPE` environment variable in your shell if it is not already set.  Examples include `darwin` for MacOSX, and the eponymous `OpenBSD`, `linux`, and `solaris`. You will also need to set `MACHTYPE`. A common correct value (depends on your host platform) is `i386`.
 
 Step 3
 ------
