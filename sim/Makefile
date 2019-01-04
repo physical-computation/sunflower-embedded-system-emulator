@@ -115,13 +115,13 @@ sf.o: sf.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf.tab.c -o $@
 
 sf.tab.c: sf.y lex.c $(HEADERS) Makefile
-	$(BISON) $(BFLAGS) sf.y
+	$(GBISON) $(BFLAGS) sf.y
 
 mspasm.o: mspasm.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c mspasm.tab.c -o $@
 
 mspasm.tab.c: mspasm.y lex.c $(HEADERS) Makefile
-	$(BISON) $(BFLAGS) mspasm.y
+	$(GBISON) $(BFLAGS) mspasm.y
 
 
 mversion.h: Makefile

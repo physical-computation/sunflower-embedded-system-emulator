@@ -2,7 +2,7 @@ CC			= clang
 GAWK			= gawk
 LINT			= echo 
 LD			= clang
-BISON			= bison
+GBISON			= /opt/local/bin/bison
 ENDIAN			= SF_L_ENDIAN
 PLATFORM_CFLAGS 	= -arch i386 -D$(ENDIAN) -mmacosx-version-min=10.4 #-no-cpp-precomp -mno-fused-madd -pipe -multiply_defined suppress -malign-natural -Wno-long-double -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -Wno-deprecated-declarations -Wunused -Wreturn-type -Wimplicit
 PLATFORM_LFLAGS 	= -arch i386 #-mmacosx-version-min=10.4 -multiply_defined suppress -lpthread 
