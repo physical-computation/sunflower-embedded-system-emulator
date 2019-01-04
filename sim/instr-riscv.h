@@ -45,6 +45,9 @@ enum
     INSTR_B,
     INSTR_U,
     INSTR_J,
+    
+    /* Additional R4 type introduced in RV32F */
+    INSTR_R4,
 
     /* We introduce this new type to accomodate for any invalid instruction
        , including 0. These instructions will be executed as nop       */
@@ -125,3 +128,18 @@ typedef struct
     unsigned funct7:7;
     
 } instr_riscv_decode;
+
+
+/* R4 type for RV32F */
+
+typedef struct
+{
+	unsigned opcode:7;
+	unsigned rd:5;
+	unsigned rm:3;
+	unsigned rs1:5;
+	unsigned rs2:5;
+	unsigned unused:2;
+	unsigned rs3:5;
+} instr_r4;
+

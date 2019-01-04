@@ -34,117 +34,138 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
-void
-SH_big_endian_write_2(uchar * target, uint16_t data)
-{
-	target[0] = (uchar)((data>>8)&0xFF);
-	target[1] = (uchar)data&0xFF;
 
+
+//Read from memory 2 bytes
+void
+big_endian_read_2(uchar * source, ushort * target)
+{
+	*target = (ushort)((source[1])|(source[0]<<8));
+	
 	return;
 }
 
 void
-SH_little_endian_write_2(uchar * target, uint16_t data)
+little_endian_read_2(uchar * source, ushort * target)
 {
-	target[1] = (uchar)((data>>8)&0xFF);
-	target[0] = (uchar)data&0xFF;
-
+	*target = (ushort)((source[0])|(source[1]<<8));
+	
 	return;
 }
 
 void
-SH_write_2(State *S, uchar * target, uint16_t data)
+read_2(State * S, uchar * source, ushort * target)
 {
 	if (S->endian == Little)
 	{
-		SH_little_endian_write_2(target, data);
+		little_endian_read_2(source, target);
 	}
 	else
 	{
-		SH_big_endian_write_2(target, data);
+		big_endian_read_2(source, target);
 	}
 }
 
+//Read from memory 4 bytes
 void
-SH_big_endian_write_4(uchar * target, uint16_t data)
+big_endian_read_4(uchar * source, ulong * target)
 {
-	target[0] = (uchar)((data>>24)&0xFF);
-	target[1] = (uchar)((data>>16)&0xFF);
-	target[2] = (uchar)((data>>8)&0xFF);
-	target[3] = (uchar)data&0xFF;
+	*target = (ulong)(source[3])|(source[2]<<8)|(source[1]<<16)|(source[0]<<24);
 
 	return;
 }
 
 void
-SH_little_endian_write_4(uchar * target, uint16_t data)
+little_endian_read_4(uchar * source, ulong * target)
 {
-	target[3] = (uchar)((data>>24)&0xFF);
-	target[2] = (uchar)((data>>16)&0xFF);
-	target[1] = (uchar)((data>>8)&0xFF);
-	target[0] = (uchar)data&0xFF;
+	*target = (ulong)(source[0])|(source[1]<<8)|(source[2]<<16)|(source[3]<<24);
 
 	return;
 }
 
 void
-SH_write_4(State * S, uchar * target, uint16_t data)
+read_4(State * S, uchar * source, ulong * target)
 {
 	if (S->endian == Little)
 	{
-		SH_little_endian_write_4(target, data);
+		little_endian_read_4(source, target);
 	}
 	else
 	{
-		SH_big_endian_write_4(target, data);
+		big_endian_read_4(source, target);
 	}
 }
 
-uint16_t
-SH_big_endian_read_2(uchar * target)
+
+//Write to memory 2 bytes
+void
+big_endian_write_2(ushort source, uchar * target)
 {
-	return ((target[0]<<8) | target[1]);
+	target[1] = (uchar)source&0xFF;
+	target[0] = (uchar)((source>>8)&0xFF);
+	
+	return;
 }
 
-uint16_t
-SH_little_endian_read_2(uchar * target)
+void
+little_endian_write_2(ushort source, uchar * target)
 {
-	return ((target[1]<<8) | target[0]);
+	target[0] = (uchar)source&0xFF;
+	target[1] = (uchar)((source>>8)&0xFF);
+	
+	return;
 }
 
-uint16_t
-SH_read_2(State * S, uchar * target)
+void
+write_2(State *S, ushort source, uchar * target)
 {
 	if (S->endian == Little)
 	{
-		return SH_little_endian_read_2(target);
+		little_endian_write_2(source, target);
 	}
-
-	return SH_big_endian_read_2(target);
+	else
+	{
+		big_endian_write_2(source, target);
+	}
 }
 
-uint32_t
-SH_big_endian_read_4(uchar * target)
+
+//Write to memory 4 bytes
+void
+big_endian_write_4(ulong source, uchar * target)
 {
-	return ((target[0]<<24) | (target[1]<<16) | (target[2]<<8) | target[3]);
+	target[3] = (uchar)(source&0xFF);
+	target[2] = (uchar)((source>>8)&0xFF);
+	target[1] = (uchar)((source>>16)&0xFF);
+	target[0] = (uchar)((source>>24)&0xFF);
+	
+	return;
 }
 
-uint32_t
-SH_little_endian_read_4(uchar * target)
+void
+little_endian_write_4(ulong source, uchar * target)
 {
-	return ((target[3]<<24) | (target[2]<<16) | (target[1]<<8) | target[0]);
+	target[0] = (uchar)(source&0xFF);
+	target[1] = (uchar)((source>>8)&0xFF);
+	target[2] = (uchar)((source>>16)&0xFF);
+	target[3] = (uchar)((source>>24)&0xFF);
+
+	return;
 }
 
-uint32_t
-SH_read_4(State * S, uchar * target)
+void
+write_4(State * S, ulong source, uchar * target)
 {
 	if (S->endian == Little)
 	{
-		return SH_little_endian_read_4(target);
+		little_endian_write_4(source, target);
 	}
-
-	return SH_big_endian_read_4(target);
+	else
+	{
+		big_endian_write_4(source, target);
+	}
 }
+
 
 int
 superHcache_init(Engine *E, State *S, int size, int blocksize, int assoc)
@@ -748,8 +769,10 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 				/*  Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*  memmove will screw up byte order  */
-				S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-				S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+				write_2(S, data, &S->MEM[paddr - S->MEMBASE]);
+				
+				/*S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
+				S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;*/
 
 				return;
 			}
@@ -791,8 +814,10 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;
+		write_2(S, data, &S->MEM[paddr - S->MEMBASE]);
+		
+		/*S->MEM[paddr - S->MEMBASE] = (uchar)((data>>8)&0xFF);
+		S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;*/
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -1055,11 +1080,13 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 				/* Found block, let write proceed sans stall */
 				S->superH->C->writehit++;
 				/*	memmove will screw up byte order   */
-				S->MEM[paddr - S->MEMBASE] =(uchar)((data>>24)&0xFF);
+				write_4(S, data, &(S->MEM[paddr - S->MEMBASE]));
+				
+				/*S->MEM[paddr - S->MEMBASE] =(uchar)((data>>24)&0xFF);
 				S->MEM[paddr+1 - S->MEMBASE] =(uchar)((data>>16)&0xFF);
 				S->MEM[paddr+2 - S->MEMBASE] =(uchar)((data>>8)&0xFF);
-				S->MEM[paddr+3 - S->MEMBASE] =(uchar)data&0xFF;
-
+				S->MEM[paddr+3 - S->MEMBASE] =(uchar)data&0xFF;*/
+				
 				return;
 			}
 		}
@@ -1099,10 +1126,12 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	
 	if (inram)
 	{
-		S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
+		write_4(S, data, &(S->MEM[paddr - S->MEMBASE]));
+		
+		/*S->MEM[paddr - S->MEMBASE] = (uchar)((data>>24)&0xFF);
 		S->MEM[paddr+1 - S->MEMBASE] = (uchar)((data>>16)&0xFF);
 		S->MEM[paddr+2 - S->MEMBASE] = (uchar)((data>>8)&0xFF);
-		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;
+		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;*/
 	}
 	
 	if (!S->superH->cache_activated || !trans.cacheable)
@@ -1590,7 +1619,8 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ushort)(S->MEM[paddr - S->MEMBASE]<<8)|S->MEM[paddr+1 - S->MEMBASE];
+		read_2(S, &S->MEM[paddr - S->MEMBASE], &data);
+		//data = (ushort)(S->MEM[paddr - S->MEMBASE]<<8)|S->MEM[paddr+1 - S->MEMBASE];
 	}
 
 	if (!inram)
@@ -1885,10 +1915,11 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 	{
 		inram = 1;
 		latency = S->mem_r_latency;
-		data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
+		read_4(S, &(S->MEM[paddr - S->MEMBASE]), &data);
+		/*data = (ulong)(S->MEM[paddr - S->MEMBASE]<<24)|\
 				(S->MEM[paddr+1 - S->MEMBASE]<<16)|\
 				(S->MEM[paddr+2 - S->MEMBASE]<<8)|\
-				S->MEM[paddr+3 - S->MEMBASE];
+				S->MEM[paddr+3 - S->MEMBASE];*/
 	}
 
 	if (!inram)

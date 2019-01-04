@@ -218,6 +218,7 @@ main(int nargs, char *args[])
   	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 		E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 		E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
+
 	while (1)
 	{
   		fgets(buf, MAX_BUFLEN, stdin);
