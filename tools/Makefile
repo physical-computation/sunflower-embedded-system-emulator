@@ -68,6 +68,7 @@ gcc-post:
 	cp $(PREFIX)/lib/*.a $(SUNFLOWERROOT)/tools/tools-lib/$(TARGET)/;\
 	ln -s $(PREFIX)/bin/$(TARGET-ARCH)* $(TOOLS)/bin/;\
 	ln -s $(PREFIX)/$(TARGET-ARCH)/bin/* $(TOOLS)/bin/;\
+	ln -s $(TOOLS)/bin/$(TARGET-ARCH)-gcc $(TOOLS)/bin/$(TARGET-ARCH)-cc;\
 	$(DEL) $(GCC)/objdir;\
 
 
