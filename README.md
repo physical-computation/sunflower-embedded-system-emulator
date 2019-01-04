@@ -2,12 +2,9 @@
 
 Installation Instructions
 =========================
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`) and on the GNU version of `bison`, so install them.
 
-Step 1
-------
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on `gawk`, so install it.
-
-On macOS, use the configuration
+Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
 OSTYPE          = darwin
 MACHTYPE        = i386
