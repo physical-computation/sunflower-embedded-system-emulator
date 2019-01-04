@@ -1,7 +1,17 @@
 ![Sunflower Simulator Architecture](http://sflr.org/images/arch.png)
 
-Installation Instructions
-=========================
+# Cloning This Repository
+The correct way to clone this repository to get the simulator and the submodules it depends on is:
+
+	git clone --recursive https://github.com/phillipstanleymarbell/sunflower-simulator.git
+
+To update all submodules:
+
+	git pull --recurse-submodules
+	git submodule update --remote --recursive
+
+
+# Installation Instructions
 Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`) and on the GNU version of `bison`, so install them.
 
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
