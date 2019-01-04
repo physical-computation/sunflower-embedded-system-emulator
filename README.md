@@ -5,7 +5,21 @@ Installation Instructions
 
 Step 1
 ------
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on `gawk`, so install it. Follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on `gawk`, so install it.
+
+On macOS, use the configuration
+```
+OSTYPE          = darwin
+MACHTYPE        = i386
+```
+
+On Linux, use the configuration
+```
+OSTYPE          = linux
+MACHTYPE        = i386
+```
+
+Follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
 
 # If you use Sunflower in your research, please cite it as:
 Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
