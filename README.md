@@ -26,7 +26,14 @@ OSTYPE          = linux
 MACHTYPE        = i386
 ```
 
-Follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
+To configure the emulator to default to RISC-V processor support rather than Hitachi SuperH, you will want:
+
+```
+TARGET		= riscv
+TARGET-ARCH	= riscv32-elf
+```
+
+Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
 
 # If you use Sunflower in your research, please cite it as:
 Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
