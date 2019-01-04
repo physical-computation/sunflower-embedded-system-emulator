@@ -3,7 +3,7 @@ include config.$(OSTYPE)-$(MACHTYPE)
 
 TARGET		= sf
 
-BFLAGS		= -t -v -Wno-other -Wno-conflicts-sr -Wno-conflicts-rr
+BFLAGS		= -t -v ##-Wno-other -Wno-conflicts-sr -Wno-conflicts-rr
 WFLAGS		= -Wall ##-Wmissing-prototypes ##-Wall ##-Werror -Winline -Wunreachable-code
 INCLUDDIRS	= -I.
 
