@@ -29,7 +29,7 @@ binutils-post:
 gcc: gcc-pre gcc-post
 
 #
-#	On macOS with MacPorts, add
+#	On older macOS with MacPorts (e.g., Sierra), you might need to add:
 #
 #		--with-gmp=/opt/local --with-mpfr=/opt/local --with-mpc=/opt/local --with-libiconv-prefix=/opt/local
 #
