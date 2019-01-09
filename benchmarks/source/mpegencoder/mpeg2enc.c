@@ -58,7 +58,7 @@ static void readparmfile _ANSI_ARGS_((char *fname));
 static void readquantmat _ANSI_ARGS_((void));
 
 
-int startup(argc,argv)
+int main(argc,argv)
 int argc;
 char *argv[];
 {

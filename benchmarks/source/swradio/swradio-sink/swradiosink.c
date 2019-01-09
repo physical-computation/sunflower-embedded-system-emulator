@@ -52,7 +52,7 @@ extern void* 	memmove(void *, void *, long);
 
 
 void
-startup(void)
+main(void)
 {
         void    	(*fptr)() = (void *)0x8001000;
 	int		addrchars, i;

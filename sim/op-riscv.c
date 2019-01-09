@@ -930,7 +930,8 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	switch (class)
 	{
 		case FP_NAN:
-			shift = (__issignaling(src1.float_value)) ? 8 : 9;
+			//BUG: not portable
+			//shift = (__issignaling(src1.float_value)) ? 8 : 9;
 			break;
 		
 		case FP_INFINITE:
@@ -1365,7 +1366,8 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	switch (class)
 	{
 		case FP_NAN:
-			shift = (__issignaling(src1.double_value)) ? 8 : 9;
+			//BUG: not portable
+			//shift = (__issignaling(src1.double_value)) ? 8 : 9;
 			break;
 		
 		case FP_INFINITE:

@@ -23,6 +23,8 @@
 #include "devsim7708.h"
 #include "sh7708.h"
 #include "devscc.h"
+#include "devnet.h"
+#include "devmac.h"
 #include "devrtc.h"
 #include "devexcp.h"
 #include "devlog.h"
@@ -47,9 +49,9 @@ enum
 
 enum
 {
-	PROTO_DAM		= 0,
+	PROTO_DAM_INTERNAL	= 0,
 	DAM_PROTOCOL_PERIOD	= 2000,
-	DAM_ID_LEN		= 16,
+	DAM_ID_LEN		= SUPERH_NIC_OUI_BYTES,
 };
 
 #define	DAM_THRESHOLD_ELECTION	50.0
@@ -86,7 +88,7 @@ volatile long		dam_period;
 volatile uchar		dam_myID[DAM_ID_LEN], dam_leaderID[DAM_ID_LEN], dam_myParent[DAM_ID_LEN];
 
 void
-startup(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	Dampkt		dam_p;
 	char		tmp;
@@ -94,15 +96,39 @@ startup(int argc, char *argv[])
 	ulong		start = 0;
 	long		sluimer;
 	int		period = 0;
+	int		tmpperiod;
 	SMACstate	*smac_tmp;
 
 
 	S_MAC = NULL;
-	strncpy(dam_myID, (char *)NIC_OUI, DAM_ID_LEN);
+
+	/*
+	 *	Because the 16-byte ID is a sequence of bytes coming from the emulator
+	 *	underneath and is not necessarily a null-terminated string, we need to
+	 *	explicitly null-terminate. Second, we can't use strcpy/memmove anymore
+	 *	with recent versions of the C library since they optimize by doing a
+	 *	double-word access. We therefore have to manually read each of the
+	 *	NIC_OUI bytes.
+	 */
+	dam_myID[0] = *(volatile uchar *)(NIC_OUI+0);
+	dam_myID[1] = *(volatile uchar *)(NIC_OUI+1);
+	dam_myID[2] = *(volatile uchar *)(NIC_OUI+2);
+	dam_myID[3] = *(volatile uchar *)(NIC_OUI+3);
+	dam_myID[4] = *(volatile uchar *)(NIC_OUI+4);
+	dam_myID[5] = *(volatile uchar *)(NIC_OUI+5);
+	dam_myID[6] = *(volatile uchar *)(NIC_OUI+6);
+	dam_myID[7] = *(volatile uchar *)(NIC_OUI+7);
+	dam_myID[8] = *(volatile uchar *)(NIC_OUI+8);
+	dam_myID[9] = *(volatile uchar *)(NIC_OUI+9);
+	dam_myID[10] = *(volatile uchar *)(NIC_OUI+10);
+	dam_myID[11] = *(volatile uchar *)(NIC_OUI+11);
+	dam_myID[12] = *(volatile uchar *)(NIC_OUI+12);
+	dam_myID[13] = *(volatile uchar *)(NIC_OUI+13);
+	dam_myID[14] = *(volatile uchar *)(NIC_OUI+14);
+	dam_myID[15] = *(volatile uchar *)(NIC_OUI+15);
+	dam_myID[DAM_ID_LEN] = '\0';
 	hdlr_install();
-
 	print("DAM node [%s] done installing vector code...\n", dam_myID);
-
 	print("DAM node [%s] initializing S-MAC... ", dam_myID);
 
 	/*									*/
@@ -133,7 +159,7 @@ startup(int argc, char *argv[])
 	dam_period = DAM_PROTOCOL_PERIOD;
 	if (argc == 1)
 	{
-		int tmpperiod = strtol(argv[0], &ep, 0);
+		tmpperiod = strtol(argv[0], &ep, 0);
 		if (*ep != '\0')
 		{
 			printf("Invalid DAM period supplied as argument.\n");
@@ -185,9 +211,6 @@ startup(int argc, char *argv[])
 		if (dam_myPr > DAM_THRESHOLD_ELECTION)
 		{
 LOGMARK(12);
-//printf("++++ dam_myPr = %f, DAM_THRESHOLD_ELECTION = %f\n",
-//	dam_myPr, DAM_THRESHOLD_ELECTION);
-
 			dam_participating = TRUE;
 			dam_maxPrHeard = dam_myPr;
 			strncpy(dam_leaderID, dam_myID, DAM_ID_LEN);
@@ -227,7 +250,7 @@ dam_broadcast(Dampkt *p)
 
 NETTRACEMARK(2);
 LOGMARK(6);
-	smac_transmit(S_MAC, SMAC_BCAST_ADDR, data, 4 + 2*(DAM_ID_LEN+1) + 2*8, 0, PROTO_DAM);
+	smac_transmit(S_MAC, SMAC_BCAST_ADDR, data, 4 + 2*(DAM_ID_LEN+1) + 2*8, 0, PROTO_DAM_INTERNAL);
 LOGMARK(7);
 NETTRACEMARK(3);
 
@@ -246,7 +269,7 @@ dam_rcv_pkt(char *data)
 	p.maxPr = *((float *)&data[4 + 2*(DAM_ID_LEN+1)]);
 	p.transPr = *((float *)&data[4 + 2*(DAM_ID_LEN+1) + 8]);
 
-printf(">>> node %s (w/ myPr = %E, maxPrHeard = %E), got p.transID = [%s], p.maxID = [%s], p.maxPr = [%E], p.transPr = [%E] <<<\n",
+	printf(">>> node %s (w/ myPr = %E, maxPrHeard = %E), got p.transID = [%s], p.maxID = [%s], p.maxPr = [%E], p.transPr = [%E] <<<\n",
 	dam_myID, dam_myPr, dam_maxPrHeard, p.transID, p.maxID, p.maxPr, p.transPr);
 
 	if ((p.maxPr > dam_maxPrHeard) && ((p.transPr + dam_delta) > dam_myPr))
@@ -340,7 +363,7 @@ NETTRACEMARK(9);
 	/*	DEBUG	*/
 	printf("\t\tDAM node [%s]: Just got frame from node [%s], length [%d], proto [%s]\n",
 		dam_myID, payload->src, payload->len,
-		(payload->nxthdr == PROTO_DAM ? "DAM" : "UNKNOWN"));
+		(payload->nxthdr == PROTO_DAM_INTERNAL ? "DAM" : "UNKNOWN"));
 
 	/*	There will always be some old frames, since broadcast leads to loops	*/
 	memmove(&timestamp, payload->data, 4);
@@ -352,7 +375,7 @@ NETTRACEMARK(9);
 		return;
 	}
 	
-	if (payload->nxthdr == PROTO_DAM)
+	if (payload->nxthdr == PROTO_DAM_INTERNAL)
 	{	
 		print("Calling dam_rcv_pkt...\n");
 LOGMARK(14);	
@@ -419,4 +442,3 @@ fatal(char *str)
 	lprint("Node [%s] Fatal: %s\n", dam_myID, str);
 	exit(-1);
 }
-

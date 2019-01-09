@@ -206,7 +206,7 @@ restoreregs:
 
 	.align	4
 	intr_stack_addr:
-	.long	(0x8000000 + (1 << 20))
+	.long	(0x8000000 + (1 << 24))
 _vec_stub_end:
 
 
@@ -220,8 +220,8 @@ _sleep:
 
 	.align	2
 app_stack_addr:	
-	.long	(0x8000000 + (1 << 17))
+	.long	(0x8000000 + (1 << 20))
 
 	.align	2
 start_addr:
-	.long	_startup
+	.long	_main

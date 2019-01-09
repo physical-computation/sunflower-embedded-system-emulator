@@ -24,4 +24,4 @@ app_stack_addr:
 
 	.align	2
 start_addr:
-	.long	_startup
+	.long	_main

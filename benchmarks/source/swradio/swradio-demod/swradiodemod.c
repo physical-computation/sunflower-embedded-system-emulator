@@ -46,7 +46,7 @@ extern void* 	memmove(void *, void *, long);
 
 
 void
-startup(void)
+main(void)
 {
         void		(*fptr)() = (void *)0x8001000;
 	int		eq_base, frames_rcvd = 0, cur_eq = 0, addrchars, i;

@@ -26,4 +26,4 @@ app_stack_addr:
 init_sr:	
 	.long	0x700000F0
 start_addr:
-	.long	_startup
+	.long	_main

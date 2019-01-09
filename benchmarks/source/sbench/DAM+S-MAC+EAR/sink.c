@@ -74,7 +74,7 @@ uniform(ulong min, ulong max)
 }
 
 void
-startup(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	char		tmp;
 	char		*ep = &tmp;

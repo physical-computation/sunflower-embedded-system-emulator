@@ -17,7 +17,7 @@ srecl			swradiosource.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -30,7 +30,7 @@ srecl 			swradiolpf.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -43,7 +43,7 @@ srecl 			swradiodemod.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -56,7 +56,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -69,7 +69,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -82,7 +82,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -95,7 +95,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -108,7 +108,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -121,7 +121,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -134,7 +134,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff
@@ -147,7 +147,7 @@ srecl 			swradioeq.sr
 run
 
 
-newnode			superH 0 0 0 0 0
+newnode			superH 0 0 0
 clockintr		1
 cacheoff
 ff

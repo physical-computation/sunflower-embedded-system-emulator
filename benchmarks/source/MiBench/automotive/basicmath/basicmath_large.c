@@ -3,7 +3,7 @@
 
 /* The printf's may be removed to isolate just the math calculations */
 
-int startup(void)
+int main(void)
 {
   double  a1 = 1.0, b1 = -10.5, c1 = 32.0, d1 = -30.0;
   double  x[3];

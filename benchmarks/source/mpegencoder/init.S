@@ -26,6 +26,6 @@ start:
 stack_addr:	
 	.long   (0x8000000 + 1<<26)
 start_addr:
-	.long	_startup
+	.long	_main
 ___errno:
 	.long	0

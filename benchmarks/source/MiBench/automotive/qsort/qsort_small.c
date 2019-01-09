@@ -22,7 +22,7 @@ int compare(const void *elem1, const void *elem2)
 
 
 int
-startup(int argc, char *argv[]) {
+main(int argc, char *argv[]) {
   struct myStringStruct array[MAXARRAY];
   FILE *fp;
   int i,count=0;
