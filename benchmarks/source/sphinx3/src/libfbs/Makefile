@@ -39,13 +39,13 @@ OBJS =	test.o\
 	fwd.o \
 	main.o
 
-CC	= $(TREEROOT)/tools/bin/sh-coff-gcc
-LD	= $(TREEROOT)/tools/bin/sh-coff-ld
+CC	= $(TREEROOT)/tools/bin/sh-elf-gcc
+LD	= $(TREEROOT)/tools/bin/sh-elf-ld
 CFLAGS = -I.. -I../../../port -I$(TREEROOT)/sim -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH $(S3DEBUG) $(S2HMMTOPO) ${$(MACHINE)_CFLAGS}
 
 $(TARGET): $(OBJS)
 	$(LD) -Ttext $(LOADADDR) -TsuperH.ld -Map s3decode.map $(CFLAGS) -L$(TOOLSLIB) -L$(LIBDIR) -o $(TARGET) $(OBJS) -lc -lm -lgcc -L../libfeat -lfeat -L../libio -lio -L../libutil -lutil -lc -lm -lgcc
-	$(TREEROOT)/tools/bin/sh-coff-objcopy -O srec s3decode s3decode.sr
+	$(TREEROOT)/tools/bin/sh-elf-objcopy -O srec s3decode s3decode.sr
 
 install: $(TARGET)
 	- mv $(BINDIR)/$(TARGET) $(BINDIR)/$(TARGET).old

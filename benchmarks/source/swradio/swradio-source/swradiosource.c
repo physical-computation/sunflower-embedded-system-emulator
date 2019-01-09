@@ -50,7 +50,7 @@ enum
 
 
 void
-startup(void)
+main(void)
 {
 	FloatBuffer	fb1;
 	char		lpf_dst[16+1];

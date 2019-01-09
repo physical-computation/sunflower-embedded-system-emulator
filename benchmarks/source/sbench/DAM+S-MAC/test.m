@@ -176,7 +176,7 @@ run			100000
 --
 --			Node 1
 --
-newnode			superH 0.0 10.0 0 0 0
+newnode			superH 0.0 10.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -202,7 +202,7 @@ run			100000
 --
 --			Node 2
 --
-newnode			superH 0.0 20 0 0 0
+newnode			superH 0.0 20 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -228,7 +228,7 @@ run			100000
 --
 --			Node 3
 --
-newnode			superH 0.0 30.0 0 0 0
+newnode			superH 0.0 30.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -254,7 +254,7 @@ run			100000
 --
 --			Node 4
 --
-newnode			superH 0.0 40.0 0 0 0
+newnode			superH 0.0 40.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -280,7 +280,7 @@ run			100000
 --
 --			Node 5
 --
-newnode			superH 10.0 0.0 0 0 0
+newnode			superH 10.0 0.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -306,7 +306,7 @@ run			100000
 --
 --			Node 6
 --
-newnode			superH 10.0 10.0 0 0 0
+newnode			superH 10.0 10.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -332,7 +332,7 @@ run			100000
 --
 --			Node 7
 --
-newnode			superH 10.0 20.0 0 0 0
+newnode			superH 10.0 20.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -358,7 +358,7 @@ run			100000
 --
 --			Node 8
 --
-newnode			superH 10.0 30.0 0 0 0
+newnode			superH 10.0 30.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -384,7 +384,7 @@ run			100000
 --
 --			Node 9
 --
-newnode			superH 10.0 40.0 0 0 0
+newnode			superH 10.0 40.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -410,7 +410,7 @@ run			100000
 --
 --			Node 10
 --
-newnode			superH 20.0 0.0 0 0 0
+newnode			superH 20.0 0.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -436,7 +436,7 @@ run			100000
 --
 --			Node 11
 --
-newnode			superH 20.0 10.0 0 0 0
+newnode			superH 20.0 10.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -462,7 +462,7 @@ run			100000
 --
 --			Node 12
 --
-newnode			superH 20.0 20.0 0 0 0
+newnode			superH 20.0 20.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -488,7 +488,7 @@ run			100000
 --
 --			Node 13
 --
-newnode			superH 20.0 30.0 0 0 0
+newnode			superH 20.0 30.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -514,7 +514,7 @@ run			100000
 --
 --			Node 14
 --
-newnode			superH 20.0 40.0 0 0 0
+newnode			superH 20.0 40.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -540,7 +540,7 @@ run			100000
 --
 --			Node 15
 --
-newnode			superH 30.0 0.0 0 0 0
+newnode			superH 30.0 0.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -566,7 +566,7 @@ run			100000
 --
 --			Node 16
 --
-newnode			superH 30.0 10.0 0 0 0
+newnode			superH 30.0 10.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -592,7 +592,7 @@ run			100000
 --
 --			Node 17
 --
-newnode			superH 30.0 20.0 0 0 0
+newnode			superH 30.0 20.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -618,7 +618,7 @@ run			100000
 --
 --			Node 18
 --
-newnode			superH 30.0 30.0 0 0 0
+newnode			superH 30.0 30.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -644,7 +644,7 @@ run			100000
 --
 --			Node 19
 --
-newnode			superH 30.0 40.0 0 0 0
+newnode			superH 30.0 40.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -670,7 +670,7 @@ run			100000
 --
 --			Node 20
 --
-newnode			superH 40.0 0.0 0 0 0
+newnode			superH 40.0 0.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -696,7 +696,7 @@ run			100000
 --
 --			Node 21
 --
-newnode			superH 40.0 10.0 0 0 0
+newnode			superH 40.0 10.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -722,7 +722,7 @@ run			100000
 --
 --			Node 22
 --
-newnode			superH 40.0 20.0 0 0 0
+newnode			superH 40.0 20.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -748,7 +748,7 @@ run			100000
 --
 --			Node 23
 --
-newnode			superH 40.0 30.0 0 0 0
+newnode			superH 40.0 30.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000
@@ -774,7 +774,7 @@ run			100000
 --
 --			Node 24
 --
-newnode			superH 40.0 40.0 0 0 0
+newnode			superH 40.0 40.0 0
 forceavgpwr		0.0264 0.0000495
 setfreq			4
 settimerdelay		4000

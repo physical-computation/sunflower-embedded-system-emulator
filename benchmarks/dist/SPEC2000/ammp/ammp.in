@@ -1,0 +1,24 @@
+echo off; 
+read all.init.ammp; 
+echo;
+setf mxdq 0.75; 
+setf mmbox 10.;
+setf temp 300;
+seti numstp 333;
+setf bbox 35.;
+use none box bond angle hybrid torsion nonbon;
+
+echo off; read init_cond.run.1; echo;
+tpac numstp .00001 temp;
+monitor;
+
+echo off; read init_cond.run.2; echo;
+tpac numstp .00001 temp;
+monitor;
+
+echo off; read init_cond.run.3; echo;
+tpac numstp .00001 temp;
+monitor;
+
+echo;
+exit;

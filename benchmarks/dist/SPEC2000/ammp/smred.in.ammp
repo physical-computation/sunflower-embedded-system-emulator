@@ -1,0 +1,5 @@
+echo off; read smred.ammp; echo;
+setf mxdq 0.75; setf mmbox 1.;
+use none nonbon;
+analyze 89000 90100;  #this gets any of the inhibitors;
+use none bond angle hybrid torsion nonbon;

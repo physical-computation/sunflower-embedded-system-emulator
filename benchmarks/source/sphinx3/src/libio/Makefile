@@ -17,9 +17,9 @@ TARGET = libio.a
 OBJS =	bio.o
 
 TREEROOT	= ../../../../..
-CC		= $(TREEROOT)/tools/bin/sh-coff-gcc
-AR		= $(TREEROOT)/tools/bin/sh-coff-ar
-RANLIB		= $(TREEROOT)/tools/bin/sh-coff-ranlib
+CC		= $(TREEROOT)/tools/bin/sh-elf-gcc
+AR		= $(TREEROOT)/tools/bin/sh-elf-ar
+RANLIB		= $(TREEROOT)/tools/bin/sh-elf-ranlib
 CFLAGS		= -I.. $(S3DEBUG) ${$(MACHINE)_CFLAGS}
 
 $(TARGET): $(OBJS)

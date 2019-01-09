@@ -84,7 +84,7 @@ volatile long		dam_period;
 volatile uchar		dam_myID[DAM_ID_LEN], dam_leaderID[DAM_ID_LEN], dam_myParent[DAM_ID_LEN];
 
 void
-startup(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	Dampkt		dam_p;
 	char		tmp;
@@ -94,7 +94,31 @@ startup(int argc, char *argv[])
 	int		period = 0;
 
 
-	strncpy(dam_myID, (char *)NIC_OUI, DAM_ID_LEN);
+	/*
+	 *	Because the 16-byte ID is a sequence of bytes coming from the emulator
+	 *	underneath and is not necessarily a null-terminated string, we need to
+	 *	explicitly null-terminate. Second, we can't use strcpy/memmove anymore
+	 *	with recent versions of the C library since they optimize by doing a
+	 *	double-word access. We therefore have to manually read each of the
+	 *	NIC_OUI bytes.
+	 */
+	dam_myID[0] = *(volatile uchar *)(NIC_OUI+0);
+	dam_myID[1] = *(volatile uchar *)(NIC_OUI+1);
+	dam_myID[2] = *(volatile uchar *)(NIC_OUI+2);
+	dam_myID[3] = *(volatile uchar *)(NIC_OUI+3);
+	dam_myID[4] = *(volatile uchar *)(NIC_OUI+4);
+	dam_myID[5] = *(volatile uchar *)(NIC_OUI+5);
+	dam_myID[6] = *(volatile uchar *)(NIC_OUI+6);
+	dam_myID[7] = *(volatile uchar *)(NIC_OUI+7);
+	dam_myID[8] = *(volatile uchar *)(NIC_OUI+8);
+	dam_myID[9] = *(volatile uchar *)(NIC_OUI+9);
+	dam_myID[10] = *(volatile uchar *)(NIC_OUI+10);
+	dam_myID[11] = *(volatile uchar *)(NIC_OUI+11);
+	dam_myID[12] = *(volatile uchar *)(NIC_OUI+12);
+	dam_myID[13] = *(volatile uchar *)(NIC_OUI+13);
+	dam_myID[14] = *(volatile uchar *)(NIC_OUI+14);
+	dam_myID[15] = *(volatile uchar *)(NIC_OUI+15);
+	dam_myID[DAM_ID_LEN] = '\0';
 	hdlr_install();
 
 	printf("DAM node [%s] installing vector code...\n", dam_myID);

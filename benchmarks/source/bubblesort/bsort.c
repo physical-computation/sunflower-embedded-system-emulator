@@ -6,7 +6,7 @@
 
 
 int
-startup(void)
+main(void)
 {
 	int i;
 	int maxindex = bsort_input_len - 1;

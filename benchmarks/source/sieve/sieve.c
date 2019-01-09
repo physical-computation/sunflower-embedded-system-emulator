@@ -52,7 +52,7 @@ static void	fatal(char *);
 
 
 int
-startup(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	Chan		*out;
 	pthread_t	nextid;

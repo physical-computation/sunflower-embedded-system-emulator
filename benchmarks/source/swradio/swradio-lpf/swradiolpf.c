@@ -46,7 +46,7 @@ extern void* 	memmove(void *, void *, long);
 
 
 void
-startup(void)
+main(void)
 {
         /*      Monitor code is @ 0x8001000     */
         void    	(*fptr)() = (void *)0x8001000;

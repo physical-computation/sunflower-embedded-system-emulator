@@ -26,9 +26,9 @@ OBJS = cmd_ln.o \
 
 alpha_OBJS = rpcc.o
 TREEROOT	= ../../../../..
-CC		= $(TREEROOT)/tools/bin/sh-coff-gcc
-AR		= $(TREEROOT)/tools/bin/sh-coff-ar
-RANLIB		= $(TREEROOT)/tools/bin/sh-coff-ranlib
+CC		= $(TREEROOT)/tools/bin/sh-elf-gcc
+AR		= $(TREEROOT)/tools/bin/sh-elf-ar
+RANLIB		= $(TREEROOT)/tools/bin/sh-elf-ranlib
 CFLAGS		= -DSFLRSIM ${$(MACHINE)_CFLAGS} ## -DSFLRSIM is for check in lubutil/unlimit.h -- pip
 
 $(TARGET): $(OBJS) ${$(MACHINE)_OBJS}

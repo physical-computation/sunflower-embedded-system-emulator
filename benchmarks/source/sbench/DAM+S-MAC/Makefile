@@ -5,7 +5,6 @@ include $(TREEROOT)/conf/setup.conf
 PROGRAM		= damv2
 MAC		= s-mac
 MACPATH		= ../S-MAC
-LIBOS		= eOS
 
 PORT		= ../../port
 LIBOS		= eOS
@@ -13,7 +12,7 @@ SIMDIR		= $(TREEROOT)/sim
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(MACPATH) -I$(PORT)  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR) -I$(TREEROOT)/sys/libOS/port
 OPTFLAGS	= -gstabs3 -O0
-CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall -DLOGMARKERS ##-Werror -Winline
+CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall -DLOGMARKERS ##-Werror -Winline -nostdlib -fno-builtin
 LDFLAGS       	= -Ttext $(LOADADDR) -TsuperH.ld -L$(TOOLSLIB)/$(TARGET) -L$(TREEROOT)/sys/libOS/$(LIBOS) -Map $(PROGRAM).map
 LOADADDR	= 0x08004000
 
@@ -33,7 +32,7 @@ OBJS	=\
 all:	$(PROGRAM) $(PROGRAM).sr
 
 $(PROGRAM): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -l$(LIBOS)-$(TARGET) -o $@ -lm -lc -lgcc
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lgcc -lm -l$(LIBOS)-$(TARGET)
 
 $(PROGRAM).sr:$(PROGRAM)
 	$(OBJCOPY) -O srec $(PROGRAM) $@

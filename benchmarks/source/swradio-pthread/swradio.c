@@ -107,7 +107,7 @@ static void		fatal(char *);
 //	decimating it by NUM_SUPERPIPE_EQ times. Technically, we
 //	need some more code in sink to reconstruct it ?
 void
-startup(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	int		i, status;
 	ulong		lastsend = 0;

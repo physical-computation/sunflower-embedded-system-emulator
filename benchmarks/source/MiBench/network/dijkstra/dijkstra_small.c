@@ -142,7 +142,7 @@ int dijkstra(int chStart, int chEnd)
     }
 }
 
-int startup(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   int i,j,k;
   FILE *fp;
   
