@@ -199,6 +199,8 @@
 %token	T_SETMEMWLATENCY
 %token	T_SETFLASHRLATENCY
 %token	T_SETFLASHWLATENCY
+%token	T_SETNODEMASS
+%token	T_SETPROPULSIONCOEFFS
 %token	T_SHAREBUS
 %token	T_SHOWCLK
 %token	T_SHOWPIPE
@@ -1687,6 +1689,23 @@ sf_cmd		: T_QUIT '\n'
 				power_scalevdd(yyengine, yyengine->cp, $2);
 			}
 		}
+		| T_SETNODEMASS dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				/*	Set node mass	*/
+				massSetNodeMass(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_SETPROPULSIONCOEFFS dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm dimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				/*	Scale Vdd accordingly for provided frequency	*/
+				propulsionSetPropulsionCoeffs(yyengine, yyengine->cp, $2, $3, $4, ...);
+			}
+		}
+
 		| T_HELP '\n'
 		{
 			if (!yyengine->scanning)

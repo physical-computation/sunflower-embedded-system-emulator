@@ -165,6 +165,11 @@ enum
 
 typedef enum
 {
+	kSunflowerConstantsPropulsionModelCoefficientCount = 10,
+} SunflowerConstants;
+
+typedef enum
+{
 	SchedRoundRobin,
 	SchedRandom,
 } SchedType;
@@ -652,6 +657,16 @@ struct State
 
 	/*			Trajectory/headings input		*/		
 	char		*trajfilename;
+
+
+	/*			Mass					*/
+	double		nodeMass;
+
+
+	/*			Propulsion model coefficients		*/
+	double		propulsionXvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
+	double		propulsionYvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
+	double		propulsionZvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
 
 
 	/*	Set if acting as a dummy from remote_seg_enqueue()	*/
