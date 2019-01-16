@@ -165,7 +165,7 @@ enum
 
 typedef enum
 {
-	kSunflowerConstantsPropulsionModelCoefficientCount = 10,
+	kSunflowerConstantsPropulsionModelCoefficientCount = 6,
 } SunflowerConstants;
 
 typedef enum
@@ -626,12 +626,12 @@ struct State
 
 
 	/*			Per node stdout/stderr buffers		*/
-        char            stdout_buf[MAX_NODESTDOUT_BUFSZ];
-        int             stdout_h2o;
-        char            stderr_buf[MAX_NODESTDERR_BUFSZ];
-        int             stderr_h2o;
-        char            nodeinfo_buf[MAX_NODEINFO_BUFSZ];
-        int             nodeinfo_h2o;
+	char		stdout_buf[MAX_NODESTDOUT_BUFSZ];
+	int		stdout_h2o;
+	char		stderr_buf[MAX_NODESTDERR_BUFSZ];
+	int		stderr_h2o;
+	char		nodeinfo_buf[MAX_NODEINFO_BUFSZ];
+	int		nodeinfo_h2o;
 
 
 
@@ -646,7 +646,7 @@ struct State
 	uvlong		trip_ustart, trip_startclk;
 
 
-	/*	    		Topology Information			*/
+	/*			Topology Information			*/
 	double		xloc;
 	double		yloc;
 	double		zloc;

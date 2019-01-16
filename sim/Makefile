@@ -38,6 +38,8 @@ HEADERS =\
 	opstr-riscv.h\
 	pau.h\
 	physics.h\
+	mass.h\
+	propulsion.h\
 	pic.h\
 	pipeline-hitachi-sh.h\
 	pipeline-riscv.h\
@@ -71,6 +73,8 @@ OBJS	=\
 	op-riscv.o\
 	pau.o\
 	physics.o\
+	mass.o\
+	propulsion.o\
 	pic.o\
 	pipeline-hitachi-sh.o\
 	pipeline-riscv.o\
