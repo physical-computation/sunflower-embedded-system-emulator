@@ -42,32 +42,32 @@
 #include "mextern.h"
 
 void
-propulsionSetPropulsionCoeffs(Engine *  E,
+propulsionSetPropulsionCoeffs(Engine *  E, State *  S,
 	double xk1, double xk2, double xk3, double xk4, double xk5, double xk6,
 	double yk1, double yk2, double yk3, double yk4, double yk5, double yk6,
 	double zk1, double zk2, double zk3, double zk4, double zk5, double zk6
 		)
 {
-	propulsionXvectorCoefficients[1] = ;
-	propulsionXvectorCoefficients[1] = ;
-	propulsionXvectorCoefficients[1] = ;
-	propulsionXvectorCoefficients[1] = ;
-	propulsionXvectorCoefficients[1] = ;
-	propulsionXvectorCoefficients[1] = ;
+	S->propulsionXvectorCoefficients[1] = xk1;
+	S->propulsionXvectorCoefficients[1] = xk2;
+	S->propulsionXvectorCoefficients[1] = xk3;
+	S->propulsionXvectorCoefficients[1] = xk4;
+	S->propulsionXvectorCoefficients[1] = xk5;
+	S->propulsionXvectorCoefficients[1] = xk6;
 
-	propulsionYvectorCoefficients[1] = ;
-	propulsionYvectorCoefficients[1] = ;
-	propulsionYvectorCoefficients[1] = ;
-	propulsionYvectorCoefficients[1] = ;
-	propulsionYvectorCoefficients[1] = ;
-	propulsionYvectorCoefficients[1] = ;
+	S->propulsionYvectorCoefficients[1] = yk1;
+	S->propulsionYvectorCoefficients[1] = yk2;
+	S->propulsionYvectorCoefficients[1] = yk3;
+	S->propulsionYvectorCoefficients[1] = yk4;
+	S->propulsionYvectorCoefficients[1] = yk5;
+	S->propulsionYvectorCoefficients[1] = yk6;
 
-	propulsionZvectorCoefficients[1] = ;
-	propulsionZvectorCoefficients[1] = ;
-	propulsionZvectorCoefficients[1] = ;
-	propulsionZvectorCoefficients[1] = ;
-	propulsionZvectorCoefficients[1] = ;
-	propulsionZvectorCoefficients[1] = ;
+	S->propulsionZvectorCoefficients[1] = zk1;
+	S->propulsionZvectorCoefficients[1] = zk2;
+	S->propulsionZvectorCoefficients[1] = zk3;
+	S->propulsionZvectorCoefficients[1] = zk4;
+	S->propulsionZvectorCoefficients[1] = zk5;
+	S->propulsionZvectorCoefficients[1] = zk6;
 
 	return;
 }

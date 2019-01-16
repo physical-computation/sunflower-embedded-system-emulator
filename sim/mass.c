@@ -44,5 +44,5 @@
 void
 massSetNodeMass(Engine *  E, State *  S, double mass)
 {
-	S->mass = mass;
+	S->nodeMass = mass;
 }
