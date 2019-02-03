@@ -1,4 +1,4 @@
-![Sunflower Simulator Architecture](http://sflr.org/images/arch.png)
+![Sunflower Simulator Architecture](arch.png)
 
 # Cloning this repository
 The correct way to clone this repository to get the simulator and the submodules it depends on is:
