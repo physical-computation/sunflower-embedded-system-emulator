@@ -12,17 +12,6 @@ sunflower.out
 init.i
 
 #
-#	Built cross compiler binaries
-#
-tools/bin
-tools/superH
-
-#
-#	Downloaded sources
-#
-tools/source/*
-
-#
 #	Bison files
 #
 sim/help.h
