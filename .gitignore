@@ -12,12 +12,18 @@ sunflower.out
 init.i
 
 #
-#	Built cross compiler binaries
+#	Bison files
 #
-tools/bin
-tools/superH
+sim/help.h
+sim/sf.tab.c
+
 
 #
-#	Downloaded sources
+#	sf build files
 #
-tools/source/*
+
+sim/mversion.h
+sim/commands.tex
+sim/opstr-*.h
+sim/sf
+sim/sf.output
