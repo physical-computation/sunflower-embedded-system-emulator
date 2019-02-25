@@ -21,3 +21,20 @@ tools/superH
 #	Downloaded sources
 #
 tools/source/*
+
+#
+#	Bison files
+#
+sim/help.h
+sim/sf.tab.c
+
+
+#
+#	sf build files
+#
+
+sim/mversion.h
+sim/commands.tex
+sim/opstr-*.h
+sim/sf
+sim/sf.output
