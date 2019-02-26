@@ -13,6 +13,13 @@ riscvdumpregs(Engine *E, State *S)
 		mbitprint(E, S, 32, S->riscv->R[i]);
 		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
 	}
+	
+	for (i = 0; i < 32; i++)
+	{
+		mprint(E, S, nodeinfo, "fR%-2d\t\t", i);
+		mbit64print(E, S, 64, S->riscv->fR[i]);
+		mfloatprint(E, S, S->riscv->fR[i]);
+	}
 
 	return;
 }
