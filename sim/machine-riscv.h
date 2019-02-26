@@ -41,6 +41,7 @@ struct RiscvState
 	uint64_t fR[RF32FD_fMAX];
 	uint32_t fCSR;
 	RiscvPipe P;
+	UncertainState *uncertain;
 };
 
 /*		Entries in the Decode Cache		*/

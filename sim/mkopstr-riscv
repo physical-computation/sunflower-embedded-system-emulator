@@ -2,12 +2,12 @@
 
 
 	if [ $# -ne 1 ]; then
-		echo 1>&2 Usage: $0 "<path to Gnu awk>" 
+		echo 1>&2 Usage: $0 "<path to Gnu awk>"
 		exit 127
 	fi
 
 
 	echo 'char *riscv_opstrs[] =\'
 	echo '{'
-	cat decode-riscv.h | grep OP | sed "s/.*RISCV_/RISCV_/g" | sed "s/.*RV32F_/RV32F_/g" | sed "s/.*RV32D_/RV32D_/g" | gawk -F',|_' '{print "\t["$1"_"$2"_"$3"] \t\t\""$3"\","}'
+	cat decode-riscv.h | grep OP | sed "s/.*RISCV_/RISCV_/g" | sed "s/.*RV/RV/g" | gawk -F',|_' '{print "\t["$1"_"$2"_"$3"] \t\t\""$3"\","}'
 	echo '};'

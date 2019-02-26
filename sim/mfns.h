@@ -1,9 +1,9 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
- 
+
 	All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without 
+	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
 
@@ -18,20 +18,20 @@
 
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
-		derived from this software without specific prior written 
+		derived from this software without specific prior written
 		permission.
 
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
 	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
-	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -46,7 +46,7 @@ int	yyparse(void);
 void	network_netseg2file(Engine *E, int which, char *filename);
 void	network_file2netseg(Engine *E, char *file, int whichseg);
 void	network_netsegpropmodel(Engine *, int whichseg, int whichmodel, double minsnr);
-void	network_netnewseg(Engine *, int which, int framebits, int pgnspeed, int bitrate, int width, 
+void	network_netnewseg(Engine *, int which, int framebits, int pgnspeed, int bitrate, int width,
 		int fpdist, double fpdistmu, double fpdistsigma, double fpdistlambda,
 		int fddist, double fddistmu, double fddistsigma, double fddistlambda);
 void	network_netsegnicattach(Engine *, State *S, int whichifc, int whichseg);
@@ -118,7 +118,7 @@ void	m_run(Engine *, State *S, char *args);
 void	m_on(Engine *, State *S);
 void	m_off(Engine *, State *S);
 void	m_sizemem(Engine *, State *S, int size);
-void	m_numaregion(Engine *, char *name, ulong start, ulong end, 
+void	m_numaregion(Engine *, char *name, ulong start, ulong end,
 		long lrlat, long lwlat,
 		long rrlat, long rwlat,
 		int mapid, ulong mapbase, int private);
@@ -199,7 +199,7 @@ double	physics_propagation(Signalsrc *s, double xloc, double yloc, double zloc);
 
 /*											*/
 /*						PAU					*/
-/*											*/	
+/*											*/
 void	pau_printstats(Engine *, State *S);
 void	pau_clk(Engine *, State *S);
 void	pau_feed(Engine *, State *S, int type, ulong addr);
@@ -210,7 +210,7 @@ void	pau_init(Engine *, State *S, int nentries);
 
 /*											*/
 /*				Power estimation nd batteries				*/
-/*											*/	
+/*											*/
 void	power_printstats(Engine *, State *S);
 void	power_scaledelay(Engine *, State *S, double Vdd);
 void	power_scalevdd(Engine *, State *S, double freq);
@@ -237,7 +237,7 @@ void	m_bptdel(Engine *, int);
 
 /*											*/
 /*				Old "Tag" infrastructure				*/
-/*											*/	
+/*											*/
 void	tag_settag(Engine *, State *S, int whichtag, char *tag, char *whohas, int confidence, ulong ttl);
 void	tag_showtags(Engine *E, State *S);
 
@@ -245,7 +245,7 @@ void	tag_showtags(Engine *E, State *S);
 
 /*											*/
 /*				Old fault modeling infrastructure			*/
-/*											*/	
+/*											*/
 void	fault_setnodepfun(Engine *E, State *S, char *alg);
 void	fault_setnetsegpfun(Engine *E, Netsegment *tptr, char *alg);
 //uvlong	pfunexp(void *ptr, char *type, uvlong modulo);
@@ -346,7 +346,7 @@ double	m_pr_xi2(Engine*, double, double, double, double, double);
 
 /*											*/
 /*			Microarchitecture  modeling: general				*/
-/*											*/			
+/*											*/
 ulong	reg_read(Engine *, State *S, int n);
 void	reg_set(Engine *, State *S, int n, ulong data);
 void	sched_step(Engine *);
@@ -362,7 +362,7 @@ void* 	pic_intr_dequeue(Engine *, State *S, InterruptQ *q);
 
 /*											*/
 /*			Microarchitecture  modeling: Hitachi SH				*/
-/*											*/			
+/*											*/
 void	superHdecode(Engine *, ushort, SuperHPipestage *);
 void	superHdumppipe(Engine *, State *S);
 void	superHdumpregs(Engine *E, State *S);
@@ -597,7 +597,7 @@ void	superH_xtrct(Engine *E, State *S, ulong m, ulong n);
 
 /*											*/
 /*			Microarchitecture  modeling: TI MSP430				*/
-/*											*/			
+/*											*/
 void	msp430decode(Engine *, State *S, ushort instr, MSP430Pipestage *p);
 void	msp430dumpregs(Engine *, State *S);
 void	msp430dumpsysregs(Engine *, State *S);
@@ -640,7 +640,7 @@ void	dev430x1xxoscfault(State *S);
 
 /*									*/
 /*			MSP430 instruction functions			*/
-/*									*/		
+/*									*/
 void	msp430_mov(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
 void	msp430_movb(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
 void	msp430_add(Engine *E, State *S, ushort m, ushort n, MSP430Pipestage *p);
@@ -812,3 +812,14 @@ void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 
+
+
+/*														*/
+/*			RISC-V uncertain additional functions		*/
+/*														*/
+void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd);
+void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
+
+void rv32un_un_part1(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);

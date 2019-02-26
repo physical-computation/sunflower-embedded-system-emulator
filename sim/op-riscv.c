@@ -485,6 +485,7 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0, 12);
 
 	freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
+	uncertain_inst_sv(S->riscv->uncertain, rd, 0);
 
 	return;
 }
@@ -596,6 +597,18 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, 1, 1);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 	return;
 }
 
@@ -616,6 +629,18 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, 1, -1);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
 
 	return;
 }
@@ -639,6 +664,18 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, src2.float_value, src1.float_value);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 	return;
 }
 
@@ -651,7 +688,11 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
-	result.float_value = src1.float_value / src2.float_value;
+	float divsrc2 = 1 / src2.float_value;
+	float src1div2 = src1.float_value * divsrc2;
+	float minussrc1div2div2 = -src1div2 / src2.float_value;
+
+	result.float_value = src1div2;
 
 	switch (rm) //TODO check rm value for rounding
 	{
@@ -659,6 +700,19 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, divsrc2, minussrc1div2div2);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 
 	return;
 }
@@ -671,7 +725,9 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
-	result.float_value = sqrtf(src1.float_value);
+	float root = sqrtf(src1.float_value);
+
+	result.float_value = root;
 
 	switch (rm) //TODO check rm value for rounding
 	{
@@ -679,6 +735,18 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_up1(S->riscv->uncertain, rd, rs1, 0.5 / root);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
 
 	return;
 }
@@ -692,6 +760,19 @@ void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result));
 
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 	return;
 }
 
@@ -704,6 +785,18 @@ void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result));
 
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 	return;
 }
 
@@ -715,6 +808,19 @@ void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint32_t result = (src1 & (-1 - (1 << 31))) | ((src1 ^ src2) & (1 << 31));
 
 	freg_set_riscv(E, S, rd, nan_box(result));
+
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
 
 	return;
 }
@@ -730,6 +836,9 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	// uint8_t min_reg = (src1.float_value <= src2.float_value) ? rs1 : rs2;
+	// TODO: update for fmin?
+
 	return;
 }
 
@@ -743,6 +852,9 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	result.float_value = fmaxf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	// uint8_t max_reg = (src1.float_value >= src2.float_value) ? rs1 : rs2;
+	// TODO: update for fmin?
 
 	return;
 }
@@ -1625,3 +1737,60 @@ void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	return;
 }
 
+
+/* RISC-V RV32UN instructions */
+
+void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	merror(E, "UNUPG.S INSTRUCTION not implemented");
+}
+
+void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	merror(E, "UNGCOV.S INSTRUCTION not implemented");
+}
+
+void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
+{
+	uint8_t _rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+
+
+	rv32f_rep var;
+
+	var.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+
+	uncertain_inst_sv(S->riscv->uncertain, rd, var.float_value);
+
+	mprint(E, S, nodeinfo, "UNSVAR.S INSTRUCTION var(rd) = %g, rd = %d\n",
+		   uncertain_inst_gv(S->riscv->uncertain, rd), rd);
+
+	return;
+}
+
+void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)
+{
+	uncertain_inst_sv(S->riscv->uncertain, rd, 0.0);
+
+	mprint(E, S, nodeinfo, "UNCVAR.S INSTRUCTION");
+
+	return;
+}
+
+void rv32un_un_part1(Engine *E, State *S, uint8_t _rs1, uint8_t _rd, uint16_t _imm0)
+{
+	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
+
+	switch (rm) //TODO check rm value for rounding
+	{
+
+	}
+
+	UncertainUpdateInfo *tmp = &S->riscv->uncertain->last_op;
+	tmp->op_fp_pc = S->riscv->P.EX.fetchedpc;
+	tmp->insn_part1 = S->riscv->P.EX.instr;
+	tmp->valid = 1;
+
+	mprint(E, S, nodeinfo, "UNPREVUP.S INSTRUCTION (part 1)");
+
+	return;
+}

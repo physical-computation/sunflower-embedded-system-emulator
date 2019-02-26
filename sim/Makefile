@@ -24,6 +24,7 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
+	inst_uncertain.h\
 	little-endian-hitachi-sh.h\
 	machine-hitachi-sh.h\
 	machine-ti-msp430.h\
@@ -63,6 +64,7 @@ OBJS	=\
 	fdr.o\
 	machine-hitachi-sh.o\
 	machine-riscv.o\
+	inst_uncertain.o\
 	main.o\
 	merror.o\
 	mmalloc.o\
