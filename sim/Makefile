@@ -79,6 +79,7 @@ OBJS	=\
 	syscalls.o\
 	tokenhandling.o\
 	sf.o\
+	fp-utils.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\

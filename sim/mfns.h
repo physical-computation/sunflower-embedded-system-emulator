@@ -163,6 +163,8 @@ void	load_srec(Engine *, State *S, char *);
 void	loadcmds(Engine *, char *filename);
 void	man(Engine *, char *cmd);
 void	mbitprint(Engine *, State *S, short, ulong);
+void	mbit64print(Engine *E, State *S, short, uvlong);
+void	mfloatprint(Engine *E, State *S, uvlong);
 void	mprint(Engine *, State *S, int out, char *fmt, ...);
 void	mprintout(char *s);
 void	munchinput(Engine *, char *buf);

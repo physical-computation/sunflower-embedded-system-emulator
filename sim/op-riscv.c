@@ -75,6 +75,15 @@ uint64_t nan_box(uint32_t f)
 	return ((~(uint64_t)0) << 32) | f;
 }
 
+/* Checks if a 64-bit value is NaN-boxed 
+ * returns the lower 32-bits if NaN-boxed and a canonical NaN if otherwise
+ */
+uint32_t is_nan_boxed(uint64_t f)
+{
+	if((uint32_t)(f >> 32) == 0xFFFFFFFF) return (uint32_t)f;
+	else return 0x7FFFFFFF;
+}
+
 void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + reg_read_riscv(E, S, rs2)));
@@ -485,9 +494,9 @@ void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 {
 	rv32f_rep src1, src2, src3, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
-	src3.bit_value = freg_read_riscv(E, S, rs3);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
+	src3.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs3));
 
 	result.float_value = (src1.float_value * src2.float_value) + src3.float_value;
 
@@ -505,9 +514,9 @@ void rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 {
 	rv32f_rep src1, src2, src3, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
-	src3.bit_value = freg_read_riscv(E, S, rs3);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
+	src3.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs3));
 
 	result.float_value = (src1.float_value * src2.float_value) - src3.float_value;
 
@@ -525,9 +534,9 @@ void rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 {
 	rv32f_rep src1, src2, src3, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
-	src3.bit_value = freg_read_riscv(E, S, rs3);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
+	src3.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs3));
 
 	result.float_value = (-1.0 * src1.float_value * src2.float_value) + src3.float_value;
 
@@ -545,9 +554,9 @@ void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 {
 	rv32f_rep src1, src2, src3, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
-	src3.bit_value = freg_read_riscv(E, S, rs3);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
+	src3.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs3));
 
 	result.float_value = (-1.0 * src1.float_value * src2.float_value) - src3.float_value;
 
@@ -567,8 +576,8 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	result.float_value = src1.float_value + src2.float_value;
 
@@ -588,8 +597,8 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	result.float_value = src1.float_value - src2.float_value;
 
@@ -610,8 +619,8 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	result.float_value = src1.float_value * src2.float_value;
 
@@ -631,8 +640,8 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	result.float_value = src1.float_value / src2.float_value;
 
@@ -652,7 +661,7 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32f_rep src1, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	result.float_value = sqrtf(src1.float_value);
 
@@ -668,8 +677,8 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint32_t src1 = freg_read_riscv(E, S, rs1);
-	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	uint32_t src1 = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	uint32_t src2 = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	uint32_t result = (src1 & (-1 - (1 << 31))) | (src2 & (1 << 31));
 
@@ -680,8 +689,8 @@ void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint32_t src1 = freg_read_riscv(E, S, rs1);
-	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	uint32_t src1 = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	uint32_t src2 = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	uint32_t result = (src1 & (-1 - (1 << 31))) | (~src2 & (1 << 31));
 
@@ -692,8 +701,8 @@ void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	uint32_t src1 = freg_read_riscv(E, S, rs1);
-	uint32_t src2 = freg_read_riscv(E, S, rs2);
+	uint32_t src1 = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	uint32_t src2 = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	uint32_t result = (src1 & (-1 - (1 << 31))) | ((src1 ^ src2) & (1 << 31));
 
@@ -706,10 +715,10 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
-	result = (src1.float_value <= src2.float_value) ? src1 : src2;
+	result.float_value = fminf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
@@ -720,10 +729,10 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1, src2, result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
-	result = (src1.float_value >= src2.float_value) ? src1 : src2;
+	result.float_value = fmaxf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
@@ -738,7 +747,7 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint8_t frm;
 	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	/*
 	*Rounding modes - Reference
@@ -816,7 +825,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	rv32f_rep src1;
 	uint32_t result;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	uint8_t frm;
 	uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
@@ -894,7 +903,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	reg_set_riscv(E, S, rd, freg_read_riscv(E, S, rs1));
+	reg_set_riscv(E, S, rd, is_nan_boxed(freg_read_riscv(E, S, rs1)));
 
 	return;
 }
@@ -903,8 +912,8 @@ void rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1, src2;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	reg_set_riscv(E, S, rd, (src1.float_value == src2.float_value) ? 1 : 0);
 
@@ -915,8 +924,8 @@ void rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1, src2;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	reg_set_riscv(E, S, rd, (src1.float_value < src2.float_value) ? 1 : 0);
 
@@ -927,8 +936,8 @@ void rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	rv32f_rep src1, src2;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
-	src2.bit_value = freg_read_riscv(E, S, rs2);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	reg_set_riscv(E, S, rd, (src1.float_value <= src2.float_value) ? 1 : 0);
 
@@ -942,7 +951,7 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint32_t shift;
 	rv32f_rep src1;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	int class = fpclassify(src1.float_value);
 
@@ -1277,24 +1286,28 @@ void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	rv32d_rep src1, src2;
+	rv32d_rep src1, src2, result;
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
+	
+	result.double_value = fmin(src1.double_value, src2.double_value);
 
-	freg_set_riscv(E, S, rd, (src1.double_value <= src2.double_value) ? src1.bit64_value : src2.bit64_value);
+	freg_set_riscv(E, S, rd, result.bit64_value);
 
 	return;
 }
 
 void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	rv32d_rep src1, src2;
+	rv32d_rep src1, src2, result;
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
+	
+	result.double_value = fmax(src1.double_value, src2.double_value);
 
-	freg_set_riscv(E, S, rd, (src1.double_value >= src2.double_value) ? src1.bit64_value : src2.bit64_value);
+	freg_set_riscv(E, S, rd, result.bit64_value);
 
 	return;
 }
@@ -1326,7 +1339,7 @@ void rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	rv32d_rep result;
 	rv32f_rep src1;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	result.double_value = (double)src1.float_value; //cast to double
 
