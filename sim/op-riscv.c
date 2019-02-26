@@ -709,7 +709,7 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	src2.bit_value = freg_read_riscv(E, S, rs2);
 
-	result = (src1.float_value <= src2.float_value) ? src1 : src2;
+	result.float_value = fminf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
@@ -723,7 +723,7 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = freg_read_riscv(E, S, rs1);
 	src2.bit_value = freg_read_riscv(E, S, rs2);
 
-	result = (src1.float_value >= src2.float_value) ? src1 : src2;
+	result.float_value = fmaxf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
@@ -1277,24 +1277,28 @@ void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	rv32d_rep src1, src2;
+	rv32d_rep src1, src2, result;
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
+	
+	result.double_value = fmin(src1.double_value, src2.double_value);
 
-	freg_set_riscv(E, S, rd, (src1.double_value <= src2.double_value) ? src1.bit64_value : src2.bit64_value);
+	freg_set_riscv(E, S, rd, result.bit64_value);
 
 	return;
 }
 
 void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	rv32d_rep src1, src2;
+	rv32d_rep src1, src2, result;
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
+	
+	result.double_value = fmax(src1.double_value, src2.double_value);
 
-	freg_set_riscv(E, S, rd, (src1.double_value >= src2.double_value) ? src1.bit64_value : src2.bit64_value);
+	freg_set_riscv(E, S, rd, result.bit64_value);
 
 	return;
 }
