@@ -1339,7 +1339,7 @@ void rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	rv32d_rep result;
 	rv32f_rep src1;
 
-	src1.bit_value = freg_read_riscv(E, S, rs1);
+	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	result.double_value = (double)src1.float_value; //cast to double
 
