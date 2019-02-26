@@ -1,9 +1,5 @@
 # RISC-V floating-point support for Sunflower
-Name: Ryan Jay Leong Voo
-
-College: Downing
-
-CRSid: rjlv2
+Author: Ryan Jay Leong Voo (based on original RISC-V implementation from Zhengyang Gu)
 
 ## To build and run
 In sunflower-toolchain, make sure to set OSTYPE and MACHTYPE appropriately. TARGET should be set to **riscv** and TARGET-ARCH	should be set to **riscv32-elf**. Make sure ADDITIONAL_ARCH_FLAGS is uncommented and set to **--with-arch=rv32ifd**. Continue following the instructions in README.md at the root of the repository.
