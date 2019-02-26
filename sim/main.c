@@ -196,7 +196,7 @@ main(int nargs, char *args[])
 	E->verbose = 1;
 	marchinit();	
 	m_version(E);
-	m_newnode(E, "riscv", 0, 0, 0, nil, 0, 0.0);
+	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);
 //	S = E->sp[0];
 
 
