@@ -450,15 +450,15 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 {
                     if (tmp->b20)
                     {
-                        stage->fptr = (void *) riscv_ecall;
-                        stage->format = INSTR_I;
-                        stage->op = RISCV_OP_ECALL;
-                    }
-                    else
-                    {
                         stage->fptr = (void *) riscv_ebreak;
                         stage->format = INSTR_I;
                         stage->op = RISCV_OP_EBREAK;
+                    }
+                    else
+                    {
+                        stage->fptr = (void *) riscv_ecall;
+                        stage->format = INSTR_I;
+                        stage->op = RISCV_OP_ECALL;
                     }
 
                     break;
@@ -519,8 +519,8 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
             break;
         }
-        
-        
+
+
         /*
         *RV32F implementation
         */
@@ -533,28 +533,28 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 							stage->fptr = (void *) rv32f_flw;
 							stage->format = INSTR_I;
 							stage->op = RV32F_OP_FLW;
-          		
+
           		break;
           	}
-          	
+
           	case 0b011: //FLD
           	{
           		stage->fptr = (void *) rv32d_fld;
 							stage->format = INSTR_I;
 							stage->op = RV32D_OP_FLD;
-          		
+
           		break;
           	}
-          	
+
           	default:
           	{
           		break;
           	}
         	}
-        	
+
         	break;
         }
-        
+
         case 0b0100111: //FSW, FSD
         {
         	switch (tmp->funct3)
@@ -564,28 +564,28 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           		stage->fptr = (void *) rv32f_fsw;
 						  stage->format = INSTR_S;
 						  stage->op = RV32F_OP_FSW;
-          		
+
           		break;
           	}
-          	
+
           	case 0b011: //FSD
           	{
           		stage->fptr = (void *) rv32d_fsd;
 							stage->format = INSTR_S;
 							stage->op = RV32D_OP_FSD;
-          		
+
           		break;
           	}
-          	
+
           	default:
           	{
           		break;
           	}
         	}
-        	
+
         	break;
         }
-        
+
         case 0b1000011: //FMADD.S, FMADD.D
         {
         	if ((tmp->funct7)&1) //FMADD.D
@@ -600,10 +600,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				    stage->format = INSTR_R4;
 				    stage->op = RV32F_OP_FMADDS;
         	}
-        	
+
         	break;
         }
-        
+
         case 0b1000111: //FMSUB.S, FMSUB.D
         {
         	if ((tmp->funct7)&1) //FMSUB.D
@@ -618,10 +618,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				    stage->format = INSTR_R4;
 				    stage->op = RV32F_OP_FMSUBS;
         	}
-        	
+
         	break;
         }
-        
+
         case 0b1001011: //FNMSUB.S, FNMSUB.D
         {
         	if ((tmp->funct7)&1) //FNMSUB.D
@@ -636,10 +636,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				    stage->format = INSTR_R4;
 				    stage->op = RV32F_OP_FNMSUBS;
         	}
-        	
+
         	break;
         }
-        
+
         case 0b1001111: //FNMADD.S, //FNMADD.D
         {
         	if ((tmp->funct7)&1) //FNMADD.D
@@ -654,10 +654,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				    stage->format = INSTR_R4;
 				    stage->op = RV32F_OP_FNMADDS;
         	}
-        	
+
         	break;
         }
-        
+
         case 0b1010011:
         {
         	switch(tmp->funct7)
@@ -667,46 +667,46 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           		stage->fptr = (void *) rv32f_fadd_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FADDS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0000100: //FSUB.S
           	{
           		stage->fptr = (void *) rv32f_fsub_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FSUBS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0001000: //FMUL.S
           	{
           		stage->fptr = (void *) rv32f_fmul_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FMULS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0001100: //FDIV.S
           	{
           		stage->fptr = (void *) rv32f_fdiv_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FDIVS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0101100: //FSQRT.S
           	{
           		stage->fptr = (void *) rv32f_fsqrt_s;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FSQRTS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0010000: //FSGNJ*
           	{
           		switch (tmp->funct3)
@@ -716,37 +716,37 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             			stage->fptr = (void *) rv32f_fsgnj_s;
 									stage->format = INSTR_R;
 									stage->op = RV32F_OP_FSGNJS;
-									
+
             			break;
             		}
-            		
+
             		case 0b001: //FSGNJN.S
             		{
             			stage->fptr = (void *) rv32f_fsgnjn_s;
 									stage->format = INSTR_R;
 									stage->op = RV32F_OP_FSGNJNS;
-            			
+
             			break;
             		}
-            		
+
             		case 0b010: //FSGNJX.S
             		{
             			stage->fptr = (void *) rv32f_fsgnjx_s;
 									stage->format = INSTR_R;
 									stage->op = RV32F_OP_FSGNJXS;
-            			
+
             			break;
             		}
-            		
+
             		default:
             		{
             			break;
             		}
             	}
-          		
+
           		break;
           	}
-          	
+
           	case 0b0010100: //FMIN.S, FMAX.S
           	{
           		switch (tmp->funct3)
@@ -756,28 +756,28 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             			stage->fptr = (void *) rv32f_fmin_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FMINS;
-            			
+
             			break;
             		}
-            		
+
             		case 0b001://FMAX.S
             		{
             			stage->fptr = (void *) rv32f_fmax_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FMAXS;
-            			
+
             			break;
             		}
-            		
+
             		default:
             		{
             			break;
             		}
-            	} 
-          		
+            	}
+
           		break;
           	}
-          	
+
           	case 0b1100000: //FCVT.W*
           	{
           		if (tmp->b20) //FCVT.WU.S
@@ -792,10 +792,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             		stage->format = INSTR_R;
 								stage->op = RV32F_OP_FCVTWS;
             	}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1110000: //FMV.X.W, FCLASS.S
           	{
           		switch (tmp->funct3)
@@ -805,28 +805,28 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             			stage->fptr = (void *) rv32f_fmv_x_w;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FMVXW;
-            			
+
             			break;
             		}
-            		
+
             		case 0b001: //FCLASS.S
             		{
             			stage->fptr = (void *) rv32f_fclass_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FCLASSS;
-            			
+
             			break;
             		}
-            		
+
             		default:
             		{
             			break;
             		}
             	}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1010000: //FEQ.S, FLT.S, FLE.S
           	{
           		switch (tmp->funct3)
@@ -836,37 +836,37 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             			stage->fptr = (void *) rv32f_feq_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FEQS;
-            			
+
             			break;
             		}
-            		
+
             		case 0b001: //FLT.S
             		{
             			stage->fptr = (void *) rv32f_flt_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FLTS;
-            			
+
             			break;
             		}
-            		
+
             		case 0b000: //FLE.S
             		{
             			stage->fptr = (void *) rv32f_fle_s;
             			stage->format = INSTR_R;
             			stage->op = RV32F_OP_FLES;
-            			
+
             			break;
             		}
-            		
+
             		default:
             		{
             			break;
             		}
             	}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1101000: //FCVT.S*
           	{
           		if (tmp->b20) //FCVT.S.WU
@@ -881,66 +881,66 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
             		stage->format = INSTR_R;
 								stage->op = RV32F_OP_FCVTSW;
             	}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1111000: //FMV.W.X
           	{
           		stage->fptr = (void *) rv32f_fmv_w_x;
 						  stage->format = INSTR_R;
 						  stage->op = RV32F_OP_FMVWX;
-          		
+
           		break;
           	}
-          	
-          	
+
+
           	/* Rest of the RV32D instructions */
           	case 0b0000001: //FADD.D
           	{
 							stage->fptr = (void *) rv32d_fadd_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FADDD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0000101: //FSUB.D
           	{
           		stage->fptr = (void *) rv32d_fsub_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FSUBD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0001001: //FMUL.D
           	{
           		stage->fptr = (void *) rv32d_fmul_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FMULD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0001101: //FDIV.D
           	{
           		stage->fptr = (void *) rv32d_fdiv_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FDIVD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0101101: //FSQRT.D
           	{
           		stage->fptr = (void *) rv32d_fsqrt_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FSQRTD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0010001: //FSGNJ*.D
           	{
           		switch(tmp->funct3)
@@ -950,37 +950,37 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           				stage->fptr = (void *) rv32d_fsgnj_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FSGNJD;
-          				
+
           				break;
           			}
-          			
+
           			case 0b001: //FSGNJN.D
           			{
           				stage->fptr = (void *) rv32d_fsgnjn_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FSGNJND;
-          				
+
           				break;
           			}
-          			
+
           			case 0b010: //FSGNJX.D
           			{
           				stage->fptr = (void *) rv32d_fsgnjx_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FSGNJXD;
-          				
+
           				break;
           			}
-          			
+
           			default:
           			{
           				break;
           			}
           		}
-          		
+
           		break;
           	}
-          	
+
           	case 0b0010101: //FMIN.D, FMAX.D
           	{
           		switch(tmp->funct3)
@@ -990,46 +990,46 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           				stage->fptr = (void *) rv32d_fmin_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FMIND;
-          				
+
           				break;
           			}
-          			
+
           			case 0b001: //FMAX.D
           			{
           				stage->fptr = (void *) rv32d_fmax_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FMAXD;
-          				
+
           				break;
           			}
-          			
+
           			default:
           			{
           				break;
           			}
           		}
-          		
+
           		break;
           	}
-          	
+
           	case 0b0100000: //FCVT.S.D
           	{
           		stage->fptr = (void *) rv32d_fcvt_s_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FCVTSD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b0100001: //FCVT.D.S
           	{
           		stage->fptr = (void *) rv32d_fcvt_d_s;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FCVTDS;
-          		
+
           		break;
           	}
-          	
+
           	case 0b1010001: //FEQ.D, FLT.D, FLE.D
           	{
           		switch(tmp->funct3)
@@ -1039,46 +1039,46 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
           				stage->fptr = (void *) rv32d_feq_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FEQD;
-          				
+
           				break;
           			}
-          			
+
           			case 0b001: //FLT.D
           			{
           				stage->fptr = (void *) rv32d_flt_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FLTD;
-          				
+
           				break;
           			}
-          			
+
           			case 0b000: //FLE.D
           			{
           				stage->fptr = (void *) rv32d_fle_d;
 									stage->format = INSTR_R;
 									stage->op = RV32D_OP_FLED;
-          				
+
           				break;
           			}
-          			
+
           			default:
           			{
           				break;
           			}
           		}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1110001: //FCLASS.D
           	{
           		stage->fptr = (void *) rv32d_fclass_d;
 							stage->format = INSTR_R;
 							stage->op = RV32D_OP_FCLASSD;
-          		
+
           		break;
           	}
-          	
+
           	case 0b1100001: //FCVT.W.D, FCVT.WU.D
           	{
           		if(tmp->b20) //FCVT.WU.D
@@ -1093,10 +1093,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 								stage->format = INSTR_R;
 								stage->op = RV32D_OP_FCVTWD;
           		}
-          		
+
           		break;
           	}
-          	
+
           	case 0b1101001: //FCVT.D.W, FCVT.D.WU
           	{
           		if(tmp->b20) //FCVT.D.WU
@@ -1111,19 +1111,19 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 								stage->format = INSTR_R;
 								stage->op = RV32D_OP_FCVTDW;
           		}
-          		
+
           		break;
           	}
-          	
+
           	default:
           	{
           		break;
           	}
           }
-          
+
         	break;
         }
-                
+
         default:
         {
         	break;
