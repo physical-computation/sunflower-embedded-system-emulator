@@ -13,6 +13,7 @@ HEADERS =\
 	batt.h\
 	big-endian-hitachi-sh.h\
 	cache-hitachi-sh.h\
+	config.h\
 	decode-hitachi-sh.h\
 	decode-ti-msp430.h\
 	decode-riscv.h\
@@ -149,4 +150,4 @@ install: $(TARGET)
 	cp $(TARGET) $(BIN)/
 
 clean:
-	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h parsedriver.i lex.i sf.output gmon.out sunflower.out 
+	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h parsedriver.i lex.i sf.output gmon.out sunflower.out
