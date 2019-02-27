@@ -450,15 +450,15 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
                 {
                     if (tmp->b20)
                     {
-                        stage->fptr = (void *) riscv_ecall;
-                        stage->format = INSTR_I;
-                        stage->op = RISCV_OP_ECALL;
-                    }
-                    else
-                    {
                         stage->fptr = (void *) riscv_ebreak;
                         stage->format = INSTR_I;
                         stage->op = RISCV_OP_EBREAK;
+                    }
+                    else
+                    {
+                        stage->fptr = (void *) riscv_ecall;
+                        stage->format = INSTR_I;
+                        stage->op = RISCV_OP_ECALL;
                     }
 
                     break;
