@@ -51,7 +51,7 @@
 #include "endian-hitachi-sh.h"
 #include "mextern.h"
 
-static tuck void	delayslot(Engine *E, State *S, ulong dPC);
+static tuck void delayslot(Engine *E, State *S, ulong dPC);
 
 /*
 *		TODO:
@@ -78,226 +78,198 @@ static tuck void	delayslot(Engine *E, State *S, ulong dPC);
 /*	We do this so that the superHreadword etc. can get inlined.		*/
 #include "cache-hitachi-sh.c"
 
+tuck void delayslot(Engine *E, State *S, ulong dPC) {
+  USED(dPC);
 
-tuck void	
-delayslot(Engine *E, State *S, ulong dPC)
-{
-	USED(dPC);
+  /*								*/
+  /* 	At this point in simulation, instruction in ID has 	*/
+  /*	not yet been decoded. Decode it (not harmful to do so)	*/
+  /*								*/
+  S->superH->P.ID.fptr = E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
+  S->superH->P.ID.op = E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
+  S->superH->P.ID.format =
+      E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
+  S->superH->P.ID.cycles =
+      E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
 
-	/*								*/
-	/* 	At this point in simulation, instruction in ID has 	*/
-	/*	not yet been decoded. Decode it (not harmful to do so)	*/
-	/*								*/
-	S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
-	S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
-	S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-	S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
+  switch (S->superH->P.ID.op) {
+  case OP_BF:
+  case OP_BT:
+  case OP_BRA:
+  case OP_BSR:
+  case OP_JMP:
+  case OP_JSR:
+  case OP_RTS:
+  case OP_RTE:
+  case OP_TRAPA:
+  case OP_BFS:
+  case OP_BTS:
+  case OP_BRAF:
+  case OP_BSRF: {
+    sfatal(E, S, "Illegal slot instruction !\n");
+    break;
+  }
 
-	switch (S->superH->P.ID.op)
-	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
-		{
-			sfatal(E, S, "Illegal slot instruction !\n");
-			break;
-		}
+  /*								*/
+  /*	See pages 107 and 115 of the programming manual		*/
+  /*	for an explanation of the following:			*/
+  /*								*/
+  case OP_MOVI:
+  case OP_MOVWI:
+  case OP_MOVLI:
+  case OP_MOVA: {
+    /*							*/
+    /*	When we call (*(S->superH->P.ID.fptr)), it will use	*/
+    /*	P.EX.fetchedpc, and add 4 to calculate disp.	*/
+    /*	For these instructions, in delay slot, we want	*/
+    /*	to use PC of branch + 2, so we decrement the	*/
+    /*	P.EX.fetchedpc by 2 before calling (*(fptr))	*/
+    /*	then increment it by 2 after returning, so 	*/
+    /*	the branch calculation is done correctly:	*/
+    /*							*/
 
-		/*								*/
-		/*	See pages 107 and 115 of the programming manual		*/
-		/*	for an explanation of the following:			*/
-		/*								*/
-		case OP_MOVI:
-		case OP_MOVWI:
-		case OP_MOVLI:
-		case OP_MOVA:
-		{
-			/*							*/
-			/*	When we call (*(S->superH->P.ID.fptr)), it will use	*/
-			/*	P.EX.fetchedpc, and add 4 to calculate disp.	*/
-			/*	For these instructions, in delay slot, we want	*/
-			/*	to use PC of branch + 2, so we decrement the	*/
-			/*	P.EX.fetchedpc by 2 before calling (*(fptr))	*/
-			/*	then increment it by 2 after returning, so 	*/
-			/*	the branch calculation is done correctly:	*/
-			/*							*/
+    S->superH->P.EX.fetchedpc -= 2;
+    switch (S->superH->P.ID.format) {
+    case INSTR_D8: {
+      instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
+      (*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
-			S->superH->P.EX.fetchedpc -= 2;
-			switch (S->superH->P.ID.format)
-			{
-				case INSTR_D8:
-				{
-					instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
+      break;
+    }
 
-					break;
-				}
+    case INSTR_ND8: {
+      instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
+      (*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 
-				case INSTR_ND8:
-				{
-					instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
-				
-					break;
-				}
+      break;
+    }
 
-				case INSTR_NI:
-				{
-					instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
-					(*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
-				
-					break;
-				}
+    case INSTR_NI: {
+      instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
+      (*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
 
-				default:
-				{
-					sfatal(E, S, "unknown instr fmt in delay slot !");
-					break;
-				}
-			}
-			S->superH->P.EX.fetchedpc += 2;
+      break;
+    }
 
-			break;
-		}
-	}
+    default: {
+      sfatal(E, S, "unknown instr fmt in delay slot !");
+      break;
+    }
+    }
+    S->superH->P.EX.fetchedpc += 2;
 
+    break;
+  }
+  }
 
-	/*	If not an illegal slot instruction, execute it		*/
-	switch (S->superH->P.ID.format)
-	{
-		case INSTR_0:
-		{
-			(*(S->superH->P.ID.fptr))(E, S);
-					
-			break;
-		}
+  /*	If not an illegal slot instruction, execute it		*/
+  switch (S->superH->P.ID.format) {
+  case INSTR_0: {
+    (*(S->superH->P.ID.fptr))(E, S);
 
-		case INSTR_N:
-		{
-			instr_n *tmp = (instr_n *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->dst);
-		
-			break;
-		}
+    break;
+  }
 
-		case INSTR_M:
-		{
-			instr_m *tmp = (instr_m *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->src);
-		
-			break;
-		}
+  case INSTR_N: {
+    instr_n *tmp = (instr_n *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->dst);
 
-		case INSTR_MBANK:
-		{
-			instr_mbank *tmp = (instr_mbank *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->src);
-		
-			break;
-		}
+    break;
+  }
 
-		case INSTR_NBANK:
-		{
-			instr_nbank *tmp = (instr_nbank *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->dst);
+  case INSTR_M: {
+    instr_m *tmp = (instr_m *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->src);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_NM:
-		{
-			instr_nm *tmp = (instr_nm *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->dst);
+  case INSTR_MBANK: {
+    instr_mbank *tmp = (instr_mbank *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->src);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_MD:
-		{
-			instr_md *tmp = (instr_md *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp);
+  case INSTR_NBANK: {
+    instr_nbank *tmp = (instr_nbank *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->reg, tmp->dst);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_NMD:
-		{
-			instr_nmd *tmp = (instr_nmd *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp, tmp->dst);
+  case INSTR_NM: {
+    instr_nm *tmp = (instr_nm *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->dst);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_D8:
-		{
-			instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
+  case INSTR_MD: {
+    instr_md *tmp = (instr_md *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_D12:
-		{
-			instr_d12 *tmp = (instr_d12 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->disp);
+  case INSTR_NMD: {
+    instr_nmd *tmp = (instr_nmd *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->src, tmp->disp, tmp->dst);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_ND4:
-		{
-			instr_nd4 *tmp = (instr_nd4 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
+  case INSTR_D8: {
+    instr_d8 *tmp = (instr_d8 *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
-			break;
-		}
+    break;
+  }
 
-		case INSTR_ND8:
-		{
-			instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
+  case INSTR_D12: {
+    instr_d12 *tmp = (instr_d12 *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->disp);
 
-			break;
-		}
+    break;
+  }
 
+  case INSTR_ND4: {
+    instr_nd4 *tmp = (instr_nd4 *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 
-		case INSTR_I:
-		{
-			instr_i *tmp = (instr_i *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->imm);
+    break;
+  }
 
-			break;
-		}
+  case INSTR_ND8: {
+    instr_nd8 *tmp = (instr_nd8 *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->disp, tmp->dst);
 
-		case INSTR_NI:
-		{
-			instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
-			(*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
+    break;
+  }
 
-			break;
-		}
+  case INSTR_I: {
+    instr_i *tmp = (instr_i *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->imm);
 
-		default:
-		{
-			sfatal(E, S, "unknown instruction format in delay slot !");
-			break;
-		}
-	}
+    break;
+  }
 
-	return;
+  case INSTR_NI: {
+    instr_ni *tmp = (instr_ni *)&S->superH->P.ID.instr;
+    (*(S->superH->P.ID.fptr))(E, S, tmp->imm, tmp->dst);
+
+    break;
+  }
+
+  default: {
+    sfatal(E, S, "unknown instruction format in delay slot !");
+    break;
+  }
+  }
+
+  return;
 }
 
-	
 /*									*/
 /*   ADD (Add Binary): Arithmetic Instruction				*/
 /*									*/
@@ -312,29 +284,21 @@ delayslot(Engine *E, State *S, ulong dPC)
 /*   extended to 32 bits, this instruction can add and subtract 	*/
 /*   immediate data.							*/
 /*									*/
-void
-superH_add(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
+void superH_add(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) + reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_addi(Engine *E, State *S, long i, ulong n)
-{
-	if ((i&0x80)==0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n)+(0x000000FF&(long)i));
-	}
-	else 
-	{
-		reg_set(E, S, n, reg_read(E, S, n)+(0xFFFFFF00 | (long)i));
-	}
+void superH_addi(Engine *E, State *S, long i, ulong n) {
+  if ((i & 0x80) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) + (0x000000FF & (long)i));
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) + (0xFFFFFF00 | (long)i));
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   ADDC (Add with Carry): Arithmetic Instruction			*/
@@ -348,31 +312,24 @@ superH_addi(Engine *E, State *S, long i, ulong n)
 /*   according to the result. This instruction can add data that 	*/
 /*   has more than 32 bits.						*/
 /*									*/
-void
-superH_addc(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong tmp0, tmp1;
+void superH_addc(Engine *E, State *S, ulong m, ulong n) {
+  ulong tmp0, tmp1;
 
-	tmp1 = reg_read(E, S, n)+reg_read(E, S, m);
-	tmp0 = reg_read(E, S, n);
-	reg_set(E, S, n, tmp1 + S->superH->SR.T);
+  tmp1 = reg_read(E, S, n) + reg_read(E, S, m);
+  tmp0 = reg_read(E, S, n);
+  reg_set(E, S, n, tmp1 + S->superH->SR.T);
 
-	if (tmp0 > tmp1)
-	{
-		S->superH->SR.T = 1;
-	}
-	else 
-	{
-		S->superH->SR.T = 0;
-	}
-	if (tmp1 > reg_read(E, S, n))
-	{
-		S->superH->SR.T = 1;
-	}
+  if (tmp0 > tmp1) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
+  if (tmp1 > reg_read(E, S, n)) {
+    S->superH->SR.T = 1;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   ADDV (Add with V Flag Overflow Check): Arithmetic Instruction	*/
@@ -384,62 +341,44 @@ superH_addc(Engine *E, State *S, ulong m, ulong n)
 /*   Description: Adds general register Rn data to Rm data, and stores 	*/
 /*   the result in Rn. If an overflow occurs, the T bit is set to 1.	*/
 /*									*/
-void
-superH_addv(Engine *E, State *S, ulong m, ulong n)
-{
-	long dest, src, ans;
+void superH_addv(Engine *E, State *S, ulong m, ulong n) {
+  long dest, src, ans;
 
-	if ((long)reg_read(E, S, n) >= 0)
-	{
-		dest = 0;
-	}
-	else
-	{
-		dest = 1;
-	}
+  if ((long)reg_read(E, S, n) >= 0) {
+    dest = 0;
+  } else {
+    dest = 1;
+  }
 
-	if ((long)reg_read(E, S, m) >= 0)
-	{
-		src = 0;
-	}
-	else
-	{
-		src = 1;
-	}
+  if ((long)reg_read(E, S, m) >= 0) {
+    src = 0;
+  } else {
+    src = 1;
+  }
 
-	src += dest;
-	reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
+  src += dest;
+  reg_set(E, S, n, reg_read(E, S, n) + reg_read(E, S, m));
 
-	if ((long)reg_read(E, S, n) >= 0)
-	{
-		ans = 0;
-	}
-	else
-	{
-		ans = 1;
-	}
+  if ((long)reg_read(E, S, n) >= 0) {
+    ans = 0;
+  } else {
+    ans = 1;
+  }
 
-	ans += dest;
+  ans += dest;
 
-	if (src == 0 || src == 2) 
-	{
-		if (ans == 1)
-		{
-			S->superH->SR.T = 1;
-		}
-		else
-		{
-			S->superH->SR.T = 0;
-		}
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (src == 0 || src == 2) {
+    if (ans == 1) {
+      S->superH->SR.T = 1;
+    } else {
+      S->superH->SR.T = 0;
+    }
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   AND (AND Logical): Logic Operation Instruction			*/
@@ -459,34 +398,27 @@ superH_addv(Engine *E, State *S, ulong m, ulong n)
 /*   ANDed with 8-bit immediate data. Note: After AND #imm, R0 is 	*/
 /*   executed and the upper 24 bits of R0 are always cleared to 0.	*/
 /*									*/
-void
-superH_and(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n)&reg_read(E, S, m));
+void superH_and(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) & reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_andi(Engine *E, State *S, long i)
-{
-	reg_set(E, S, 0, reg_read(E, S, 0)&(0x000000FF&(long)i));
+void superH_andi(Engine *E, State *S, long i) {
+  reg_set(E, S, 0, reg_read(E, S, 0) & (0x000000FF & (long)i));
 
-	return;
+  return;
 }
 
-void
-superH_andm(Engine *E, State *S, long i)
-{
-	long temp;
+void superH_andm(Engine *E, State *S, long i) {
+  long temp;
 
-	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
-	temp &= (0x000000FF & (long)i);
-	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0),temp);
+  temp = (long)superHreadbyte(E, S, S->superH->GBR + reg_read(E, S, 0));
+  temp &= (0x000000FF & (long)i);
+  superHwritebyte(E, S, S->superH->GBR + reg_read(E, S, 0), temp);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BF (Branch if False): Branch Instruction				*/
@@ -507,45 +439,36 @@ superH_andm(Engine *E, State *S, long i)
 /*   instruction or the like. Note: When branching, three cycles; when 	*/
 /*   not branching, one cycle.						*/
 /*									*/
-void
-superH_bf(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_bf(Engine *E, State *S, long d) {
+  long disp;
 
-	if ((d&0x80) == 0)
-	{
-		disp = (0x000000FF & (long)d);
-	}
-	else
-	{
-		disp = (0xFFFFFF00 | (long)d);
-	}
-	if (S->superH->SR.T == 0)
-	{
-		/*								*/
-		/* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
-		/* 	PC has incremented twice since this instruction was 	*/
-		/*	fetched. (b) We double disp, b'cos disp's are in 	*/
-		/*	# of instrs, but PC increments by 2 b/n instructions,	*/
-		/*	since PC is byte addr and instructions are 16 bit. 	*/
-		/*	(c) Finally, +4, according to manual, PC of instr two	*/
-		/*	instrs away is used to calculate target addr:		*/
-		/*			BF					*/
-		/*			NOP					*/
-		/*			NOP <- this PC is used to calc targ	*/
-		/*								*/
-		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);		
-		superHifidflush(S);
-		S->superH->P.EX.cycles += 2;
-	}
-	else
-	{
-		/*	Branch Not Taken	*/
-	}
+  if ((d & 0x80) == 0) {
+    disp = (0x000000FF & (long)d);
+  } else {
+    disp = (0xFFFFFF00 | (long)d);
+  }
+  if (S->superH->SR.T == 0) {
+    /*								*/
+    /* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
+    /* 	PC has incremented twice since this instruction was 	*/
+    /*	fetched. (b) We double disp, b'cos disp's are in 	*/
+    /*	# of instrs, but PC increments by 2 b/n instructions,	*/
+    /*	since PC is byte addr and instructions are 16 bit. 	*/
+    /*	(c) Finally, +4, according to manual, PC of instr two	*/
+    /*	instrs away is used to calculate target addr:		*/
+    /*			BF					*/
+    /*			NOP					*/
+    /*			NOP <- this PC is used to calc targ	*/
+    /*								*/
+    S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
+    superHifidflush(S);
+    S->superH->P.EX.cycles += 2;
+  } else {
+    /*	Branch Not Taken	*/
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BF/S (Branch if False with Delay Slot): Branch Instruction		*/
@@ -578,52 +501,43 @@ superH_bf(Engine *E, State *S, long d)
 /*   instruction immediately following is a branch instruction, it is 	*/
 /*   not recognized as an illegal slot instruction.			*/
 /*									*/
-void
-superH_bfs(Engine *E, State *S, long d)
-{
-	long disp;
-	ulong temp;
+void superH_bfs(Engine *E, State *S, long d) {
+  long disp;
+  ulong temp;
 
-	/*	B'cos PC has been inc. 2x since we were fetched		*/
-	temp = (S->superH->P.EX.fetchedpc);
+  /*	B'cos PC has been inc. 2x since we were fetched		*/
+  temp = (S->superH->P.EX.fetchedpc);
 
-	if ((d&0x80) == 0)
-	{
-		disp = (0x000000FF & (long)d);
-	}
-	else
-	{
-		disp = (0xFFFFFF00 | (long)d);
-	}
-	if (S->superH->SR.T == 0) 
-	{
-		/* 	Taken : flush, exec delay slot instr, takes 2 cycles	*/
-		/*								*/
-		/* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
-		/* 	PC has incremented twice since this instruction was 	*/
-		/*	fetched. (b) We double disp, b'cos disp's are in 	*/
-		/*	# of instrs, but PC increments by 2 b/n instructions,	*/
-		/*	since PC is byte addr and instructions are 16 bit. 	*/
-		/*	(c) Finally, +4, according to manual, PC of instr two	*/
-		/*	instrs away is used to calculate target addr:		*/
-		/*			BF					*/
-		/*			NOP					*/
-		/*			NOP <- this PC is used to calc targ	*/
-		/*								*/
-		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
-		
-		/* 	Exec instr in delay slot before flushing IF/ID		*/
-		delayslot(E, S, temp+2);
-		superHifidflush(S);
-	}
-	else
-	{
-		/*	Not taken	*/
-	}
+  if ((d & 0x80) == 0) {
+    disp = (0x000000FF & (long)d);
+  } else {
+    disp = (0xFFFFFF00 | (long)d);
+  }
+  if (S->superH->SR.T == 0) {
+    /* 	Taken : flush, exec delay slot instr, takes 2 cycles	*/
+    /*								*/
+    /* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
+    /* 	PC has incremented twice since this instruction was 	*/
+    /*	fetched. (b) We double disp, b'cos disp's are in 	*/
+    /*	# of instrs, but PC increments by 2 b/n instructions,	*/
+    /*	since PC is byte addr and instructions are 16 bit. 	*/
+    /*	(c) Finally, +4, according to manual, PC of instr two	*/
+    /*	instrs away is used to calculate target addr:		*/
+    /*			BF					*/
+    /*			NOP					*/
+    /*			NOP <- this PC is used to calc targ	*/
+    /*								*/
+    S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
 
-	return;
+    /* 	Exec instr in delay slot before flushing IF/ID		*/
+    delayslot(E, S, temp + 2);
+    superHifidflush(S);
+  } else {
+    /*	Not taken	*/
+  }
+
+  return;
 }
-
 
 /*									*/
 /*   BRA (Branch): Branch Instruction					*/
@@ -649,46 +563,39 @@ superH_bfs(Engine *E, State *S, long d)
 /*   a branch instruction, it is acknowledged as an illegal slot 	*/
 /*   instruction.							*/
 /*									*/
-void
-superH_bra(Engine *E, State *S, long d)
-{
-	ulong temp;
-	long disp;
+void superH_bra(Engine *E, State *S, long d) {
+  ulong temp;
+  long disp;
 
-	if ((d&0x800)==0)
-	{
-		disp=(0x00000FFF & d);
-	}
-	else
-	{
-		disp=(0xFFFFF000 | d);
-	}
+  if ((d & 0x800) == 0) {
+    disp = (0x00000FFF & d);
+  } else {
+    disp = (0xFFFFF000 | d);
+  }
 
-	/*	B'cos PC has  been inc. 2x since we were fetched		*/
-	temp = (S->superH->P.EX.fetchedpc);
+  /*	B'cos PC has  been inc. 2x since we were fetched		*/
+  temp = (S->superH->P.EX.fetchedpc);
 
-	/*								*/
-	/* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
-	/* 	PC has incremented twice since this instruction was 	*/
-	/*	fetched. (b) We double disp, b'cos disp's are in 	*/
-	/*	# of instrs, but PC increments by 2 b/n instructions,	*/
-	/*	since PC is byte addr and instructions are 16 bit. 	*/
-	/*	(c) Finally, +4, according to manual, PC of instr two	*/
-	/*	instrs away is used to calculate target addr:		*/
-	/*		BF						*/
-	/*		NOP						*/
-	/*		NOP <- this PC is used to calc targ		*/
-	/*								*/
-	S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
+  /*								*/
+  /* 	(a) P.EX.fetchedpc : addr in mem of curr instr, since	*/
+  /* 	PC has incremented twice since this instruction was 	*/
+  /*	fetched. (b) We double disp, b'cos disp's are in 	*/
+  /*	# of instrs, but PC increments by 2 b/n instructions,	*/
+  /*	since PC is byte addr and instructions are 16 bit. 	*/
+  /*	(c) Finally, +4, according to manual, PC of instr two	*/
+  /*	instrs away is used to calculate target addr:		*/
+  /*		BF						*/
+  /*		NOP						*/
+  /*		NOP <- this PC is used to calc targ		*/
+  /*								*/
+  S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, temp+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, temp + 2);
+  superHifidflush(S);
 
-
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BRAF (Branch Far): Branch Instruction				*/
@@ -707,25 +614,21 @@ superH_bra(Engine *E, State *S, long d)
 /*   instruction. If the next instruction is a branch instruction, it 	*/
 /*   is acknowledged as an illegal slot instruction.			*/
 /*									*/
-void
-superH_braf(Engine *E, State *S, ulong n)
-{
-	ulong temp;
+void superH_braf(Engine *E, State *S, ulong n) {
+  ulong temp;
 
-	/*	B'cos PC has been inc. 2x since we were fetched		*/
-	temp = (S->superH->P.EX.fetchedpc);
+  /*	B'cos PC has been inc. 2x since we were fetched		*/
+  temp = (S->superH->P.EX.fetchedpc);
 
-	/*	PC used in calculation is PC of 2nd instr after us.	*/
-	S->PC += 4 + reg_read(E, S, n);
+  /*	PC used in calculation is PC of 2nd instr after us.	*/
+  S->PC += 4 + reg_read(E, S, n);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, temp+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, temp + 2);
+  superHifidflush(S);
 
-		
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BSR (Branch to Subroutine): Branch Instruction			*/
@@ -753,53 +656,46 @@ superH_braf(Engine *E, State *S, ulong n)
 /*   instruction. If the next instruction is a branch instruction, it 	*/
 /*   is acknowledged as an illegal slot instruction.			*/
 /* 									*/
-void
-superH_bsr(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_bsr(Engine *E, State *S, long d) {
+  long disp;
 
-	if ((d&0x800) == 0)
-	{
-		disp = (0x00000FFF & d);
-	}
-	else
-	{
-		disp = (0xFFFFF000 | d);
-	}
+  if ((d & 0x800) == 0) {
+    disp = (0x00000FFF & d);
+  } else {
+    disp = (0xFFFFF000 | d);
+  }
 
-	/*	B'cos PC has been inc. 2x since we were fetched		*/
-	S->superH->PR = (S->superH->P.EX.fetchedpc);
+  /*	B'cos PC has been inc. 2x since we were fetched		*/
+  S->superH->PR = (S->superH->P.EX.fetchedpc);
 
-	S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
+  S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
-	
-	/*								*/
-	/*		For simulators debugging facilities		*/
-	/*								*/
-	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
-	{
-		sfatal(E, S, "Internal simulator error: PC stack overflow");
-	}
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, S->superH->PR + 2);
+  superHifidflush(S);
 
-	/*								*/
-	/*	Current index of PCSTACK is the current function's	*/
-	/*	start PC, whereas current index for frame pointer	*/
-	/*	stack is not set until we're leaving function, b'cos	*/
-	/*	we can't tell for sure where the frame pointer of	*/
-	/*	functionw e're about to enter is going to be, since	*/
-	/*	it depends on compiler generated function prologue.	*/
-	/*								*/
-	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
-	S->PCSTACK[++S->pcstackheight] = S->PC;
+  /*								*/
+  /*		For simulators debugging facilities		*/
+  /*								*/
+  if (S->pcstackheight >= MAX_PCSTACK_HEIGHT) {
+    sfatal(E, S, "Internal simulator error: PC stack overflow");
+  }
 
-	//fprintf(stdout, "NODE%d, BSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+  /*								*/
+  /*	Current index of PCSTACK is the current function's	*/
+  /*	start PC, whereas current index for frame pointer	*/
+  /*	stack is not set until we're leaving function, b'cos	*/
+  /*	we can't tell for sure where the frame pointer of	*/
+  /*	functionw e're about to enter is going to be, since	*/
+  /*	it depends on compiler generated function prologue.	*/
+  /*								*/
+  S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
+  S->PCSTACK[++S->pcstackheight] = S->PC;
 
-	return;
+  //fprintf(stdout, "NODE%d, BSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+
+  return;
 }
-
 
 /*									*/
 /*   BSRF (Branch to Subroutine Far): Branch Instruction		*/
@@ -821,49 +717,45 @@ superH_bsr(Engine *E, State *S, long d)
 /*   instruction is a branch instruction, it is acknowledged as an 	*/
 /*   illegal slot instruction.						*/
 /* 									*/
-void
-superH_bsrf(Engine *E, State *S, ulong n)
-{
-	/*	B'cos PC has been inc. 2x since we were fetched		*/
-	S->superH->PR = S->superH->P.EX.fetchedpc;
+void superH_bsrf(Engine *E, State *S, ulong n) {
+  /*	B'cos PC has been inc. 2x since we were fetched		*/
+  S->superH->PR = S->superH->P.EX.fetchedpc;
 
-	/*	PC used to calc dst addr is PC of 2nd instr after us	*/
-	S->PC += 4 + reg_read(E, S, n);
+  /*	PC used to calc dst addr is PC of 2nd instr after us	*/
+  S->PC += 4 + reg_read(E, S, n);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, S->superH->PR + 2);
+  superHifidflush(S);
 
-	/*								*/
-	/*		For simulators debugging facilities		*/
-	/*								*/
-	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
-	{
-		sfatal(E, S, "Internal simulator error: PC stack overflow");
-	}
+  /*								*/
+  /*		For simulators debugging facilities		*/
+  /*								*/
+  if (S->pcstackheight >= MAX_PCSTACK_HEIGHT) {
+    sfatal(E, S, "Internal simulator error: PC stack overflow");
+  }
 
-	/*								*/
-	/*	Current index of PCSTACK is the current function's	*/
-	/*	start PC, whereas current index for frame pointer	*/
-	/*	stack is not set until we're leaving function, b'cos	*/
-	/*	we can't tell for sure where the frame pointer of	*/
-	/*	functionw e're about to enter is going to be, since	*/
-	/*	it depends on compiler generated function prologue.	*/
-	/*								*/
-	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
-	S->PCSTACK[++S->pcstackheight] = S->PC;
+  /*								*/
+  /*	Current index of PCSTACK is the current function's	*/
+  /*	start PC, whereas current index for frame pointer	*/
+  /*	stack is not set until we're leaving function, b'cos	*/
+  /*	we can't tell for sure where the frame pointer of	*/
+  /*	functionw e're about to enter is going to be, since	*/
+  /*	it depends on compiler generated function prologue.	*/
+  /*								*/
+  S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
+  S->PCSTACK[++S->pcstackheight] = S->PC;
 
-	//fprintf(stdout, "NODE%d BSRF from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+  //fprintf(stdout, "NODE%d BSRF from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BT (Branch if True): Branch Instruction				*/
 /*									*/
 /*   Format 	Abstract 		Code 		  Cycle   T Bit	*/
-/*   ------------------------------------------------------------------	*/   			
+/*   ------------------------------------------------------------------	*/
 /*   BT label 	T==1 ?, disp+PC -> PC;	10001001dddddddd   3	    -	*/
 /*		T==0 ?, nop				   1		*/
 /*									*/
@@ -878,33 +770,24 @@ superH_bsrf(Engine *E, State *S, ulong n)
 /*   instruction or the like. Note: When branching, requires three 	*/
 /*   cycles; when not branching, one cycle.				*/
 /* 									*/
-void
-superH_bt(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_bt(Engine *E, State *S, long d) {
+  long disp;
 
-	if ((d&0x80) == 0)
-	{
-		disp = (0x000000FF & (long)d);
-	}
-	else
-	{
-		disp = (0xFFFFFF00 | (long)d);
-	}
-	if (S->superH->SR.T == 1)
-	{
-		/*	Taken : flush IF and ID		*/
-		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
-		superHifidflush(S);
-	}
-	else
-	{
-		/*	Not taken	*/
-	}
+  if ((d & 0x80) == 0) {
+    disp = (0x000000FF & (long)d);
+  } else {
+    disp = (0xFFFFFF00 | (long)d);
+  }
+  if (S->superH->SR.T == 1) {
+    /*	Taken : flush IF and ID		*/
+    S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
+    superHifidflush(S);
+  } else {
+    /*	Not taken	*/
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   BT/S (Branch if True with Delay Slot): Branch Instruction		*/
@@ -934,40 +817,31 @@ superH_bt(Engine *E, State *S, long d)
 /*   accepted. When the instruction immediately following is a branch 	*/
 /*   instruction, it is not recognized as an illegal slot instruction.	*/
 /*									*/
-void
-superH_bts(Engine *E, State *S, long d)
-{
-	long disp;
-	ulong temp;
+void superH_bts(Engine *E, State *S, long d) {
+  long disp;
+  ulong temp;
 
-	/*	B'cos PC has been inc. 2x since we were fetched		*/
-	temp = S->superH->P.EX.fetchedpc;
+  /*	B'cos PC has been inc. 2x since we were fetched		*/
+  temp = S->superH->P.EX.fetchedpc;
 
-	if ((d&0x80)==0)
-	{
-		disp = (0x000000FF & (long)d);
-	}
-	else
-	{
-		disp = (0xFFFFFF00 | (long)d);
-	}
-	if (S->superH->SR.T == 1) 
-	{
-		/*	Taken : flush, execute delay slot instr		*/
-		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
+  if ((d & 0x80) == 0) {
+    disp = (0x000000FF & (long)d);
+  } else {
+    disp = (0xFFFFFF00 | (long)d);
+  }
+  if (S->superH->SR.T == 1) {
+    /*	Taken : flush, execute delay slot instr		*/
+    S->PC = (S->superH->P.EX.fetchedpc + 4) + (disp << 1);
 
-		/* 	Exec instr in delay slot before flushing IF/ID		*/
-		delayslot(E, S, temp+2);
-		superHifidflush(S);
-	}
-	else
-	{
-		/*	Not taken	*/
-	}
+    /* 	Exec instr in delay slot before flushing IF/ID		*/
+    delayslot(E, S, temp + 2);
+    superHifidflush(S);
+  } else {
+    /*	Not taken	*/
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   CLRMAC (Clear MAC Register): System Control Instruction		*/
@@ -978,15 +852,12 @@ superH_bts(Engine *E, State *S, long d)
 /*									*/
 /*   Description: Clears the MACH and MACL registers.			*/
 /*									*/
-void
-superH_clrmac(Engine *E, State *S)
-{
-	S->superH->MACH = 0;
-	S->superH->MACL = 0;
+void superH_clrmac(Engine *E, State *S) {
+  S->superH->MACH = 0;
+  S->superH->MACL = 0;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   CLRS (Clear S Bit): System Control Instruction			*/
@@ -997,14 +868,11 @@ superH_clrmac(Engine *E, State *S)
 /*									*/
 /*   Description: Clears the S bit.					*/
 /*									*/
-void
-superH_clrs(Engine *E, State *S)
-{
-	S->superH->SR.S = 0;
+void superH_clrs(Engine *E, State *S) {
+  S->superH->SR.S = 0;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   CLRT (Clear T Bit): System Control Instruction			*/
@@ -1015,14 +883,11 @@ superH_clrs(Engine *E, State *S)
 /*									*/
 /*   Description: Clears the T bit.					*/
 /*									*/
-void
-superH_clrt(Engine *E, State *S)
-{
-	S->superH->SR.T = 0;
+void superH_clrt(Engine *E, State *S) {
+  S->superH->SR.T = 0;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   CMP/cond (Compare Conditionally): Arithmetic Instruction		*/
@@ -1052,165 +917,112 @@ superH_clrt(Engine *E, State *S)
 /* 									*/
 /*   LEGEND ;)- sgd && = "when signed,  and" etc.			*/
 /*									*/
-void
-superH_cmpeq(Engine *E, State *S, ulong m, ulong n)
-{
-	if (reg_read(E, S, n) == reg_read(E, S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_cmpeq(Engine *E, State *S, ulong m, ulong n) {
+  if (reg_read(E, S, n) == reg_read(E, S, m)) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_cmpge(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((long)reg_read(E, S, n) >= (long)reg_read(E, S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_cmpge(Engine *E, State *S, ulong m, ulong n) {
+  if ((long)reg_read(E, S, n) >= (long)reg_read(E, S, m)) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_cmpgt(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((long)reg_read(E, S, n) > (long)reg_read(E, S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_cmpgt(Engine *E, State *S, ulong m, ulong n) {
+  if ((long)reg_read(E, S, n) > (long)reg_read(E, S, m)) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_cmphi(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((ulong)reg_read(E, S, n) > (ulong)reg_read(E, S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_cmphi(Engine *E, State *S, ulong m, ulong n) {
+  if ((ulong)reg_read(E, S, n) > (ulong)reg_read(E, S, m)) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
+void superH_cmphs(Engine *E, State *S, ulong m, ulong n) {
+  if ((ulong)reg_read(E, S, n) >= (ulong)reg_read(E, S, m)) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-void
-superH_cmphs(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((ulong)reg_read(E, S, n) >= (ulong)reg_read(E, S, m))
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
+  return;
 }
 
-void
-superH_cmppl(Engine *E, State *S, ulong n)
-{
-	if ((long)reg_read(E, S, n) > 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_cmppl(Engine *E, State *S, ulong n) {
+  if ((long)reg_read(E, S, n) > 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
+void superH_cmppz(Engine *E, State *S, ulong n) {
+  if ((long)reg_read(E, S, n) >= 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-void
-superH_cmppz(Engine *E, State *S, ulong n)
-{
-	if ((long)reg_read(E, S, n) >= 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
+  return;
 }
 
+void superH_cmpstr(Engine *E, State *S, ulong m, ulong n) {
+  ulong temp;
+  long HH, HL, LH, LL;
 
-void
-superH_cmpstr(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong temp;
-	long HH,HL,LH,LL;
+  temp = reg_read(E, S, n) ^ reg_read(E, S, m);
+  HH = (temp & 0xFF000000) >> 12;
+  HL = (temp & 0x00FF0000) >> 8;
+  LH = (temp & 0x0000FF00) >> 4;
+  LL = temp & 0x000000FF;
+  HH = HH && HL && LH && LL;
 
-	temp = reg_read(E, S, n) ^ reg_read(E, S, m);
-	HH = (temp&0xFF000000) >> 12;
-	HL = (temp&0x00FF0000) >> 8;
-	LH = (temp&0x0000FF00) >> 4; 
-	LL = temp&0x000000FF;
-	HH = HH&&HL&&LH&&LL;
+  if (HH == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	if (HH == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
+  return;
 }
 
+void superH_cmpim(Engine *E, State *S, long i) {
+  long imm;
 
-void
-superH_cmpim(Engine *E, State *S, long i)
-{
-	long imm;
+  if ((i & 0x80) == 0) {
+    imm = (0x000000FF & i);
+  } else {
+    imm = (0xFFFFFF00 | i);
+  }
+  if (reg_read(E, S, 0) == imm) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	if ((i & 0x80) == 0)
-	{
-		imm = (0x000000FF & i);
-	}
-	else
-	{
-		imm = (0xFFFFFF00 | i);
-	}
-	if (reg_read(E, S, 0) == imm)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-
-	return;
+  return;
 }
-
 
 /*									*/
 /*   DIV0S (Divide Step 0 as Signed): Arithmetic Instruction		*/
@@ -1227,32 +1039,22 @@ superH_cmpim(Engine *E, State *S, long i)
 /*   each bit after this instruction. See the description given with 	*/
 /*   DIV1 for more information.						*/
 /* 									*/
-void
-superH_div0s(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((reg_read(E, S, n)&0x80000000) == 0)
-	{
-		S->superH->SR.Q = 0;
-	}
-	else
-	{
-		S->superH->SR.Q = 1;
-	}
-	if ((reg_read(E, S, m)&0x80000000) == 0)
-	{
-		S->superH->SR.M = 0;
-	}
-	else
-	{
-		S->superH->SR.M = 1;
-	}
+void superH_div0s(Engine *E, State *S, ulong m, ulong n) {
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    S->superH->SR.Q = 0;
+  } else {
+    S->superH->SR.Q = 1;
+  }
+  if ((reg_read(E, S, m) & 0x80000000) == 0) {
+    S->superH->SR.M = 0;
+  } else {
+    S->superH->SR.M = 1;
+  }
 
-	S->superH->SR.T = !(S->superH->SR.M == S->superH->SR.Q);
+  S->superH->SR.T = !(S->superH->SR.M == S->superH->SR.Q);
 
-
-	return;
+  return;
 }
-
 
 /*									*/
 /*   DIV0U (Divide Step 0 as Unsigned): Arithmetic Instruction		*/
@@ -1267,14 +1069,11 @@ superH_div0s(Engine *E, State *S, ulong m, ulong n)
 /*   each bit after this instruction. See the description given with 	*/
 /*   DIV1 for more information.						*/
 /* 									*/
-void
-superH_div0u(Engine *E, State *S)
-{
-	S->superH->SR.M = S->superH->SR.Q = S->superH->SR.T = 0;
+void superH_div0u(Engine *E, State *S) {
+  S->superH->SR.M = S->superH->SR.Q = S->superH->SR.T = 0;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   DIV1 (Divide Step 1): Arithmetic Instruction			*/
@@ -1300,96 +1099,86 @@ superH_div0u(Engine *E, State *S)
 /*   When the quotient requires 17 or more bits, place ROTCL before 	*/
 /*   DIV1. For the division sequence, see the following examples.	*/
 /* 									*/
-void
-superH_div1(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong tmp0;
-	uchar old_q,tmp1;
+void superH_div1(Engine *E, State *S, ulong m, ulong n) {
+  ulong tmp0;
+  uchar old_q, tmp1;
 
-	old_q = S->superH->SR.Q;
-	S->superH->SR.Q = (uchar)((0x80000000 & reg_read(E, S, n))!=0);
-	reg_set(E, S, n, reg_read(E, S, n) << 1);
-	reg_set(E, S, n, reg_read(E, S, n)|(long)S->superH->SR.T);
+  old_q = S->superH->SR.Q;
+  S->superH->SR.Q = (uchar)((0x80000000 & reg_read(E, S, n)) != 0);
+  reg_set(E, S, n, reg_read(E, S, n) << 1);
+  reg_set(E, S, n, reg_read(E, S, n) | (long)S->superH->SR.T);
 
-	switch (old_q)
-	{
-		case 0:
-			switch(S->superH->SR.M)
-			{
-				case 0:
-					tmp0 = reg_read(E, S, n);
-					reg_set(E, S, n, reg_read(E, S, n)-reg_read(E, S, m));
-					tmp1 = (reg_read(E, S, n) > tmp0);
-					switch(S->superH->SR.Q)
-					{
-						case 0:
-							S->superH->SR.Q = tmp1;
-							break;
+  switch (old_q) {
+  case 0:
+    switch (S->superH->SR.M) {
+    case 0:
+      tmp0 = reg_read(E, S, n);
+      reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
+      tmp1 = (reg_read(E, S, n) > tmp0);
+      switch (S->superH->SR.Q) {
+      case 0:
+        S->superH->SR.Q = tmp1;
+        break;
 
-						case 1:
-							S->superH->SR.Q = (uchar)(tmp1 == 0);
-							break;
-					}
-					break;
+      case 1:
+        S->superH->SR.Q = (uchar)(tmp1 == 0);
+        break;
+      }
+      break;
 
-				case 1:
-					tmp0 = reg_read(E, S, n);
-					reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
-					tmp1 = (reg_read(E, S, n) < tmp0);
-					switch(S->superH->SR.Q)
-					{
-						case 0:
-							S->superH->SR.Q = (uchar)(tmp1 == 0);
-							break;
-						case 1:
-							S->superH->SR.Q = tmp1;
-							break;
-					}
-					break;
-			}
-			break;
+    case 1:
+      tmp0 = reg_read(E, S, n);
+      reg_set(E, S, n, reg_read(E, S, n) + reg_read(E, S, m));
+      tmp1 = (reg_read(E, S, n) < tmp0);
+      switch (S->superH->SR.Q) {
+      case 0:
+        S->superH->SR.Q = (uchar)(tmp1 == 0);
+        break;
+      case 1:
+        S->superH->SR.Q = tmp1;
+        break;
+      }
+      break;
+    }
+    break;
 
-		case 1:
-			switch(S->superH->SR.M)
-			{
-				case 0:
-					tmp0 = reg_read(E, S, n);
-					reg_set(E, S, n, reg_read(E, S, n)+reg_read(E, S, m));
-					tmp1 = (reg_read(E, S, n) < tmp0);
-					switch(S->superH->SR.Q)
-					{
-						case 0:
-							S->superH->SR.Q=tmp1;
-							break;
-						case 1:
-							S->superH->SR.Q = (uchar)(tmp1 == 0);
-							break;
-					}
-					break;
+  case 1:
+    switch (S->superH->SR.M) {
+    case 0:
+      tmp0 = reg_read(E, S, n);
+      reg_set(E, S, n, reg_read(E, S, n) + reg_read(E, S, m));
+      tmp1 = (reg_read(E, S, n) < tmp0);
+      switch (S->superH->SR.Q) {
+      case 0:
+        S->superH->SR.Q = tmp1;
+        break;
+      case 1:
+        S->superH->SR.Q = (uchar)(tmp1 == 0);
+        break;
+      }
+      break;
 
-				case 1:
-					tmp0 = reg_read(E, S, n);
-					reg_set(E, S, n, reg_read(E, S, n)-reg_read(E, S, m));
-					tmp1 = (reg_read(E, S, n) > tmp0);
-					switch(S->superH->SR.Q)
-					{
-						case 0:
-							S->superH->SR.Q = (uchar)(tmp1 == 0);
-							break;
-						case 1:
-							S->superH->SR.Q = tmp1;
-							break;
-					}
-					break;
-			}
-			break;
-	}
+    case 1:
+      tmp0 = reg_read(E, S, n);
+      reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
+      tmp1 = (reg_read(E, S, n) > tmp0);
+      switch (S->superH->SR.Q) {
+      case 0:
+        S->superH->SR.Q = (uchar)(tmp1 == 0);
+        break;
+      case 1:
+        S->superH->SR.Q = tmp1;
+        break;
+      }
+      break;
+    }
+    break;
+  }
 
-	S->superH->SR.T = (S->superH->SR.Q == S->superH->SR.M);
+  S->superH->SR.T = (S->superH->SR.Q == S->superH->SR.M);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   DMULS.L (Double-Length Multiply as Signed): Arithmetic Instruction	*/
@@ -1404,80 +1193,66 @@ superH_div1(Engine *E, State *S, ulong m, ulong n)
 /*   MACL and MACH register. The operation is a signed arithmetic 	*/
 /*   operation.								*/
 /* 									*/
-void
-superH_dmuls(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong RnL,RnH,RmL,RmH,Res0,Res1,Res2;
-	ulong temp0,temp1,temp2,temp3;
-	long tempm,tempn,fnLmL;
+void superH_dmuls(Engine *E, State *S, ulong m, ulong n) {
+  ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
+  ulong temp0, temp1, temp2, temp3;
+  long tempm, tempn, fnLmL;
 
-	tempn = (long)reg_read(E, S, n);
-	tempm = (long)reg_read(E, S, m);
+  tempn = (long)reg_read(E, S, n);
+  tempm = (long)reg_read(E, S, m);
 
-	if (tempn < 0)
-	{
-		tempn = 0-tempn;
-	}
-	if (tempm < 0)
-	{
-		tempm = 0-tempm;
-	}
-	if ((long)(reg_read(E, S, n)^reg_read(E, S, m)) < 0)
-	{
-		fnLmL = -1;
-	}
-	else
-	{
-		fnLmL = 0;
-	}
+  if (tempn < 0) {
+    tempn = 0 - tempn;
+  }
+  if (tempm < 0) {
+    tempm = 0 - tempm;
+  }
+  if ((long)(reg_read(E, S, n) ^ reg_read(E, S, m)) < 0) {
+    fnLmL = -1;
+  } else {
+    fnLmL = 0;
+  }
 
-	temp1 = (ulong)tempn;
-	temp2 = (ulong)tempm;
-	RnL = temp1 & 0x0000FFFF;
-	RnH = (temp1 >> 16) & 0x0000FFFF;
-	RmL = temp2 & 0x0000FFFF;
-	RmH = (temp2 >> 16) & 0x0000FFFF;
-	temp0 = RmL*RnL;
-	temp1 = RmH*RnL;
-	temp2 = RmL*RnH;
-	temp3 = RmH*RnH;
-	Res2 = 0;
-	Res1 = temp1+temp2;
+  temp1 = (ulong)tempn;
+  temp2 = (ulong)tempm;
+  RnL = temp1 & 0x0000FFFF;
+  RnH = (temp1 >> 16) & 0x0000FFFF;
+  RmL = temp2 & 0x0000FFFF;
+  RmH = (temp2 >> 16) & 0x0000FFFF;
+  temp0 = RmL * RnL;
+  temp1 = RmH * RnL;
+  temp2 = RmL * RnH;
+  temp3 = RmH * RnH;
+  Res2 = 0;
+  Res1 = temp1 + temp2;
 
-	if (Res1 < temp1)
-	{
-		Res2+=0x00010000;
-	}
+  if (Res1 < temp1) {
+    Res2 += 0x00010000;
+  }
 
-	temp1 = (Res1<<16)&0xFFFF0000;
-	Res0 = temp0+temp1;
+  temp1 = (Res1 << 16) & 0xFFFF0000;
+  Res0 = temp0 + temp1;
 
-	if (Res0 < temp0)
-	{
-		Res2++;
-	}
+  if (Res0 < temp0) {
+    Res2++;
+  }
 
-	Res2 = Res2 + ((Res1 >> 16) & 0x0000FFFF) + temp3;
+  Res2 = Res2 + ((Res1 >> 16) & 0x0000FFFF) + temp3;
 
-	if (fnLmL < 0)
-	{
-		Res2 = ~Res2;
-		if (Res0 == 0)
-		{
-			Res2++;
-		}
-		else
-		{
-			Res0=(~Res0)+1;
-		}
-	}
+  if (fnLmL < 0) {
+    Res2 = ~Res2;
+    if (Res0 == 0) {
+      Res2++;
+    } else {
+      Res0 = (~Res0) + 1;
+    }
+  }
 
-	S->superH->MACH = Res2;
-	S->superH->MACL = Res0;
+  S->superH->MACH = Res2;
+  S->superH->MACL = Res0;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   DMULU.L (Double-Length Multiply as Unsigned): Arithmetic Instr.	*/
@@ -1492,44 +1267,38 @@ superH_dmuls(Engine *E, State *S, ulong m, ulong n)
 /*   MACL and MACH register. The operation is an unsigned arithmetic	*/
 /*   operation.								*/
 /* 									*/
-void
-superH_dmulu(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
-	ulong temp0, temp1, temp2, temp3;
+void superH_dmulu(Engine *E, State *S, ulong m, ulong n) {
+  ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
+  ulong temp0, temp1, temp2, temp3;
 
-	RnL = reg_read(E, S, n) & 0x0000FFFF;
-	RnH = (reg_read(E, S, n) >> 16) & 0x0000FFFF;
-	RmL = reg_read(E, S, m) & 0x0000FFFF;
-	RmH = (reg_read(E, S, m) >> 16) & 0x0000FFFF;
-	temp0 = RmL*RnL;
-	temp1 = RmH*RnL;
-	temp2 = RmL*RnH;
-	temp3 = RmH*RnH;
-	Res2 = 0;
-	Res1 = temp1+temp2;
+  RnL = reg_read(E, S, n) & 0x0000FFFF;
+  RnH = (reg_read(E, S, n) >> 16) & 0x0000FFFF;
+  RmL = reg_read(E, S, m) & 0x0000FFFF;
+  RmH = (reg_read(E, S, m) >> 16) & 0x0000FFFF;
+  temp0 = RmL * RnL;
+  temp1 = RmH * RnL;
+  temp2 = RmL * RnH;
+  temp3 = RmH * RnH;
+  Res2 = 0;
+  Res1 = temp1 + temp2;
 
-	if (Res1 < temp1)
-	{
-		Res2 += 0x00010000;
-	}
+  if (Res1 < temp1) {
+    Res2 += 0x00010000;
+  }
 
-	temp1 = (Res1<<16)&0xFFFF0000;
-	Res0 = temp0+temp1;
+  temp1 = (Res1 << 16) & 0xFFFF0000;
+  Res0 = temp0 + temp1;
 
-	if (Res0 < temp0)
-	{
-		Res2++;
-	}
+  if (Res0 < temp0) {
+    Res2++;
+  }
 
-	Res2 = Res2+((Res1>>16)&0x0000FFFF)+temp3;
-	S->superH->MACH = Res2;
-	S->superH->MACL = Res0;
+  Res2 = Res2 + ((Res1 >> 16) & 0x0000FFFF) + temp3;
+  S->superH->MACH = Res2;
+  S->superH->MACL = Res0;
 
-	return;
+  return;
 }
-
-
 
 /*									*/
 /*   DT (Decrement and Test): Arithmetic Instruction			*/
@@ -1544,23 +1313,17 @@ superH_dmulu(Engine *E, State *S, ulong m, ulong n)
 /*   and compares the results to 0 (zero). When the result is 0, the T 	*/
 /*   bit is set to 1. When the result isnt zero, the T bit is set to 0. */
 /*									*/
-void
-superH_dt(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n)-1);
+void superH_dt(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 1);
 
-	if (reg_read(E, S, n) == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (reg_read(E, S, n) == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   EXTS (Extend as Signed): Arithmetic Instruction			*/
@@ -1575,40 +1338,29 @@ superH_dt(Engine *E, State *S, ulong n)
 /*   Rm is copied into bits 8 to 31 of Rn. If word length is specified	*/
 /*   , the bit 15 value of Rm is copied into bits 16 to 31 of Rn.	*/
 /*									*/
-void
-superH_extsb(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, m));
+void superH_extsb(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, m));
 
-	if ((reg_read(E, S, m) & 0x00000080) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n)|0xFFFFFF00);
-	}
+  if ((reg_read(E, S, m) & 0x00000080) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_extsw(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, m));
+void superH_extsw(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, m));
 
-	if ((reg_read(E, S, m)&0x00008000) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n)|0xFFFF0000);
-	}
+  if ((reg_read(E, S, m) & 0x00008000) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   EXTU (Extend as Unsigned): Arithmetic Instruction			*/
@@ -1623,26 +1375,21 @@ superH_extsw(Engine *E, State *S, ulong m, ulong n)
 /*   bits 8 to 31 of Rn. If word length is specified, 0s are written 	*/
 /*   in bits 16 to 31 of Rn.						*/
 /* 									*/
-void
-superH_extub(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, m));
-	reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
+void superH_extub(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, m));
+  reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
 
-	return;
+  return;
 }
 
-void
-superH_extuw(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, m));
-	reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
+void superH_extuw(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, m));
+  reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 
-	return;
+  return;
 }
 
-
-/*									*/	
+/*									*/
 /*   JMP (Jump): Branch Instruction					*/
 /*   Class: Delayed branch instruction					*/
 /*									*/
@@ -1659,24 +1406,21 @@ superH_extuw(Engine *E, State *S, ulong m, ulong n)
 /*   instruction is a branch instruction, it is acknowledged as an 	*/
 /*   illegal slot instruction.						*/
 /* 									*/
-void
-superH_jmp(Engine *E, State *S, ulong n)
-{
-	ulong temp;
+void superH_jmp(Engine *E, State *S, ulong n) {
+  ulong temp;
 
-	/*	B'cos PC has been inc'd 2x since we were fetched	*/
-	temp = S->superH->P.EX.fetchedpc;
+  /*	B'cos PC has been inc'd 2x since we were fetched	*/
+  temp = S->superH->P.EX.fetchedpc;
 
-	/*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
-	S->PC = reg_read(E, S, n);
+  /*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
+  S->PC = reg_read(E, S, n);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, temp+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, temp + 2);
+  superHifidflush(S);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   JSR (Jump to Subroutine): Branch Instruction			*/
@@ -1698,43 +1442,39 @@ superH_jmp(Engine *E, State *S, ulong n)
 /*   and the next instruction. If the next instruction is a branch 	*/
 /*   instruction, it is acknowledged as an illegal slot instruction.	*/
 /* 									*/
-void
-superH_jsr(Engine *E, State *S, ulong n)
-{
-	/*	B'cos PC has been inc'd 2x since we were fetched	*/
-	S->superH->PR = S->superH->P.EX.fetchedpc;
+void superH_jsr(Engine *E, State *S, ulong n) {
+  /*	B'cos PC has been inc'd 2x since we were fetched	*/
+  S->superH->PR = S->superH->P.EX.fetchedpc;
 
-	/*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
-	S->PC = reg_read(E, S, n);
+  /*	XXX/BUG ? The spec does PC = reg_read(E, S, n)+4, but that makes no sense	*/
+  S->PC = reg_read(E, S, n);
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, S->superH->PR + 2);
+  superHifidflush(S);
 
-	/*								*/
-	/*		For simulators debugging facilities		*/
-	/*								*/
-	if (S->pcstackheight >= MAX_PCSTACK_HEIGHT)
-	{
-		sfatal(E, S, "Internal simulator error: PC stack overflow");
-	}
+  /*								*/
+  /*		For simulators debugging facilities		*/
+  /*								*/
+  if (S->pcstackheight >= MAX_PCSTACK_HEIGHT) {
+    sfatal(E, S, "Internal simulator error: PC stack overflow");
+  }
 
-	/*								*/
-	/*	Current index of PCSTACK is the current function's	*/
-	/*	start PC, whereas current index for frame pointer	*/
-	/*	stack is not set until we're leaving function, b'cos	*/
-	/*	we can't tell for sure where the frame pointer of	*/
-	/*	functionw e're about to enter is going to be, since	*/
-	/*	it depends on compiler generated function prologue.	*/
-	/*								*/
-	S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
-	S->PCSTACK[++S->pcstackheight] = S->PC;
+  /*								*/
+  /*	Current index of PCSTACK is the current function's	*/
+  /*	start PC, whereas current index for frame pointer	*/
+  /*	stack is not set until we're leaving function, b'cos	*/
+  /*	we can't tell for sure where the frame pointer of	*/
+  /*	functionw e're about to enter is going to be, since	*/
+  /*	it depends on compiler generated function prologue.	*/
+  /*								*/
+  S->FPSTACK[S->fpstackheight++] = S->superH->R[14];
+  S->PCSTACK[++S->pcstackheight] = S->PC;
 
-	//fprintf(stdout, "NODE%d JSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+  //fprintf(stdout, "NODE%d JSR from " ULONGFMT " to " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->superH->PR&0xFFFFFFFF, S->PC&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   LDC (Load to Control Register): System Control Instruction		*/
@@ -1787,127 +1527,96 @@ superH_jsr(Engine *E, State *S, ulong n)
 /*   instructions. When the RB = 0, Rn_BANK1 is accessed by LDC/LDC.L 	*/
 /*   instructions.							*/
 /* 									*/
-void
-superH_ldcsr(Engine *E, State *S, ulong m)
-{
-	long tmp = reg_read(E, S, m) & 0x700003F3;
+void superH_ldcsr(Engine *E, State *S, ulong m) {
+  long tmp = reg_read(E, S, m) & 0x700003F3;
 
-	memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
-	
-	return;
+  memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
+
+  return;
 }
 
-void
-superH_ldcgbr(Engine *E, State *S, ulong m)
-{
-	S->superH->GBR = reg_read(E, S, m);
+void superH_ldcgbr(Engine *E, State *S, ulong m) {
+  S->superH->GBR = reg_read(E, S, m);
 
-	return;
+  return;
 }
 
-void
-superH_ldcvbr(Engine *E, State *S, ulong m)
-{
-	S->superH->VBR = reg_read(E, S, m);
+void superH_ldcvbr(Engine *E, State *S, ulong m) {
+  S->superH->VBR = reg_read(E, S, m);
 
-	return;
+  return;
 }
 
-void
-superH_ldcssr(Engine *E, State *S, ulong m)
-{
-	long 	tmp = reg_read(E, S, m) & 0x700003F3;
-	memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
+void superH_ldcssr(Engine *E, State *S, ulong m) {
+  long tmp = reg_read(E, S, m) & 0x700003F3;
+  memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
 
-	return;
+  return;
 }
 
-void
-superH_ldcspc(Engine *E, State *S, ulong m)
-{
-	S->superH->SPC = reg_read(E, S, m);
+void superH_ldcspc(Engine *E, State *S, ulong m) {
+  S->superH->SPC = reg_read(E, S, m);
 
-	return;
+  return;
 }
 
-void
-superH_ldcr_bank(Engine *E, State *S, int reg, ulong m)
-{	
-	if (S->superH->SR.RB == 0)
-	{
-		S->superH->R_BANK[reg] = S->superH->R[m];
-	}
-	else
-	{
-		S->superH->R[reg] = S->superH->R[m];
-	}
+void superH_ldcr_bank(Engine *E, State *S, int reg, ulong m) {
+  if (S->superH->SR.RB == 0) {
+    S->superH->R_BANK[reg] = S->superH->R[m];
+  } else {
+    S->superH->R[reg] = S->superH->R[m];
+  }
 
-	return;
+  return;
 }
 
-void
-superH_ldcmsr(Engine *E, State *S, ulong m)
-{
-	long tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
-	memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldcmsr(Engine *E, State *S, ulong m) {
+  long tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
+  memmove(&S->superH->SR, &tmp, sizeof(S->superH->SR));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldcmgbr(Engine *E, State *S, ulong m)
-{
-	S->superH->GBR = superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldcmgbr(Engine *E, State *S, ulong m) {
+  S->superH->GBR = superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldcmvbr(Engine *E, State *S, ulong m)
-{
-	S->superH->VBR = superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldcmvbr(Engine *E, State *S, ulong m) {
+  S->superH->VBR = superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldcmssr(Engine *E, State *S, ulong m)
-{
-	long	tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
-	memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldcmssr(Engine *E, State *S, ulong m) {
+  long tmp = superHreadlong(E, S, reg_read(E, S, m)) & 0x700003F3;
+  memmove(&S->superH->SSR, &tmp, sizeof(S->superH->SSR));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldcmspc(Engine *E, State *S, ulong m)
-{
-	S->superH->SPC = superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldcmspc(Engine *E, State *S, ulong m) {
+  S->superH->SPC = superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldcmr_bank(Engine *E, State *S, int reg, ulong m)
-{
-	if (S->superH->SR.RB == 0)
-	{
-		S->superH->R_BANK[reg] = superHreadlong(E, S, S->superH->R[m]);
-	}
-	else
-	{
-		S->superH->R[reg] = superHreadlong(E, S, S->superH->R[m]);
-	}
-	S->superH->R[m] += 4;
+void superH_ldcmr_bank(Engine *E, State *S, int reg, ulong m) {
+  if (S->superH->SR.RB == 0) {
+    S->superH->R_BANK[reg] = superHreadlong(E, S, S->superH->R[m]);
+  } else {
+    S->superH->R[reg] = superHreadlong(E, S, S->superH->R[m]);
+  }
+  S->superH->R[m] += 4;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   LDS (Load to System Register): System Control Instruction		*/
@@ -1924,74 +1633,55 @@ superH_ldcmr_bank(Engine *E, State *S, int reg, ulong m)
 /*   Description: Stores the source operand into the system registers 	*/
 /*   MACH, MACL, or PR.							*/
 /*									*/
-void
-superH_ldsmach(Engine *E, State *S, ulong m)
-{
-	S->superH->MACH = reg_read(E, S, m);
-	if ((S->superH->MACH&0x00000200) == 0)
-	{
-		S->superH->MACH &= 0x000003FF;
-	}
-	else
-	{
-		S->superH->MACH |= 0xFFFFFC00;
-	}
+void superH_ldsmach(Engine *E, State *S, ulong m) {
+  S->superH->MACH = reg_read(E, S, m);
+  if ((S->superH->MACH & 0x00000200) == 0) {
+    S->superH->MACH &= 0x000003FF;
+  } else {
+    S->superH->MACH |= 0xFFFFFC00;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_ldsmacl(Engine *E, State *S, ulong m)
-{
-	S->superH->MACL = reg_read(E, S, m);
+void superH_ldsmacl(Engine *E, State *S, ulong m) {
+  S->superH->MACL = reg_read(E, S, m);
 
-	return;
+  return;
 }
 
-void
-superH_ldspr(Engine *E, State *S, ulong m)
-{
-	S->superH->PR = reg_read(E, S, m);
+void superH_ldspr(Engine *E, State *S, ulong m) {
+  S->superH->PR = reg_read(E, S, m);
 
-	return;
+  return;
 }
 
-void
-superH_ldsmmach(Engine *E, State *S, ulong m)
-{
-	S->superH->MACH = superHreadlong(E, S, reg_read(E, S, m));
+void superH_ldsmmach(Engine *E, State *S, ulong m) {
+  S->superH->MACH = superHreadlong(E, S, reg_read(E, S, m));
 
-	if ((S->superH->MACH&0x00000200) == 0)
-	{
-		S->superH->MACH &= 0x000003FF;
-	}
-	else
-	{
-		S->superH->MACH |= 0xFFFFFC00;
-	}
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+  if ((S->superH->MACH & 0x00000200) == 0) {
+    S->superH->MACH &= 0x000003FF;
+  } else {
+    S->superH->MACH |= 0xFFFFFC00;
+  }
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldsmmacl(Engine *E, State *S, ulong m)
-{
-	S->superH->MACL = superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldsmmacl(Engine *E, State *S, ulong m) {
+  S->superH->MACL = superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
 
-void
-superH_ldsmpr(Engine *E, State *S, ulong m)
-{
-	S->superH->PR = superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+void superH_ldsmpr(Engine *E, State *S, ulong m) {
+  S->superH->PR = superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   LDTLB (Load PTEH/PTEL to TLB): System Control Instruction		*/
@@ -2015,40 +1705,35 @@ superH_ldsmpr(Engine *E, State *S, ulong m)
 /*   handler, it should be at least two instructions prior to an RTE 	*/
 /*   instruction that terminates the handler.				*/
 /* 									*/
-void
-superH_ldtlb(Engine *E, State *S)
-{
-	int	i;
+void superH_ldtlb(Engine *E, State *S) {
+  int i;
 
+  ulong vpn31_17 = pteh_field_vpn31_17(S->superH->PTEH);
+  uchar vpn11_10 = pteh_field_vpn11_10(S->superH->PTEH);
+  uchar asid = pteh_field_asid(S->superH->PTEH);
+  int index = pteh_field_index(S->superH->PTEH);
+  ulong ppn = ptel_field_ppn(S->superH->PTEL);
+  uchar v = ptel_field_v(S->superH->PTEL);
+  uchar pr = ptel_field_pr(S->superH->PTEL);
+  uchar sz = ptel_field_sz(S->superH->PTEL);
+  uchar c = ptel_field_c(S->superH->PTEL);
+  uchar d = ptel_field_d(S->superH->PTEL);
+  uchar sh = ptel_field_sh(S->superH->PTEL);
 
-	ulong vpn31_17	= pteh_field_vpn31_17(S->superH->PTEH);
-	uchar vpn11_10	= pteh_field_vpn11_10(S->superH->PTEH);
-	uchar asid	= pteh_field_asid(S->superH->PTEH);
-	int index	= pteh_field_index(S->superH->PTEH);
-	ulong ppn	= ptel_field_ppn(S->superH->PTEL);
-	uchar v		= ptel_field_v(S->superH->PTEL);
-	uchar pr	= ptel_field_pr(S->superH->PTEL);
-	uchar sz	= ptel_field_sz(S->superH->PTEL);
-	uchar c		= ptel_field_c(S->superH->PTEL);
-	uchar d		= ptel_field_d(S->superH->PTEL);
-	uchar sh	= ptel_field_sh(S->superH->PTEL);
+  /*	See Section 3.4.3 in rej09b0146_sh7706.pdf		*/
+  if (mmucr_field_ix(S->superH->MMUCR)) {
+    index ^= asid;
+  }
 
+  i = index * S->superH->TLB->assoc + mmucr_field_rc(S->superH->MMUCR);
 
-	/*	See Section 3.4.3 in rej09b0146_sh7706.pdf		*/
-	if (mmucr_field_ix(S->superH->MMUCR))
-	{
-		index ^= asid;
-	}
+  S->superH->TLB->blocks[i].data = tlbentry_data_pack(ppn, pr, sz, c, d, sh);
+  S->superH->TLB->blocks[i].tag =
+      tlbentry_addr_pack(vpn31_17, vpn11_10, asid, v);
 
-	i = index*S->superH->TLB->assoc + mmucr_field_rc(S->superH->MMUCR);
-
-	S->superH->TLB->blocks[i].data = tlbentry_data_pack(ppn, pr, sz, c, d, sh);
-	S->superH->TLB->blocks[i].tag = tlbentry_addr_pack(vpn31_17, vpn11_10, asid, v);
-
-//	fprintf(stderr, "\n\nsunflower: ldtlb instr\n\n");
-	return;
+  //	fprintf(stderr, "\n\nsunflower: ldtlb instr\n\n");
+  return;
 }
-
 
 /*									*/
 /*   MAC.L (Multiply and Accumulate Long): Arithmetic Instruction	*/
@@ -2071,116 +1756,95 @@ superH_ldtlb(Engine *E, State *S)
 /*   limited to between H'FFFF800000000000 (minimum) and 		*/
 /*   H'00007FFFFFFFFFFF (maximum).					*/
 /*									*/
-void
-superH_macl(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
-	ulong temp0, temp1, temp2, temp3;
-	long tempm, tempn, fnLmL;
+void superH_macl(Engine *E, State *S, ulong m, ulong n) {
+  ulong RnL, RnH, RmL, RmH, Res0, Res1, Res2;
+  ulong temp0, temp1, temp2, temp3;
+  long tempm, tempn, fnLmL;
 
-	tempn = (long)superHreadlong(E, S, reg_read(E, S, n));
-	reg_set(E, S, n, reg_read(E, S, n)+4);
-	tempm = (long)superHreadlong(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+4);
+  tempn = (long)superHreadlong(E, S, reg_read(E, S, n));
+  reg_set(E, S, n, reg_read(E, S, n) + 4);
+  tempm = (long)superHreadlong(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 4);
 
-	if ((long)(tempn^tempm) < 0)
-	{
-		fnLmL = -1;
-	}
-	else
-	{
-		fnLmL = 0;
-	}
-	if (tempn < 0)
-	{
-		tempn = 0-tempn;
-	}
-	if (tempm < 0)
-	{
-		tempm = 0-tempm;
-	}
+  if ((long)(tempn ^ tempm) < 0) {
+    fnLmL = -1;
+  } else {
+    fnLmL = 0;
+  }
+  if (tempn < 0) {
+    tempn = 0 - tempn;
+  }
+  if (tempm < 0) {
+    tempm = 0 - tempm;
+  }
 
-	temp1 = (ulong)tempn;
-	temp2 = (ulong)tempm;
-	RnL = temp1&0x0000FFFF;
-	RnH = (temp1>>16)&0x0000FFFF;
-	RmL = temp2&0x0000FFFF;
-	RmH = (temp2>>16)&0x0000FFFF;
-	temp0 = RmL*RnL;
-	temp1 = RmH*RnL;
-	temp2 = RmL*RnH;
-	temp3 = RmH*RnH;
-	Res2 = 0;
-	Res1 = temp1+temp2;
+  temp1 = (ulong)tempn;
+  temp2 = (ulong)tempm;
+  RnL = temp1 & 0x0000FFFF;
+  RnH = (temp1 >> 16) & 0x0000FFFF;
+  RmL = temp2 & 0x0000FFFF;
+  RmH = (temp2 >> 16) & 0x0000FFFF;
+  temp0 = RmL * RnL;
+  temp1 = RmH * RnL;
+  temp2 = RmL * RnH;
+  temp3 = RmH * RnH;
+  Res2 = 0;
+  Res1 = temp1 + temp2;
 
-	if (Res1 < temp1)
-	{
-		Res2+=0x00010000;
-	}
+  if (Res1 < temp1) {
+    Res2 += 0x00010000;
+  }
 
-	temp1 = (Res1<<16)&0xFFFF0000;
-	Res0 = temp0+temp1;
+  temp1 = (Res1 << 16) & 0xFFFF0000;
+  Res0 = temp0 + temp1;
 
-	if (Res0 < temp0)
-	{
-		Res2++;
-	}
+  if (Res0 < temp0) {
+    Res2++;
+  }
 
-	Res2 = Res2+((Res1>>16)&0x0000FFFF)+temp3;
+  Res2 = Res2 + ((Res1 >> 16) & 0x0000FFFF) + temp3;
 
-	if (fnLmL < 0)
-	{
-		Res2 =~ Res2;
-		if (Res0 == 0)
-		{
-			Res2++;
-		}
-		else
-		{
-			Res0 = (~Res0)+1;
-		}
-	}
-	if(S->superH->SR.S==1)
-	{
-		Res0 = S->superH->MACL+Res0;
-		if (S->superH->MACL > Res0)
-		{
-			Res2++;
-		}
-		Res2 += (S->superH->MACH&0x0000FFFF);
+  if (fnLmL < 0) {
+    Res2 = ~Res2;
+    if (Res0 == 0) {
+      Res2++;
+    } else {
+      Res0 = (~Res0) + 1;
+    }
+  }
+  if (S->superH->SR.S == 1) {
+    Res0 = S->superH->MACL + Res0;
+    if (S->superH->MACL > Res0) {
+      Res2++;
+    }
+    Res2 += (S->superH->MACH & 0x0000FFFF);
 
-		if(((long)Res2<0) && (Res2<0xFFFF8000))
-		{
-			Res2 = 0x00008000;
-			Res0 = 0x00000000;
-		}
+    if (((long)Res2 < 0) && (Res2 < 0xFFFF8000)) {
+      Res2 = 0x00008000;
+      Res0 = 0x00000000;
+    }
 
-		if(((long)Res2>0) && (Res2>0x00007FFF))
-		{
-			Res2 = 0x00007FFF;
-			Res0 = 0xFFFFFFFF;
-		}
+    if (((long)Res2 > 0) && (Res2 > 0x00007FFF)) {
+      Res2 = 0x00007FFF;
+      Res0 = 0xFFFFFFFF;
+    }
 
-		S->superH->MACH = Res2;
-		S->superH->MACL = Res0;
-	}
-	else 
-	{
-		Res0 = S->superH->MACL+Res0;
+    S->superH->MACH = Res2;
+    S->superH->MACL = Res0;
+  } else {
+    Res0 = S->superH->MACL + Res0;
 
-		if (S->superH->MACL > Res0)
-		{
-			Res2++;
-		}
+    if (S->superH->MACL > Res0) {
+      Res2++;
+    }
 
-		Res2 += S->superH->MACH;
-		S->superH->MACH = Res2;
-		S->superH->MACL = Res0;
-	}
+    Res2 += S->superH->MACH;
+    S->superH->MACH = Res2;
+    S->superH->MACL = Res0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MAC (Multiply and Accumulate): Arithmetic Instruction		*/
@@ -2209,89 +1873,66 @@ superH_macl(Engine *E, State *S, ulong m, ulong n)
 /*   execution is 3; however, succeeding instructions can be executed 	*/
 /*   in two cycles.							*/
 /* 									*/
-void
-superH_macw(Engine *E, State *S, ulong m, ulong n)
-{
-	long tempm,tempn,dest,src,ans;
-	ulong templ;
+void superH_macw(Engine *E, State *S, ulong m, ulong n) {
+  long tempm, tempn, dest, src, ans;
+  ulong templ;
 
-	tempn = (long)superHreadword(E, S, reg_read(E, S, n));
-	reg_set(E, S, n, reg_read(E, S, n)+2);
-	tempm = (long)superHreadword(E, S, reg_read(E, S, m));
-	reg_set(E, S, m, reg_read(E, S, m)+2);
-	templ = S->superH->MACL;
-	tempm = ((long)(short)tempn*(long)(short)tempm);
+  tempn = (long)superHreadword(E, S, reg_read(E, S, n));
+  reg_set(E, S, n, reg_read(E, S, n) + 2);
+  tempm = (long)superHreadword(E, S, reg_read(E, S, m));
+  reg_set(E, S, m, reg_read(E, S, m) + 2);
+  templ = S->superH->MACL;
+  tempm = ((long)(short)tempn * (long)(short)tempm);
 
-	if ((long)S->superH->MACL >= 0)
-	{
-		dest = 0;
-	}
-	else
-	{
-		dest = 1;
-	}
-	if ((long)tempm >= 0) 
-	{
-		src = 0;
-		tempn = 0;
-	}
-	else 
-	{
-		src = 1;
-		tempn = 0xFFFFFFFF;
-	}
-	src += dest;
-	S->superH->MACL += tempm;
-	if ((long)S->superH->MACL >= 0)
-	{
-		ans = 0;
-	}
-	else
-	{
-		ans = 1;
-	}
+  if ((long)S->superH->MACL >= 0) {
+    dest = 0;
+  } else {
+    dest = 1;
+  }
+  if ((long)tempm >= 0) {
+    src = 0;
+    tempn = 0;
+  } else {
+    src = 1;
+    tempn = 0xFFFFFFFF;
+  }
+  src += dest;
+  S->superH->MACL += tempm;
+  if ((long)S->superH->MACL >= 0) {
+    ans = 0;
+  } else {
+    ans = 1;
+  }
 
-	ans += dest;
+  ans += dest;
 
-	if (S->superH->SR.S == 1) 
-	{
-		if (ans == 1) 
-		{
-			if (src == 0 || src == 2)
-			{
-				S->superH->MACH |= 0x00000001;
-			}
-			if (src == 0)
-			{
-				S->superH->MACL = 0x7FFFFFFF;
-			}
-			if (src == 2)
-			{
-				S->superH->MACL = 0x80000000;
-			}
-		}
-	}
-	else 
-	{
-		S->superH->MACH += tempn;
+  if (S->superH->SR.S == 1) {
+    if (ans == 1) {
+      if (src == 0 || src == 2) {
+        S->superH->MACH |= 0x00000001;
+      }
+      if (src == 0) {
+        S->superH->MACL = 0x7FFFFFFF;
+      }
+      if (src == 2) {
+        S->superH->MACL = 0x80000000;
+      }
+    }
+  } else {
+    S->superH->MACH += tempn;
 
-		if (templ > S->superH->MACL)
-		{
-			S->superH->MACH += 1;
-		}
-		if ((S->superH->MACH & 0x00000200) == 0)
-		{
-			S->superH->MACH &= 0x000003FF;
-		}
-		else
-		{
-			S->superH->MACH |= 0xFFFFFC00;
-		}
-	}
+    if (templ > S->superH->MACL) {
+      S->superH->MACH += 1;
+    }
+    if ((S->superH->MACH & 0x00000200) == 0) {
+      S->superH->MACH &= 0x000003FF;
+    } else {
+      S->superH->MACH |= 0xFFFFFC00;
+    }
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOV (Move Data): Data Transfer Instruction				*/
@@ -2307,7 +1948,7 @@ superH_macw(Engine *E, State *S, ulong m, ulong n)
 /*   MOV.L @Rm,Rn    (Rm)->Rn 		  0110nnnnmmmm0010   1 	    -	*/
 /*   MOV.B Rm,@-Rn   Rn-1->Rn,Rm->(Rn)    0010nnnnmmmm0100   1 	    -	*/
 /*   MOV.W Rm,@-Rn   Rn-2->Rn,Rm->(Rn) 	  0010nnnnmmmm0101   1 	    -	*/
-/*   MOV.L Rm,@-Rn   Rn-4->Rn,Rm->(Rn) 	  0010nnnnmmmm0110   1	    -	*/ 
+/*   MOV.L Rm,@-Rn   Rn-4->Rn,Rm->(Rn) 	  0010nnnnmmmm0110   1	    -	*/
 /*   MOV.B @Rm+,Rn   (Rm) -> sigex -> Rn, 0110nnnnmmmm0100   1	    -	*/
 /*		     Rm + 1 -> Rm					*/
 /*   MOV.W @Rm+,Rn   (Rm) -> sigex -> Rn, 0110nnnnmmmm0101   1	    -	*/
@@ -2325,228 +1966,173 @@ superH_macw(Engine *E, State *S, ulong m, ulong n)
 /*   byte, word, or longword. Loaded data from memory is stored in a 	*/
 /*   register after it is sign-extended to a longword.			*/
 /* 									*/
-void
-superH_mov(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, m));
+void superH_mov(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movbs(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritebyte(E, S, reg_read(E, S, n), reg_read(E, S, m));
+void superH_movbs(Engine *E, State *S, ulong m, ulong n) {
+  superHwritebyte(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movws(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwriteword(E, S, reg_read(E, S, n), reg_read(E, S, m));
+void superH_movws(Engine *E, State *S, ulong m, ulong n) {
+  superHwriteword(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movls(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritelong(E, S, reg_read(E, S, n), reg_read(E, S, m));
+void superH_movls(Engine *E, State *S, ulong m, ulong n) {
+  superHwritelong(E, S, reg_read(E, S, n), reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movbl(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)));
+void superH_movbl(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(E, S, n) & 0x80) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n)&0x000000FF);
-	}
-	else
- 	{
-		reg_set(E, S, n, reg_read(E, S, n)|0xFFFFFF00);
-	}
+  if ((reg_read(E, S, n) & 0x80) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwl(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
+void superH_movwl(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(E, S, n) & 0x8000) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n)&0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n)|0xFFFF0000);
-	}
+  if ((reg_read(E, S, n) & 0x8000) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movll(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
+void superH_movll(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
 
-	return;
+  return;
 }
 
-void
-superH_movbm(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritebyte(E, S, reg_read(E, S, n)-1, reg_read(E, S, m));
-	reg_set(E, S, n, reg_read(E, S, n)-1);
+void superH_movbm(Engine *E, State *S, ulong m, ulong n) {
+  superHwritebyte(E, S, reg_read(E, S, n) - 1, reg_read(E, S, m));
+  reg_set(E, S, n, reg_read(E, S, n) - 1);
 
-	return;
+  return;
 }
 
-void
-superH_movwm(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwriteword(E, S, reg_read(E, S, n)-2, reg_read(E, S, m));
-	reg_set(E, S, n, reg_read(E, S, n)-2);
+void superH_movwm(Engine *E, State *S, ulong m, ulong n) {
+  superHwriteword(E, S, reg_read(E, S, n) - 2, reg_read(E, S, m));
+  reg_set(E, S, n, reg_read(E, S, n) - 2);
 
-	return;
+  return;
 }
 
-void
-superH_movlm(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritelong(E, S, reg_read(E, S, n)-4, reg_read(E, S, m));
-	reg_set(E, S, n, reg_read(E, S, n)-4);
+void superH_movlm(Engine *E, State *S, ulong m, ulong n) {
+  superHwritelong(E, S, reg_read(E, S, n) - 4, reg_read(E, S, m));
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
 
-	return;
+  return;
 }
 
-void
-superH_movbp(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n,  (long)superHreadbyte(E, S, reg_read(E, S, m)));
+void superH_movbp(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(E, S, n) & 0x80) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
-	}
-	if (n != m)
-	{
-		reg_set(E, S, m, reg_read(E, S, m) + 1);
-	}
+  if ((reg_read(E, S, n) & 0x80) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
+  }
+  if (n != m) {
+    reg_set(E, S, m, reg_read(E, S, m) + 1);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwp(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
+void superH_movwp(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)));
 
-	if ((reg_read(E, S, n) & 0x8000) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
-	}
-	if (n != m)
-	{
-		reg_set(E, S, m, reg_read(E, S, m) + 2);
-	}
+  if ((reg_read(E, S, n) & 0x8000) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
+  }
+  if (n != m) {
+    reg_set(E, S, m, reg_read(E, S, m) + 2);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movlp(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
+void superH_movlp(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)));
 
-	if (n != m)
-	{
-		reg_set(E, S, m, reg_read(E, S, m) + 4);
-	}
+  if (n != m) {
+    reg_set(E, S, m, reg_read(E, S, m) + 4);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movbs0(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritebyte(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
+void superH_movbs0(Engine *E, State *S, ulong m, ulong n) {
+  superHwritebyte(E, S, reg_read(E, S, n) + reg_read(E, S, 0),
+                  reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movws0(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwriteword(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
+void superH_movws0(Engine *E, State *S, ulong m, ulong n) {
+  superHwriteword(E, S, reg_read(E, S, n) + reg_read(E, S, 0),
+                  reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movls0(Engine *E, State *S, ulong m, ulong n)
-{
-	superHwritelong(E, S, reg_read(E, S, n)+reg_read(E, S, 0), reg_read(E, S, m));
+void superH_movls0(Engine *E, State *S, ulong m, ulong n) {
+  superHwritelong(E, S, reg_read(E, S, n) + reg_read(E, S, 0),
+                  reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movbl0(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, (long)superHreadbyte(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
+void superH_movbl0(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n,
+          (long)superHreadbyte(E, S, reg_read(E, S, m) + reg_read(E, S, 0)));
 
-	if ((reg_read(E, S, n) & 0x80) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
-	}
+  if ((reg_read(E, S, n) & 0x80) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x000000FF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFF00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwl0(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, (long)superHreadword(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
+void superH_movwl0(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n,
+          (long)superHreadword(E, S, reg_read(E, S, m) + reg_read(E, S, 0)));
 
-	if ((reg_read(E, S, n) & 0x8000) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
-	}
+  if ((reg_read(E, S, n) & 0x8000) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movll0(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)+reg_read(E, S, 0)));
+void superH_movll0(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m) + reg_read(E, S, 0)));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOV (Move Immediate Data): Data Transfer Instruction		*/
@@ -2582,60 +2168,52 @@ superH_movll0(Engine *E, State *S, ulong m, ulong n)
 /*   points to an address specified by (the starting address of the	*/
 /*   branch destination) + 2.						*/
 /*									*/
-void
-superH_movi(Engine *E, State *S, long i, ulong n)
-{
-	if ((i & 0x80) == 0)
-	{
-		reg_set(E, S, n, (0x000000FF & (long)i));
-	}
-	else
-	{
-		reg_set(E, S, n, (0xFFFFFF00 | (long)i));
-	}
+void superH_movi(Engine *E, State *S, long i, ulong n) {
+  if ((i & 0x80) == 0) {
+    reg_set(E, S, n, (0x000000FF & (long)i));
+  } else {
+    reg_set(E, S, n, (0xFFFFFF00 | (long)i));
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwi(Engine *E, State *S, long d, ulong n)
-{
-	long disp;
+void superH_movwi(Engine *E, State *S, long d, ulong n) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
+  disp = (0x000000FF & (long)d);
 
-	/*										*/
-	/*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/
-	/*										*/
-	reg_set(E, S, n, (long)superHreadword(E, S, (S->superH->P.EX.fetchedpc+4)+(disp<<1)));
+  /*										*/
+  /*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/
+  /*										*/
+  reg_set(E, S, n,
+          (long)superHreadword(E, S,
+                               (S->superH->P.EX.fetchedpc + 4) + (disp << 1)));
 
-	if ((reg_read(E, S, n) & 0x8000) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
-	}
+  if ((reg_read(E, S, n) & 0x8000) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movli(Engine *E, State *S, long d, ulong n)
-{
-	long disp;
+void superH_movli(Engine *E, State *S, long d, ulong n) {
+  long disp;
 
-	/*	Displacements are 8-bit		*/
-	disp = (0x000000FF & (long)d);
+  /*	Displacements are 8-bit		*/
+  disp = (0x000000FF & (long)d);
 
-	/*										*/
-	/*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/						
-	reg_set(E, S, n, superHreadlong(E, S, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2)));
+  /*										*/
+  /*	 PC used in calculation is PC of this instr+4 (see prog. manual).	*/
+  reg_set(E, S, n,
+          superHreadlong(E, S,
+                         ((S->superH->P.EX.fetchedpc + 4) & 0xFFFFFFFC) +
+                             (disp << 2)));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOV (Move Peripheral Data): Data Transfer Instruction		*/
@@ -2673,89 +2251,70 @@ superH_movli(Engine *E, State *S, long d, ulong n)
 /*   instruction order shown in figure 6.1 of programming manual will 	*/
 /*   give better results.						*/
 /*									*/
-void
-superH_movblg(Engine *E, State *S, long d)
-{
-	long disp;
-	disp = (0x000000FF & (long)d);
-	reg_set(E, S, 0, (long)superHreadbyte(E, S, S->superH->GBR+disp));
+void superH_movblg(Engine *E, State *S, long d) {
+  long disp;
+  disp = (0x000000FF & (long)d);
+  reg_set(E, S, 0, (long)superHreadbyte(E, S, S->superH->GBR + disp));
 
-	if ((reg_read(E, S, 0) & 0x80) == 0)
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
-	}
-	else
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
-	}
+  if ((reg_read(E, S, 0) & 0x80) == 0) {
+    reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
+  } else {
+    reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwlg(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_movwlg(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
-	reg_set(E, S, 0, (long)superHreadword(E, S, S->superH->GBR+(disp<<1)));
+  disp = (0x000000FF & (long)d);
+  reg_set(E, S, 0, (long)superHreadword(E, S, S->superH->GBR + (disp << 1)));
 
-	if ((reg_read(E, S, 0) & 0x8000) == 0)
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF);
-	}
-	else
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
-	}
+  if ((reg_read(E, S, 0) & 0x8000) == 0) {
+    reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movllg(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_movllg(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
-	reg_set(E, S, 0, superHreadlong(E, S, S->superH->GBR+(disp<<2)));
+  disp = (0x000000FF & (long)d);
+  reg_set(E, S, 0, superHreadlong(E, S, S->superH->GBR + (disp << 2)));
 
-	return;
+  return;
 }
 
-void
-superH_movbsg(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_movbsg(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
-	superHwritebyte(E, S, S->superH->GBR+disp,reg_read(E, S, 0));
+  disp = (0x000000FF & (long)d);
+  superHwritebyte(E, S, S->superH->GBR + disp, reg_read(E, S, 0));
 
-	return;
+  return;
 }
 
-void
-superH_movwsg(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_movwsg(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
-	superHwriteword(E, S, S->superH->GBR+(disp<<1),reg_read(E, S, 0));
+  disp = (0x000000FF & (long)d);
+  superHwriteword(E, S, S->superH->GBR + (disp << 1), reg_read(E, S, 0));
 
-	return;
+  return;
 }
 
-void
-superH_movlsg(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_movlsg(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
-	superHwritelong(E, S, S->superH->GBR+(disp<<2),reg_read(E, S, 0));
+  disp = (0x000000FF & (long)d);
+  superHwritelong(E, S, S->superH->GBR + (disp << 2), reg_read(E, S, 0));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOV (Move Structure Data): Data Transfer Instruction		*/
@@ -2791,90 +2350,71 @@ superH_movlsg(Engine *E, State *S, long d)
 /*   instruction order in figure 6.2 of the programming manual will 	*/
 /*   give better results.						*/
 /* 									*/
-void
-superH_movbs4(Engine *E, State *S, long d, ulong n)
-{
-	long disp;
+void superH_movbs4(Engine *E, State *S, long d, ulong n) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	superHwritebyte(E, S, reg_read(E, S, n)+disp, reg_read(E, S, 0));
+  disp = (0x0000000F & (long)d);
+  superHwritebyte(E, S, reg_read(E, S, n) + disp, reg_read(E, S, 0));
 
-	return;
+  return;
 }
 
-void
-superH_movws4(Engine *E, State *S, long d, ulong n)
-{
-	long disp;
+void superH_movws4(Engine *E, State *S, long d, ulong n) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	superHwriteword(E, S, reg_read(E, S, n)+(disp<<1), reg_read(E, S, 0));
+  disp = (0x0000000F & (long)d);
+  superHwriteword(E, S, reg_read(E, S, n) + (disp << 1), reg_read(E, S, 0));
 
-	return;
+  return;
 }
 
-void
-superH_movls4(Engine *E, State *S, ulong m, long d, ulong n)
-{
-	long disp;
+void superH_movls4(Engine *E, State *S, ulong m, long d, ulong n) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	superHwritelong(E, S, reg_read(E, S, n)+(disp<<2), reg_read(E, S, m));
+  disp = (0x0000000F & (long)d);
+  superHwritelong(E, S, reg_read(E, S, n) + (disp << 2), reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_movbl4(Engine *E, State *S, ulong m, long d)
-{
-	long disp;
+void superH_movbl4(Engine *E, State *S, ulong m, long d) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	reg_set(E, S, 0, superHreadbyte(E, S, reg_read(E, S, m)+disp));
+  disp = (0x0000000F & (long)d);
+  reg_set(E, S, 0, superHreadbyte(E, S, reg_read(E, S, m) + disp));
 
-	if ((reg_read(E, S, 0) & 0x80) == 0)
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
-	}
-	else
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
-	}
+  if ((reg_read(E, S, 0) & 0x80) == 0) {
+    reg_set(E, S, 0, reg_read(E, S, 0) & 0x000000FF);
+  } else {
+    reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFFFF00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movwl4(Engine *E, State *S, ulong m, long d)
-{
-	long disp;
+void superH_movwl4(Engine *E, State *S, ulong m, long d) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	reg_set(E, S, 0, superHreadword(E, S, reg_read(E, S, m)+(disp<<1)));
+  disp = (0x0000000F & (long)d);
+  reg_set(E, S, 0, superHreadword(E, S, reg_read(E, S, m) + (disp << 1)));
 
-	if ((reg_read(E, S, 0) & 0x8000) == 0)
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF); 
-	}
-	else
-	{
-		reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
-	}
+  if ((reg_read(E, S, 0) & 0x8000) == 0) {
+    reg_set(E, S, 0, reg_read(E, S, 0) & 0x0000FFFF);
+  } else {
+    reg_set(E, S, 0, reg_read(E, S, 0) | 0xFFFF0000);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_movll4(Engine *E, State *S, ulong m, long d, ulong n)
-{
-	long disp;
+void superH_movll4(Engine *E, State *S, ulong m, long d, ulong n) {
+  long disp;
 
-	disp = (0x0000000F & (long)d);
-	reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m)+(disp << 2)));
+  disp = (0x0000000F & (long)d);
+  reg_set(E, S, n, superHreadlong(E, S, reg_read(E, S, m) + (disp << 2)));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOVA (Move Effective Address): Data Transfer Instruction		*/
@@ -2893,19 +2433,17 @@ superH_movll4(Engine *E, State *S, ulong m, long d, ulong n)
 /*   instruction, the PC must point to an address specified by (the 	*/
 /*   starting address of the branch destination) + 2.			*/
 /*									*/
-void
-superH_mova(Engine *E, State *S, long d)
-{
-	long disp;
+void superH_mova(Engine *E, State *S, long d) {
+  long disp;
 
-	disp = (0x000000FF & (long)d);
+  disp = (0x000000FF & (long)d);
 
-	/*	P.EX.fetchedpc B'cos PC has been inc'd 2x since we were fetched	*/
-	reg_set(E, S, 0, ((S->superH->P.EX.fetchedpc+4)&0xFFFFFFFC)+(disp<<2));
+  /*	P.EX.fetchedpc B'cos PC has been inc'd 2x since we were fetched	*/
+  reg_set(E, S, 0,
+          ((S->superH->P.EX.fetchedpc + 4) & 0xFFFFFFFC) + (disp << 2));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MOVT (Move T Bit): Data Transfer Instruction			*/
@@ -2917,17 +2455,14 @@ superH_mova(Engine *E, State *S, long d)
 /*   Description: Stores the T bit value into general register Rn. 	*/
 /*   When T = 1, 1 is stored in Rn, and when T = 0, 0 is stored in Rn.	*/
 /*									*/
-void
-superH_movt(Engine *E, State *S, ulong n)
-{
-	long tmp;
-	memmove(&tmp, &S->superH->SR, sizeof(tmp));
+void superH_movt(Engine *E, State *S, ulong n) {
+  long tmp;
+  memmove(&tmp, &S->superH->SR, sizeof(tmp));
 
-	reg_set(E, S, n, (0x00000001 & tmp));
+  reg_set(E, S, n, (0x00000001 & tmp));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MUL.L (Multiply Long): Arithmetic Instruction			*/
@@ -2941,14 +2476,11 @@ superH_movt(Engine *E, State *S, ulong n)
 /*   result in the MACL register. The MACH register data does not 	*/
 /*   change.								*/
 /*									*/
-void
-superH_mull(Engine *E, State *S, ulong m, ulong n)
-{
-	S->superH->MACL = reg_read(E, S, n)*reg_read(E, S, m);
+void superH_mull(Engine *E, State *S, ulong m, ulong n) {
+  S->superH->MACL = reg_read(E, S, n) * reg_read(E, S, m);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MULS.W (Multiply as Signed Word): Arithmetic Instruction		*/
@@ -2956,7 +2488,7 @@ superH_mull(Engine *E, State *S, ulong m, ulong n)
 /*   Format 	   Abstract 		  Code 		   Cycle  T Bit	*/
 /*   ------------------------------------------------------------------	*/
 /*   MULS.W Rm,Rn  sgnd opn, RnxRm->MACL  0010nnnnmmmm1111  1-3     -	*/
-/*   MULS Rm,Rn	   sgnd opn, RnxRm->MACL  0010nnnnmmmm1111  1-3     -	*/		
+/*   MULS Rm,Rn	   sgnd opn, RnxRm->MACL  0010nnnnmmmm1111  1-3     -	*/
 /*									*/
 /*   NOTE (pip) : "sgnd opn" == "Signed Operation"/ ;)			*/
 /*   Description: Performs 16-bit multiplication of the contents of 	*/
@@ -2964,14 +2496,12 @@ superH_mull(Engine *E, State *S, ulong m, ulong n)
 /*   MACL register. The operation is signed and the MACH register data	*/
 /*   does not change.							*/
 /*									*/
-void
-superH_muls(Engine *E, State *S, ulong m, ulong n)
-{
-	S->superH->MACL = ((long)(short)reg_read(E, S, n)*(long)(short)reg_read(E, S, m));
+void superH_muls(Engine *E, State *S, ulong m, ulong n) {
+  S->superH->MACL =
+      ((long)(short)reg_read(E, S, n) * (long)(short)reg_read(E, S, m));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   MULU.W (Multiply as Unsigned Word): Arithmetic Instruction		*/
@@ -2986,15 +2516,12 @@ superH_muls(Engine *E, State *S, ulong m, ulong n)
 /*   MACL register. The operation is unsigned and the MACH register	*/
 /*   data does not change.						*/
 /*									*/
-void
-superH_mulu(Engine *E, State *S, ulong m, ulong n)
-{
-	S->superH->MACL = ((ulong)(ushort)reg_read(E, S, n)
-	*(ulong)(ushort)reg_read(E, S, m));
+void superH_mulu(Engine *E, State *S, ulong m, ulong n) {
+  S->superH->MACL =
+      ((ulong)(ushort)reg_read(E, S, n) * (ulong)(ushort)reg_read(E, S, m));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   NEG (Negate): Arithmetic Instruction				*/
@@ -3007,14 +2534,11 @@ superH_mulu(Engine *E, State *S, ulong m, ulong n)
 /*   register Rm, and stores the result in Rn. This effectively 	*/
 /*   subtracts Rm data from 0, and stores the result in Rn.		*/
 /*									*/
-void
-superH_neg(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, 0 - reg_read(E, S, m));
+void superH_neg(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, 0 - reg_read(E, S, m));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   NEGC (Negate with Carry): Arithmetic Instruction			*/
@@ -3028,30 +2552,23 @@ superH_neg(Engine *E, State *S, ulong m, ulong n)
 /*   changes accordingly. This instruction is used for inverting the 	*/
 /*   sign of a value that has more than 32 bits.			*/
 /*									*/
-void
-superH_negc(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong temp;
+void superH_negc(Engine *E, State *S, ulong m, ulong n) {
+  ulong temp;
 
-	temp = 0 - reg_read(E, S, m);
-	reg_set(E, S, n, temp - S->superH->SR.T);
+  temp = 0 - reg_read(E, S, m);
+  reg_set(E, S, n, temp - S->superH->SR.T);
 
-	if (0 < temp)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-	if (temp < reg_read(E, S, n))
-	{
-		S->superH->SR.T = 1;
-	}
+  if (0 < temp) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
+  if (temp < reg_read(E, S, n)) {
+    S->superH->SR.T = 1;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   NOP (No Operation): System Control Instruction			*/
@@ -3062,12 +2579,7 @@ superH_negc(Engine *E, State *S, ulong m, ulong n)
 /*									*/
 /*   Description: Increments the PC to execute the next instruction.	*/
 /*									*/
-void
-superH_nop(Engine *E, State *S)
-{
-	return;
-}
-
+void superH_nop(Engine *E, State *S) { return; }
 
 /*									*/
 /*   NOT (NOT - Logical Complement): Logic Operation Instruction	*/
@@ -3080,14 +2592,11 @@ superH_nop(Engine *E, State *S)
 /*   data, and stores the result in Rn. This effectively inverts each 	*/
 /*   bit of Rm data and stores the result in Rn.			*/
 /*									*/
-void
-superH_not(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, ~ reg_read(E, S, m));
+void superH_not(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, ~reg_read(E, S, m));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   OR (OR Logical) Logic Operation Instruction			*/
@@ -3105,34 +2614,27 @@ superH_not(Engine *E, State *S, ulong m, ulong n)
 /*   data, or 8-bit memory data accessed by using indirect indexed GBR	*/
 /*   addressing can be ORed with 8-bit immediate data.			*/
 /*									*/
-void
-superH_or(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) | reg_read(E, S, m));
+void superH_or(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) | reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_ori(Engine *E, State *S, long i)
-{
-	reg_set(E, S, 0, reg_read(E, S, 0) | (0x000000FF & (long)i));
+void superH_ori(Engine *E, State *S, long i) {
+  reg_set(E, S, 0, reg_read(E, S, 0) | (0x000000FF & (long)i));
 
-	return;
+  return;
 }
 
-void
-superH_orm(Engine *E, State *S, long i)
-{
-	long temp;
+void superH_orm(Engine *E, State *S, long i) {
+  long temp;
 
-	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
-	temp |= (0x000000FF & (long)i);
-	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0), temp);
+  temp = (long)superHreadbyte(E, S, S->superH->GBR + reg_read(E, S, 0));
+  temp |= (0x000000FF & (long)i);
+  superHwritebyte(E, S, S->superH->GBR + reg_read(E, S, 0), temp);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   PREF (Prefetch Data to the Cache)					*/
@@ -3153,11 +2655,7 @@ superH_orm(Engine *E, State *S, long i)
 /*   instruction in effect, that is, it never changes registers or 	*/
 /*   processor status.							*/
 /*									*/
-void
-superH_pref(Engine *E, State *S, ulong n)
-{
-	return;
-}
+void superH_pref(Engine *E, State *S, ulong n) { return; }
 
 /*									*/
 /*   RFG (Reconfigure)							*/
@@ -3167,12 +2665,7 @@ superH_pref(Engine *E, State *S, ulong n)
 /*									*/
 /*   NOTE: The XXXX bits are currently unused, and can have any value.	*/
 /*									*/
-void
-superH_rfg(Engine *E, State *S, long i)
-{
-	return;
-}
-
+void superH_rfg(Engine *E, State *S, long i) { return; }
 
 /*									*/
 /*   ROTCL (Rotate with Carry Left): Shift Instruction			*/
@@ -3186,42 +2679,30 @@ superH_rfg(Engine *E, State *S, long i)
 /*   bit that is shifted out of the operand is transferred to the T 	*/
 /*   bit (see figure 6.3 of programming manual).			*/
 /*									*/
-void
-superH_rotcl(Engine *E, State *S, ulong n)
-{
-	long temp;
+void superH_rotcl(Engine *E, State *S, ulong n) {
+  long temp;
 
-	if ((reg_read(E, S, n) & 0x80000000) == 0)
-	{
-		temp = 0;
-	}
-	else
-	{
-		temp = 1;
-	}
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    temp = 0;
+  } else {
+    temp = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) << 1);
+  reg_set(E, S, n, reg_read(E, S, n) << 1);
 
-	if (S->superH->SR.T == 1)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
-	}
-	if (temp == 1)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (S->superH->SR.T == 1) {
+    reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
+  }
+  if (temp == 1) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   ROTCR (Rotate with Carry Right): Shift Instruction			*/
@@ -3235,42 +2716,30 @@ superH_rotcl(Engine *E, State *S, ulong n)
 /*   bit that is shifted out of the operand is transferred to the T 	*/
 /*   bit (see figure 6.4 of programming manual).			*/
 /*									*/
-void
-superH_rotcr(Engine *E, State *S, ulong n)
-{
-	long temp;
+void superH_rotcr(Engine *E, State *S, ulong n) {
+  long temp;
 
-	if ((reg_read(E, S, n) & 0x00000001) == 0)
-	{
-		temp = 0;
-	}
-	else
-	{
-		temp = 1;
-	}
+  if ((reg_read(E, S, n) & 0x00000001) == 0) {
+    temp = 0;
+  } else {
+    temp = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) >> 1);
+  reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
-	if (S->superH->SR.T == 1)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
-	}
-	if (temp == 1)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (S->superH->SR.T == 1) {
+    reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
+  }
+  if (temp == 1) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   ROTL (Rotate Left): Shift Instruction				*/
@@ -3284,32 +2753,23 @@ superH_rotcr(Engine *E, State *S, ulong n)
 /*   bit that is shifted out of the operand is transferred to the T 	*/
 /*   bit.								*/
 /*									*/
-void
-superH_rotl(Engine *E, State *S, ulong n)
-{
-	if ((reg_read(E, S, n) & 0x80000000) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
+void superH_rotl(Engine *E, State *S, ulong n) {
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) << 1);
+  reg_set(E, S, n, reg_read(E, S, n) << 1);
 
-	if (S->superH->SR.T == 1)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
-	}
+  if (S->superH->SR.T == 1) {
+    reg_set(E, S, n, reg_read(E, S, n) | 0x00000001);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) & 0xFFFFFFFE);
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   ROTR (Rotate Right): Shift Instruction				*/
@@ -3322,33 +2782,24 @@ superH_rotl(Engine *E, State *S, ulong n)
 /*   right by one bit, and stores the result in Rn (figure 6.6). The 	*/
 /*   bit that is shifted out of the operand is transferred to the 	*/
 /*   T bit.								*/
-/*									*/			
-void
-superH_rotr(Engine *E, State *S, ulong n)
-{
-	if ((reg_read(E, S, n) & 0x00000001) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
+/*									*/
+void superH_rotr(Engine *E, State *S, ulong n) {
+  if ((reg_read(E, S, n) & 0x00000001) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) >> 1);
+  reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
-	if (S->superH->SR.T == 1)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
-	}
+  if (S->superH->SR.T == 1) {
+    reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   RTE (Return from Exception): System Control Instruction		*/
@@ -3372,24 +2823,21 @@ superH_rotr(Engine *E, State *S, ulong n)
 /*   in the delay slot of an RTE has been restored from the SSR by the 	*/
 /*   RTE.								*/
 /*									*/
-void
-superH_rte(Engine *E, State *S)
-{
-	ulong temp;
-	
-	/*	B'cos PC has been inc'd 2x since we were fetched	*/
-	temp = S->superH->P.EX.fetchedpc;
+void superH_rte(Engine *E, State *S) {
+  ulong temp;
 
-	S->PC = S->superH->SPC;
-	S->superH->SR = S->superH->SSR;
+  /*	B'cos PC has been inc'd 2x since we were fetched	*/
+  temp = S->superH->P.EX.fetchedpc;
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, temp+2);
-	superHifidflush(S);
+  S->PC = S->superH->SPC;
+  S->superH->SR = S->superH->SSR;
 
-	return;
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, temp + 2);
+  superHifidflush(S);
+
+  return;
 }
-
 
 /*									*/
 /*   RTS (Return from Subroutine): Branch Instruction			*/
@@ -3412,39 +2860,34 @@ superH_rte(Engine *E, State *S)
 /*   instruction. That restoring instruction should not be the delay	*/
 /*   slot of the RTS.							*/
 /*									*/
-void
-superH_rts(Engine *E, State *S)
-{
-	ulong temp;
+void superH_rts(Engine *E, State *S) {
+  ulong temp;
 
-	/*	P.EX.fetchedpc b'cos PC has been inc'd 2x since we were fetched	*/
-	temp = S->superH->P.EX.fetchedpc;
+  /*	P.EX.fetchedpc b'cos PC has been inc'd 2x since we were fetched	*/
+  temp = S->superH->P.EX.fetchedpc;
 
-	S->PC = S->superH->PR+4;
+  S->PC = S->superH->PR + 4;
 
-	/* 	Exec instr in delay slot before flushing IF/ID		*/
-	delayslot(E, S, temp+2);
-	superHifidflush(S);
+  /* 	Exec instr in delay slot before flushing IF/ID		*/
+  delayslot(E, S, temp + 2);
+  superHifidflush(S);
 
-	/*								*/
-	/*		For simulators debugging facilities		*/
-	/*								*/
-	if (S->pcstackheight == 0)
-	{
-		//sfatal(E, S, "Internal simulator error: PC stack underflow");
-		//debug:
-		return;
-	}
+  /*								*/
+  /*		For simulators debugging facilities		*/
+  /*								*/
+  if (S->pcstackheight == 0) {
+    //sfatal(E, S, "Internal simulator error: PC stack underflow");
+    //debug:
+    return;
+  }
 
-	//fprintf(stdout, "NODE%d, RTS from " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->PCSTACK[S->pcstackheight]&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
+  //fprintf(stdout, "NODE%d, RTS from " ULONGFMT ", S->CLK " UVLONGFMT "\n", S->NODE_ID, S->PCSTACK[S->pcstackheight]&0xFFFFFFFF, S->ICLK&0xFFFFFFFF);
 
-	S->pcstackheight--;
-	S->fpstackheight--;
+  S->pcstackheight--;
+  S->fpstackheight--;
 
-
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SETS (Set S Bit): System Control Instruction			*/
@@ -3455,14 +2898,11 @@ superH_rts(Engine *E, State *S)
 /*									*/
 /*   Description: Sets the S bit to 1.					*/
 /*									*/
-void
-superH_sets(Engine *E, State *S)
-{
-	S->superH->SR.S = 1;
+void superH_sets(Engine *E, State *S) {
+  S->superH->SR.S = 1;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SETT (Set T Bit): System Control Instruction			*/
@@ -3473,14 +2913,11 @@ superH_sets(Engine *E, State *S)
 /*									*/
 /*   Description: Sets the T bit to 1.					*/
 /*									*/
-void
-superH_sett(Engine *E, State *S)
-{
-	S->superH->SR.T = 1;
+void superH_sett(Engine *E, State *S) {
+  S->superH->SR.T = 1;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHAD (Shift Arithmetic Dynamically): Shift Instruction		*/
@@ -3503,26 +2940,20 @@ superH_sett(Engine *E, State *S)
 /*   The maximum magnitude of the left shift count is 31 (0-31).	*/
 /*   The maximum magnitude of the right shift count is 32 (1-32).	*/
 /*									*/
-void
-superH_shad(Engine *E, State *S, ulong m, ulong n)
-{
-	long cnt, sgn;
+void superH_shad(Engine *E, State *S, ulong m, ulong n) {
+  long cnt, sgn;
 
-	sgn = reg_read(E, S, m) & 0x80000000;
-	cnt = reg_read(E, S, m) & 0x0000001F;
+  sgn = reg_read(E, S, m) & 0x80000000;
+  cnt = reg_read(E, S, m) & 0x0000001F;
 
-	if (sgn == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) << cnt);
-	}
-	else
-	{
-		reg_set(E, S, n, (signed long)reg_read(E, S, n) >> ((~cnt+1) & 0x1F));
-	}
+  if (sgn == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) << cnt);
+  } else {
+    reg_set(E, S, n, (signed long)reg_read(E, S, n) >> ((~cnt + 1) & 0x1F));
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHAL (Shift Arithmetic Left, (Same as SHLL)): Shift Instruction	*/
@@ -3536,23 +2967,17 @@ superH_shad(Engine *E, State *S, ulong m, ulong n)
 /*   The bit that is shifted out of the operand is transferred to the 	*/
 /*   T bit (see figure 6.8 of programming manaul).			*/
 /*									*/
-void
-superH_shal(Engine *E, State *S, ulong n)
-{
-	if ((reg_read(E, S, n) & 0x80000000) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
+void superH_shal(Engine *E, State *S, ulong n) {
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) << 1);
+  reg_set(E, S, n, reg_read(E, S, n) << 1);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHAR (Shift Arithmetic Right): Shift Instruction			*/
@@ -3566,42 +2991,30 @@ superH_shal(Engine *E, State *S, ulong n)
 /*   The bit that is shifted out of the operand is transferred to the 	*/
 /*   T bit (see figure 6.9 of programming manual).			*/
 /*									*/
-void
-superH_shar(Engine *E, State *S, ulong n)
-{
-	long temp;
+void superH_shar(Engine *E, State *S, ulong n) {
+  long temp;
 
-	if ((reg_read(E, S, n) & 0x00000001) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
-	if ((reg_read(E, S, n) & 0x80000000) == 0)
-	{
-		temp = 0;
-	}
-	else
-	{
-		temp = 1;
-	}
+  if ((reg_read(E, S, n) & 0x00000001) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    temp = 0;
+  } else {
+    temp = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) >> 1);
+  reg_set(E, S, n, reg_read(E, S, n) >> 1);
 
-	if (temp == 1)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
-	}
+  if (temp == 1) {
+    reg_set(E, S, n, reg_read(E, S, n) | 0x80000000);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHLD (Shift Logical Dynamically): Shift Instruction		*/
@@ -3625,26 +3038,20 @@ superH_shar(Engine *E, State *S, ulong n)
 /*   The maximum magnitude of the left shift count is 31 (0-31).	*/
 /*   The maximum magnitude of the right shift count is 32 (1-32).	*/
 /*									*/
-void
-superH_shld(Engine *E, State *S, ulong m, ulong n)
-{
-	long cnt, sgn;
+void superH_shld(Engine *E, State *S, ulong m, ulong n) {
+  long cnt, sgn;
 
-	sgn = reg_read(E, S, m) & 0x80000000;
-	cnt = reg_read(E, S, m) & 0x0000001F;
+  sgn = reg_read(E, S, m) & 0x80000000;
+  cnt = reg_read(E, S, m) & 0x0000001F;
 
-	if (sgn == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) << cnt);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) >> ((~cnt+1)&0x1F));
-	}
+  if (sgn == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) << cnt);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) >> ((~cnt + 1) & 0x1F));
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHLL (Shift Logical Left (Same as SHAL) ): Shift Instruction	*/
@@ -3658,23 +3065,17 @@ superH_shld(Engine *E, State *S, ulong m, ulong n)
 /*   that is shifted out of the operand is transferred to the T bit	*/
 /*   (see figure 6.11 of the programming manual).			*/
 /*									*/
-void
-superH_shll(Engine *E, State *S, ulong n)
-{
-	if ((reg_read(E, S, n) & 0x80000000) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
+void superH_shll(Engine *E, State *S, ulong n) {
+  if ((reg_read(E, S, n) & 0x80000000) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) << 1);
+  reg_set(E, S, n, reg_read(E, S, n) << 1);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHLLn (Shift Logical Left n Bits): Shift Instruction		*/
@@ -3690,30 +3091,23 @@ superH_shll(Engine *E, State *S, ulong n)
 /*   Bits that are shifted out of the operand are not stored 		*/
 /*   (see figure 6.12 of programming manual).				*/
 /*									*/
-void
-superH_shll2(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) << 2);
+void superH_shll2(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) << 2);
 
-	return;
+  return;
 }
 
-void
-superH_shll8(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) << 8);
+void superH_shll8(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) << 8);
 
-	return;
+  return;
 }
 
-void
-superH_shll16(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) << 16);
+void superH_shll16(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) << 16);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHLR (Shift Logical Right): Shift Instruction			*/
@@ -3727,24 +3121,18 @@ superH_shll16(Engine *E, State *S, ulong n)
 /*   that is shifted out of the operand is transferred to the T bit 	*/
 /*   (see figure 6.13 of programming manual).				*/
 /*									*/
-void
-superH_shlr(Engine *E, State *S, ulong n)
-{
-	if ((reg_read(E, S, n) & 0x00000001) == 0)
-	{
-		S->superH->SR.T = 0;
-	}
-	else
-	{
-		S->superH->SR.T = 1;
-	}
+void superH_shlr(Engine *E, State *S, ulong n) {
+  if ((reg_read(E, S, n) & 0x00000001) == 0) {
+    S->superH->SR.T = 0;
+  } else {
+    S->superH->SR.T = 1;
+  }
 
-	reg_set(E, S, n, reg_read(E, S, n) >> 1);
-	reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
+  reg_set(E, S, n, reg_read(E, S, n) >> 1);
+  reg_set(E, S, n, reg_read(E, S, n) & 0x7FFFFFFF);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SHLRn (Shift Logical Right n Bits): Shift Instruction		*/
@@ -3760,33 +3148,26 @@ superH_shlr(Engine *E, State *S, ulong n)
 /*   Bits that are shifted out of the operand are not stored 		*/
 /*  (see figure 6.14 of programming manual).				*/
 /*									*/
-void
-superH_shlr2(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) >> 2);
-	reg_set(E, S, n, reg_read(E, S, n) & 0x3FFFFFFF);
+void superH_shlr2(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) >> 2);
+  reg_set(E, S, n, reg_read(E, S, n) & 0x3FFFFFFF);
 
-	return;
+  return;
 }
 
-void
-superH_shlr8(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) >> 8);
-	reg_set(E, S, n, reg_read(E, S, n) & 0x00FFFFFF);
+void superH_shlr8(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) >> 8);
+  reg_set(E, S, n, reg_read(E, S, n) & 0x00FFFFFF);
 
-	return;
+  return;
 }
 
-void
-superH_shlr16(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) >> 16);
-	reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
+void superH_shlr16(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) >> 16);
+  reg_set(E, S, n, reg_read(E, S, n) & 0x0000FFFF);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SLEEP (Sleep): System Control Instruction (Privileged Only)	*/
@@ -3804,14 +3185,11 @@ superH_shlr16(Engine *E, State *S, ulong n)
 /*   causes an illegal instruction exception. Note: The number of 	*/
 /*   cycles given is for the transition to sleep mode.			*/
 /*									*/
-void
-superH_sleep(Engine *E, State *S)
-{
-	S->sleep = 1;
+void superH_sleep(Engine *E, State *S) {
+  S->sleep = 1;
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   STC (Store Control Register): System Control Instruction 		*/
@@ -3832,7 +3210,7 @@ superH_sleep(Engine *E, State *S)
 /*   STC R5_BANK,Rn      R5_BANK -> Rn 	0000nnnn11010010    1     -	*/
 /*   STC R6_BANK,Rn      R6_BANK -> Rn 	0000nnnn11100010    1     -	*/
 /*   STC R7_BANK,Rn      R7_BANK -> Rn 	0000nnnn11110010    1     -	*/
-/*   STC.L SR,@-Rn       Rn - 4 -> Rn,	0100nnnn00000011    1     -	*/	
+/*   STC.L SR,@-Rn       Rn - 4 -> Rn,	0100nnnn00000011    1     -	*/
 /*   			 SR -> (Rn) 					*/
 /*   STC.L GBR,@-Rn      Rn - 4 -> Rn,	0100nnnn00010011    1     -	*/
 /*   			 GBR -> (Rn) 					*/
@@ -3869,141 +3247,109 @@ superH_sleep(Engine *E, State *S)
 /*   accessed by STC/STC.L instructions. When the RB = 0, Rn_BANK1 is 	*/
 /*   accessed by STC/STC.L instructions.				*/
 /*									*/
-void
-superH_stcsr(Engine *E, State *S, ulong n)
-{
-	ulong tmp;
+void superH_stcsr(Engine *E, State *S, ulong n) {
+  ulong tmp;
 
-	memmove(&tmp, &S->superH->SR, sizeof(tmp));
-	reg_set(E, S, n, tmp);
+  memmove(&tmp, &S->superH->SR, sizeof(tmp));
+  reg_set(E, S, n, tmp);
 
-	return;
+  return;
 }
 
-void
-superH_stcgbr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->GBR);
+void superH_stcgbr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->GBR);
 
-	return;
+  return;
 }
 
-void
-superH_stcvbr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->VBR);
+void superH_stcvbr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->VBR);
 
-	return;
+  return;
 }
 
-void
-superH_stcssr(Engine *E, State *S, ulong n)
-{
-	ulong tmp;
+void superH_stcssr(Engine *E, State *S, ulong n) {
+  ulong tmp;
 
-	memmove(&tmp, &S->superH->SSR, sizeof(tmp));
-	reg_set(E, S, n, tmp);
+  memmove(&tmp, &S->superH->SSR, sizeof(tmp));
+  reg_set(E, S, n, tmp);
 
-	return;
+  return;
 }
 
-void
-superH_stcspc(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->SPC);
+void superH_stcspc(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->SPC);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*    	See description at section 6.28 for reason why [!SR.RB]		*/
 /*    	Our register set is R_BANK and R, where R_BANK is a 2x7		*/
 /*    	array of longs, and R is a 1x7 array of longs.	 		*/
 /*									*/
-void
-superH_stcr_bank(Engine *E, State *S, int reg, ulong n)
-{
-	if (S->superH->SR.RB == 0)
-	{
-		S->superH->R[n] = S->superH->R_BANK[reg];
-	}
-	else
-	{
-		S->superH->R[n] = S->superH->R[reg];
-	}
+void superH_stcr_bank(Engine *E, State *S, int reg, ulong n) {
+  if (S->superH->SR.RB == 0) {
+    S->superH->R[n] = S->superH->R_BANK[reg];
+  } else {
+    S->superH->R[n] = S->superH->R[reg];
+  }
 
-	return;
+  return;
 }
 
-void
-superH_stcmsr(Engine *E, State *S, ulong n)
-{
-	ulong	tmp;
+void superH_stcmsr(Engine *E, State *S, ulong n) {
+  ulong tmp;
 
-	memmove(&tmp, &S->superH->SR, sizeof(tmp));
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), tmp);
+  memmove(&tmp, &S->superH->SR, sizeof(tmp));
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), tmp);
 
-	return;
+  return;
 }
 
-void
-superH_stcmgbr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), S->superH->GBR);
+void superH_stcmgbr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), S->superH->GBR);
 
-	return;
+  return;
 }
 
-void
-superH_stcmvbr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), S->superH->VBR);
+void superH_stcmvbr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), S->superH->VBR);
 
-	return;
+  return;
 }
 
-void
-superH_stcmssr(Engine *E, State *S, ulong n)
-{
-	ulong	tmp;
+void superH_stcmssr(Engine *E, State *S, ulong n) {
+  ulong tmp;
 
-	memmove(&tmp, &S->superH->SSR, sizeof(tmp));
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), tmp);
+  memmove(&tmp, &S->superH->SSR, sizeof(tmp));
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), tmp);
 
-	return;
+  return;
 }
 
-void
-superH_stcmspc(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), S->superH->SPC);
+void superH_stcmspc(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), S->superH->SPC);
 
-	return;
+  return;
 }
 
-void
-superH_stcmr_bank(Engine *E, State *S, int reg, ulong n)
-{
-	S->superH->R[n] -= 4;
+void superH_stcmr_bank(Engine *E, State *S, int reg, ulong n) {
+  S->superH->R[n] -= 4;
 
-	if (S->superH->SR.RB == 0)
-	{
-		superHwritelong(E, S, S->superH->R[n], S->superH->R_BANK[reg]);
-	}
-	else
-	{
-		superHwritelong(E, S, S->superH->R[n], S->superH->R[reg]);
-	}
+  if (S->superH->SR.RB == 0) {
+    superHwritelong(E, S, S->superH->R[n], S->superH->R_BANK[reg]);
+  } else {
+    superHwritelong(E, S, S->superH->R[n], S->superH->R[reg]);
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   STS (Store System Register): System Control Instruction		*/
@@ -4020,73 +3366,54 @@ superH_stcmr_bank(Engine *E, State *S, int reg, ulong n)
 /*   Description: Stores system registers MACH, MACL and PR data into 	*/
 /*   a specified destination.						*/
 /*									*/
-void
-superH_stsmach(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->MACH);
+void superH_stsmach(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->MACH);
 
-	if ((reg_read(E, S, n) & 0x00000200) == 0)
-	{
-		reg_set(E, S, n, reg_read(E, S, n) & 0x000003FF);
-	}
-	else
-	{
-		reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFC00);
-	}
+  if ((reg_read(E, S, n) & 0x00000200) == 0) {
+    reg_set(E, S, n, reg_read(E, S, n) & 0x000003FF);
+  } else {
+    reg_set(E, S, n, reg_read(E, S, n) | 0xFFFFFC00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_stsmacl(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->MACL);
+void superH_stsmacl(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->MACL);
 
-	return;
+  return;
 }
 
-void
-superH_stspr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, S->superH->PR);
+void superH_stspr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, S->superH->PR);
 
-	return;
+  return;
 }
 
-void
-superH_stsmmach(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	if ((S->superH->MACH&0x00000200) == 0)
-	{
-		superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH & 0x000003FF);
-	}
-	else
-	{
-		superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH | 0xFFFFFC00);
-	}
+void superH_stsmmach(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  if ((S->superH->MACH & 0x00000200) == 0) {
+    superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH & 0x000003FF);
+  } else {
+    superHwritelong(E, S, reg_read(E, S, n), S->superH->MACH | 0xFFFFFC00);
+  }
 
-	return;
+  return;
 }
 
-void
-superH_stsmmacl(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), S->superH->MACL);
+void superH_stsmmacl(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), S->superH->MACL);
 
-	return;
+  return;
 }
 
-void
-superH_stsmpr(Engine *E, State *S, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - 4);
-	superHwritelong(E, S, reg_read(E, S, n), S->superH->PR);
+void superH_stsmpr(Engine *E, State *S, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - 4);
+  superHwritelong(E, S, reg_read(E, S, n), S->superH->PR);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SUB (Subtract Binary): Arithmetic Instruction			*/
@@ -4099,14 +3426,11 @@ superH_stsmpr(Engine *E, State *S, ulong n)
 /*   stores the result in Rn. To subtract immediate data, use ADD 	*/
 /*   #imm,Rn.								*/
 /*									*/
-void
-superH_sub(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
+void superH_sub(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SUBC (Subtract with Carry): Arithmetic Instruction			*/
@@ -4122,31 +3446,24 @@ superH_sub(Engine *E, State *S, ulong m, ulong n)
 /*   according to the result. This instruction is used for subtraction 	*/
 /*   of data that has more than 32 bits.				*/
 /*									*/
-void
-superH_subc(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong tmp0, tmp1;
+void superH_subc(Engine *E, State *S, ulong m, ulong n) {
+  ulong tmp0, tmp1;
 
-	tmp1 = reg_read(E, S, n) - reg_read(E, S, m);
-	tmp0 = reg_read(E, S, n);
-	reg_set(E, S, n, tmp1 - S->superH->SR.T);
+  tmp1 = reg_read(E, S, n) - reg_read(E, S, m);
+  tmp0 = reg_read(E, S, n);
+  reg_set(E, S, n, tmp1 - S->superH->SR.T);
 
-	if (tmp0 < tmp1)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
-	if (tmp1 < reg_read(E, S, n))
-	{
-		S->superH->SR.T = 1;
-	}
+  if (tmp0 < tmp1) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
+  if (tmp1 < reg_read(E, S, n)) {
+    S->superH->SR.T = 1;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*  SUBV (Subtract with V Flag Underflow Check): Arithmetic Instruction */
@@ -4159,61 +3476,43 @@ superH_subc(Engine *E, State *S, ulong m, ulong n)
 /*   stores the result in Rn. If an underflow occurs, the T bit is set 	*/
 /*   to 1.								*/
 /*									*/
-void
-superH_subv(Engine *E, State *S, ulong m, ulong n)
-{
-	long dest, src, ans;
+void superH_subv(Engine *E, State *S, ulong m, ulong n) {
+  long dest, src, ans;
 
-	if ((long)reg_read(E, S, n) >= 0)
-	{
-		dest = 0;
-	}
-	else
-	{
-		dest = 1;
-	}
-	if ((long)reg_read(E, S, m) >= 0)
-	{
-		src = 0;
-	}
-	else
-	{
-		src = 1;
-	}
+  if ((long)reg_read(E, S, n) >= 0) {
+    dest = 0;
+  } else {
+    dest = 1;
+  }
+  if ((long)reg_read(E, S, m) >= 0) {
+    src = 0;
+  } else {
+    src = 1;
+  }
 
-	src += dest;
-	reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
+  src += dest;
+  reg_set(E, S, n, reg_read(E, S, n) - reg_read(E, S, m));
 
-	if ((long)reg_read(E, S, n) >= 0)
-	{
-		ans = 0;
-	}
-	else
-	{
-		ans = 1;
-	}
+  if ((long)reg_read(E, S, n) >= 0) {
+    ans = 0;
+  } else {
+    ans = 1;
+  }
 
-	ans += dest;
+  ans += dest;
 
-	if (src == 1) 
-	{
-		if (ans == 1)
-		{
-			S->superH->SR.T = 1;
-		}
-		else
-		{
-			S->superH->SR.T = 0;
-		}
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (src == 1) {
+    if (ans == 1) {
+      S->superH->SR.T = 1;
+    } else {
+      S->superH->SR.T = 0;
+    }
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   SWAP (Swap Register Halves): Data Transfer Instruction		*/
@@ -4234,30 +3533,25 @@ superH_subv(Engine *E, State *S, ulong m, ulong n)
 /*   Rn. If a word is specified, bits 0 to 15 of Rm are swapped for 	*/
 /*   bits 16 to 31.							*/
 /*									*/
-void
-superH_swapb(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong temp0, temp1;
+void superH_swapb(Engine *E, State *S, ulong m, ulong n) {
+  ulong temp0, temp1;
 
-	temp0 = reg_read(E, S, m) & 0xffff0000;
-	temp1 = (reg_read(E, S, m) & 0x000000ff)<<8;
-	reg_set(E, S, n, (reg_read(E, S, m) & 0x0000ff00)>>8);
-	reg_set(E, S, n, reg_read(E, S, n) | temp1 | temp0);
-	
-	return;
+  temp0 = reg_read(E, S, m) & 0xffff0000;
+  temp1 = (reg_read(E, S, m) & 0x000000ff) << 8;
+  reg_set(E, S, n, (reg_read(E, S, m) & 0x0000ff00) >> 8);
+  reg_set(E, S, n, reg_read(E, S, n) | temp1 | temp0);
+
+  return;
 }
 
-void
-superH_swapw(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong temp;
-	temp=(reg_read(E, S, m)>>16)&0x0000FFFF;
-	reg_set(E, S, n, reg_read(E, S, m) << 16);
-	reg_set(E, S, n, reg_read(E, S, n) | temp);
+void superH_swapw(Engine *E, State *S, ulong m, ulong n) {
+  ulong temp;
+  temp = (reg_read(E, S, m) >> 16) & 0x0000FFFF;
+  reg_set(E, S, n, reg_read(E, S, m) << 16);
+  reg_set(E, S, n, reg_read(E, S, n) | temp);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   TAS (Test and Set): Logic Operation Instruction			*/
@@ -4275,27 +3569,21 @@ superH_swapw(Engine *E, State *S, ulong m, ulong n)
 /*   the TAS instruction should be placed in a non-cacheable space when	*/
 /*   the cache is enabled.						*/
 /*									*/
-void
-superH_tas(Engine *E, State *S, ulong n)
-{
-	long temp;
+void superH_tas(Engine *E, State *S, ulong n) {
+  long temp;
 
-	temp = (long)superHreadbyte(E, S, reg_read(E, S, n)); /* Bus Lock enable */
-	if (temp == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  temp = (long)superHreadbyte(E, S, reg_read(E, S, n)); /* Bus Lock enable */
+  if (temp == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	temp |= 0x00000080;
-	superHwritebyte(E, S, reg_read(E, S, n), temp); /* Bus Lock disable */
+  temp |= 0x00000080;
+  superHwritebyte(E, S, reg_read(E, S, n), temp); /* Bus Lock disable */
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   TRAPA (Trap Always): System Control Instruction			*/
@@ -4317,49 +3605,45 @@ superH_tas(Engine *E, State *S, ulong n)
 /*   stored in the EXPEVT register (EXPEVT11 to EXPEVT0). The program	*/
 /*   branches to an address (VBR+H'00000100).				*/
 /*									*/
-void
-superH_trapa(Engine *E, State *S, long i)
-{
-	long imm;
+void superH_trapa(Engine *E, State *S, long i) {
+  long imm;
 
+  imm = (0x000000FF & i);
 
-	imm = (0x000000FF & i);
+  //TODO: shouldn't we be checking interrupt mask before going ahead ?
 
-	//TODO: shouldn't we be checking interrupt mask before going ahead ?
+  if (imm == 34) {
+    /*							*/
+    /*	First 4 words are in R4-R7, rest on stack	*/
+    /*	fortunately, we only need 1st 4 args.		*/
+    /*							*/
+    reg_set(E, S, 0,
+            sim_syscall(E, S, reg_read(E, S, 4), reg_read(E, S, 5),
+                        reg_read(E, S, 6), reg_read(E, S, 7)));
 
-	if (imm == 34)
-	{
-		/*							*/
-		/*	First 4 words are in R4-R7, rest on stack	*/
-		/*	fortunately, we only need 1st 4 args.		*/
-		/*							*/
-		reg_set(E, S, 0, sim_syscall(E, S, reg_read(E, S, 4),
-			reg_read(E, S, 5), reg_read(E, S, 6), reg_read(E, S, 7)));
+    return;
+  }
 
-		return;
-	}
+  /*								*/
+  /*	NOTE: according to HW manual, imm is zero-extended	*/
+  /*	and quadrupled.						*/
+  /*								*/
+  S->superH->TRA = imm << 2;
+  S->superH->SSR = S->superH->SR;
 
-	/*								*/
-	/*	NOTE: according to HW manual, imm is zero-extended	*/
-	/*	and quadrupled.						*/
-	/*								*/
-	S->superH->TRA = imm<<2;
-	S->superH->SSR = S->superH->SR;
+  /*   P.EX.fetchedpc b'cos PC has in'd 2x since we were fetched		*/
+  S->superH->SPC = S->superH->P.EX.fetchedpc;
 
-	/*   P.EX.fetchedpc b'cos PC has in'd 2x since we were fetched		*/
-	S->superH->SPC = S->superH->P.EX.fetchedpc;
+  S->superH->SR.MD = 1;
+  S->superH->SR.BL = 1;
+  S->superH->SR.RB = 1;
+  S->superH->EXPEVT = 0x00000160;
 
-	S->superH->SR.MD = 1;
-	S->superH->SR.BL = 1;
-	S->superH->SR.RB = 1;
-	S->superH->EXPEVT = 0x00000160;
+  S->PC = S->superH->VBR + 0x00000100;
+  superHifidflush(S);
 
-	S->PC = S->superH->VBR+0x00000100;
-	superHifidflush(S);
-
-	return;
+  return;
 }
-
 
 /*									*/
 /*   TST (Test Logical): Logic Operation Instruction			*/
@@ -4383,61 +3667,45 @@ superH_trapa(Engine *E, State *S, long i)
 /*   memory accessed by indirect indexed GBR addressing can be ANDed 	*/
 /*   with 8-bit immediate data. The R0 and memory data do not change.	*/
 /*									*/
-void
-superH_tst(Engine *E, State *S, ulong m, ulong n)
-{
-	if ((reg_read(E, S, n) & reg_read(E, S, m)) == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+void superH_tst(Engine *E, State *S, ulong m, ulong n) {
+  if ((reg_read(E, S, n) & reg_read(E, S, m)) == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_tsti(Engine *E, State *S, long i)
-{
-	long temp;
+void superH_tsti(Engine *E, State *S, long i) {
+  long temp;
 
-	temp = reg_read(E, S, 0) & (0x000000FF & (long)i);
-	if (temp == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  temp = reg_read(E, S, 0) & (0x000000FF & (long)i);
+  if (temp == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-void
-superH_tstm(Engine *E, State *S, long i)
-{
-	long temp;
+void superH_tstm(Engine *E, State *S, long i) {
+  long temp;
 
-	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
-	temp &= (0x000000FF & (long)i);
+  temp = (long)superHreadbyte(E, S, S->superH->GBR + reg_read(E, S, 0));
+  temp &= (0x000000FF & (long)i);
 
-	if (temp == 0)
-	{
-		S->superH->SR.T = 1;
-	}
-	else
-	{
-		S->superH->SR.T = 0;
-	}
+  if (temp == 0) {
+    S->superH->SR.T = 1;
+  } else {
+    S->superH->SR.T = 0;
+  }
 
-	return;
+  return;
 }
 
-
-/*									*/				
+/*									*/
 /*   XOR (Exclusive OR Logical): Logic Operation Instruction		*/
 /*									*/
 /*   Format 	  	   Abstract 	 Code 		  Cycle  T Bit	*/
@@ -4453,34 +3721,27 @@ superH_tstm(Engine *E, State *S, long i)
 /*   immediate data, or 8-bit memory accessed by indirect indexed GBR 	*/
 /*   addressing can be exclusive ORed with 8-bit immediate data.	*/
 /* 									*/
-void
-superH_xor(Engine *E, State *S, ulong m, ulong n)
-{
-	reg_set(E, S, n, reg_read(E, S, n) ^ reg_read(E, S, m));
+void superH_xor(Engine *E, State *S, ulong m, ulong n) {
+  reg_set(E, S, n, reg_read(E, S, n) ^ reg_read(E, S, m));
 
-	return;
+  return;
 }
 
-void
-superH_xori(Engine *E, State *S, long i)
-{
-	reg_set(E, S, 0, reg_read(E, S, 0) ^ (0x000000FF & (long)i));
+void superH_xori(Engine *E, State *S, long i) {
+  reg_set(E, S, 0, reg_read(E, S, 0) ^ (0x000000FF & (long)i));
 
-	return;
+  return;
 }
 
-void
-superH_xorm(Engine *E, State *S, long i)
-{
-	long temp;
+void superH_xorm(Engine *E, State *S, long i) {
+  long temp;
 
-	temp = (long)superHreadbyte(E, S, S->superH->GBR+reg_read(E, S, 0));
-	temp ^= (0x000000FF & (long)i);
-	superHwritebyte(E, S, S->superH->GBR+reg_read(E, S, 0),temp);
+  temp = (long)superHreadbyte(E, S, S->superH->GBR + reg_read(E, S, 0));
+  temp ^= (0x000000FF & (long)i);
+  superHwritebyte(E, S, S->superH->GBR + reg_read(E, S, 0), temp);
 
-	return;
+  return;
 }
-
 
 /*									*/
 /*   XTRCT (Extract): Data Transfer Instruction				*/
@@ -4494,14 +3755,12 @@ superH_xorm(Engine *E, State *S, long i)
 /*   general registers Rm and Rn, and stores the 32 bits in Rn 		*/
 /*   (see figure 6.15 of programming manual)				*/
 /*									*/
-void
-superH_xtrct(Engine *E, State *S, ulong m, ulong n)
-{
-	ulong temp;
+void superH_xtrct(Engine *E, State *S, ulong m, ulong n) {
+  ulong temp;
 
-	temp = (reg_read(E, S, m) << 16) & 0xFFFF0000;
-	reg_set(E, S, n, (reg_read(E, S, n)>>16)&0x0000FFFF);
-	reg_set(E, S, n, reg_read(E, S, n) | temp);
+  temp = (reg_read(E, S, m) << 16) & 0xFFFF0000;
+  reg_set(E, S, n, (reg_read(E, S, n) >> 16) & 0x0000FFFF);
+  reg_set(E, S, n, reg_read(E, S, n) | temp);
 
-	return;
+  return;
 }

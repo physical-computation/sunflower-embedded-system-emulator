@@ -35,58 +35,56 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
-{
-	/*	Maximum number of battery/DC-DC converters	*/
-	MAX_BATTERIES = 128,
+enum {
+  /*	Maximum number of battery/DC-DC converters	*/
+  MAX_BATTERIES = 128,
 
-	/*	Max num. of nodes you can attach to a batt.	*/
-	MAX_BATTNODES = 4, 
+  /*	Max num. of nodes you can attach to a batt.	*/
+  MAX_BATTNODES = 4,
 
-	/*		Default # of LUT entries		*/
-	DEFLT_NLUTENTRIES = 100,
+  /*		Default # of LUT entries		*/
+  DEFLT_NLUTENTRIES = 100,
 };
 
-typedef struct
-{
-	int		ID;
-	int		dead;
-	int		num_attached;
-	double		battery_capacity;
-	double		battery_remaining;
-	double		maxIload;
-	double		nsamplesIload;
-	double		avgIload;
-	double		sumIload;
-	void*		node_ptrs[MAX_BATTNODES];
+typedef struct {
+  int ID;
+  int dead;
+  int num_attached;
+  double battery_capacity;
+  double battery_remaining;
+  double maxIload;
+  double nsamplesIload;
+  double avgIload;
+  double sumIload;
+  void *node_ptrs[MAX_BATTNODES];
 
-	double		ileak;
-	double		C;
-	double		Cf;
-	double		Ibatt;
-	double		Ibatt_old;
-	double		Inominal;
-	double		Rf;
-	double		Vbatt;
-	double		Vbatt_expended;
-	double		Vc;
-	double		Vc_0;
-	double		Vlost;
-	double		Vr;
-	double		Vrate;
-	double		Vrate_0;
-	double		Vrateold;
-	double		capacity_Ah;
-	double		tinit;
-	double		tnow;
-	double		told;
-	double		cap_act;
+  double ileak;
+  double C;
+  double Cf;
+  double Ibatt;
+  double Ibatt_old;
+  double Inominal;
+  double Rf;
+  double Vbatt;
+  double Vbatt_expended;
+  double Vc;
+  double Vc_0;
+  double Vlost;
+  double Vr;
+  double Vrate;
+  double Vrate_0;
+  double Vrateold;
+  double capacity_Ah;
+  double tinit;
+  double tnow;
+  double told;
+  double cap_act;
 
-	double		*VbattLUT;
-	double		*VlostLUT;
-	double		*etaLUT;
+  double *VbattLUT;
+  double *VlostLUT;
+  double *etaLUT;
 
-	int		VbattLUTnentries;
-	int		VlostLUTnentries;
-	int		etaLUTnentries;
+  int VbattLUTnentries;
+  int VlostLUTnentries;
+  int etaLUTnentries;
 } Batt;

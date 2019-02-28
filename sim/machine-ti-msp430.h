@@ -35,59 +35,55 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
-{
-	MSP430_DEFLT_MEMSIZE			= 256,
-	MSP430_MEMBASE				= 0x0200,
-	MSP430_FLASHBASE			= 0xFFFF - 8192,
-	MSP430_DEFAULT_MEMREAD_LATENCY		= 1,
-	MSP430_DEFAULT_MEMWRITE_LATENCY		= 1,
-	MSP430_NPINS				= 256,
+enum {
+  MSP430_DEFLT_MEMSIZE = 256,
+  MSP430_MEMBASE = 0x0200,
+  MSP430_FLASHBASE = 0xFFFF - 8192,
+  MSP430_DEFAULT_MEMREAD_LATENCY = 1,
+  MSP430_DEFAULT_MEMWRITE_LATENCY = 1,
+  MSP430_NPINS = 256,
 };
 
-typedef struct
-{
-	ushort		mab16;
-	ushort		mdb16;
+typedef struct {
+  ushort mab16;
+  ushort mdb16;
 
-	uchar		mab8;
-	uchar		mdb8;
+  uchar mab8;
+  uchar mdb8;
 
-	/*					*/
-	/*	When we use Numa facilities to	*/
-	/*	translate addr, we count those	*/
-	/*	separately.			*/
-	/*					*/
-	ulong		paddr_bus;
+  /*					*/
+  /*	When we use Numa facilities to	*/
+  /*	translate addr, we count those	*/
+  /*	separately.			*/
+  /*					*/
+  ulong paddr_bus;
 } MSP430Buses;
 
 typedef struct MSP430State MSP430State;
-struct MSP430State
-{
-	ushort 		R		[16];
-	ushort		periph16	[(MSP430_RAM_BEGIN - MSP430_PERIPH16_BEGIN)/2];
-	uchar		periph8		[MSP430_PERIPH16_BEGIN - MSP430_PERIPH8_BEGIN];
-	uchar		sfr		[MSP430_PERIPH8_BEGIN - MSP430_SFR_BEGIN];		
-	double		pins		[MSP430_NPINS];
+struct MSP430State {
+  ushort R[16];
+  ushort periph16[(MSP430_RAM_BEGIN - MSP430_PERIPH16_BEGIN) / 2];
+  uchar periph8[MSP430_PERIPH16_BEGIN - MSP430_PERIPH8_BEGIN];
+  uchar sfr[MSP430_PERIPH8_BEGIN - MSP430_SFR_BEGIN];
+  double pins[MSP430_NPINS];
 
-	ushort		me1;
-	ushort		me2;
-	ushort		ie1;
-	ushort		ie2;
-	ushort		ifg1;
-	ushort		ifg2;
+  ushort me1;
+  ushort me2;
+  ushort ie1;
+  ushort ie2;
+  ushort ifg1;
+  ushort ifg2;
 
-	MSP430Pipe	P;
-	MSP430Buses	*B;
+  MSP430Pipe P;
+  MSP430Buses *B;
 
-	double		vdd;
+  double vdd;
 };
 
 /*		Entries in the Decode Cache		*/
-typedef struct
-{
-	MSP430Pipestage	dc_p;
+typedef struct {
+  MSP430Pipestage dc_p;
 } MSP430DCEntry;
 
-#define	MSP430_DEFAULT_VDD			(3.3)
-#define	MSP430_DEFAULT_CYCLETIME		((double)1/8000000)
+#define MSP430_DEFAULT_VDD (3.3)
+#define MSP430_DEFAULT_CYCLETIME ((double)1 / 8000000)

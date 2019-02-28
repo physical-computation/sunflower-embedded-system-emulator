@@ -37,109 +37,98 @@
 
 /*From Figure 2.3 in https://riscv.org/specifications/ v2.2            */
 
-enum
-{
-    INSTR_R,
-    INSTR_I,
-    INSTR_S,
-    INSTR_B,
-    INSTR_U,
-    INSTR_J,
-    
-    /* Additional R4 type introduced in RV32F */
-    INSTR_R4,
+enum {
+  INSTR_R,
+  INSTR_I,
+  INSTR_S,
+  INSTR_B,
+  INSTR_U,
+  INSTR_J,
 
-    /* We introduce this new type to accomodate for any invalid instruction
+  /* Additional R4 type introduced in RV32F */
+  INSTR_R4,
+
+  /* We introduce this new type to accomodate for any invalid instruction
        , including 0. These instructions will be executed as nop       */
-    INSTR_N
+  INSTR_N
 };
 
 /*In the following structs, the number following imm corresponds to the*/
 /*starting position of this section in the immediate number            */
 /* e.g. imm5:7 corresponds to bits [5:11] in the immediate number      */
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    rd:5;
-    unsigned    funct3:3;
-    unsigned    rs1:5;
-    unsigned    rs2:5;
-    unsigned    funct7:7;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned rd : 5;
+  unsigned funct3 : 3;
+  unsigned rs1 : 5;
+  unsigned rs2 : 5;
+  unsigned funct7 : 7;
 } instr_r;
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    rd:5;
-    unsigned    funct3:3;
-    unsigned    rs1:5;
-    unsigned    imm0:12;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned rd : 5;
+  unsigned funct3 : 3;
+  unsigned rs1 : 5;
+  unsigned imm0 : 12;
 } instr_i;
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    imm0:5;
-    unsigned    funct3:3;
-    unsigned    rs1:5;
-    unsigned    rs2:5;
-    unsigned    imm5:7;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned imm0 : 5;
+  unsigned funct3 : 3;
+  unsigned rs1 : 5;
+  unsigned rs2 : 5;
+  unsigned imm5 : 7;
 } instr_s;
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    imm11:1;
-    unsigned    imm1:4;
-    unsigned    funct3:3;
-    unsigned    rs1:5;
-    unsigned    rs2:5;
-    unsigned    imm5:6;
-    unsigned    imm12:1;
-    
+typedef struct {
+  unsigned opcode : 7;
+  unsigned imm11 : 1;
+  unsigned imm1 : 4;
+  unsigned funct3 : 3;
+  unsigned rs1 : 5;
+  unsigned rs2 : 5;
+  unsigned imm5 : 6;
+  unsigned imm12 : 1;
+
 } instr_b;
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    rd:5;
-    unsigned    imm0:20;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned rd : 5;
+  unsigned imm0 : 20;
 } instr_u;
 
-typedef struct
-{
-    unsigned    opcode:7;
-    unsigned    rd:5;
-    unsigned    imm12:8;
-    unsigned    imm11:1;
-    unsigned    imm1:10;
-    unsigned    imm20:1;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned rd : 5;
+  unsigned imm12 : 8;
+  unsigned imm11 : 1;
+  unsigned imm1 : 10;
+  unsigned imm20 : 1;
 } instr_j;
 
-typedef struct
-{
-    unsigned opcode:7;
-    unsigned misc_lo:5;
-    unsigned funct3:3;
-    unsigned misc_md:5;
-    unsigned b20:1;
-    unsigned misc_hi:4;
-    unsigned funct7:7;
-    
-} instr_riscv_decode;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned misc_lo : 5;
+  unsigned funct3 : 3;
+  unsigned misc_md : 5;
+  unsigned b20 : 1;
+  unsigned misc_hi : 4;
+  unsigned funct7 : 7;
 
+} instr_riscv_decode;
 
 /* R4 type for RV32F */
 
-typedef struct
-{
-	unsigned opcode:7;
-	unsigned rd:5;
-	unsigned rm:3;
-	unsigned rs1:5;
-	unsigned rs2:5;
-	unsigned unused:2;
-	unsigned rs3:5;
+typedef struct {
+  unsigned opcode : 7;
+  unsigned rd : 5;
+  unsigned rm : 3;
+  unsigned rs1 : 5;
+  unsigned rs2 : 5;
+  unsigned unused : 2;
+  unsigned rs3 : 5;
 } instr_r4;
-

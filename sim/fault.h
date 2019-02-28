@@ -35,17 +35,15 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-typedef struct
-{
-	int	distribution;
+typedef struct {
+  int distribution;
 
-	double	mu;
-	double	sigma;
-	double	lambda;
+  double mu;
+  double sigma;
+  double lambda;
 } Pdist;
 
-enum
-{
-	/*	Smallest fault probability is 1/FAULT_PROB_MODULO	*/
-	FAULT_PROB_MODULO	= 1<<30,
+enum {
+  /*	Smallest fault probability is 1/FAULT_PROB_MODULO	*/
+  FAULT_PROB_MODULO = 1 << 30,
 };

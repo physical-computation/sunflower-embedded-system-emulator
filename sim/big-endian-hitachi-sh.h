@@ -35,109 +35,94 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-typedef struct
-{
-	unsigned	code:16;
+typedef struct {
+  unsigned code : 16;
 } instr_0;
 
-typedef struct
-{
-	unsigned	code_hi:4;
-	unsigned	dst:4;
-	unsigned 	code_lo:8;
+typedef struct {
+  unsigned code_hi : 4;
+  unsigned dst : 4;
+  unsigned code_lo : 8;
 } instr_n;
 
-typedef struct
-{
-	unsigned	code_hi:4;
-	unsigned	src:4;
-	unsigned 	code_lo:8;
+typedef struct {
+  unsigned code_hi : 4;
+  unsigned src : 4;
+  unsigned code_lo : 8;
 } instr_m;
 
-typedef struct
-{
-	unsigned	code_hi:4;
-	unsigned	src:4;
-	unsigned   	fill:1;
-	unsigned	reg:3;
-	unsigned 	code_lo:4;
+typedef struct {
+  unsigned code_hi : 4;
+  unsigned src : 4;
+  unsigned fill : 1;
+  unsigned reg : 3;
+  unsigned code_lo : 4;
 } instr_mbank;
 
-typedef struct
-{
-	unsigned	code_hi:4;
-	unsigned	dst:4;
-	unsigned   	fill:1;
-	unsigned	reg:3;
-	unsigned 	code_lo:4;
+typedef struct {
+  unsigned code_hi : 4;
+  unsigned dst : 4;
+  unsigned fill : 1;
+  unsigned reg : 3;
+  unsigned code_lo : 4;
 } instr_nbank;
 
-typedef struct
-{
-	unsigned	code_hi:4;
-	unsigned	dst:4;
-	unsigned	src:4;
-	unsigned 	code_lo:4;
+typedef struct {
+  unsigned code_hi : 4;
+  unsigned dst : 4;
+  unsigned src : 4;
+  unsigned code_lo : 4;
 } instr_nm;
 
-typedef struct
-{
-	unsigned	code:8;
-	unsigned	src:4;
-	unsigned	disp:4;
+typedef struct {
+  unsigned code : 8;
+  unsigned src : 4;
+  unsigned disp : 4;
 } instr_md;
 
-typedef struct
-{
-	unsigned 	code:4;
-	unsigned	dst:4;
-	unsigned	src:4;
-	unsigned	disp:4;
+typedef struct {
+  unsigned code : 4;
+  unsigned dst : 4;
+  unsigned src : 4;
+  unsigned disp : 4;
 } instr_nmd;
 
-typedef struct
-{
-	unsigned	code:8;
-	unsigned	disp:8;
+typedef struct {
+  unsigned code : 8;
+  unsigned disp : 8;
 } instr_d8;
 
-typedef struct
-{
-	unsigned	code:4;
-	unsigned	disp:12;
+typedef struct {
+  unsigned code : 4;
+  unsigned disp : 12;
 } instr_d12;
 
-typedef struct
-{
-	unsigned 	code:8;
-	unsigned	dst:4;
-	unsigned	disp:4;
+typedef struct {
+  unsigned code : 8;
+  unsigned dst : 4;
+  unsigned disp : 4;
 } instr_nd4;
 
-typedef struct
-{
-	unsigned	code:4;
-	unsigned	dst:4;
-	unsigned	disp:8;
+typedef struct {
+  unsigned code : 4;
+  unsigned dst : 4;
+  unsigned disp : 8;
 } instr_nd8;
 
-typedef struct
-{
-	unsigned	code:8;
-	unsigned	imm:8;
+typedef struct {
+  unsigned code : 8;
+  unsigned imm : 8;
 } instr_i;
 
-typedef struct
-{
-	unsigned	code:4;
-	unsigned	dst:4;
-	unsigned	imm:8;
+typedef struct {
+  unsigned code : 4;
+  unsigned dst : 4;
+  unsigned imm : 8;
 } instr_ni;
 
-typedef struct
-{
-	unsigned	nibble_4:4;
-	unsigned	nibble_3:4;
-	unsigned	nibble_2:4;
-	unsigned	nibble_1:4;
+typedef struct {
+  unsigned nibble_4 : 4;
+  unsigned nibble_3 : 4;
+  unsigned nibble_2 : 4;
+  unsigned nibble_1 : 4;
 } decode_instr;

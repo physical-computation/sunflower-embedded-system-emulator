@@ -35,19 +35,17 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
-{
-	TAG_NTAGS = 1024,
-	TAG_TTL_MAX = 0xFF,
-	TAG_STRING_LEN = 16,
+enum {
+  TAG_NTAGS = 1024,
+  TAG_TTL_MAX = 0xFF,
+  TAG_STRING_LEN = 16,
 };
 
-typedef struct
-{
-	uchar		string[TAG_STRING_LEN];
-	uchar		who_has[16];// change to NIC_ADDR_LEN
-	int		confidence;
+typedef struct {
+  uchar string[TAG_STRING_LEN];
+  uchar who_has[16]; // change to NIC_ADDR_LEN
+  int confidence;
 
-	/*	TTL in usecs	*/
-	ulong		ttl;
+  /*	TTL in usecs	*/
+  ulong ttl;
 } Tag;

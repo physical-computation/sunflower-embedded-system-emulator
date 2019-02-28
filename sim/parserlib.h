@@ -35,41 +35,36 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define	SEPCHARS " \t\n\r"
+#define SEPCHARS " \t\n\r"
 
 /*	Note: Newline is no longer an 'asmsep': changed grammar (for comments)	*/
-#define isasmsep(c) 	((c == ' ')||(c == '\t')||\
-		    	(c == '\r') ? 1 : 0)
+#define isasmsep(c) ((c == ' ') || (c == '\t') || (c == '\r') ? 1 : 0)
 
 /*	Note: Newline is now a 'sticky': changed grammar (for comments)		*/
-#define issticky(c) 	((c == '#')||(c == '(')||\
-			(c == ')')||(c == '@')||\
-			(c == ',')||(c == '-')||\
-			(c == '+')||(c == '\n')||\
-			(c == '!') ? 1 : 0)
+#define issticky(c)                                                            \
+  ((c == '#') || (c == '(') || (c == ')') || (c == '@') || (c == ',') ||       \
+           (c == '-') || (c == '+') || (c == '\n') || (c == '!')               \
+       ? 1                                                                     \
+       : 0)
 
-enum
-{
-	MAX_BUFLEN = 1024,
+enum {
+  MAX_BUFLEN = 1024,
 };
 
-typedef struct
-{
-	char 	*data;
-	long	value;
-	void	*next;
-	void	*prev;
+typedef struct {
+  char *data;
+  long value;
+  void *next;
+  void *prev;
 } Datum;
 
-typedef struct
-{
-	Datum	*masthead;
-	Datum 	*head;
-	Datum 	*tail;
+typedef struct {
+  Datum *masthead;
+  Datum *head;
+  Datum *tail;
 } Input;
 
-typedef struct
-{
-	Datum 	*head;
-	Datum 	*tail;
+typedef struct {
+  Datum *head;
+  Datum *tail;
 } Labels;

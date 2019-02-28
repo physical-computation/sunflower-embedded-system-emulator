@@ -35,4 +35,4 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-char    Ebadsfout[] =   "Invalid Sunflower output destination";
+char Ebadsfout[] = "Invalid Sunflower output destination";

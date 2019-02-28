@@ -42,10 +42,9 @@
 /*	have <string.h> etc included.					*/
 /*									*/
 
-typedef struct
-{
-	char 	*token;
-	ushort	token_value;
+typedef struct {
+  char *token;
+  ushort token_value;
 } TokenTab;
 
 /*									*/
@@ -375,459 +374,414 @@ TokenTab token_table [] =
 };
 /* clang-format on */
 
-int
-yylex(void)
-{
-	/*									*/
-	/* 	It is the responsibility of the main driver program/fxn to	*/
-	/*	initialize istream data structure, thus we do not depend on	*/
-	/*	what the type of input stream is.				*/
-	/*									*/
-	int	i;
-	char	*tmpdata;
-	char	*bptr;
-	Datum	*tllp = yyengine->labellist.tail;
-	Datum	*tmphd;
-	char	*aptr ;
-	int	chunklen;
-
-
-	if ((yyengine->istream.head == NULL) || (yyengine->istream.head->data == NULL))
-	{
-		/* EOF */
-		//clearistream();
-		return (0);
-	}
-
-	aptr = yyengine->istream.head->data;
-	chunklen = strlen(yyengine->istream.head->data);
-
-
-	/*	Used to hold a copy of token as we conv to uppercase.		*/
-	tmpdata = (char *) mmalloc(yyengine, (chunklen+1)*sizeof(char), "tmpdata in lex.inc");
-	if (tmpdata == NULL)
-	{
-		mprint(yyengine, NULL, siminfo,
-			"Could not allocate memory for char *tmpdata in yylex(), main.c");
-		mexit(yyengine, "See above messages.", -1);
-	}
-
-	bptr = tmpdata;
-	for (i = 0; i < chunklen; i++)
-	{
-		*bptr++ = toupper(*aptr++);
-	}
-	*bptr++ = '\0';
-
-
-	/*									*/
-	/*	If we see '--', a comment has begun. Throw everything until,	*/
-	/*	and including, the next '\n', away. Even if scanning, delete	*/
-	/*	from the istream.						*/
-	/*									*/
-	if ((yyengine->istream.head->data[0] == '-') &&
-		(yyengine->istream.head->prev != NULL) &&
-		(((Datum *)yyengine->istream.head->prev)->data != NULL) &&
-		(((Datum *)yyengine->istream.head->prev)->data[0] == '-'))
-	{
-		while ((yyengine->istream.head != NULL) && strcmp(yyengine->istream.head->data, "\n"))
-		{
-			tmphd = yyengine->istream.head;
-			yyengine->istream.head = yyengine->istream.head->prev;
-
-			if (!yyengine->scanning)
-			{
-				yyengine->istream.head->next = NULL;
-				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-				mfree(yyengine, tmphd, "tmphd in lex.c");
-			}
-		}
-
-		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-		return	T_COMMENT;
-	}
-
-	/*									*/
-	/*				Label definition:			*/
-	/* 	If we are in the SCANNING phase, we got here after we had built	*/
-	/*	the labellist, but had not yet assigned correct displacements	*/
-	/*	to T_LABELS. In that case, search labellist and set the disp 	*/
-	/*	to the current yyengine->cp->PC. So, check if it is a label...		*/
-	/*									*/
-	if (tmpdata[strlen(tmpdata)-1] == ':')
-	{
-		if (yyengine->scanning)
-		{
-			while (tllp != NULL)
-			{
-				if (!strncmp(tllp->data,\
-					yyengine->istream.head->data,\
-					strlen(yyengine->istream.head->data)-1)) /* -1 for the ':' */
-				{
-					/* 	Set correct value of displacement.	*/
-					tllp->value = yyengine->cp->PC;
-
-					/*	We move head, but dont really unlink	*/
-					yyengine->istream.head = yyengine->istream.head->prev;
-
-					/*	Alloc'd for uppercase stuff. Free it	*/
-					mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-					return	T_LABELDEFN;
-				}
-				tllp = tllp->next;
-			}
-
-			mprint(yyengine, NULL, siminfo, "Saw a T_LABELDEFN that was missed by scan_labels!!");
-			mexit(yyengine, "See above messages.", -1);
-		}
-
-		/*	Not scanning, so we must unlink it from token list	*/
-		tmphd = yyengine->istream.head;
-		yyengine->istream.head = yyengine->istream.head->prev;
-		yyengine->istream.head->next = NULL;
-		mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-		mfree(yyengine, tmphd, "tmphd in lex.c");
-
-		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-		return	T_LABELDEFN;
-	}
-
-	/*									*/
-	/*				Global var defn:			*/
-	/*	Recognise it, and set values in labellist, but don't touch 	*/
-	/*	anything else, let yylex return tokens to match ".comm" expr	*/
-	/*									*/
-	if (!strcmp(tmpdata, ".COMM"))
-	{
-		if (yyengine->scanning)
-		{
-			while (tllp != NULL)
-			{
-				if (!strcmp(tllp->data, ((Datum *)yyengine->istream.head->prev)->data))
-				{
-					/* 	Set correct value of displacement	*/
-					tllp->value = yyengine->cp->PC;
-					break;
-				}
-				tllp = tllp->next;
-			}
-
-			if (tllp == NULL)
-			{
-				mprint(yyengine, NULL, siminfo,
-					"Saw a name missed by scan_labels_and_globalvars!");
-				mexit(yyengine, "See above messages.", -1);
-			}
-		}
-	}
-
-	/*									*/
-	/*				Label use ? :				*/
-	/*	All labels are detected, and the labellist built in SCANNING 	*/
-	/*	pass, that is performed before _real_ parsing phase. If in	*/
-	/*	the SCANNING pass, the yylval.val returned is obviously junk,	*/
-	/*	and we should not free list on input stream list.		*/
-	/*									*/
-	while (tllp != NULL)
-	{
-		if (!strcmp(tllp->data, yyengine->istream.head->data))
-		{
-			/* 	Set yylval to addr(label)	*/
-			yylval.uval = tllp->value;
-
-			/* 	Keep labellist, remove token from input list	*/
-			tmphd = yyengine->istream.head;
-			yyengine->istream.head = yyengine->istream.head->prev;
-
-			if (!yyengine->scanning)
-			{
-				yyengine->istream.head->next = NULL;
-				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-				mfree(yyengine, tmphd, "tmphd in lex.c");
-			}
-
-			/*	Allocated just for uppercase stuff. Free it	*/
-			mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-			return T_LABEL;
-		}
-		tllp = tllp->next;
-	}
-
-	/*	The way we handle HELP is kinda a hack, but what the heck	*/
-	if (!strcmp(tmpdata, "MAN"))
-	{
-		Datum	*tmphd;
-
-
-		if ((yyengine->istream.head->prev != NULL) &&
-			(((Datum *)yyengine->istream.head->prev)->data[0] == '\n'))
-		{
-			/*	A lone 'MAN' is treated as a 'HELP'	*/
-			tmphd = yyengine->istream.head;
-			yyengine->istream.head = yyengine->istream.head->prev;
-
-			if (!yyengine->scanning)
-			{
-				yyengine->istream.head->next = NULL;
-				mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-				mfree(yyengine, tmphd, "tmphd in lex.c");
-			}
-
-			/*	This was allocated just for uppercase stuff. Free it	*/
-			mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-			return T_HELP;
-		}
-
-		yylval.str = (char *) mrealloc(yyengine, yylval.str,
-					MAX_BUFLEN*sizeof(char),
-					"yylval.str (MAN) in lex.inc");
-
-		aptr = ((Datum *)yyengine->istream.head->prev)->data;
-		bptr = yylval.str;
-		while (*aptr != '\0')
-		{
-			*bptr++ = toupper(*aptr++);
-		}
-		*bptr++ = '\0';
-
-		/*	Twice, past MAN command and subsequent token	*/
-		tmphd = yyengine->istream.head;
-		yyengine->istream.head = yyengine->istream.head->prev;
-
-		if (!yyengine->scanning)
-		{
-			yyengine->istream.head->next = NULL;
-			mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-			mfree(yyengine, tmphd, "tmphd in lex.c");
-		}
-
-		tmphd = yyengine->istream.head;
-		yyengine->istream.head = yyengine->istream.head->prev;
-
-//		if (!yyengine->scanning)
-//		{
-//			yyengine->istream.head->next = NULL;
-//			mfree(yyengine, tmphd->data);
-//			mfree(yyengine, tmphd);
-//		}
-
-		/*	This was allocated just for uppercase stuff. Free it	*/
-		mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-		return T_MAN;
-	}
-
-	/* 	check if it is a token 		*/
-	for (i = 0; token_table[i].token != 0; i++)
-	{
-			/*	Generic match found:	*/
-			if (!strcmp(tmpdata, token_table[i].token))
-			{
-				/* we do not set yylval : token has no "value" */
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return token_table[i].token_value;
-			}
-
-			if (!strncmp(tmpdata, "#", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '#';
-			}
-
-			if (!strncmp(tmpdata, ",", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return ',';
-			}
-
-			if (!strncmp(tmpdata, ")", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return ')';
-			}
-
-			if (!strncmp(tmpdata, "(", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '(';
-			}
-
-			if (!strncmp(tmpdata, "@", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '@';
-			}
-
-			if (!strncmp(tmpdata, "-", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '-';
-			}
-
-			if (!strncmp(tmpdata, "+", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '+';
-			}
-
-			if (!strncmp(tmpdata, "!", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '!';
-			}
-
-			if (!strncmp(tmpdata, "\n", 1))
-			{
-				tmphd = yyengine->istream.head;
-				yyengine->istream.head = yyengine->istream.head->prev;
-				if (!yyengine->scanning)
-				{
-					if (yyengine->istream.head != NULL) yyengine->istream.head->next = NULL;
-					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-					mfree(yyengine, tmphd, "tmphd in lex.c");
-				}
-
-				/*	This was allocated just for uppercase stuff. Free it	*/
-				mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-				return '\n';
-			}
-	}
-
-	/*								*/
-	/* 	Match not found for this token, return T_STRING, 	*/
-	/*	use un-uppercased data.					*/
-	/*								*/
-	yylval.str = (char *) mmalloc(yyengine, (strlen(tmpdata)+1)*sizeof(char),
-					"yylval.str in lex.inc");
-	if (yylval.str == NULL)
-	{
-		mprint(yyengine, NULL, siminfo,
-			"Failed to allocate memory in lex.c. Sorry. Exiting...\n\n");
-		mexit(yyengine, "See above messages.", -1);
-	}
-
-	strncpy(yylval.str, yyengine->istream.head->data, strlen(yyengine->istream.head->data)+1);
-
-	/* 	move it off input queue		*/
-	tmphd = yyengine->istream.head;
-	yyengine->istream.head = yyengine->istream.head->prev;
-	if (!yyengine->scanning)
-	{
-		yyengine->istream.head->next = NULL;
-		mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
-		mfree(yyengine, tmphd, "tmphd in lex.c");
-	}
-
-	/*	This was allocated just for uppercase stuff. Free it	*/
-	mfree(yyengine, tmpdata, "tmpdata in lex.c");
-
-
-	return T_STRING;
+int yylex(void) {
+  /*									*/
+  /* 	It is the responsibility of the main driver program/fxn to	*/
+  /*	initialize istream data structure, thus we do not depend on	*/
+  /*	what the type of input stream is.				*/
+  /*									*/
+  int i;
+  char *tmpdata;
+  char *bptr;
+  Datum *tllp = yyengine->labellist.tail;
+  Datum *tmphd;
+  char *aptr;
+  int chunklen;
+
+  if ((yyengine->istream.head == NULL) ||
+      (yyengine->istream.head->data == NULL)) {
+    /* EOF */
+    //clearistream();
+    return (0);
+  }
+
+  aptr = yyengine->istream.head->data;
+  chunklen = strlen(yyengine->istream.head->data);
+
+  /*	Used to hold a copy of token as we conv to uppercase.		*/
+  tmpdata = (char *)mmalloc(yyengine, (chunklen + 1) * sizeof(char),
+                            "tmpdata in lex.inc");
+  if (tmpdata == NULL) {
+    mprint(yyengine, NULL, siminfo,
+           "Could not allocate memory for char *tmpdata in yylex(), main.c");
+    mexit(yyengine, "See above messages.", -1);
+  }
+
+  bptr = tmpdata;
+  for (i = 0; i < chunklen; i++) {
+    *bptr++ = toupper(*aptr++);
+  }
+  *bptr++ = '\0';
+
+  /*									*/
+  /*	If we see '--', a comment has begun. Throw everything until,	*/
+  /*	and including, the next '\n', away. Even if scanning, delete	*/
+  /*	from the istream.						*/
+  /*									*/
+  if ((yyengine->istream.head->data[0] == '-') &&
+      (yyengine->istream.head->prev != NULL) &&
+      (((Datum *)yyengine->istream.head->prev)->data != NULL) &&
+      (((Datum *)yyengine->istream.head->prev)->data[0] == '-')) {
+    while ((yyengine->istream.head != NULL) &&
+           strcmp(yyengine->istream.head->data, "\n")) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+    }
+
+    /*	This was allocated just for uppercase stuff. Free it	*/
+    mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+    return T_COMMENT;
+  }
+
+  /*									*/
+  /*				Label definition:			*/
+  /* 	If we are in the SCANNING phase, we got here after we had built	*/
+  /*	the labellist, but had not yet assigned correct displacements	*/
+  /*	to T_LABELS. In that case, search labellist and set the disp 	*/
+  /*	to the current yyengine->cp->PC. So, check if it is a label...		*/
+  /*									*/
+  if (tmpdata[strlen(tmpdata) - 1] == ':') {
+    if (yyengine->scanning) {
+      while (tllp != NULL) {
+        if (!strncmp(tllp->data, yyengine->istream.head->data,
+                     strlen(yyengine->istream.head->data) -
+                         1)) /* -1 for the ':' */
+        {
+          /* 	Set correct value of displacement.	*/
+          tllp->value = yyengine->cp->PC;
+
+          /*	We move head, but dont really unlink	*/
+          yyengine->istream.head = yyengine->istream.head->prev;
+
+          /*	Alloc'd for uppercase stuff. Free it	*/
+          mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+          return T_LABELDEFN;
+        }
+        tllp = tllp->next;
+      }
+
+      mprint(yyengine, NULL, siminfo,
+             "Saw a T_LABELDEFN that was missed by scan_labels!!");
+      mexit(yyengine, "See above messages.", -1);
+    }
+
+    /*	Not scanning, so we must unlink it from token list	*/
+    tmphd = yyengine->istream.head;
+    yyengine->istream.head = yyengine->istream.head->prev;
+    yyengine->istream.head->next = NULL;
+    mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+    mfree(yyengine, tmphd, "tmphd in lex.c");
+
+    /*	This was allocated just for uppercase stuff. Free it	*/
+    mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+    return T_LABELDEFN;
+  }
+
+  /*									*/
+  /*				Global var defn:			*/
+  /*	Recognise it, and set values in labellist, but don't touch 	*/
+  /*	anything else, let yylex return tokens to match ".comm" expr	*/
+  /*									*/
+  if (!strcmp(tmpdata, ".COMM")) {
+    if (yyengine->scanning) {
+      while (tllp != NULL) {
+        if (!strcmp(tllp->data,
+                    ((Datum *)yyengine->istream.head->prev)->data)) {
+          /* 	Set correct value of displacement	*/
+          tllp->value = yyengine->cp->PC;
+          break;
+        }
+        tllp = tllp->next;
+      }
+
+      if (tllp == NULL) {
+        mprint(yyengine, NULL, siminfo,
+               "Saw a name missed by scan_labels_and_globalvars!");
+        mexit(yyengine, "See above messages.", -1);
+      }
+    }
+  }
+
+  /*									*/
+  /*				Label use ? :				*/
+  /*	All labels are detected, and the labellist built in SCANNING 	*/
+  /*	pass, that is performed before _real_ parsing phase. If in	*/
+  /*	the SCANNING pass, the yylval.val returned is obviously junk,	*/
+  /*	and we should not free list on input stream list.		*/
+  /*									*/
+  while (tllp != NULL) {
+    if (!strcmp(tllp->data, yyengine->istream.head->data)) {
+      /* 	Set yylval to addr(label)	*/
+      yylval.uval = tllp->value;
+
+      /* 	Keep labellist, remove token from input list	*/
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	Allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return T_LABEL;
+    }
+    tllp = tllp->next;
+  }
+
+  /*	The way we handle HELP is kinda a hack, but what the heck	*/
+  if (!strcmp(tmpdata, "MAN")) {
+    Datum *tmphd;
+
+    if ((yyengine->istream.head->prev != NULL) &&
+        (((Datum *)yyengine->istream.head->prev)->data[0] == '\n')) {
+      /*	A lone 'MAN' is treated as a 'HELP'	*/
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return T_HELP;
+    }
+
+    yylval.str =
+        (char *)mrealloc(yyengine, yylval.str, MAX_BUFLEN * sizeof(char),
+                         "yylval.str (MAN) in lex.inc");
+
+    aptr = ((Datum *)yyengine->istream.head->prev)->data;
+    bptr = yylval.str;
+    while (*aptr != '\0') {
+      *bptr++ = toupper(*aptr++);
+    }
+    *bptr++ = '\0';
+
+    /*	Twice, past MAN command and subsequent token	*/
+    tmphd = yyengine->istream.head;
+    yyengine->istream.head = yyengine->istream.head->prev;
+
+    if (!yyengine->scanning) {
+      yyengine->istream.head->next = NULL;
+      mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+      mfree(yyengine, tmphd, "tmphd in lex.c");
+    }
+
+    tmphd = yyengine->istream.head;
+    yyengine->istream.head = yyengine->istream.head->prev;
+
+    //		if (!yyengine->scanning)
+    //		{
+    //			yyengine->istream.head->next = NULL;
+    //			mfree(yyengine, tmphd->data);
+    //			mfree(yyengine, tmphd);
+    //		}
+
+    /*	This was allocated just for uppercase stuff. Free it	*/
+    mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+    return T_MAN;
+  }
+
+  /* 	check if it is a token 		*/
+  for (i = 0; token_table[i].token != 0; i++) {
+    /*	Generic match found:	*/
+    if (!strcmp(tmpdata, token_table[i].token)) {
+      /* we do not set yylval : token has no "value" */
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return token_table[i].token_value;
+    }
+
+    if (!strncmp(tmpdata, "#", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '#';
+    }
+
+    if (!strncmp(tmpdata, ",", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return ',';
+    }
+
+    if (!strncmp(tmpdata, ")", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return ')';
+    }
+
+    if (!strncmp(tmpdata, "(", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '(';
+    }
+
+    if (!strncmp(tmpdata, "@", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '@';
+    }
+
+    if (!strncmp(tmpdata, "-", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '-';
+    }
+
+    if (!strncmp(tmpdata, "+", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '+';
+    }
+
+    if (!strncmp(tmpdata, "!", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '!';
+    }
+
+    if (!strncmp(tmpdata, "\n", 1)) {
+      tmphd = yyengine->istream.head;
+      yyengine->istream.head = yyengine->istream.head->prev;
+      if (!yyengine->scanning) {
+        if (yyengine->istream.head != NULL)
+          yyengine->istream.head->next = NULL;
+        mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+        mfree(yyengine, tmphd, "tmphd in lex.c");
+      }
+
+      /*	This was allocated just for uppercase stuff. Free it	*/
+      mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+      return '\n';
+    }
+  }
+
+  /*								*/
+  /* 	Match not found for this token, return T_STRING, 	*/
+  /*	use un-uppercased data.					*/
+  /*								*/
+  yylval.str = (char *)mmalloc(yyengine, (strlen(tmpdata) + 1) * sizeof(char),
+                               "yylval.str in lex.inc");
+  if (yylval.str == NULL) {
+    mprint(yyengine, NULL, siminfo,
+           "Failed to allocate memory in lex.c. Sorry. Exiting...\n\n");
+    mexit(yyengine, "See above messages.", -1);
+  }
+
+  strncpy(yylval.str, yyengine->istream.head->data,
+          strlen(yyengine->istream.head->data) + 1);
+
+  /* 	move it off input queue		*/
+  tmphd = yyengine->istream.head;
+  yyengine->istream.head = yyengine->istream.head->prev;
+  if (!yyengine->scanning) {
+    yyengine->istream.head->next = NULL;
+    mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
+    mfree(yyengine, tmphd, "tmphd in lex.c");
+  }
+
+  /*	This was allocated just for uppercase stuff. Free it	*/
+  mfree(yyengine, tmpdata, "tmpdata in lex.c");
+
+  return T_STRING;
 }

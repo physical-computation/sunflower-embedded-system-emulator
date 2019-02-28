@@ -35,24 +35,22 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum
-{
-	MMALLOC_MAXIDSTRLEN	= 64,
-	MMALLOC_MAXALLOCBLOCKS	= 64,
-	MMALLOC_MAXALLOCS	= 131072,
+enum {
+  MMALLOC_MAXIDSTRLEN = 64,
+  MMALLOC_MAXALLOCBLOCKS = 64,
+  MMALLOC_MAXALLOCS = 131072,
 
-	MMALLOC_ACTION_ALLOC	= 0,
-	MMALLOC_ACTION_FREE	= 1,
-	MMALLOC_ACTION_REALLOC	= 2,
+  MMALLOC_ACTION_ALLOC = 0,
+  MMALLOC_ACTION_FREE = 1,
+  MMALLOC_ACTION_REALLOC = 2,
 };
 
-typedef struct
-{
-	char	ID[MMALLOC_MAXIDSTRLEN];
-	uvlong	*addrs;
-	int	valid;
-	int	allocs;
-	int	frees;
-	int	reallocs;
-	int	mallocd;
+typedef struct {
+  char ID[MMALLOC_MAXIDSTRLEN];
+  uvlong *addrs;
+  int valid;
+  int allocs;
+  int frees;
+  int reallocs;
+  int mallocd;
 } MMemblock;

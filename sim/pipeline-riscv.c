@@ -42,153 +42,136 @@
 #include "opstr-riscv.h"
 #include "mextern.h"
 
-int
-riscvstep(Engine *E, State *S, int drain_pipe)
-{
-	int			i;
-	uint32_t	tmpinstr;
-	uint32_t	tmpPC;
-	Picosec		saved_globaltime;
+int riscvstep(Engine *E, State *S, int drain_pipe) {
+  int i;
+  uint32_t tmpinstr;
+  uint32_t tmpPC;
+  Picosec saved_globaltime;
 
+  USED(drain_pipeline);
 
-	USED(drain_pipeline);
+  saved_globaltime = E->globaltimepsec;
+  for (i = 0; (i < E->quantum) && E->on && S->runnable; i++) {
+    if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME)) {
+      E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
+      continue;
+    }
 
-	saved_globaltime = E->globaltimepsec;
-	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
-	{
-		if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
-		{
-			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
-			continue;
-		}
+    if (S->sleep) {
+      update_energy(OP_SLEEP, 0, 0);
+      S->ICLK++;
+      S->TIME += S->CYCLETIME;
+      E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 
-		if (S->sleep)
-		{
-			update_energy(OP_SLEEP, 0, 0);
-			S->ICLK++;
-			S->TIME += S->CYCLETIME;
-			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
+      continue;
+    }
 
-			continue;
-		}
+    tmpPC = S->PC;
+    tmpinstr = superHreadlong(E, S, S->PC);
 
-		tmpPC = S->PC;
-		tmpinstr = superHreadlong(E, S, S->PC);
+    riscvdecode(E, tmpinstr, &(S->riscv->P.EX));
 
-		riscvdecode(E, tmpinstr, &(S->riscv->P.EX));
+    S->riscv->P.EX.fetchedpc = S->PC;
+    S->PC += 4;
+    S->CLK++;
+    S->ICLK++;
+    S->dyncnt++;
+    S->TIME += S->CYCLETIME;
 
-		S->riscv->P.EX.fetchedpc = S->PC;
-		S->PC += 4;
-		S->CLK++;
-		S->ICLK++;
-		S->dyncnt++;
-		S->TIME += S->CYCLETIME;
+    switch (S->riscv->P.EX.format) {
+    case INSTR_R: {
+      instr_r *tmp;
 
-		switch (S->riscv->P.EX.format)
-		{
-			case INSTR_R:
-			{
-				instr_r *tmp;
+      tmp = (instr_r *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rd);
+      break;
+    }
 
-				tmp = (instr_r *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rd);
-				break;
-			}
+    case INSTR_I: {
+      instr_i *tmp;
 
-			case INSTR_I:
-			{
-				instr_i *tmp;
+      tmp = (instr_i *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rd, tmp->imm0);
+      break;
+    }
 
-				tmp = (instr_i *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rd, tmp->imm0);
-				break;
-			}
+    case INSTR_S: {
+      instr_s *tmp;
 
-			case INSTR_S:
-			{
-				instr_s *tmp;
+      tmp = (instr_s *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->imm0, tmp->imm5);
+      break;
+    }
 
-				tmp = (instr_s *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->imm0, tmp->imm5);
-				break;
-			}
+    case INSTR_B: {
+      instr_b *tmp;
 
-			case INSTR_B:
-			{
-				instr_b *tmp;
+      tmp = (instr_b *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->imm1, tmp->imm5,
+                               tmp->imm11, tmp->imm12);
+      break;
+    }
 
-				tmp = (instr_b *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->imm1, tmp->imm5, tmp->imm11, tmp->imm12);
-				break;
-			}
+    case INSTR_U: {
+      instr_u *tmp;
 
-			case INSTR_U:
-			{
-				instr_u *tmp;
+      tmp = (instr_u *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rd, tmp->imm0);
+      break;
+    }
 
-				tmp = (instr_u *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rd, tmp->imm0);
-				break;
-			}
+    case INSTR_J: {
+      instr_j *tmp;
 
-			case INSTR_J:
-			{
-				instr_j *tmp;
+      tmp = (instr_j *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rd, tmp->imm1, tmp->imm11, tmp->imm12,
+                               tmp->imm20);
+      break;
+    }
 
-				tmp = (instr_j *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rd, tmp->imm1, tmp->imm11, tmp->imm12, tmp->imm20);
-				break;
-			}
-			
-			case INSTR_R4:
-			{
-				instr_r4 *tmp;
+    case INSTR_R4: {
+      instr_r4 *tmp;
 
-				tmp = (instr_r4 *)&S->riscv->P.EX.instr;
-				(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm, tmp->rd);
-				break;
-			}
+      tmp = (instr_r4 *)&S->riscv->P.EX.instr;
+      (*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm,
+                               tmp->rd);
+      break;
+    }
 
-			case INSTR_N:
-			{
-				(*(S->riscv->P.EX.fptr))(E, S);
-				break;
-			}
+    case INSTR_N: {
+      (*(S->riscv->P.EX.fptr))(E, S);
+      break;
+    }
 
-			default:
-			{
-				sfatal(E, S, "Unknown Instruction Type !!");
-				break;
-			}
-		}
+    default: {
+      sfatal(E, S, "Unknown Instruction Type !!");
+      break;
+    }
+    }
 
-		if (SF_BITFLIP_ANALYSIS)
-		{
-			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
-			S->Cycletrans = 0;
-		}
+    if (SF_BITFLIP_ANALYSIS) {
+      S->Cycletrans += bit_flips_32(tmpPC, S->PC);
+      S->Cycletrans = 0;
+    }
 
-		if (S->pipeshow)
-		{
-			riscvdumppipe(E, S);
-		}
+    if (S->pipeshow) {
+      riscvdumppipe(E, S);
+    }
 
-		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
-	}
-	E->globaltimepsec = saved_globaltime;
-	S->last_stepclks = i;
+    E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
+  }
+  E->globaltimepsec = saved_globaltime;
+  S->last_stepclks = i;
 
-	return i;
+  return i;
 }
 
+void riscvdumppipe(Engine *E, State *S) {
+  mprint(E, S, nodeinfo,
+         "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
+         S->NODE_ID, S->PC, S->ICLK, S->sleep);
 
-void
-riscvdumppipe(Engine *E, State *S)
-{
-	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
-		S->NODE_ID, S->PC, S->ICLK, S->sleep);
+  mprint(E, S, nodeinfo, "EX: [%s]\n", riscv_opstrs[S->riscv->P.EX.op]);
 
-	mprint(E, S, nodeinfo, "EX: [%s]\n", riscv_opstrs[S->riscv->P.EX.op]);
-	
-	return;
+  return;
 }

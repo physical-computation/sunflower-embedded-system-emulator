@@ -35,4 +35,4 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern char    Ebadsfout[];
+extern char Ebadsfout[];

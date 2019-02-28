@@ -39,49 +39,39 @@
 #include "sf.h"
 #include "mextern.h"
 
-void
-tag_settag(State *S, int whichtag, char *tag, char *whohas, int confidence, ulong ttl)
-{
-	Tag     *tmptag;
+void tag_settag(State *S, int whichtag, char *tag, char *whohas, int confidence,
+                ulong ttl) {
+  Tag *tmptag;
 
+  if (whichtag >= TAG_NTAGS) {
+    merror("Tag out of range");
+    return;
+  }
 
-	if (whichtag >= TAG_NTAGS)
-	{
-		merror("Tag out of range");
-		return;
-	}
+  tmptag = &S->TAGMEM[whichtag];
+  strncpy(tmptag->string, tag, TAG_STRING_LEN);
+  strncpy(tmptag->who_has, whohas, NIC_ADDR_LEN);
+  tmptag->confidence = confidence;
+  tmptag->ttl = ttl;
 
-	tmptag = &S->TAGMEM[whichtag];
-	strncpy(tmptag->string, tag, TAG_STRING_LEN);
-	strncpy(tmptag->who_has, whohas, NIC_ADDR_LEN);
-	tmptag->confidence = confidence;
-	tmptag->ttl = ttl;
-			
-	return;
+  return;
 }
 
-void
-tag_showtags(Engine *E, State *S)
-{
-	int 	i;
-	Tag	tmptag;
+void tag_showtags(Engine *E, State *S) {
+  int i;
+  Tag tmptag;
 
+  for (i = 0; i < TAG_NTAGS; i++) {
+    tmptag = S->TAGMEM[i];
+    if (tmptag.ttl > 0) {
+      mprint(E, S, nodeinfo, "TAGMEM[%d].string = \"%s\"\n", i, tmptag.string);
+      mprint(E, S, nodeinfo, "TAGMEM[%d].who_has = \"%s\"\n", i,
+             tmptag.who_has);
+      mprint(E, S, nodeinfo, "TAGMEM[%d].confidence = %d\n", i,
+             tmptag.confidence);
+      mprint(E, S, nodeinfo, "TAGMEM[%d].ttl = %lu\n", i, tmptag.ttl);
+    }
+  }
 
-	for (i = 0; i < TAG_NTAGS; i++)
-	{
-		tmptag = S->TAGMEM[i];
-		if (tmptag.ttl > 0)
-		{
-			mprint(E, S, nodeinfo, "TAGMEM[%d].string = \"%s\"\n",\
-				i, tmptag.string);
-			mprint(E, S, nodeinfo, "TAGMEM[%d].who_has = \"%s\"\n",\
-				i, tmptag.who_has);
-			mprint(E, S, nodeinfo, "TAGMEM[%d].confidence = %d\n",\
-					i, tmptag.confidence);
-			mprint(E, S, nodeinfo, "TAGMEM[%d].ttl = %lu\n",\
-				i, tmptag.ttl);
-		}
-	}
-			
-	return;
+  return;
 }

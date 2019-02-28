@@ -35,23 +35,21 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-typedef struct
-{
-	ushort		instr;
-	ulong		fetchedpc;
-	void 		(*fptr)();
-	int		op;
-	int		format;
-	int		cycles;
-	int		valid;
+typedef struct {
+  ushort instr;
+  ulong fetchedpc;
+  void (*fptr)();
+  int op;
+  int format;
+  int cycles;
+  int valid;
 } SuperHPipestage;
 
-typedef struct
-{
-	SuperHPipestage	IF;
-	SuperHPipestage	ID;
-	SuperHPipestage	EX;
-	SuperHPipestage	MA;
-	SuperHPipestage	WB;
-	int		fetch_stall_cycles;
+typedef struct {
+  SuperHPipestage IF;
+  SuperHPipestage ID;
+  SuperHPipestage EX;
+  SuperHPipestage MA;
+  SuperHPipestage WB;
+  int fetch_stall_cycles;
 } SuperHPipe;

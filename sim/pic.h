@@ -39,25 +39,23 @@
 /*	Programmable Interrupt Controller. Provides queued intrs.	*/
 /*									*/
 typedef struct Interrupt Interrupt;
-struct Interrupt
-{
-	ulong		type;
-	ulong		value;
+struct Interrupt {
+  ulong type;
+  ulong value;
 
-	/*					*/
-	/*	Used for misc things, like	*/
-	/*	memaccess_type tagging.		*/
-	/*					*/
-	ulong		misc;
+  /*					*/
+  /*	Used for misc things, like	*/
+  /*	memaccess_type tagging.		*/
+  /*					*/
+  ulong misc;
 
-	Interrupt	*next;
-	Interrupt	*prev;
+  Interrupt *next;
+  Interrupt *prev;
 };
 
 typedef struct InterruptQ InterruptQ;
-struct InterruptQ
-{
-	Interrupt	*hd;
-	Interrupt	*tl;
-	int		nqintrs;
+struct InterruptQ {
+  Interrupt *hd;
+  Interrupt *tl;
+  int nqintrs;
 };
