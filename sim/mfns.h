@@ -88,6 +88,7 @@ int	mread(int fd, char* buf, int len);
 int	mwrite(int fd, char* buf, int len);
 char*	mgetpwd(void);
 ulong	sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
+ulong 	riscv_sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
 
 
 /*											*/
