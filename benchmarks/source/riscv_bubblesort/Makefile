@@ -1,28 +1,34 @@
 TREEROOT	= ../../..
 include $(TREEROOT)/conf/setup.conf
 
-PROGRAM		= 1
+PROGRAM		= bubble
+INIT		= init
 
 OPTFLAGS	= -g -O0
-CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall # Do not do since we are linking mOS for libc implementation:	-nostdlib -fno-builtin 
-LDFLAGS		= -Ttext $(LOADADDR)
+INCLUDES	= -I$(PREFIX)/include
+CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall
+LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET) -Map $(PROGRAM).map
 LOADADDR	= 0x08004000
 
 
 OBJS	=\
+	$(INIT).o\
 	$(PROGRAM).o\
 
 
-all:	$(PROGRAM) $(PROGRAM).sr Makefile
+all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
-$(PROGRAM): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lm -lc
+$(INIT).o: $(INIT).S
+	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(INIT).S
 
-$(PROGRAM).sr:$(PROGRAM)
-	$(OBJCOPY) -O srec $(PROGRAM) $@
+$(PROGRAM).out: $(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgcc -lgloss
+
+$(PROGRAM).sr: $(PROGRAM).out
+	$(OBJCOPY) -O srec $(PROGRAM).out $@
 
 $(PROGRAM).o: $(PROGRAM).c Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(PROGRAM).c
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PROGRAM).c
 
 clean:
-	$(RM) init.i *.o $(PROGRAM) $(PROGRAM).sr $(PROGRAM).map
+	$(RM) *.o *.sr *.out *.map
