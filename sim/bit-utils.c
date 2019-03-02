@@ -56,24 +56,6 @@ mbitprint(Engine *E, State *S, short nbits, ulong num)
         return;
 }
 
-void
-mbit64print(Engine *E, State *S, short nbits, uvlong num)
-{
-        int	i = 0;
-
-        for (i = (nbits-1); i >= 0; i--)
-        {
-		mprint(E, S, nodeinfo, "%c", ((num >> i)&1) + '0');
-
-		if (!(i%4))
-		{
-			mprint(E, S, nodeinfo, "%c", ' ');
-		}
-        }
-
-        return;
-}
-
 int
 bit_flips_32(ulong w1, ulong w2)
 {

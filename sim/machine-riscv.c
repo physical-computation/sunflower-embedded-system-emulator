@@ -77,6 +77,7 @@ void
 riscvdumpregs(Engine *E, State *S)
 {
 	int i;
+	char buffer[128];
 
 	for (i = 0; i < 32; i++)
 	{
@@ -87,13 +88,28 @@ riscvdumpregs(Engine *E, State *S)
 		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
 	}
 
+	mprint(E, S, nodeinfo, "\n");
+
 	for (i = 0; i < 32; i++)
 	{
 		mprint(E, S, nodeinfo, "fR%-2d\t", i);
 		print_fp_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
-		mbit64print(E, S, 64, S->riscv->fR[i]);
-		mfloatprint(E, S, S->riscv->fR[i]);
+		uint64_t float_bits = S->riscv->fR[i];
+		if((float_bits >> 32) == 0xFFFFFFFF) //NaN boxed
+		{
+			rv32f_rep val;
+			val.bit_value = (uint32_t)float_bits;
+			snprintf(buffer, sizeof(buffer), "%#-16.8g (single)", val.float_value);
+		}
+		else
+		{
+			rv32d_rep val;
+			val.bit64_value = (uint64_t)float_bits;
+			snprintf(buffer, sizeof(buffer), "%-16.8g (double)", val.double_value);
+		}
+		mprint(E, S, nodeinfo, "%-32s", buffer);
+		mprint(E, S, nodeinfo, "  [0x%016llx]\n", S->riscv->fR[i]);
 	}
 
 	return;
