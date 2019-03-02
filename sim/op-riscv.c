@@ -278,7 +278,7 @@ void riscv_lui(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 
 void riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 {
-	reg_set_riscv(E, S, rd, imm0 + S->PC);
+	reg_set_riscv(E, S, rd, (imm0<<12) + S->PC);
 
 	return;
 }
