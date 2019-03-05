@@ -57,13 +57,15 @@ List		list_cons(ListItem, List);
 */
 
 typedef struct DoubleListItem DoubleListItem;
-struct DoubleListItem {
-  double value;
-  DoubleListItem *next;
+struct DoubleListItem
+{
+	double			value;
+	DoubleListItem*		next;
 };
 
-typedef struct {
-  DoubleListItem *hd;
-  DoubleListItem *tl;
-  int len;
+typedef struct
+{
+	DoubleListItem*		hd;
+	DoubleListItem*		tl;
+	int			len;
 } DoubleList;

@@ -38,35 +38,36 @@
 /*									*/
 /*	  Based on newlib-1.9.0/newlib/libc/sys/sh/sys/syscall.h	*/
 /*									*/
-enum {
-  SYS_exit = 1,
-  SYS_fork = 2,
+enum
+{
+	SYS_exit	= 1,
+	SYS_fork	= 2,
+ 
+	SYS_read	= 3,
+	SYS_write	= 4,
+	SYS_open	= 5,
+	SYS_close	= 6,
+	SYS_wait4	= 7,
+	SYS_creat	= 8,
+	SYS_link	= 9,
+	SYS_unlink	= 10,
+	SYS_execv	= 11,
+	SYS_chdir	= 12,
+	SYS_mknod	= 14,
+	SYS_chmod	= 15,
+	SYS_chown	= 16,
+	SYS_lseek	= 19,
+	SYS_getpid	= 20,
+	SYS_isatty	= 21,
+	SYS_fstat	= 22,
+	SYS_time	= 23,
 
-  SYS_read = 3,
-  SYS_write = 4,
-  SYS_open = 5,
-  SYS_close = 6,
-  SYS_wait4 = 7,
-  SYS_creat = 8,
-  SYS_link = 9,
-  SYS_unlink = 10,
-  SYS_execv = 11,
-  SYS_chdir = 12,
-  SYS_mknod = 14,
-  SYS_chmod = 15,
-  SYS_chown = 16,
-  SYS_lseek = 19,
-  SYS_getpid = 20,
-  SYS_isatty = 21,
-  SYS_fstat = 22,
-  SYS_time = 23,
+	SYS_ARG		= 24,
+	SYS_stat	= 38,
 
-  SYS_ARG = 24,
-  SYS_stat = 38,
+	SYS_pipe	= 42,
+	SYS_execve	= 59,
 
-  SYS_pipe = 42,
-  SYS_execve = 59,
-
-  SYS_utime = 201,
-  SYS_wait = 202,
+	SYS_utime	= 201,
+	SYS_wait	= 202,
 };

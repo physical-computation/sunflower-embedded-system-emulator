@@ -41,42 +41,46 @@
 /*	the multiply unit for longer than it should, due to some 	*/
 /*	pipeline hazard.						*/
 /*									*/
-enum {
-  MAXINSTRNAME = 64,
-  NREADINGS = 256,
+enum
+{
+	MAXINSTRNAME = 64,
+	NREADINGS = 256,
 };
 
-#define SUPERH_READINGS_VDD (3.3)
-#define SUPERH_ORIG_VDD (3.3)
-#define SUPERH_ORIG_CYCLE (1 / 60E6)
+#define	SUPERH_READINGS_VDD	(3.3)
+#define	SUPERH_ORIG_VDD		(3.3)
+#define	SUPERH_ORIG_CYCLE	(1/60E6)
 
-typedef struct {
-  double reading1;
-  double reading2;
-  int ncycles;
+typedef struct
+{
+	double		reading1;
+	double		reading2;
+	int		ncycles;
 } Currents;
 
-typedef struct {
-  double CPUEtot;
-  uvlong ntrans;
+typedef struct
+{
+	double		CPUEtot;
+	uvlong		ntrans;
+	
+	/*	Per-Component Transitions	*/
+	uvlong	 	ntrans_phy_addrbus;
+	uvlong	 	ntrans_virt_addrbus;
+	uvlong	 	ntrans_databus;
+	uvlong	 	ntrans_prph_addrbus;
+	uvlong	 	ntrans_prph_databus;
+	uvlong	 	ntrans_clock;
+	uvlong	 	ntrans_pc;
+	uvlong	 	ntrans_cache;
+	uvlong	 	ntrans_pipeline;
 
-  /*	Per-Component Transitions	*/
-  uvlong ntrans_phy_addrbus;
-  uvlong ntrans_virt_addrbus;
-  uvlong ntrans_databus;
-  uvlong ntrans_prph_addrbus;
-  uvlong ntrans_prph_databus;
-  uvlong ntrans_clock;
-  uvlong ntrans_pc;
-  uvlong ntrans_cache;
-  uvlong ntrans_pipeline;
+	/*	    Per-nic Energy		*/
+	double		Enetwork;
 
-  /*	    Per-nic Energy		*/
-  double Enetwork;
-
-  /*	Current drawn in last cycle	*/
-  double current_draw;
+	/*	Current drawn in last cycle	*/
+	double	 	current_draw;
 } EnergyInfo;
+
 
 /*									*/
 /*	TX/RX Power consumption is updated by updating E.current_draw	*/
@@ -84,14 +88,19 @@ typedef struct {
 /*	each simulation cycle and sums up the op and NIC power (and 	*/
 /*	any other future) currents.					*/
 /*									*/
-#define update_energy(op, Rm, Rn)                                              \
-  if ((S->force_sleeppwr != 0.0) && S->sleep) {                                \
-    S->energyinfo.CPUEtot += S->force_sleeppwr * S->CYCLETIME;                 \
-    S->energyinfo.current_draw += S->force_sleeppwr / S->VDD;                  \
-  } else if (S->force_avgpwr != 0.0) {                                         \
-    S->energyinfo.CPUEtot += S->force_avgpwr * S->CYCLETIME;                   \
-    S->energyinfo.current_draw += S->force_avgpwr / S->VDD;                    \
-  } else {                                                                     \
-    S->energyinfo.CPUEtot += S->scaledcurrents[op] * S->VDD * S->CYCLETIME;    \
-    S->energyinfo.current_draw += S->scaledcurrents[op];                       \
-  }
+#define	update_energy(op, Rm, Rn)\
+	if ((S->force_sleeppwr != 0.0) && S->sleep)\
+	{\
+		S->energyinfo.CPUEtot += S->force_sleeppwr*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->force_sleeppwr/S->VDD;\
+	}\
+	else if (S->force_avgpwr != 0.0)\
+	{\
+		S->energyinfo.CPUEtot += S->force_avgpwr*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->force_avgpwr/S->VDD;\
+	}\
+	else\
+	{\
+		S->energyinfo.CPUEtot += S->scaledcurrents[op]*S->VDD*S->CYCLETIME;\
+		S->energyinfo.current_draw += S->scaledcurrents[op];\
+	}

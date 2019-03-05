@@ -46,301 +46,383 @@
 #include "sf.h"
 #include "mextern.h"
 
-pthread_t sched_handle;
+pthread_t	sched_handle;
 
-int mfsize(int fd) {
-  struct stat sb;
+int
+mfsize(int fd)
+{
+	struct stat	sb;
 
-  if (fstat(fd, &sb) < 0) {
-    return -1;
-  }
+	if (fstat(fd, &sb) < 0)
+	{
+		return -1;
+	}
 
-  return sb.st_size;
+	return sb.st_size;
 }
 
-void mstatelock(void) {}
-
-void mstateunlock(void) {}
-
-void marchinit(void) {}
-
-char *mfgets(char *buf, int len, int fd) {
-  int n, i = 0;
-  char ch;
-
-  if (len <= 0) {
-    return NULL;
-  }
-
-  do {
-    n = mread(fd, &ch, 1);
-    if (n == 0) {
-      if (i == 0)
-        return NULL;
-      else
-        break;
-    }
-
-    buf[i++] = ch;
-  } while ((i < len) && (ch != '\n'));
-  buf[i] = '\0';
-
-  return buf;
+void
+mstatelock(void)
+{
 }
 
-void mexit(Engine *E, char *str, int status) {
-  printf("\n\n\tExiting: %s\n", str);
-  printf("\tWriting all node information to sunflower.out\n\n");
-  m_dumpall(E, E->logfilename, M_OWRITE, "Exit", "");
-
-  exit(status);
+void
+mstateunlock(void)
+{
 }
 
-void mprintfd(int fd, char *buf) {
-  write(fd, buf, strlen(buf));
-
-  return;
+void
+marchinit(void)
+{
 }
 
-int mcreate(char *path, int mode) {
-  int perm = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
-  int flags = 0;
-  int rw = mode & (~M_OTRUNCATE);
-  int fd;
+char *
+mfgets(char *buf, int len, int fd)
+{
+	int 	n, i = 0;
+	char	ch;
+	
+	if (len <= 0)
+	{
+		return NULL;
+	}
 
-  if (rw == M_OREAD)
-    flags = O_RDONLY;
+	do
+	{
+		n = mread(fd, &ch, 1);
+		if (n == 0)
+		{
+			if (i == 0)
+				return NULL;
+			else
+				break;
+		}
 
-  if (rw == M_OWRITE)
-    flags = O_WRONLY;
+		buf[i++] = ch;
+	} while ((i < len) && (ch != '\n'));
+	buf[i] = '\0';
 
-  if (rw == (M_OREAD | M_OWRITE))
-    flags = O_RDWR;
-
-  if (mode & M_OTRUNCATE)
-    flags |= O_TRUNC;
-  else
-    flags |= O_APPEND;
-
-  fd = open(path, flags | O_CREAT, perm);
-  return fd;
+	
+	return buf;
 }
 
-int mopen(char *path, int mode) {
-  int perm = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
-  int flags = 0;
-  int rw = mode & (~M_OTRUNCATE);
+void
+mexit(Engine *E, char *str, int status)
+{	
+	printf("\n\n\tExiting: %s\n", str);
+	printf("\tWriting all node information to sunflower.out\n\n");
+	m_dumpall(E, E->logfilename, M_OWRITE, "Exit", "");
 
-  if (rw == M_OREAD)
-    flags = O_RDONLY;
-
-  if (rw == M_OWRITE)
-    flags = O_WRONLY;
-
-  if (rw == (M_OREAD | M_OWRITE))
-    flags = O_RDWR;
-
-  if (mode & M_OTRUNCATE)
-    flags |= O_TRUNC;
-  else
-    flags |= O_APPEND;
-
-  return open(path, flags, perm);
+	exit(status);
 }
 
-int mread(int fd, char *buf, int len) { return read(fd, buf, len); }
+void
+mprintfd(int fd, char* buf)
+{
+	write(fd, buf, strlen(buf));
 
-int mclose(int fd) { return close(fd); }
-
-int mwrite(int fd, char *buf, int len) { return write(fd, buf, len); }
-
-int mspawnscheduler(Engine *E) {
-  int r = pthread_create(&E->sched_handle, NULL, (void *)scheduler, E);
-
-  if (r) {
-    return -1;
-  }
-
-  return 0;
+	return;
 }
 
-int mkillscheduler(Engine *E) {
-  if (E->nodetach || !E->on) {
-    return 0;
-  }
+int
+mcreate(char *path, int mode)
+{
+	int	perm = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
+	int	flags = 0;
+	int	rw = mode & (~M_OTRUNCATE);
+	int	fd;
 
-  /*	Scheduler will exit cleanly when E->on is cleared	*/
-  E->on = 0;
+	if (rw == M_OREAD)
+		flags = O_RDONLY;
+	
+	if (rw == M_OWRITE)
+		flags = O_WRONLY;
 
-  return 0;
+	if (rw == (M_OREAD|M_OWRITE))
+		flags = O_RDWR;
+
+	if (mode & M_OTRUNCATE)
+		flags |= O_TRUNC;
+	else
+		flags |= O_APPEND;
+
+	fd = open(path, flags|O_CREAT, perm);
+	return fd;
 }
 
-int mchdir(char *path) { return chdir(path); }
+int
+mopen(char *path, int mode)
+{
+	int	perm = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
+	int	flags = 0;
+	int	rw = mode & (~M_OTRUNCATE);
 
-char *mgetpwd(void) {
-  /*								*/
-  /*	This is non-POSIX, but...				*/
-  /*	On Darwin, let getcwd() auto allocate space for buf	*/
-  /*	The buffer will be freed by caller, e.g., sf.y.		*/
-  /*								*/
-  return getcwd(NULL, 0);
+
+	if (rw == M_OREAD)
+		flags = O_RDONLY;
+	
+	if (rw == M_OWRITE)
+		flags = O_WRONLY;
+
+	if (rw == (M_OREAD|M_OWRITE))
+		flags = O_RDWR;
+
+	if (mode & M_OTRUNCATE)
+		flags |= O_TRUNC;
+	else
+		flags |= O_APPEND;
+
+	return open(path, flags, perm);
 }
 
-ulong musercputimeusecs(void) {
-  struct rusage r;
-
-  getrusage(RUSAGE_SELF, &r);
-
-  return (ulong)(r.ru_utime.tv_sec * 1E6 + r.ru_utime.tv_usec);
+int
+mread(int fd, char* buf, int len)
+{
+	return read(fd, buf, len);
 }
 
-ulong mcputimeusecs(void) {
-  struct rusage r;
-
-  getrusage(RUSAGE_SELF, &r);
-
-  return (ulong)(r.ru_utime.tv_sec * 1E6 + r.ru_utime.tv_usec +
-                 r.ru_stime.tv_sec * 1E6 + r.ru_stime.tv_usec);
+int
+mclose(int fd)
+{
+	return close(fd);
 }
 
-ulong mwallclockusecs(void) {
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return t.tv_usec;
+int
+mwrite(int fd, char* buf, int len)
+{
+	return write(fd, buf, len);
 }
 
-void mlog(Engine *E, State *S, char *fmt, ...) {
-  char *buf;
-  va_list arg;
+int
+mspawnscheduler(Engine *E)
+{
+	int r = pthread_create(&E->sched_handle,\
+				NULL, (void *)scheduler, E);
 
-  if (!SF_SIMLOG) {
-    return;
-  }
-
-  /*	Should never happen, but just in case code changes elsewhere:	*/
-  if (S->logfd < 0) {
-    return;
-  }
-
-  buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c");
-  if (buf == NULL) {
-    mexit(E, "Could not allocate memory for (char *)buf in arch-darwin.c", -1);
-  }
-
-  va_start(arg, fmt);
-  vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
-  va_end(arg);
-
-  write(S->logfd, buf, strlen(buf));
-  mfree(E, buf, "(char *)buf in arch-darwin.c");
-
-  return;
+	if (r)
+	{
+		return -1;
+	}
+	
+	return 0;
 }
 
-int msnprint(char *dst, int size, char *fmt, ...) {
-  va_list arg;
-  int n;
+int
+mkillscheduler(Engine *E)
+{
+	if (E->nodetach || !E->on)
+	{
+		return 0;
+	}
 
-  va_start(arg, fmt);
-  n = vsnprintf(dst, size, fmt, arg);
-  va_end(arg);
+	/*	Scheduler will exit cleanly when E->on is cleared	*/
+	E->on = 0;
 
-  return n;
+	return 0;
 }
 
-void mprint(Engine *E, State *S, int out, char *fmt, ...) {
-  int fmtlen;
-  char *buf;
-  va_list arg;
-
-  if (!E->verbose && S != NULL) {
-    return;
-  }
-
-  buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c/mprint");
-  if (buf == NULL) {
-    mexit(E,
-          "Could not allocate memory for (char *)buf in arch-darwin.c/mprint",
-          -1);
-  }
-
-  va_start(arg, fmt);
-  fmtlen = vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
-  va_end(arg);
-
-  if (fmtlen < 0) {
-    fprintf(stderr, "vsnprintf() in mprint() failed.\n");
-    mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
-
-    return;
-  }
-
-  /*	If no state structure is given, send to global output	*/
-  if (S == NULL) {
-    if (out != siminfo) {
-      fprintf(stderr, "%s\n", Ebadsfout);
-      mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
-
-      return;
-    }
-
-    fprintf(stdout, "%s", buf);
-    mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
-
-    return;
-  }
-
-  if (out == nodestdout || out == nodestderr || out == nodeinfo) {
-    if (S->NODE_ID == E->cp->NODE_ID) {
-      fprintf(stdout, "%s", buf);
-    }
-  } else {
-    fprintf(stderr, "%s\n", Ebadsfout);
-  }
-
-  mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
-
-  return;
+int
+mchdir(char *path)
+{
+	return chdir(path);
 }
 
-void mnsleep(ulong nsecs) {
-  /*								*/
-  /*	Inferno doesn't provide us with enough granularity.	*/
-  /*	This should still be fairly portable since nanosleep	*/
-  /*	is POSIX.1b.						*/
-  /*								*/
-  struct timespec rqtp;
-
-  rqtp.tv_sec = nsecs / 1000000000;
-  rqtp.tv_nsec = nsecs % 1000000000;
-
-  nanosleep(&rqtp, nil);
+char *
+mgetpwd(void)
+{
+	/*								*/
+	/*	This is non-POSIX, but...				*/
+	/*	On Darwin, let getcwd() auto allocate space for buf	*/
+	/*	The buffer will be freed by caller, e.g., sf.y.		*/
+	/*								*/
+	return getcwd(NULL, 0);
 }
 
-void merror(Engine *E, char *fmt, ...) {
-  int fmtlen;
-  char *buf;
-  va_list arg;
+ulong
+musercputimeusecs(void)
+{
+	struct rusage 	r;
 
-  buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c");
-  if (buf == NULL) {
-    mexit(E, "Could not allocate memory for (char *)buf in arch-darwin.c", -1);
-  }
+	getrusage(RUSAGE_SELF, &r);
 
-  va_start(arg, fmt);
-  fmtlen = vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
-  va_end(arg);
+	return (ulong)(r.ru_utime.tv_sec*1E6 + r.ru_utime.tv_usec);
+}
 
-  if (fmtlen < 0) {
-    fprintf(stderr, "mprint failed.\n");
-    mfree(E, buf, "(char *)buf in arch-darwin.c");
+ulong
+mcputimeusecs(void)
+{
+	struct rusage 	r;
 
-    return;
-  }
+	getrusage(RUSAGE_SELF, &r);
 
-  mprint(E, NULL, siminfo, "Error: %s\n", buf);
-  mfree(E, buf, "(char *)buf in arch-darwin.c");
+	return (ulong)(r.ru_utime.tv_sec*1E6 + r.ru_utime.tv_usec +
+		       r.ru_stime.tv_sec*1E6 + r.ru_stime.tv_usec);
+}
 
-  return;
+ulong
+mwallclockusecs(void)
+{
+	struct timeval 	t;
+	gettimeofday(&t, NULL);
+
+	return t.tv_usec;
+}
+
+void
+mlog(Engine *E, State *S, char *fmt, ...)
+{
+	char	*buf;
+	va_list	arg;
+
+	if (!SF_SIMLOG)
+	{
+		return;
+	}
+
+	/*	Should never happen, but just in case code changes elsewhere:	*/
+	if (S->logfd < 0)
+	{
+		return;
+	}
+
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c");
+	if (buf == NULL)
+	{
+		mexit(E, "Could not allocate memory for (char *)buf in arch-darwin.c", -1);
+	}
+
+	va_start(arg, fmt);
+	vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
+	va_end(arg);
+
+	write(S->logfd, buf, strlen(buf));
+	mfree(E, buf, "(char *)buf in arch-darwin.c");
+
+	return;
+}
+
+int
+msnprint(char *dst, int size, char *fmt, ...)
+{
+	va_list		arg;
+	int		n;
+
+	va_start(arg, fmt);
+	n = vsnprintf(dst, size, fmt, arg);
+	va_end(arg);
+
+	return n;
+}
+
+void
+mprint(Engine *E, State *S, int out, char *fmt, ...)
+{
+	int	fmtlen;
+	char	*buf;
+	va_list	arg;
+
+
+	if (!E->verbose && S != NULL)
+	{
+		return;
+	}
+
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c/mprint");
+	if (buf == NULL)
+	{
+		mexit(E, "Could not allocate memory for (char *)buf in arch-darwin.c/mprint", -1);
+	}
+
+	va_start(arg, fmt);
+	fmtlen = vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
+	va_end(arg);
+ 
+	if (fmtlen < 0)
+	{
+		fprintf(stderr, "vsnprintf() in mprint() failed.\n");
+		mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
+
+		return;
+	}
+
+	/*	If no state structure is given, send to global output	*/
+	if (S == NULL)
+	{
+		if (out != siminfo)
+		{
+			fprintf(stderr, "%s\n", Ebadsfout);
+			mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
+
+			return;
+		}
+
+		fprintf(stdout, "%s", buf);
+		mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
+
+		return;
+	}
+
+	if (out == nodestdout || out == nodestderr || out == nodeinfo)
+	{
+		if (S->NODE_ID == E->cp->NODE_ID)
+		{
+			fprintf(stdout, "%s", buf);
+		}
+	}
+	else
+	{
+		fprintf(stderr, "%s\n", Ebadsfout);
+	}
+
+	mfree(E, buf, "(char *)buf in arch-darwin.c/mprint");
+
+	return;
+}
+
+void
+mnsleep(ulong nsecs)
+{
+	/*								*/
+	/*	Inferno doesn't provide us with enough granularity.	*/
+	/*	This should still be fairly portable since nanosleep	*/
+	/*	is POSIX.1b.						*/
+	/*								*/
+	struct timespec rqtp;
+	
+	rqtp.tv_sec = nsecs/1000000000;
+	rqtp.tv_nsec = nsecs % 1000000000;
+
+	nanosleep(&rqtp, nil);
+}
+
+void
+merror(Engine *E, char *fmt, ...)
+{
+	int	fmtlen;
+	char	*buf;
+	va_list	arg;
+
+
+	buf = mcalloc(E, 1, MAX_MIO_BUFSZ, "(char *)buf in arch-darwin.c");
+	if (buf == NULL)
+	{
+		mexit(E, "Could not allocate memory for (char *)buf in arch-darwin.c", -1);
+	}
+
+	va_start(arg, fmt);
+	fmtlen = vsnprintf(buf, MAX_MIO_BUFSZ, fmt, arg);
+	va_end(arg);
+ 
+	if (fmtlen < 0)
+	{
+		fprintf(stderr, "mprint failed.\n");
+		mfree(E, buf, "(char *)buf in arch-darwin.c");
+
+		return;
+	}
+
+	mprint(E, NULL, siminfo, "Error: %s\n", buf);
+	mfree(E, buf, "(char *)buf in arch-darwin.c");
+
+	return;
 }

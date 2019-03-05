@@ -38,23 +38,24 @@
 #include "config.h"
 
 #ifndef LIBSF
-#include <stdio.h>
-#include <setjmp.h>
-#include <pthread.h>
-#include <sys/stat.h>
-#include <utime.h>
-#include <stdint.h>
+#	include <stdio.h>
+#	include <setjmp.h>
+#	include <pthread.h>
+#	include <sys/stat.h>
+#	include <utime.h>
+#	include <stdint.h>
 #endif
 
 #ifndef LIB9
-#include "sf-types.h"
+#	include "sf-types.h"
 #endif
 
 /*
 	we are yet to make the switch to using picoseconds for time
 	#define	Picosec	unsigned long long
 */
-#define Picosec double
+#define	Picosec	double
+
 
 #include <setjmp.h>
 #include "merror.h"

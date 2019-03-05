@@ -42,243 +42,299 @@
 #include "sf.h"
 #include "mextern.h"
 
-static uvlong pfunexp(void *, void *ptr, char *type, uvlong modulo);
-static uvlong pfunrnd(void *, void *ptr, char *type, uvlong modulo);
-static tuck void induceSEE(State *S);
+static uvlong	pfunexp(void *, void *ptr, char *type, uvlong modulo);
+static uvlong	pfunrnd(void *, void *ptr, char *type, uvlong modulo);
+static tuck void	induceSEE(State *S);
 
-void fault_feed(Engine *E) {
-  int i, j;
-  State *S = NULL;
-  Netsegment *N;
 
-  /*				*/
-  /*	All device nodes:	*/
-  /*				*/
-  for (i = 0; i < E->nnodes; i++) {
-    S = E->sp[i];
+void
+fault_feed(Engine *E)
+{
+	int			i, j;
+	State			*S = NULL;
+	Netsegment		*N;
 
-    if (S->SEEmodeling != NULL) {
-      induceSEE(S);
-    }
 
-    /*							*/
-    /*	We could have suffered a correlated fault, 	*/
-    /*	and must still be woken up.			*/
-    /*							*/
-    if ((S->fail_prob == 0) && (!S->got_correlated_failure)) {
-      continue;
-    }
+	/*				*/
+	/*	All device nodes:	*/
+	/*				*/
+	for (i = 0; i < E->nnodes; i++)
+	{
+		S = E->sp[i];
 
-    if (!S->runnable && S->fail_clocks_left) {
-      S->fail_clocks_left--;
+		if (S->SEEmodeling != NULL)
+		{
+			induceSEE(S);
+		}
 
-      if (!S->fail_clocks_left) {
-        mprint(E, S, nodeinfo, "\n\nNode %d recovered from random fault.\n\n",
-               S->NODE_ID);
-        S->runnable = 1;
+		/*							*/
+		/*	We could have suffered a correlated fault, 	*/
+		/*	and must still be woken up.			*/
+		/*							*/
+		if ((S->fail_prob == 0) && (!S->got_correlated_failure))
+		{
+			continue;
+		}
 
-        /*	Reset to address at which code was loaded	*/
-        S->PC = S->STARTPC;
+		if (!S->runnable && S->fail_clocks_left)
+		{
+			S->fail_clocks_left--;
+			
+			if (!S->fail_clocks_left)
+			{
+				mprint(E, S, nodeinfo,
+					"\n\nNode %d recovered from random fault.\n\n",
+					S->NODE_ID);
+				S->runnable = 1;
 
-        /*	Can clear this now	*/
-        S->got_correlated_failure = 0;
-      }
-    }
+				/*	Reset to address at which code was loaded	*/
+				S->PC = S->STARTPC;
 
-    if ((S->runnable) && (S->pfun(E, S, "state", FAULT_PROB_MODULO) <
-                          (uvlong)(S->fail_prob * FAULT_PROB_MODULO))) {
-      mprint(E, S, nodeinfo,
-             "\n\nRandom Fault at node %d (S->fail_prob [%E]).\n", S->NODE_ID,
-             S->fail_prob);
+				/*	Can clear this now	*/
+				S->got_correlated_failure = 0;
+			}
+		}
 
-      S->nfaults++;
+		if ((S->runnable) && (S->pfun(E, S, "state", FAULT_PROB_MODULO) 
+			< (uvlong)(S->fail_prob*FAULT_PROB_MODULO)))
+		{
+			mprint(E, S, nodeinfo,
+				"\n\nRandom Fault at node %d (S->fail_prob [%E]).\n",
+				S->NODE_ID, S->fail_prob);
 
-      /*							*/
-      /*	Force fail_clocks to be always >= 1, partly	*/
-      /*	that make sense and also because it simplifies	*/
-      /*	the handling above.				*/
-      /*							*/
-      S->fail_clocks_left =
-          S->pfun(E, S, "stateduration", S->failure_duration_max) + 1;
-      mprint(E, S, nodeinfo, "Set S->fail_clocks_left to [" UVLONGFMT "]\n\n",
-             S->fail_clocks_left);
-      S->runnable = 0;
-    }
-  }
+			S->nfaults++;
 
-  /*					*/
-  /*	All Network segments:		*/
-  /*					*/
-  for (i = 0; i < E->nactivensegs; i++) {
-    N = &E->netsegs[E->activensegs[i]];
+			/*							*/
+			/*	Force fail_clocks to be always >= 1, partly	*/
+			/*	that make sense and also because it simplifies	*/
+			/*	the handling above.				*/
+			/*							*/	
+			S->fail_clocks_left = S->pfun(E, S, "stateduration",
+				S->failure_duration_max) + 1;
+			mprint(E, S, nodeinfo, "Set S->fail_clocks_left to [" UVLONGFMT "]\n\n",
+				S->fail_clocks_left);
+			S->runnable = 0;
+		}
+	}
 
-    if (N->fail_prob == 0) {
-      continue;
-    }
+	/*					*/
+	/*	All Network segments:		*/
+	/*					*/
+	for (i = 0; i < E->nactivensegs; i++)
+	{
+		N = &E->netsegs[E->activensegs[i]];
 
-    if (!N->valid && N->fail_clocks_left) {
-      N->fail_clocks_left--;
+		if (N->fail_prob  == 0)
+		{
+			continue;
+		}
 
-      if (!N->fail_clocks_left) {
-        mprint(E, S, nodeinfo, "\n\nNetseg %d recovered from random fault.\n\n",
-               N->NETSEG_ID);
-        N->valid = 1;
-      }
-    }
+		if (!N->valid && N->fail_clocks_left)
+		{
+			N->fail_clocks_left--;
+			
+			if (!N->fail_clocks_left)
+			{
+				mprint(E, S, nodeinfo,
+					"\n\nNetseg %d recovered from random fault.\n\n",
+					N->NETSEG_ID);
+				N->valid = 1;
+			}
+		}
 
-    if ((N->valid) && (N->pfun(E, N, "network", FAULT_PROB_MODULO) <
-                       (uvlong)(N->fail_prob * FAULT_PROB_MODULO))) {
-      mprint(E, S, nodeinfo, "\n\nRandom Fault at network segment %d.\n\n",
-             N->NETSEG_ID);
+		if ((N->valid) && (N->pfun(E, N, "network", FAULT_PROB_MODULO) <
+			(uvlong)(N->fail_prob*FAULT_PROB_MODULO)))
+		{
+			mprint(E, S, nodeinfo,
+				"\n\nRandom Fault at network segment %d.\n\n",
+				N->NETSEG_ID);
 
-      /*							*/
-      /*	Force fail_clocks to be always >= 1, partly 	*/
-      /*	that make sense and also because it simplifies	*/
-      /*	the handling above.				*/
-      /*							*/
-      N->fail_clocks_left =
-          N->pfun(E, N, "networkduration", N->failure_duration_max) + 1;
-      N->valid = 0;
+			/*							*/
+			/*	Force fail_clocks to be always >= 1, partly 	*/
+			/*	that make sense and also because it simplifies	*/
+			/*	the handling above.				*/
+			/*							*/
+			N->fail_clocks_left = N->pfun(E, N, "networkduration",
+				N->failure_duration_max) + 1;
+			N->valid = 0;
 
-      /*							*/
-      /*	Correlation with node failure. Generate a 	*/
-      /*	rand(), and if it is less than correl, kill 	*/
-      /*	the node too.					*/
-      /*							*/
-      for (j = 0; j < N->num_attached; j++) {
-        if (N->pfun(E, N, "network", FAULT_PROB_MODULO) <
-            (uvlong)(N->correl_coeffs[N->node_ids[j]] * FAULT_PROB_MODULO)) {
-          S = E->sp[N->node_ids[j]];
+			/*							*/
+			/*	Correlation with node failure. Generate a 	*/
+			/*	rand(), and if it is less than correl, kill 	*/
+			/*	the node too.					*/
+			/*							*/
+			for (j = 0; j < N->num_attached; j++)
+			{
+				if (N->pfun(E, N, "network", FAULT_PROB_MODULO) <
+					(uvlong)(N->correl_coeffs[N->node_ids[j]]*
+					FAULT_PROB_MODULO))
+				{
+					S = E->sp[N->node_ids[j]];
 
-          mprint(E, S, nodeinfo, "\n\nCorrelated Random Fault at node %d.\n\n",
-                 S->NODE_ID);
+					mprint(E, S, nodeinfo,
+					   "\n\nCorrelated Random Fault at node %d.\n\n",
+						S->NODE_ID);
 
-          /*						*/
-          /*	Force fail_clocks to be always >= 1, 	*/
-          /*	partly that make sense and also b'cos	*/
-          /*	it simplifies the handling above	*/
-          /*						*/
-          S->fail_clocks_left =
-              S->pfun(E, S, "stateduration", S->failure_duration_max) + 1;
-          mprint(E, S, nodeinfo,
-                 "Set S->fail_clocks_left to [" UVLONGFMT "]\n\n",
-                 S->fail_clocks_left);
-          S->runnable = 0;
-          S->got_correlated_failure = 1;
-        }
-      }
-    }
-  }
+					/*						*/
+					/*	Force fail_clocks to be always >= 1, 	*/
+					/*	partly that make sense and also b'cos	*/
+					/*	it simplifies the handling above	*/
+					/*						*/
+					S->fail_clocks_left = S->pfun(E, S, "stateduration",
+						S->failure_duration_max) + 1;
+					mprint(E, S, nodeinfo,
+						"Set S->fail_clocks_left to [" UVLONGFMT "]\n\n",
+						S->fail_clocks_left);
+					S->runnable = 0;
+					S->got_correlated_failure = 1;
+				}
+			}
+		}
+	}
 
-  return;
+
+	return;
 }
 
-static uvlong pfunexp(void *e, void *ptr, char *type, uvlong modulo) {
-  uvlong tmp;
-  Engine *E = (Engine *)e;
+static uvlong
+pfunexp(void *e, void *ptr, char *type, uvlong modulo)
+{
+	uvlong	tmp;
+	Engine	*E = (Engine *)e;
 
-  /*
+	/*
 		Deprecated:
 			replaced with sensible implementation in development version
 			of simulator
 	*/
-  tmp = mrandom(E) % (modulo + 1);
-  if (!strcmp(type, "state") &&
-      (tmp < (ulong)((State *)ptr)->fail_prob * FAULT_PROB_MODULO)) {
-    if (((State *)ptr)->fail_prob < 1)
-      ((State *)ptr)->fail_prob *= M_E / 2;
-  } else if (!strcmp(type, "network") &&
-             (tmp <
-              (ulong)((Netsegment *)ptr)->fail_prob * FAULT_PROB_MODULO)) {
-    if (((Netsegment *)ptr)->fail_prob < 1)
-      ((Netsegment *)ptr)->fail_prob *= M_E / 2;
-  }
+	tmp = mrandom(E) % (modulo + 1);	
+	if (!strcmp(type, "state") && 
+		(tmp < (ulong)((State *)ptr)->fail_prob*FAULT_PROB_MODULO))
+	{
+		if (((State *)ptr)->fail_prob < 1)
+			((State *)ptr)->fail_prob *= M_E/2;
+	}
+	else if (!strcmp(type, "network") &&
+		(tmp < (ulong)((Netsegment *)ptr)->fail_prob*FAULT_PROB_MODULO))
+	{
+		if (((Netsegment *)ptr)->fail_prob < 1)
+			((Netsegment *)ptr)->fail_prob *= M_E/2;
+	}
 
-  return tmp;
+	return tmp;
 }
 
-static uvlong pfunrnd(void *e, void *ptr, char *type, uvlong modulo) {
-  Engine *E = (Engine *)e;
+static uvlong
+pfunrnd(void *e, void *ptr, char *type, uvlong modulo)
+{
+	Engine	*E = (Engine *)e;
 
-  return (mrandom(E) % (modulo + 1));
+	return (mrandom(E) % (modulo + 1));
 }
 
-void fault_setnodepfun(Engine *E, State *S, char *alg) {
-  if (!strcmp(alg, "exp")) {
-    S->pfun = pfunexp;
-  } else if (!strcmp(alg, "urnd")) {
-    S->pfun = pfunrnd;
-  } else {
-    merror(E, "Only \"exp\" and \"urnd\" allowed.");
-  }
 
-  return;
+void
+fault_setnodepfun(Engine *E, State *S, char *alg)
+{
+	if (!strcmp(alg, "exp"))
+	{
+		S->pfun = pfunexp;
+	}
+	else if (!strcmp(alg, "urnd"))
+	{
+		S->pfun = pfunrnd;
+	}
+	else
+	{
+		merror(E, "Only \"exp\" and \"urnd\" allowed.");
+	}
+
+	return;	
 }
 
-void fault_setnetsegpfun(Engine *E, Netsegment *tptr, char *alg) {
-  if (!strcmp(alg, "exp")) {
-    tptr->pfun = pfunexp;
-  } else if (!strcmp(alg, "urnd")) {
-    tptr->pfun = pfunrnd;
-  } else {
-    merror(E, "Only \"exp\" and \"urnd\" allowed.");
-  }
+void
+fault_setnetsegpfun(Engine *E, Netsegment *tptr, char *alg)
+{
+	if (!strcmp(alg, "exp"))
+	{
+		tptr->pfun = pfunexp;
+	}
+	else if (!strcmp(alg, "urnd"))
+	{
+		tptr->pfun = pfunrnd;
+	}
+	else
+	{
+		merror(E, "Only \"exp\" and \"urnd\" allowed.");
+	}
 
-  return;
+	return;	
 }
 
-static tuck void induceSEE(State *S) {
-  int which;
-  SEEstruct *p;
+static tuck void
+induceSEE(State *S)
+{
+	int		which;
+	SEEstruct	*p;
 
-  /*	Get a random location in machine state		*/
-  which = S->SEEmodeling->loc_pfun(
-      S, 0,                             /*	min	*/
-      S->SEEmodeling->logical_bits - 1, /*	max	*/
-      S->SEEmodeling->loc_pfun_p1,      /* Dist params:	*/
-      S->SEEmodeling->loc_pfun_p2, S->SEEmodeling->loc_pfun_p3,
-      S->SEEmodeling->loc_pfun_p4);
 
-  p = S->SEEmodeling->hd;
-  while (p != NULL) {
-    if ((which >= p->logical_offset) &&
-        (which < (p->logical_offset + p->logical_bits))) {
-      uchar b;
-      ulong mask;
-      int offset;
+	/*	Get a random location in machine state		*/
+	which = S->SEEmodeling->loc_pfun(S,
+				0,					/*	min	*/
+				S->SEEmodeling->logical_bits - 1,	/*	max	*/
+				S->SEEmodeling->loc_pfun_p1,		/* Dist params:	*/
+				S->SEEmodeling->loc_pfun_p2,
+				S->SEEmodeling->loc_pfun_p3,
+				S->SEEmodeling->loc_pfun_p4);
 
-      /*	Get a random bit state (0/1)	*/
-      b = S->SEEmodeling->bit_pfun(
-          S, 0,                        /*	min	*/
-          1,                           /*	max	*/
-          S->SEEmodeling->bit_pfun_p1, /* Dist params:	*/
-          S->SEEmodeling->bit_pfun_p2, S->SEEmodeling->bit_pfun_p3,
-          S->SEEmodeling->bit_pfun_p4);
+	p = S->SEEmodeling->hd;
+	while (p != NULL)
+	{
+		if (	(which >= p->logical_offset) &&
+			(which < (p->logical_offset + p->logical_bits)))
+		{
+			uchar	b;
+			ulong	mask;
+			int	offset;
 
-      /*	Integer division result is OK for us here	*/
-      offset = ((which - p->logical_offset) * p->actual_bits) / p->logical_bits;
+			/*	Get a random bit state (0/1)	*/
+			b = S->SEEmodeling->bit_pfun(S,
+				0,					/*	min	*/
+				1,					/*	max	*/
+				S->SEEmodeling->bit_pfun_p1,		/* Dist params:	*/
+				S->SEEmodeling->bit_pfun_p2,
+				S->SEEmodeling->bit_pfun_p3,
+				S->SEEmodeling->bit_pfun_p4);
 
-      /*							*/
-      /*	If dealing with sub-structure, offset is 	*/
-      /*	from a non-zero offset from structure begin	*/
-      /*							*/
-      offset += p->bit_offset;
 
-      if (b == 0) {
-        mask = ~(1UL << offset);
-        *(p->hw) &= mask;
-      } else {
-        mask = 1UL << offset;
-        *(p->hw) |= mask;
-      }
+			/*	Integer division result is OK for us here	*/
+			offset = ((which - p->logical_offset)*p->actual_bits)/p->logical_bits;
 
-      break;
-    }
 
-    p = p->next;
-  }
+			/*							*/
+			/*	If dealing with sub-structure, offset is 	*/
+			/*	from a non-zero offset from structure begin	*/
+			/*							*/
+			offset += p->bit_offset;
 
-  return;
+			if (b == 0)
+			{
+				mask = ~(1UL << offset);
+				*(p->hw) &= mask;
+			}
+			else
+			{
+				mask = 1UL << offset;
+				*(p->hw) |= mask;
+			}
+
+			break;
+		}
+
+		p = p->next;
+	}
+
+	return;
 }
 
 /*										*/
@@ -292,34 +348,41 @@ static tuck void induceSEE(State *S) {
 /*	twice, at half the full structure size, with different offsets,		*/
 /*	and with same actual size but different logical size.			*/
 /*										*/
-void m_hwSEEreg(Engine *E, State *S, void *hw, int actual_bits,
-                int logical_bits, int bit_offset) {
-  SEEstruct *s;
+void
+m_hwSEEreg(Engine *E, State *S, void *hw, int actual_bits, int logical_bits, int bit_offset)
+{
+	SEEstruct	*s;
+	
 
-  s = (SEEstruct *)mcalloc(E, 1, sizeof(SEEstruct),
-                           "fault.c:m_hwSEEreg/SEEstruct *s");
-  if (s == NULL) {
-    sfatal(E, NULL, "Mcalloc failed");
-    return;
-  }
+	s = (SEEstruct *) mcalloc(E, 1, sizeof(SEEstruct), "fault.c:m_hwSEEreg/SEEstruct *s");
+	if (s == NULL)
+	{
+		sfatal(E, NULL, "Mcalloc failed");
+		return;
+	}
 
-  s->hw = (uchar *)hw;
-  s->actual_bits = actual_bits;
-  s->logical_bits = logical_bits;
-  s->bit_offset = bit_offset;
+	s->hw			= (uchar *)hw;
+	s->actual_bits		= actual_bits;
+	s->logical_bits		= logical_bits;
+	s->bit_offset		= bit_offset;
 
-  if (S->SEEmodeling->hd == NULL || S->SEEmodeling->tl == NULL) {
-    S->SEEmodeling->tl = S->SEEmodeling->hd = s;
-    S->SEEmodeling->logical_bits = 0;
-    S->SEEmodeling->actual_bits = 0;
-  } else {
-    S->SEEmodeling->tl->next = s;
-    S->SEEmodeling->tl = s;
-  }
-  s->logical_offset = S->SEEmodeling->logical_bits;
+	if (S->SEEmodeling->hd == NULL || S->SEEmodeling->tl == NULL)
+	{
+		S->SEEmodeling->tl = S->SEEmodeling->hd = s;
+		S->SEEmodeling->logical_bits = 0;
+		S->SEEmodeling->actual_bits = 0;
+	}
+	else
+	{
+		S->SEEmodeling->tl->next = s;
+		S->SEEmodeling->tl = s;
+	}
+	s->logical_offset = S->SEEmodeling->logical_bits;
 
-  S->SEEmodeling->logical_bits += logical_bits;
-  S->SEEmodeling->actual_bits += actual_bits;
 
-  return;
+	S->SEEmodeling->logical_bits	+= logical_bits;
+	S->SEEmodeling->actual_bits	+= actual_bits;
+
+
+	return;
 }

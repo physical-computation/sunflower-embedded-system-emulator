@@ -35,16 +35,18 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct RiscvState {
-  uint32_t R[RISCV_XMAX];
-  uint64_t fR[RF32FD_fMAX];
-  uint32_t fCSR;
-  RiscvPipe P;
+struct RiscvState
+{
+	uint32_t R[RISCV_XMAX];
+	uint64_t fR[RF32FD_fMAX];
+	uint32_t fCSR;
+	RiscvPipe P;
 };
 
 /*		Entries in the Decode Cache		*/
-typedef struct {
-  RiscvPipestage dc_p;
+typedef struct
+{
+	RiscvPipestage	dc_p;
 } RiscvDCEntry;
 
 typedef struct RiscvState RiscvState;

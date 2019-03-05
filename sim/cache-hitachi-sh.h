@@ -35,37 +35,41 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-typedef struct {
-  /*	   See HW man section 5		*/
-  int valid;
-  ulong tag;
+typedef struct
+{
+	/*	   See HW man section 5		*/
+	int		valid;
+	ulong 		tag;
 
-  /*					*/
-  /*	We only use data field when	*/
-  /*	using CacheBlock in TLB model.	*/
-  /*	In modeling cache, we get data	*/
-  /*	right from memory when there's	*/
-  /*	a hit.				*/
-  /*					*/
-  ulong data;
+	/*					*/
+	/*	We only use data field when	*/
+	/*	using CacheBlock in TLB model.	*/
+	/*	In modeling cache, we get data	*/
+	/*	right from memory when there's	*/
+	/*	a hit.				*/
+	/*					*/
+	ulong		data;
 
-  /*	This should not really be here.	*/
-  ushort timestamp;
+	/*	This should not really be here.	*/
+	ushort		timestamp;
 } CacheBlock;
 
-typedef struct {
-  int blocksize;
-  int assoc;
-  int size;
-  int nblocks;
-  int nsets;
-  int offsetbits;
-  int indexbits;
-  int tagbits;
-  CacheBlock *blocks;
 
-  uvlong readmiss;
-  uvlong readhit;
-  uvlong writemiss;
-  uvlong writehit;
+typedef struct
+{
+	int 		blocksize;
+	int		assoc;
+	int		size;
+	int		nblocks;
+	int		nsets;
+	int		offsetbits;
+	int		indexbits;
+	int		tagbits;
+	CacheBlock 	*blocks;
+
+	uvlong		readmiss;
+	uvlong		readhit;
+	uvlong		writemiss;
+	uvlong		writehit;
 } Cache;
+

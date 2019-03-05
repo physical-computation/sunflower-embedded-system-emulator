@@ -36,20 +36,20 @@
 */
 
 #ifdef SF_L_ENDIAN
-#include "little-endian-hitachi-sh.h"
-#define SF_ENDONE
+#	include "little-endian-hitachi-sh.h"
+#	define SF_ENDONE
 #endif
 
 #ifdef SF_B_ENDIAN
-#include "big-endian-hitachi-sh.h"
-#define SF_ENDONE
+#	include "big-endian-hitachi-sh.h"
+#	define SF_ENDONE
 #endif
 
 #ifndef SF_ENDONE
-#error "You must define your host machine's endianness"
-#error "in config.$(OSTYPE)."
-#error "use -DSF_L_ENDIAN for little-endian machines"
-#error "and -DSF_B_ENDIAN for big-endian machines"
-#error "Files containing endian-dependent code are"
-#error "endian.h and regs.h"
+#	error "You must define your host machine's endianness"
+#	error "in config.$(OSTYPE)."
+#	error "use -DSF_L_ENDIAN for little-endian machines"
+#	error "and -DSF_B_ENDIAN for big-endian machines"
+#	error "Files containing endian-dependent code are"
+#	error "endian.h and regs.h"
 #endif

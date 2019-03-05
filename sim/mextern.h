@@ -35,7 +35,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern Currents R0000[];
-extern char *opstrs[];
-extern char const MVERSION[];
-extern Engine *yyengine;
+extern Currents		R0000[];
+extern char*		opstrs[];
+extern char const	MVERSION[];
+extern Engine*		yyengine;

@@ -37,51 +37,70 @@
 #include "sf.h"
 #include <stdint.h>
 
-tuck uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n) {
-  uint32_t data;
+tuck
+uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
+{
+	uint32_t data;
 
-  if (n <= RISCV_GPR) {
-    data = S->riscv->R[n];
-  }
+	if (n <= RISCV_GPR)
+	{
+		data = S->riscv->R[n];
+	}
 
-  switch (n) //For CSR access?
-  {
-  default: {}
-  }
 
-  return data;
+
+	switch(n) //For CSR access?
+	{
+		default:
+		{
+		}
+	}
+
+	return data; 
 }
 
-tuck void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data) {
-  if (n <= RISCV_GPR && n != RISCV_X0) {
-    S->riscv->R[n] = data;
-  }
+tuck
+void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
+{
+	if (n <= RISCV_GPR && n != RISCV_X0)
+	{
+		S->riscv->R[n] = data;
+	}
 
-  switch (n) //For CSR access?
-  {
-  case RISCV_X0: {
-  }
-  default: {}
-  }
+	switch(n) //For CSR access?
+	{
+		case RISCV_X0:
+		{
+		}
+		default:
+		{
+		}
+	}
 
-  return;
+	return;
 }
 
 /* RV32F floating point register access */
-tuck uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n) {
-  uint64_t data;
+tuck
+uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
+{
+	uint64_t data;
 
-  if (n < RF32FD_fMAX) {
-    data = S->riscv->fR[n];
-  }
+	if (n < RF32FD_fMAX)
+	{
+		data = S->riscv->fR[n];
+	}
 
-  return data;
+	return data; 
 }
 
-tuck void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data) {
-  if (n < RF32FD_fMAX) {
-    S->riscv->fR[n] = data;
-  }
+tuck
+void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
+{
+	if (n < RF32FD_fMAX)
+	{
+		S->riscv->fR[n] = data;
+	}
 
-  return;
+	return;
 }

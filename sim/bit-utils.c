@@ -38,54 +38,67 @@
 #include <stdio.h>
 #include "sf.h"
 
-void mbitprint(Engine *E, State *S, short nbits, ulong num) {
-  int i = 0;
+void
+mbitprint(Engine *E, State *S, short nbits, ulong num)
+{
+        int	i = 0;
 
-  for (i = (nbits - 1); i >= 0; i--) {
-    mprint(E, S, nodeinfo, "%c", ((num >> i) & 1) + '0');
+        for (i = (nbits-1); i >= 0; i--)
+        {
+		mprint(E, S, nodeinfo, "%c", ((num >> i)&1) + '0');
 
-    if (!(i % 4)) {
-      mprint(E, S, nodeinfo, "%c", ' ');
-    }
-  }
+		if (!(i%4))
+		{
+			mprint(E, S, nodeinfo, "%c", ' ');
+		}
+        }
 
-  return;
+        return;
 }
 
-void mbit64print(Engine *E, State *S, short nbits, uvlong num) {
-  int i = 0;
+void
+mbit64print(Engine *E, State *S, short nbits, uvlong num)
+{
+        int	i = 0;
 
-  for (i = (nbits - 1); i >= 0; i--) {
-    mprint(E, S, nodeinfo, "%c", ((num >> i) & 1) + '0');
+        for (i = (nbits-1); i >= 0; i--)
+        {
+		mprint(E, S, nodeinfo, "%c", ((num >> i)&1) + '0');
 
-    if (!(i % 4)) {
-      mprint(E, S, nodeinfo, "%c", ' ');
-    }
-  }
+		if (!(i%4))
+		{
+			mprint(E, S, nodeinfo, "%c", ' ');
+		}
+        }
 
-  return;
+        return;
 }
 
-int bit_flips_32(ulong w1, ulong w2) {
-  ulong tmp;
+int
+bit_flips_32(ulong w1, ulong w2)
+{
+	ulong tmp;
 
-  tmp = w1 ^ w2;
-  tmp = (tmp & 0x55555555) + ((tmp & 0xaaaaaaaa) >> 1);
-  tmp = (tmp & 0x33333333) + ((tmp & 0xcccccccc) >> 2);
-  tmp = (tmp & 0x0f0f0f0f) + ((tmp & 0xf0f0f0f0) >> 4);
-  tmp = (tmp & 0x00ff00ff) + ((tmp & 0xff00ff00) >> 8);
-  tmp = (tmp & 0x0000ffff) + ((tmp & 0xffff0000) >> 16);
+	tmp = w1^w2;
+	tmp = (tmp&0x55555555) + ((tmp&0xaaaaaaaa) >> 1);
+	tmp = (tmp&0x33333333) + ((tmp&0xcccccccc) >> 2);
+	tmp = (tmp&0x0f0f0f0f) + ((tmp&0xf0f0f0f0) >> 4);
+	tmp = (tmp&0x00ff00ff) + ((tmp&0xff00ff00) >> 8);
+	tmp = (tmp&0x0000ffff) + ((tmp&0xffff0000) >> 16);
 
-  return (int)tmp;
+	return (int)tmp;
 }
 
-int bit_flips_n(int n, ulong w1, ulong w2) {
-  int i, ret_val = 0;
+int
+bit_flips_n(int n, ulong w1, ulong w2)
+{
+	int i, ret_val = 0;
 
-  /*  This routine is _much_ slower than above, but more general	*/
-  for (i = 0; i < n; i++) {
-    ret_val += ((w1 >> i) & 1) ^ ((w2 >> i) & 1);
-  }
+	/*  This routine is _much_ slower than above, but more general	*/
+	for (i = 0; i < n; i++)
+	{
+		ret_val += ((w1>>i) & 1)^((w2>>i) & 1);
+	}
 
-  return ret_val;
+	return ret_val;
 }

@@ -38,65 +38,86 @@
 #include "sf.h"
 #include "mextern.h"
 
-int msp430step(Engine *E, State *S, int drain_pipe) {
-  /*								*/
-  /*	If ~RST/NMI pin is configured for reset, CPU stays	*/
-  /*	in reset state as long as pin stays low. When pin	*/
-  /*	goes high, PC goes to 0xFFFE				*/
-  /*								*/
 
-  return -1;
+int
+msp430step(Engine *E, State *S, int drain_pipe)
+{
+	/*								*/
+	/*	If ~RST/NMI pin is configured for reset, CPU stays	*/
+	/*	in reset state as long as pin stays low. When pin	*/
+	/*	goes high, PC goes to 0xFFFE				*/
+	/*								*/	
+
+	return -1;
 }
 
-int msp430faststep(Engine *E, State *S, int drain_pipe) { return -1; }
-
-void msp430pipeflush(State *S) {
-  /*								*/
-  /*	Flush pipeline, count # bits we clear in pipe regs	*/
-  /*								*/
-  S->msp430->P.IF.cycles = 0;
-  S->msp430->P.IF.valid = 0;
-
-  S->msp430->P.ID.cycles = 0;
-  S->msp430->P.ID.valid = 0;
-
-  S->msp430->P.EX.cycles = 0;
-  S->msp430->P.EX.valid = 0;
-
-  if (SF_BITFLIP_ANALYSIS) {
-    S->Cycletrans += bit_flips_32(S->superH->P.IF.instr, 0);
-    S->Cycletrans += bit_flips_32(S->superH->P.ID.instr, 0);
-    S->Cycletrans += bit_flips_32(S->superH->P.EX.instr, 0);
-  }
-
-  return;
+int
+msp430faststep(Engine *E, State *S, int drain_pipe)
+{
+	return -1;
 }
 
-void msp430dumppipe(Engine *E, State *S) {
-  mprint(E, S, nodeinfo,
-         "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
-         S->NODE_ID, S->PC, S->ICLK, S->sleep);
+void
+msp430pipeflush(State *S)
+{
+	/*								*/
+	/*	Flush pipeline, count # bits we clear in pipe regs	*/
+	/*								*/
+	S->msp430->P.IF.cycles = 0;
+	S->msp430->P.IF.valid = 0;
 
-  if (S->msp430->P.EX.valid) {
-    mprint(E, S, nodeinfo, "EX: [%s],%d\n", opstrs[S->msp430->P.EX.op],
-           S->msp430->P.EX.cycles);
-  } else {
-    mprint(E, S, nodeinfo, "EX: []\n");
-  }
+	S->msp430->P.ID.cycles = 0;
+	S->msp430->P.ID.valid = 0;
 
-  if (S->msp430->P.ID.valid) {
-    mprint(E, S, nodeinfo, "ID: [0x%x],%d\n", S->msp430->P.ID.instr,
-           S->msp430->P.ID.cycles);
-  } else {
-    mprint(E, S, nodeinfo, "ID: []\n");
-  }
+	S->msp430->P.EX.cycles = 0;
+	S->msp430->P.EX.valid = 0;
 
-  if (S->msp430->P.IF.valid) {
-    mprint(E, S, nodeinfo, "IF: [0x%x],%d\n\n", S->msp430->P.IF.instr,
-           S->msp430->P.IF.cycles);
-  } else {
-    mprint(E, S, nodeinfo, "IF: []\n\n");
-  }
+	if (SF_BITFLIP_ANALYSIS)
+	{
+		S->Cycletrans += bit_flips_32(S->superH->P.IF.instr, 0);
+		S->Cycletrans += bit_flips_32(S->superH->P.ID.instr, 0);
+		S->Cycletrans += bit_flips_32(S->superH->P.EX.instr, 0);
+	}
 
-  return;
+	return;
+}
+
+void
+msp430dumppipe(Engine *E, State *S)
+{
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
+		S->NODE_ID, S->PC, S->ICLK, S->sleep);
+
+
+	if (S->msp430->P.EX.valid)
+	{
+		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
+			opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "EX: []\n");
+	}
+
+	if (S->msp430->P.ID.valid)
+	{
+		mprint(E, S, nodeinfo, "ID: [0x%x],%d\n",
+			S->msp430->P.ID.instr, S->msp430->P.ID.cycles);
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "ID: []\n");
+	}
+
+	if (S->msp430->P.IF.valid)
+	{
+		mprint(E, S, nodeinfo, "IF: [0x%x],%d\n\n",
+			S->msp430->P.IF.instr, S->msp430->P.IF.cycles);
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "IF: []\n\n");
+	}
+
+	return;
 }

@@ -42,82 +42,102 @@
 /*	Programmable Interrupt Controller. Provides queued intrs.	*/
 /*									*/
 
-void pic_intr_enqueue(Engine *E, State *S, InterruptQ *q, int type, int value,
-                      int misc) {
-  Interrupt *tmp;
+void
+pic_intr_enqueue(Engine *E, State *S, InterruptQ *q, int type, int value, int misc)
+{
+	Interrupt	*tmp;
 
-  tmp = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
-                             "Interrupt structure in pic_intr_enqueue");
 
-  if (tmp == NULL) {
-    mexit(E, "Could not allocate memory for (Interrupt *)tmp", -1);
-    return;
-  }
+	tmp = (Interrupt *)mcalloc(E, 1, sizeof(Interrupt),
+		"Interrupt structure in pic_intr_enqueue");
 
-  tmp->type = type;
-  tmp->value = value;
-  tmp->misc = misc;
+	if (tmp == NULL)
+	{
+		mexit(E, "Could not allocate memory for (Interrupt *)tmp", -1);
+		return;
+	}
 
-  /*	intrqhd and intrqtl are pre-allocated when node is created.	*/
-  if (q->nqintrs == 0) {
-    tmp->next = q->tl;
-    tmp->prev = q->hd;
-    q->tl->prev = tmp;
-    q->hd->next = tmp;
-  } else {
-    tmp->next = q->tl;
-    tmp->prev = q->tl->prev;
-    q->tl->prev->next = tmp;
-    q->tl->prev = tmp;
-  }
-  q->nqintrs++;
+	tmp->type = type;
+	tmp->value = value;
+	tmp->misc = misc;
 
-  return;
+	/*	intrqhd and intrqtl are pre-allocated when node is created.	*/
+	if (q->nqintrs == 0)
+	{
+		tmp->next = q->tl;
+		tmp->prev = q->hd;
+		q->tl->prev = tmp;
+		q->hd->next = tmp;
+	}
+	else
+	{
+		tmp->next = q->tl;
+		tmp->prev = q->tl->prev;
+		q->tl->prev->next = tmp;
+		q->tl->prev = tmp;
+	}
+	q->nqintrs++;
+
+
+	return;
 }
 
-void *pic_intr_dequeue(Engine *E, State *S, InterruptQ *q) {
-  Interrupt *ptr;
+void *
+pic_intr_dequeue(Engine *E, State *S, InterruptQ *q)
+{
+	Interrupt	*ptr;
 
-  if (q->nqintrs == 0) {
-    return NULL;
-  }
 
-  ptr = q->hd->next;
-  q->hd->next = ptr->next;
-  ptr->next->prev = q->hd;
-  q->nqintrs--;
+	if (q->nqintrs == 0)
+	{
+		return NULL;
+	}
 
-  return ptr;
+	ptr = q->hd->next;
+	q->hd->next = ptr->next;
+	ptr->next->prev = q->hd;
+	q->nqintrs--;
+
+
+	return ptr;
 }
 
-void pic_intr_clear(Engine *E, State *S, InterruptQ *q, int type,
-                    int clear_all) {
-  int i;
-  Interrupt *p;
+void
+pic_intr_clear(Engine *E, State *S, InterruptQ *q, int type, int clear_all)
+{
+	int		i;
+	Interrupt	*p;
 
-  /*						*/
-  /*	Ugh, this is ugly. All the mallocs.	*/
-  /*	Rewrite to reorder list w/o doing all	*/
-  /*	these malloc/frees			*/
-  /*						*/
-  while ((p = (Interrupt *)pic_intr_dequeue(E, S, q)) != NULL) {
-    if (p->type != type) {
-      pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
-    } else {
-      mfree(E, p, "Interrupt *p");
 
-      if (!clear_all) {
-        break;
-      }
-    }
-  }
+	/*						*/
+	/*	Ugh, this is ugly. All the mallocs.	*/
+	/*	Rewrite to reorder list w/o doing all	*/
+	/*	these malloc/frees			*/
+	/*						*/
+	while ((p = (Interrupt *) pic_intr_dequeue(E, S, q)) != NULL)
+	{
+		if (p->type != type)
+		{
+			pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
+		}
+		else
+		{
+			mfree(E, p, "Interrupt *p");
+			
+			if (!clear_all)
+			{
+				break;
+			}
+		}
+	}
 
-  /*	Now, need to reorder the queue		*/
-  for (i = 0; i < q->nqintrs; i++) {
-    p = (Interrupt *)pic_intr_dequeue(E, S, q);
-    pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
-    mfree(E, p, "Interrupt *p");
-  }
+	/*	Now, need to reorder the queue		*/
+	for (i = 0; i < q->nqintrs; i++)
+	{
+		p = (Interrupt *) pic_intr_dequeue(E, S, q);
+		pic_intr_enqueue(E, S, q, p->type, p->value, p->misc);
+		mfree(E, p, "Interrupt *p");
+	}
 
-  return;
+	return;
 }

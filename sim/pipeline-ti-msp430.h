@@ -35,29 +35,31 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-typedef struct {
-  ushort instr;
+typedef struct
+{
+	ushort		instr;
 
-  /*						*/
-  /*	Different forms of the same info	*/
-  /*	amode_* implicitly encodes info	about	*/
-  /*	whether the register used is r0 / r2.	*/
-  /*						*/
-  int amode_s;
-  int amode_d;
-  int As;
-  int Ad;
+	/*						*/
+	/*	Different forms of the same info	*/
+	/*	amode_* implicitly encodes info	about	*/
+	/*	whether the register used is r0 / r2.	*/
+	/*						*/
+	int		amode_s;
+	int		amode_d;
+	int		As;
+	int		Ad;
 
-  int op;
-  int format;
-  int cycles;
-  int ilen;
-  void (*fptr)();
-  int valid;
+	int		op;
+	int		format;
+	int		cycles;
+	int		ilen;
+	void 		(*fptr)();
+	int		valid;
 } MSP430Pipestage;
 
-typedef struct {
-  MSP430Pipestage IF;
-  MSP430Pipestage ID;
-  MSP430Pipestage EX;
+typedef struct
+{
+	MSP430Pipestage	IF;
+	MSP430Pipestage	ID;
+	MSP430Pipestage	EX;
 } MSP430Pipe;

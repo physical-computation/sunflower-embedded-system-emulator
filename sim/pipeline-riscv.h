@@ -34,15 +34,18 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
-typedef struct {
-  uint32_t instr;
-  uint32_t fetchedpc;
-  void (*fptr)();
-  uint8_t op;
-  uint8_t format;
-  int valid;
+typedef struct
+{
+	uint32_t	instr;
+	uint32_t	fetchedpc;
+	void 		(*fptr)();
+	uint8_t		op;
+	uint8_t		format;
+	int		valid;
 } RiscvPipestage;
 
-typedef struct {
-  RiscvPipestage EX;
+typedef struct
+{
+	RiscvPipestage	EX;
 } RiscvPipe;
+
