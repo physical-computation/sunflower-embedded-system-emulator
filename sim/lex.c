@@ -1,9 +1,9 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
-
+ 
 	All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without
+	Redistribution and use in source and binary forms, with or without 
 	modification, are permitted provided that the following conditions
 	are met:
 
@@ -18,20 +18,20 @@
 
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
-		derived from this software without specific prior written
+		derived from this software without specific prior written 
 		permission.
 
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
 	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -55,7 +55,6 @@ typedef struct
 /*	so do not use them. These comments are used to build "help.h"	*/
 /*	and also to generate LaTeX for the manual.			*/
 /*									*/
-/* clang-format off */
 TokenTab token_table [] =
 {
 	/*	Simulator Commands	*/
@@ -71,7 +70,7 @@ TokenTab token_table [] =
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
 	{"DUMPPIPE",	T_DUMPPIPE},				/*+	Show the contents of the pipeline stages.:none									*/
-	{"RESETCPU",	T_RESETCPU},				/*+	Reset entire simulated CPU state.:none										*/
+	{"RESETCPU",	T_RESETCPU},				/*+	Reset entire simulated CPU state.:none										*/ 
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
@@ -373,7 +372,6 @@ TokenTab token_table [] =
 	{"XTRCT",	T_XTRCT},
 	{0,		0},
 };
-/* clang-format on */
 
 int
 yylex(void)
@@ -442,7 +440,7 @@ yylex(void)
 				mfree(yyengine, tmphd, "tmphd in lex.c");
 			}
 		}
-
+			
 		/*	This was allocated just for uppercase stuff. Free it	*/
 		mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
@@ -471,7 +469,7 @@ yylex(void)
 
 					/*	We move head, but dont really unlink	*/
 					yyengine->istream.head = yyengine->istream.head->prev;
-
+						
 					/*	Alloc'd for uppercase stuff. Free it	*/
 					mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
@@ -563,7 +561,7 @@ yylex(void)
 	if (!strcmp(tmpdata, "MAN"))
 	{
 		Datum	*tmphd;
-
+	
 
 		if ((yyengine->istream.head->prev != NULL) &&
 			(((Datum *)yyengine->istream.head->prev)->data[0] == '\n'))
@@ -585,8 +583,8 @@ yylex(void)
 			return T_HELP;
 		}
 
-		yylval.str = (char *) mrealloc(yyengine, yylval.str,
-					MAX_BUFLEN*sizeof(char),
+		yylval.str = (char *) mrealloc(yyengine, yylval.str, 
+					MAX_BUFLEN*sizeof(char), 
 					"yylval.str (MAN) in lex.inc");
 
 		aptr = ((Datum *)yyengine->istream.head->prev)->data;
@@ -610,7 +608,7 @@ yylex(void)
 
 		tmphd = yyengine->istream.head;
 		yyengine->istream.head = yyengine->istream.head->prev;
-
+		
 //		if (!yyengine->scanning)
 //		{
 //			yyengine->istream.head->next = NULL;
@@ -656,7 +654,7 @@ yylex(void)
 					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
 					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
-
+				
 				/*	This was allocated just for uppercase stuff. Free it	*/
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
@@ -673,13 +671,13 @@ yylex(void)
 					mfree(yyengine, tmphd->data, "tmphd->data in lex.c");
 					mfree(yyengine, tmphd, "tmphd in lex.c");
 				}
-
+				
 				/*	This was allocated just for uppercase stuff. Free it	*/
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return ',';
 			}
-
+			
 			if (!strncmp(tmpdata, ")", 1))
 			{
 				tmphd = yyengine->istream.head;
@@ -695,8 +693,8 @@ yylex(void)
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return ')';
-			}
-
+			}	
+		
 			if (!strncmp(tmpdata, "(", 1))
 			{
 				tmphd = yyengine->istream.head;
@@ -712,7 +710,7 @@ yylex(void)
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '(';
-			}
+			}			
 
 			if (!strncmp(tmpdata, "@", 1))
 			{
@@ -746,7 +744,7 @@ yylex(void)
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
 				return '-';
-			}
+			}			
 
 			if (!strncmp(tmpdata, "+", 1))
 			{
@@ -813,7 +811,7 @@ yylex(void)
 		mexit(yyengine, "See above messages.", -1);
 	}
 
-	strncpy(yylval.str, yyengine->istream.head->data, strlen(yyengine->istream.head->data)+1);
+	strncpy(yylval.str, yyengine->istream.head->data, strlen(yyengine->istream.head->data)+1); 
 
 	/* 	move it off input queue		*/
 	tmphd = yyengine->istream.head;

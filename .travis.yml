@@ -4,24 +4,7 @@ language: c
 
 install: sudo apt-get install g++-multilib
 
-
-jobs:
-  include:
-    - script: |
-        find sim -name *.h -exec clang-format -i {} \;
-        find sim -name *.c -exec clang-format -i {} \;
-
-        dirty=$(git ls-files --modified)
-
-        if [[ $dirty ]]; then
-            echo " -- The following files require formatting: --"
-            git ls-files --modified
-            exit 1
-        fi
-      name: Lint
-    - script: make
-      name: Build
-
+script: make
 
 
 
