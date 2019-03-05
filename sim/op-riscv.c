@@ -487,6 +487,23 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 	freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
 	uncertain_inst_sv(S->riscv->uncertain, rd, 0);
 
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uint32_t rs1Uncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->rs1;
+		uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
+
+		uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+
+		uncertain_inst_lr(S->riscv->uncertain, rd, uncertainAddr);
+		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+	}
+
 	return;
 }
 
@@ -495,6 +512,21 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
 	superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
+
+	if (S->riscv->uncertain->last_op.valid)
+	{
+		// check pc
+
+		// check whole of part1
+
+		uint32_t rs1Uncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->rs1;
+		uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
+
+		uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+
+		uncertain_inst_sr(S->riscv->uncertain, rs2, uncertainAddr);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
 
 	return;
 }
@@ -1761,17 +1793,12 @@ void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
 
 	uncertain_inst_sv(S->riscv->uncertain, rd, var.float_value);
 
-	mprint(E, S, nodeinfo, "UNSVAR.S INSTRUCTION var(rd) = %g, rd = %d\n",
-		   uncertain_inst_gv(S->riscv->uncertain, rd), rd);
-
 	return;
 }
 
 void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)
 {
 	uncertain_inst_sv(S->riscv->uncertain, rd, 0.0);
-
-	mprint(E, S, nodeinfo, "UNCVAR.S INSTRUCTION");
 
 	return;
 }
@@ -1789,8 +1816,6 @@ void rv32un_un_part1(Engine *E, State *S, uint8_t _rs1, uint8_t _rd, uint16_t _i
 	tmp->op_fp_pc = S->riscv->P.EX.fetchedpc;
 	tmp->insn_part1 = S->riscv->P.EX.instr;
 	tmp->valid = 1;
-
-	mprint(E, S, nodeinfo, "UNPREVUP.S INSTRUCTION (part 1)");
 
 	return;
 }

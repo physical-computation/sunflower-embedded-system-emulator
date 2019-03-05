@@ -96,7 +96,7 @@ static void set_uncertain_variance_mem(UncertainMemory *uncertain_memory, int i,
 {
     assert(i >= 0);
     assert(i < UNCERTAIN_MEMORY_SIZE);
-    assert(value >= 0);
+    assert(value >= 0 || isnan(value));
     uncertain_memory->variances[i] = value;
 }
 
@@ -548,7 +548,7 @@ static int print_memory_row(UncertainState *uncertain_state, FILE *stream, int r
         if (i == 0)
             padding = "";
         else
-            padding = "  ";
+            padding = " ";
         result = fprintf(stream, "%s%s", padding, buffer);
         if (result < 0)
         {

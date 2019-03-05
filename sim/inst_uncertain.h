@@ -47,7 +47,7 @@ typedef struct  {
 int uncertain_print_system(UncertainState * state, FILE *stream);
 
 void uncertain_inst_lr(UncertainState * state, int ud, int location);
-void uncertain_instr(UncertainState * state, int us1, int location);
+void uncertain_inst_sr(UncertainState * state, int us1, int location);
 
 void uncertain_inst_mv(UncertainState * state, int ud, int us1);
 

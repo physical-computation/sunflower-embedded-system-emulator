@@ -1162,8 +1162,6 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 		/* responsibilty for handling downstream  */
         case 0b0111111:
         {
-			printf("64 bit! 0x%8X\n", instr);
-
         	switch(tmp->misc_lo)
 			{
 				case 0b00001: // First half of uncertainty instructions

@@ -8,7 +8,6 @@ init:
 .option norelax
 	la		gp, __global_pointer$
 .option pop
-	# j init;
 	call	main;
 	call	uncertain_exper;
 	call 	exit;
@@ -20,9 +19,11 @@ __errno:
   .word 1084227584
 
 uncertain_exper:
+	li 		t5, 7;
 	lui 	a5, %hi(.fp_5);
 	flw 	fa0, %lo(.fp_5)(a5);
 	unsvar.s fa0, fa0;
+	unfsw	fa0, -4(sp), 10(t5);
 
 	unfadd.s	fa1, fa0, fa0;
 
@@ -34,5 +35,5 @@ uncertain_exper:
 
 	unfdiv.s	fa3, fa2, fa0;
 
-	fmv.s fa4, fa3;
+	unflw	fa4, -4(sp), 10(t5);
 
