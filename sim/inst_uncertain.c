@@ -1,4 +1,5 @@
 #include "inst_uncertain.h"
+#include "sf.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -10,6 +11,15 @@
 
 // unicode symbols may require 4 bytes
 #define PRINT_DIGIT_BUFFER_SIZE (PRINT_DIGITS * 4 + 1)
+
+
+static int covariances_in_mem (int memory_size) {
+    return (memory_size - 1) * memory_size / 2;
+}
+static int covariances_in_reg_mem (int register_size, int memory_size) {
+    return register_size * memory_size;
+}
+
 
 // Access to uncertain registers
 
@@ -23,93 +33,93 @@ static int get_offset_reg_reg(int row, int col)
     return (col - 1 + row * (2 * UNCERTAIN_REGISTER_SIZE - 3 - row) / 2);
 }
 
-static int get_offset_reg_mem(int row, int col)
+static int get_offset_reg_mem(int memory_size, int row, int col)
 {
     assert(row >= 0);
     assert(col >= 0);
-    assert(col < UNCERTAIN_MEMORY_SIZE);
+    assert(col < memory_size);
     assert(row < UNCERTAIN_REGISTER_SIZE);
-    return row * UNCERTAIN_MEMORY_SIZE + col;
+    return row *memory_size + col;
 }
 
-static float get_uncertain_variance_reg(UncertainRegisters *uncertain_registers, int i)
+static float get_uncertain_variance_reg(UncertainState *state, int i)
 {
     assert(i >= 0);
     assert(i < UNCERTAIN_REGISTER_SIZE);
-    return uncertain_registers->variances[i];
+    return state->registers.variances[i];
 }
 
-static void set_uncertain_variance_reg(UncertainRegisters *uncertain_registers, int i, float value)
+static void set_uncertain_variance_reg(UncertainState *state, int i, float value)
 {
     assert(i >= 0);
     assert(i < UNCERTAIN_REGISTER_SIZE);
     // printf("%g\n", value);
     assert(value >= 0 || isnan(value));
-    uncertain_registers->variances[i] = value;
+    state->registers.variances[i] = value;
 }
 
-static float get_uncertain_covariance_reg_reg(UncertainRegisters *uncertain_registers, int row, int col)
+static float get_uncertain_covariance_reg_reg(UncertainState *state, int row, int col)
 {
     int offset = get_offset_reg_reg(row, col);
-    return uncertain_registers->covariances_reg_reg[offset];
+    return state->registers.covariances_reg_reg[offset];
 }
 
-static void set_uncertain_covariance_reg_reg(UncertainRegisters *uncertain_registers, int row, int col, float value)
+static void set_uncertain_covariance_reg_reg(UncertainState *state, int row, int col, float value)
 {
     int offset = get_offset_reg_reg(row, col);
-    uncertain_registers->covariances_reg_reg[offset] = value;
+    state->registers.covariances_reg_reg[offset] = value;
 }
 
-static float get_uncertain_covariance_reg_mem(UncertainRegisters *uncertain_registers, int row, int col)
+static float get_uncertain_covariance_reg_mem(UncertainState *state, int row, int col)
 {
-    int offset = get_offset_reg_mem(row, col);
-    return uncertain_registers->covariances_reg_mem[offset];
+    int offset = get_offset_reg_mem(state->memory_size, row, col);
+    return state->registers.covariances_reg_mem[offset];
 }
 
-static void set_uncertain_covariance_reg_mem(UncertainRegisters *uncertain_registers, int row, int col, float value)
+static void set_uncertain_covariance_reg_mem(UncertainState *state, int row, int col, float value)
 {
-    int offset = get_offset_reg_mem(row, col);
-    uncertain_registers->covariances_reg_mem[offset] = value;
+    int offset = get_offset_reg_mem(state->memory_size, row, col);
+    state->registers.covariances_reg_mem[offset] = value;
 }
 
 // Access to uncertain memory
 
-static int get_offset_mem_mem(int row, int col)
+static int get_offset_mem_mem(int memory_size, int row, int col)
 {
     assert(row >= 0);
     assert(col >= 1);
     assert(row < col);
-    assert(row < UNCERTAIN_MEMORY_SIZE - 1);
-    assert(col < UNCERTAIN_MEMORY_SIZE);
+    assert(row < memory_size - 1);
+    assert(col < memory_size);
 
-    return (col - 1 + row * (2 * UNCERTAIN_MEMORY_SIZE - 3 - row) / 2);
+    return (col - 1 + row * (2 * memory_size - 3 - row) / 2);
 }
 
-static float get_uncertain_variance_mem(UncertainMemory *uncertain_memory, int i)
+static float get_uncertain_variance_mem(UncertainState *state, int i)
 {
     assert(i >= 0);
-    assert(i < UNCERTAIN_MEMORY_SIZE);
-    return uncertain_memory->variances[i];
+    assert(i < state->memory_size);
+    return state->memory.variances[i];
 }
 
-static void set_uncertain_variance_mem(UncertainMemory *uncertain_memory, int i, float value)
+static void set_uncertain_variance_mem(UncertainState *state, int i, float value)
 {
     assert(i >= 0);
-    assert(i < UNCERTAIN_MEMORY_SIZE);
+    assert(i < state->memory_size);
     assert(value >= 0 || isnan(value));
-    uncertain_memory->variances[i] = value;
+    state->memory.variances[i] = value;
 }
 
-static float get_uncertain_covariance_mem_mem(UncertainMemory *uncertain_memory, int row, int col)
+static float get_uncertain_covariance_mem_mem(UncertainState *state, int row, int col)
 {
-    int offset = get_offset_mem_mem(row, col);
-    return uncertain_memory->covariances[offset];
+    int offset = get_offset_mem_mem(state->memory_size, row, col);
+    return state->memory.covariances[offset];
 }
 
-static void set_uncertain_covariance_mem_mem(UncertainMemory *uncertain_memory, int row, int col, float value)
+static void set_uncertain_covariance_mem_mem(UncertainState *state, int row, int col, float value)
 {
-    int offset = get_offset_mem_mem(row, col);
-    uncertain_memory->covariances[offset] = value;
+    int offset = get_offset_mem_mem(state->memory_size, row, col);
+    state->memory.covariances[offset] = value;
 }
 
 // Uncertain operations
@@ -119,35 +129,35 @@ void uncertain_inst_lr(UncertainState *uncertain_state, int ud, int location)
     int i;
     float to_set;
     assert(ud < UNCERTAIN_REGISTER_SIZE);
-    assert(location < UNCERTAIN_MEMORY_SIZE);
+    assert(location < uncertain_state->memory_size);
 
     // Load variance from memory and store in registers
-    to_set = get_uncertain_variance_mem(&uncertain_state->memory, location);
-    set_uncertain_variance_reg(&uncertain_state->registers, ud, to_set);
-    set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, location, to_set);
+    to_set = get_uncertain_variance_mem(uncertain_state, location);
+    set_uncertain_variance_reg(uncertain_state, ud, to_set);
+    set_uncertain_covariance_reg_mem(uncertain_state, ud, location, to_set);
 
     // Load covariances from registers and store in registers
     for (i = 0; i < ud; ++i)
     {
-        to_set = get_uncertain_covariance_reg_mem(&uncertain_state->registers, i, location);
-        set_uncertain_covariance_reg_reg(&uncertain_state->registers, i, ud, to_set);
+        to_set = get_uncertain_covariance_reg_mem(uncertain_state, i, location);
+        set_uncertain_covariance_reg_reg(uncertain_state, i, ud, to_set);
     }
     for (i = ud + 1; i < UNCERTAIN_REGISTER_SIZE; ++i)
     {
-        to_set = get_uncertain_covariance_reg_mem(&uncertain_state->registers, i, location);
-        set_uncertain_covariance_reg_reg(&uncertain_state->registers, ud, i, to_set);
+        to_set = get_uncertain_covariance_reg_mem(uncertain_state, i, location);
+        set_uncertain_covariance_reg_reg(uncertain_state, ud, i, to_set);
     }
 
     // Load covariances from memory and store in registers
     for (i = 0; i < location; ++i)
     {
-        to_set = get_uncertain_covariance_mem_mem(&uncertain_state->memory, i, location);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, i, to_set);
+        to_set = get_uncertain_covariance_mem_mem(uncertain_state, i, location);
+        set_uncertain_covariance_reg_mem(uncertain_state, ud, i, to_set);
     }
-    for (i = location + 1; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = location + 1; i < uncertain_state->memory_size; ++i)
     {
-        to_set = get_uncertain_covariance_mem_mem(&uncertain_state->memory, location, i);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, i, to_set);
+        to_set = get_uncertain_covariance_mem_mem(uncertain_state, location, i);
+        set_uncertain_covariance_reg_mem(uncertain_state, ud, i, to_set);
     }
 }
 
@@ -158,35 +168,35 @@ void uncertain_inst_sr(UncertainState *uncertain_state, int us1, int location)
     assert(us1 >= 0);
     assert(location >= 0);
     assert(us1 < UNCERTAIN_REGISTER_SIZE);
-    assert(location < UNCERTAIN_MEMORY_SIZE);
+    assert(location < uncertain_state->memory_size);
 
     // Store variance
-    to_set = get_uncertain_variance_reg(&uncertain_state->registers, us1);
-    set_uncertain_variance_mem(&uncertain_state->memory, location, to_set);
-    set_uncertain_covariance_reg_mem(&uncertain_state->registers, us1, location, to_set);
+    to_set = get_uncertain_variance_reg(uncertain_state, us1);
+    set_uncertain_variance_mem(uncertain_state, location, to_set);
+    set_uncertain_covariance_reg_mem(uncertain_state, us1, location, to_set);
 
     // Store covariances in registers
     for (i = 0; i < us1; ++i)
     {
-        to_set = get_uncertain_covariance_reg_reg(&uncertain_state->registers, i, us1);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, i, location, to_set);
+        to_set = get_uncertain_covariance_reg_reg(uncertain_state, i, us1);
+        set_uncertain_covariance_reg_mem(uncertain_state, i, location, to_set);
     }
     for (i = us1 + 1; i < UNCERTAIN_REGISTER_SIZE; ++i)
     {
-        to_set = get_uncertain_covariance_reg_reg(&uncertain_state->registers, us1, i);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, i, location, to_set);
+        to_set = get_uncertain_covariance_reg_reg(uncertain_state, us1, i);
+        set_uncertain_covariance_reg_mem(uncertain_state, i, location, to_set);
     }
 
     // Store covariances in memory
     for (i = 0; i < location; ++i)
     {
-        to_set = get_uncertain_covariance_reg_mem(&uncertain_state->registers, us1, i);
-        set_uncertain_covariance_mem_mem(&uncertain_state->memory, i, location, to_set);
+        to_set = get_uncertain_covariance_reg_mem(uncertain_state, us1, i);
+        set_uncertain_covariance_mem_mem(uncertain_state, i, location, to_set);
     }
-    for (i = location + 1; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = location + 1; i < uncertain_state->memory_size; ++i)
     {
-        to_set = get_uncertain_covariance_reg_mem(&uncertain_state->registers, us1, i);
-        set_uncertain_covariance_mem_mem(&uncertain_state->memory, location, i, to_set);
+        to_set = get_uncertain_covariance_reg_mem(uncertain_state, us1, i);
+        set_uncertain_covariance_mem_mem(uncertain_state, location, i, to_set);
     }
 }
 
@@ -203,8 +213,8 @@ void uncertain_inst_up1(UncertainState *uncertain_state, int ud, int us1, float 
 
     {
         float new_var =
-            g1 * g1 * get_uncertain_variance_reg(&uncertain_state->registers, us1);
-        set_uncertain_variance_reg(&uncertain_state->registers, ud, new_var);
+            g1 * g1 * get_uncertain_variance_reg(uncertain_state, us1);
+        set_uncertain_variance_reg(uncertain_state, ud, new_var);
     }
 
     for (i = 0; i < UNCERTAIN_REGISTER_SIZE; ++i)
@@ -214,34 +224,34 @@ void uncertain_inst_up1(UncertainState *uncertain_state, int ud, int us1, float 
             float sigma;
             if (i < us1)
             {
-                sigma = get_uncertain_covariance_reg_reg(&uncertain_state->registers, i, us1);
+                sigma = get_uncertain_covariance_reg_reg(uncertain_state, i, us1);
             }
             else if (i == us1)
             {
-                sigma = get_uncertain_variance_reg(&uncertain_state->registers, us1);
+                sigma = get_uncertain_variance_reg(uncertain_state, us1);
             }
             else
             {
-                sigma = get_uncertain_covariance_reg_reg(&uncertain_state->registers, us1, i);
+                sigma = get_uncertain_covariance_reg_reg(uncertain_state, us1, i);
             }
 
             float new_covar = g1 * sigma;
 
             if (i < ud)
             {
-                set_uncertain_covariance_reg_reg(&uncertain_state->registers, i, ud, new_covar);
+                set_uncertain_covariance_reg_reg(uncertain_state, i, ud, new_covar);
             }
             else
             {
-                set_uncertain_covariance_reg_reg(&uncertain_state->registers, ud, i, new_covar);
+                set_uncertain_covariance_reg_reg(uncertain_state, ud, i, new_covar);
             }
         }
     }
-    for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = 0; i < uncertain_state->memory_size; ++i)
     {
         float new_covar =
-            g1 * get_uncertain_covariance_reg_mem(&uncertain_state->registers, us1, i);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, i, new_covar);
+            g1 * get_uncertain_covariance_reg_mem(uncertain_state, us1, i);
+        set_uncertain_covariance_reg_mem(uncertain_state, ud, i, new_covar);
     }
 }
 
@@ -257,23 +267,23 @@ void uncertain_inst_up2(UncertainState *uncertain_state, int ud, int us1, int us
         if (us1 < us2)
         {
             new_var =
-                g1 * g1 * get_uncertain_variance_reg(&uncertain_state->registers, us1) +
-                2 * g1 * g2 * get_uncertain_covariance_reg_reg(&uncertain_state->registers, us1, us2) +
-                g2 * g2 * get_uncertain_variance_reg(&uncertain_state->registers, us2);
+                g1 * g1 * get_uncertain_variance_reg(uncertain_state, us1) +
+                2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us1, us2) +
+                g2 * g2 * get_uncertain_variance_reg(uncertain_state, us2);
         }
         else if (us1 > us2)
         {
             new_var =
-                g1 * g1 * get_uncertain_variance_reg(&uncertain_state->registers, us1) +
-                2 * g1 * g2 * get_uncertain_covariance_reg_reg(&uncertain_state->registers, us2, us1) +
-                g2 * g2 * get_uncertain_variance_reg(&uncertain_state->registers, us2);
+                g1 * g1 * get_uncertain_variance_reg(uncertain_state, us1) +
+                2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us2, us1) +
+                g2 * g2 * get_uncertain_variance_reg(uncertain_state, us2);
         }
         else
         {
             new_var =
-                (g1 + g2) * (g1 + g2) * get_uncertain_variance_reg(&uncertain_state->registers, us1);
+                (g1 + g2) * (g1 + g2) * get_uncertain_variance_reg(uncertain_state, us1);
         }
-        set_uncertain_variance_reg(&uncertain_state->registers, ud, new_var);
+        set_uncertain_variance_reg(uncertain_state, ud, new_var);
     }
 
     for (i = 0; i < UNCERTAIN_REGISTER_SIZE; ++i)
@@ -283,49 +293,49 @@ void uncertain_inst_up2(UncertainState *uncertain_state, int ud, int us1, int us
             float sigma1 = nanf("");
             if (i < us1)
             {
-                sigma1 = get_uncertain_covariance_reg_reg(&uncertain_state->registers, i, us1);
+                sigma1 = get_uncertain_covariance_reg_reg(uncertain_state, i, us1);
             }
             else if (i == us1)
             {
-                sigma1 = get_uncertain_variance_reg(&uncertain_state->registers, i);
+                sigma1 = get_uncertain_variance_reg(uncertain_state, i);
             }
             else
             {
-                sigma1 = get_uncertain_covariance_reg_reg(&uncertain_state->registers, us1, i);
+                sigma1 = get_uncertain_covariance_reg_reg(uncertain_state, us1, i);
             }
 
             float sigma2 = nanf("");
             if (i < us2)
             {
-                sigma2 = get_uncertain_covariance_reg_reg(&uncertain_state->registers, i, us2);
+                sigma2 = get_uncertain_covariance_reg_reg(uncertain_state, i, us2);
             }
             else if (i == us2)
             {
-                sigma2 = get_uncertain_variance_reg(&uncertain_state->registers, i);
+                sigma2 = get_uncertain_variance_reg(uncertain_state, i);
             }
             else
             {
-                sigma2 = get_uncertain_covariance_reg_reg(&uncertain_state->registers, us2, i);
+                sigma2 = get_uncertain_covariance_reg_reg(uncertain_state, us2, i);
             }
 
             float new_covar = g1 * sigma1 + g2 * sigma2;
 
             if (i < ud)
             {
-                set_uncertain_covariance_reg_reg(&uncertain_state->registers, i, ud, new_covar);
+                set_uncertain_covariance_reg_reg(uncertain_state, i, ud, new_covar);
             }
             else
             {
-                set_uncertain_covariance_reg_reg(&uncertain_state->registers, ud, i, new_covar);
+                set_uncertain_covariance_reg_reg(uncertain_state, ud, i, new_covar);
             }
         }
     }
-    for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = 0; i < uncertain_state->memory_size; ++i)
     {
         float new_covar =
-            g1 * get_uncertain_covariance_reg_mem(&uncertain_state->registers, us1, i) +
-            g2 * get_uncertain_covariance_reg_mem(&uncertain_state->registers, us2, i);
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, i, new_covar);
+            g1 * get_uncertain_covariance_reg_mem(uncertain_state, us1, i) +
+            g2 * get_uncertain_covariance_reg_mem(uncertain_state, us2, i);
+        set_uncertain_covariance_reg_mem(uncertain_state, ud, i, new_covar);
     }
 }
 
@@ -335,29 +345,80 @@ void uncertain_inst_sv(UncertainState *uncertain_state, int ud, float variance)
     assert(ud < UNCERTAIN_REGISTER_SIZE);
     assert(variance >= 0 || isnan(variance));
 
-    set_uncertain_variance_reg(&uncertain_state->registers, ud, variance);
+    set_uncertain_variance_reg(uncertain_state, ud, variance);
 
     for (i = 0; i < ud; ++i)
     {
-        set_uncertain_covariance_reg_reg(&uncertain_state->registers, i, ud, 0);
+        set_uncertain_covariance_reg_reg(uncertain_state, i, ud, 0);
     }
 
     for (i = ud + 1; i < UNCERTAIN_REGISTER_SIZE; ++i)
     {
-        set_uncertain_covariance_reg_reg(&uncertain_state->registers, ud, i, 0);
+        set_uncertain_covariance_reg_reg(uncertain_state, ud, i, 0);
     }
 
-    for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = 0; i < uncertain_state->memory_size; ++i)
     {
-        set_uncertain_covariance_reg_mem(&uncertain_state->registers, ud, i, 0);
+        set_uncertain_covariance_reg_mem(uncertain_state, ud, i, 0);
     }
 }
 
 float uncertain_inst_gv(UncertainState *uncertain_state, int us1)
 {
     assert(us1 < UNCERTAIN_REGISTER_SIZE);
-    return get_uncertain_variance_reg(&uncertain_state->registers, us1);
+    return get_uncertain_variance_reg(uncertain_state, us1);
 }
+
+void uncertain_sizemen(Engine *E, State *S, int size)
+{
+    void *tmp;
+
+    int variance_bytes = size * sizeof(float);
+    int covariance_bytes = covariances_in_mem(size) * sizeof(float);
+    int register_bytes = covariances_in_reg_mem(UNCERTAIN_REGISTER_SIZE, size) * sizeof(float);
+    int required_bytes = variance_bytes + covariance_bytes + register_bytes;
+
+	if (S->riscv->uncertain->memory_size == 0)
+	{
+        assert(S->riscv->uncertain->memory.variances == NULL);
+        assert(S->riscv->uncertain->memory.covariances == NULL);
+        assert(S->riscv->uncertain->registers.covariances_reg_mem == NULL);
+
+		tmp = mcalloc(E, 1, required_bytes, "S->riscv->uncertain_memory");
+		if (tmp == NULL)
+		{
+			mexit(E, "Could not allocate mem for uncertain memory\n", -1);
+		}
+        S->riscv->uncertain->memory.variances = tmp;
+        S->riscv->uncertain->memory.covariances = tmp + variance_bytes;
+        S->riscv->uncertain->registers.covariances_reg_mem = tmp + variance_bytes + covariance_bytes;
+        S->riscv->uncertain->memory_size = size;
+		return;
+	}
+
+    assert(S->riscv->uncertain->memory.variances != NULL);
+    assert(S->riscv->uncertain->memory.covariances != NULL);
+    assert(S->riscv->uncertain->registers.covariances_reg_mem != NULL);
+
+	tmp = mrealloc(E, S->riscv->uncertain->memory.variances, required_bytes, "S->riscv->uncertain_memory");
+	if (tmp == NULL)
+	{
+		mexit(E,
+			"SIZEMEM failed: could not allocate uncertain memory\n", -1);
+	}
+	else
+	{
+        S->riscv->uncertain->memory.variances = tmp;
+        S->riscv->uncertain->memory.covariances = tmp + variance_bytes;
+        S->riscv->uncertain->registers.covariances_reg_mem = tmp + variance_bytes + covariance_bytes;
+        S->riscv->uncertain->memory_size = size;
+		mprint(E, S, nodeinfo,
+			"Set uncertain memory size to %d values\n", size);
+	}
+
+	return;
+}
+
 
 static int print_register_row(UncertainState *uncertain_state, FILE *stream, int row)
 {
@@ -392,7 +453,7 @@ static int print_register_row(UncertainState *uncertain_state, FILE *stream, int
         }
         else if (i == row)
         {
-            float var = get_uncertain_variance_reg(&uncertain_state->registers, row);
+            float var = get_uncertain_variance_reg(uncertain_state, row);
             result = snprintf(buffer, PRINT_DIGITS + 1, "%#-*.*f",
                               PRINT_DIGITS, PRINT_DIGITS, var);
             if (result < 0)
@@ -402,7 +463,7 @@ static int print_register_row(UncertainState *uncertain_state, FILE *stream, int
         }
         else
         {
-            float covar = get_uncertain_covariance_reg_reg(&uncertain_state->registers, row, i);
+            float covar = get_uncertain_covariance_reg_reg(uncertain_state, row, i);
             if (covar == 0) {
                 result = snprintf(buffer, PRINT_DIGITS + 1, "%-*d", PRINT_DIGITS, 0);
             } else {
@@ -432,9 +493,9 @@ static int print_register_row(UncertainState *uncertain_state, FILE *stream, int
 
     if (!PRINT_JUST_REGISTERS)
     {
-        for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+        for (i = 0; i < uncertain_state->memory_size; ++i)
         {
-            float covar = get_uncertain_covariance_reg_mem(&uncertain_state->registers, row, i);
+            float covar = get_uncertain_covariance_reg_mem(uncertain_state, row, i);
             result = snprintf(buffer, PRINT_DIGITS + 1, "%-*.*g",
                             PRINT_DIGITS, PRINT_DIGITS - 2 - (int)ceil(fabs(log10(covar))), covar);
             if (result < 0)
@@ -518,7 +579,7 @@ static int print_memory_row(UncertainState *uncertain_state, FILE *stream, int r
         characters_written += result;
     }
 
-    for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = 0; i < uncertain_state->memory_size; ++i)
     {
         if (i < row)
         {
@@ -526,7 +587,7 @@ static int print_memory_row(UncertainState *uncertain_state, FILE *stream, int r
         }
         else if (i == row)
         {
-            float var = get_uncertain_variance_mem(&uncertain_state->memory, row);
+            float var = get_uncertain_variance_mem(uncertain_state, row);
             result = snprintf(buffer, PRINT_DIGITS + 1, "%-*.*g",
                             PRINT_DIGITS, PRINT_DIGITS - 2 - (int)ceil(fabs(log10(var))), var);
             if (result < 0)
@@ -536,7 +597,7 @@ static int print_memory_row(UncertainState *uncertain_state, FILE *stream, int r
         }
         else
         {
-            float covar = get_uncertain_covariance_mem_mem(&uncertain_state->memory, row, i);
+            float covar = get_uncertain_covariance_mem_mem(uncertain_state, row, i);
             result = snprintf(buffer, PRINT_DIGITS + 1, "%-*.*g",
                             PRINT_DIGITS, PRINT_DIGITS - 2 - (int)ceil(fabs(log10(covar))), covar);
             if (result < 0)
@@ -595,7 +656,7 @@ static int print_extreme_row(UncertainState *uncertain_state, FILE *stream, cons
         characters_written += result;
     }
 
-    for (i = 0, len = PRINT_JUST_REGISTERS ? UNCERTAIN_REGISTER_SIZE : UNCERTAIN_REGISTER_SIZE + UNCERTAIN_MEMORY_SIZE;
+    for (i = 0, len = PRINT_JUST_REGISTERS ? UNCERTAIN_REGISTER_SIZE : UNCERTAIN_REGISTER_SIZE + uncertain_state->memory_size;
          i < len;
          ++i)
     {
@@ -645,7 +706,7 @@ static int print_middle_row(UncertainState *uncertain_state, FILE *stream)
         characters_written += result;
     }
 
-    for (i = 0; i < UNCERTAIN_REGISTER_SIZE + UNCERTAIN_MEMORY_SIZE; ++i)
+    for (i = 0; i < UNCERTAIN_REGISTER_SIZE + uncertain_state->memory_size; ++i)
     {
         const char *padding;
         if (i == 0)
@@ -740,7 +801,7 @@ int uncertain_print_system(UncertainState *uncertain_state, FILE *stream)
         // TODO: read stack_point from CSR
         // int stack_pointer = uncertain_inst_addisp(0);
 
-        for (i = 0; i < UNCERTAIN_MEMORY_SIZE; ++i)
+        for (i = 0; i < uncertain_state->memory_size; ++i)
         {
             const char *label = "";
             // if (i == stack_pointer)

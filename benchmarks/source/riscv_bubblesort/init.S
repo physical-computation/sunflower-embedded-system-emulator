@@ -23,7 +23,8 @@ uncertain_exper:
 	lui 	a5, %hi(.fp_5);
 	flw 	fa0, %lo(.fp_5)(a5);
 	unsvar.s fa0, fa0;
-	unfsw	fa0, -4(sp), 10(t5);
+	fsw		f0, -4(sp);
+	unfsw	f0, -4(sp), -4(sp);
 
 	unfadd.s	fa1, fa0, fa0;
 
@@ -35,5 +36,7 @@ uncertain_exper:
 
 	unfdiv.s	fa3, fa2, fa0;
 
-	unflw	fa4, -4(sp), 10(t5);
+	unflw	fa4, -4(sp), -4(sp);
+
+	ret;
 
