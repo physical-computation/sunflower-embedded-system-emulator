@@ -75,7 +75,7 @@ uint64_t nan_box(uint32_t f)
 	return ((~(uint64_t)0) << 32) | f;
 }
 
-/* Checks if a 64-bit value is NaN-boxed 
+/* Checks if a 64-bit value is NaN-boxed
  * returns the lower 32-bits if NaN-boxed and a canonical NaN if otherwise
  */
 uint32_t is_nan_boxed(uint64_t f)
@@ -278,7 +278,7 @@ void riscv_lui(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 
 void riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 {
-	reg_set_riscv(E, S, rd, (imm0<<12) + S->PC);
+	reg_set_riscv(E, S, rd, (imm0<<12) + S->PC - 4);
 
 	return;
 }
@@ -1290,7 +1290,7 @@ void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
-	
+
 	result.double_value = fmin(src1.double_value, src2.double_value);
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
@@ -1304,7 +1304,7 @@ void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	src1.bit64_value = freg_read_riscv(E, S, rs1);
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
-	
+
 	result.double_value = fmax(src1.double_value, src2.double_value);
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
