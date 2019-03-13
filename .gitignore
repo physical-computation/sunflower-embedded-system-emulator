@@ -9,6 +9,7 @@ sunflower.out
 *.out
 *.sr
 *.map
+*.dump
 init.i
 
 #
