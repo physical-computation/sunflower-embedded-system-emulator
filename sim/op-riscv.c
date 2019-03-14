@@ -1211,8 +1211,8 @@ void rv32d_fdiv_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	rv32d_rep src1, src2, result;
 
-	src1.double_value = freg_read_riscv(E, S, rs1);
-	src2.double_value = freg_read_riscv(E, S, rs2);
+	src1.bit64_value = freg_read_riscv(E, S, rs1);
+	src2.bit64_value = freg_read_riscv(E, S, rs2);
 
 	result.double_value = src1.double_value / src2.double_value;
 
