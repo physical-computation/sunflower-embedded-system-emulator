@@ -5,7 +5,7 @@ PROGRAM		= 1
 INIT			= init
 
 OPTFLAGS	= -g -O0
-CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall # Do not do since we are linking mOS for libc implementation:	-nostdlib -fno-builtin 
+CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall # Do not do since we are linking mOS for libc implementation:	-nostdlib -fno-builtin
 LDFLAGS		= -Ttext $(LOADADDR)
 LOADADDR	= 0x08004000
 
@@ -20,7 +20,7 @@ $(INIT).o: $(INIT).s
 	$(CC) -O0 -c -o $(INIT).o $(INIT).s
 
 $(PROGRAM): $(OBJS) $(INIT).o
-	$(LD) $(LDFLAGS) $(INIT).o $(OBJS) -o $@ -lm -lc -Map=1.map
+	$(LD) $(LDFLAGS) $(INIT).o $(OBJS) -o $@ -lm -lc -lgloss -Map=1.map
 
 $(PROGRAM).sr:$(PROGRAM)
 	$(OBJCOPY) -O srec $(PROGRAM) $@
