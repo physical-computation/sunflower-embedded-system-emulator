@@ -461,7 +461,6 @@ void riscv_sb(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 void 	riscv_fence(Engine *E, State *S) {}
 void 	riscv_fence_i(Engine *E, State *S) {}
 void 	riscv_cor(Engine *E, State *S) {}
-void 	riscv_ecall(Engine *E, State *S) {}
 void 	riscv_ebreak(Engine *E, State *S) {}
 void 	riscv_csrrw(Engine *E, State *S) {}
 void 	riscv_csrrs(Engine *E, State *S) {}
@@ -469,6 +468,15 @@ void 	riscv_csrrc(Engine *E, State *S) {}
 void 	riscv_csrrwi(Engine *E, State *S) {}
 void 	riscv_csrrsi(Engine *E, State *S) {}
 void 	riscv_csrrci(Engine *E, State *S) {}
+
+void 	riscv_ecall(Engine *E, State *S) {
+	// http://man7.org/linux/man-pages/man2/syscall.2.html
+	uint32_t syscall_num = reg_read_riscv(E, S, RISCV_A7);
+	riscv_sim_syscall(E, S, syscall_num,
+				reg_read_riscv(E, S, RISCV_A0),
+				reg_read_riscv(E, S, RISCV_A1),
+				reg_read_riscv(E, S, RISCV_A2));
+}
 
 
 /* RISC-V RV32F instructions */

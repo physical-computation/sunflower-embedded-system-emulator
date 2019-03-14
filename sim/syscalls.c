@@ -1,9 +1,9 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
- 
+
 	All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without 
+	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
 
@@ -18,20 +18,20 @@
 
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
-		derived from this software without specific prior written 
+		derived from this software without specific prior written
 		permission.
 
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
 	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
-	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -100,7 +100,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 				mprint(E, S, nodeinfo,
 					"Estimated CPU-only Energy = %1.6E\n", S->energyinfo.CPUEtot);
 			}
-				
+
 			mprint(E, S, nodeinfo, "\n\n");
 			S->runnable = 0;
 			E->on = 0;
@@ -149,7 +149,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 				mprint(E, S, nodeinfo, "SYSCALL: SYS_open path=%s (" UHLONGFMT ") flags=" UHLONGFMT "\n",\
 				&S->MEM[(ulong)arg1 - S->MEMBASE], arg1, arg2);
 			}
-			return sys_open(S, (const char *)arg1, (int)arg2); 
+			return sys_open(S, (const char *)arg1, (int)arg2);
 			break;
 		}
 
@@ -379,7 +379,107 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 	}
 
 	return -1;
-} 
+}
+
+ulong
+riscv_sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
+{
+	ulong superH_type;
+
+	switch (type) {
+		case RISCV_SYS_exit:
+		{
+			superH_type = SYS_exit;
+			break;
+		}
+
+		case RISCV_SYS_read:
+		{
+			superH_type = SYS_read;
+			break;
+		}
+		case RISCV_SYS_write:
+		{
+			superH_type = SYS_write;
+			break;
+		}
+		case RISCV_SYS_open:
+		{
+			superH_type = SYS_open;
+			break;
+		}
+		case RISCV_SYS_close:
+		{
+			superH_type = SYS_close;
+			break;
+		}
+		case RISCV_SYS_link:
+		{
+			superH_type = SYS_link;
+			break;
+		}
+		case RISCV_SYS_unlink:
+		{
+			superH_type = SYS_unlink;
+			break;
+		}
+		case RISCV_SYS_chdir:
+		{
+			superH_type = SYS_chdir;
+			break;
+		}
+		case RISCV_SYS_lseek:
+		{
+			superH_type = SYS_lseek;
+			break;
+		}
+		case RISCV_SYS_getpid:
+		{
+			superH_type = SYS_getpid;
+			break;
+		}
+		case RISCV_SYS_fstat:
+		{
+			superH_type = SYS_fstat;
+			break;
+		}
+		case RISCV_SYS_time:
+		{
+			superH_type = SYS_time;
+			break;
+		}
+
+		case RISCV_SYS_stat:
+		{
+			superH_type = SYS_stat;
+			break;
+		}
+
+		case RISCV_SYS_pipe:
+		{
+			superH_type = SYS_pipe;
+			break;
+		}
+		case RISCV_SYS_execve:
+		{
+			superH_type = SYS_execve;
+			break;
+		}
+		default:
+		{
+			superH_type = -1;
+			break;
+		}
+	}
+
+	if (superH_type == -1) {
+		mprint(E, S, nodeinfo, "Node [%d] : Unknown SYSCALL [%ld]!!!\n",\
+				S->NODE_ID, type);
+	} else {
+		return sim_syscall(E, S, superH_type, arg1, arg2, arg3);
+	}
+	return -1;
+}
 
 ulong
 sys_write(Engine *E, State *S, int fd, char *ptr, int len)
