@@ -84,15 +84,13 @@ static void set_uncertain_covariance_reg_mem(UncertainState *state, int row, int
 
 // Access to uncertain memory
 
-static int get_offset_mem_mem(int memory_size, int row, int col)
+static int get_offset_mem_mem(int row, int col)
 {
     assert(row >= 0);
     assert(col >= 1);
     assert(row < col);
-    assert(row < memory_size - 1);
-    assert(col < memory_size);
 
-    return (col - 1 + row * (2 * memory_size - 3 - row) / 2);
+    return (col - 1) * col / 2 + row;
 }
 
 static float get_uncertain_variance_mem(UncertainState *state, int i)
@@ -112,13 +110,17 @@ static void set_uncertain_variance_mem(UncertainState *state, int i, float value
 
 static float get_uncertain_covariance_mem_mem(UncertainState *state, int row, int col)
 {
-    int offset = get_offset_mem_mem(state->memory_size, row, col);
+    assert(row < state->memory_size - 1);
+    assert(col < state->memory_size);
+    int offset = get_offset_mem_mem(row, col);
     return state->memory.covariances[offset];
 }
 
 static void set_uncertain_covariance_mem_mem(UncertainState *state, int row, int col, float value)
 {
-    int offset = get_offset_mem_mem(state->memory_size, row, col);
+    assert(row < state->memory_size - 1);
+    assert(col < state->memory_size);
+    int offset = get_offset_mem_mem(row, col);
     state->memory.covariances[offset] = value;
 }
 
