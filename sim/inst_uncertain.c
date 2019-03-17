@@ -13,10 +13,10 @@
 #define PRINT_DIGIT_BUFFER_SIZE (PRINT_DIGITS * 4 + 1)
 
 
-static int covariances_in_mem (int memory_size) {
+static size_t covariances_in_mem (size_t memory_size) {
     return (memory_size - 1) * memory_size / 2;
 }
-static int covariances_in_reg_mem (int register_size, int memory_size) {
+static size_t covariances_in_reg_mem (size_t register_size, size_t memory_size) {
     return register_size * memory_size;
 }
 
@@ -373,12 +373,17 @@ float uncertain_inst_gv(UncertainState *uncertain_state, int us1)
 
 void uncertain_sizemen(Engine *E, State *S, int size)
 {
+    size = (size - 0x4000) / 4;
     void *tmp;
 
-    int variance_bytes = size * sizeof(float);
-    int covariance_bytes = covariances_in_mem(size) * sizeof(float);
-    int register_bytes = covariances_in_reg_mem(UNCERTAIN_REGISTER_SIZE, size) * sizeof(float);
-    int required_bytes = variance_bytes + covariance_bytes + register_bytes;
+    if (size > (1<< 16)) {
+        mexit(E, "Cannot compute required number of covariances without overflow\n", 1);
+    }
+
+    size_t variance_bytes = size * sizeof(float);
+    size_t covariance_bytes = covariances_in_mem(size) * sizeof(float);
+    size_t register_bytes = covariances_in_reg_mem(UNCERTAIN_REGISTER_SIZE, size) * sizeof(float);
+    size_t required_bytes = variance_bytes + covariance_bytes + register_bytes;
 
 	if (S->riscv->uncertain->memory_size == 0)
 	{
