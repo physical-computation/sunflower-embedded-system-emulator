@@ -377,6 +377,17 @@ float uncertain_inst_gv(UncertainState *uncertain_state, int us1)
     return get_uncertain_variance_reg(uncertain_state, us1);
 }
 
+float uncertain_inst_gcov(UncertainState *uncertain_state, int us1, int us2)
+{
+    assert(us1 < UNCERTAIN_REGISTER_SIZE);
+    assert(us2 < UNCERTAIN_REGISTER_SIZE);
+    if (us1 == us2)
+        return get_uncertain_variance_reg(uncertain_state, us1);
+    else
+        return get_uncertain_covariance_reg_reg(uncertain_state, us1, us2);
+
+}
+
 void uncertain_sizemen(Engine *E, State *S, int size)
 {
     size = (size - 0x4000) / 4;

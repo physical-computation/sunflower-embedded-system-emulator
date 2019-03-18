@@ -1779,21 +1779,23 @@ void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	merror(E, "UNGCOV.S INSTRUCTION not implemented");
+	rv32f_rep var;
+
+	var.float_value = uncertain_inst_gcov(S->riscv->uncertain, rs1, rs2);
+
+	// printf("Getting var of %g at x%u\n", var.float_value, rs1);
+	freg_set_riscv(E, S, rd, nan_box(var.bit_value));
+	uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+
 }
 
 void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
 {
-	uint8_t _rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
-
-
 	rv32f_rep var;
 
 	var.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	uncertain_inst_sv(S->riscv->uncertain, rd, var.float_value);
-
-	return;
 }
 
 void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)

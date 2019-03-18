@@ -64,6 +64,7 @@ void uncertain_inst_up2(UncertainState * state,
                         float g1, float g2);
 
 float uncertain_inst_gv(UncertainState * state, int us1);
+float uncertain_inst_gcov(UncertainState * state, int us1, int us2);
 void uncertain_inst_sv(UncertainState * state, int ud, float variance);
 
 #endif
