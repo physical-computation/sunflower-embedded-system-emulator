@@ -84,6 +84,19 @@ uint32_t is_nan_boxed(uint64_t f)
 	else return 0x7FFFFFFF;
 }
 
+int get_uncertain_memory_index(Engine *E, State *S, uint32_t vaddr) {
+	// TODO: programmatically pick a sensible value
+	// Note that in the "finished" version uncertain memory will be
+	// indexed starting at zero and so this will not be needed.
+	const uint32_t INST_END_ADDR = 0x8009fa4;
+	if ((vaddr & 0b11) != 0) {
+		merror(E, "Unaligned uncertain aware floating point load/store at address 0x%08u", vaddr);
+	}
+	int addr = (int)(vaddr - INST_END_ADDR) / 4;
+
+	return addr;
+}
+
 void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + reg_read_riscv(E, S, rs2)));
@@ -484,8 +497,6 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0, 12);
 
-	freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
-	uncertain_inst_sv(S->riscv->uncertain, rd, 0);
 
 	if (S->riscv->uncertain->last_op.valid)
 	{
@@ -497,10 +508,24 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 		uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
 
 		uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+		int uncertainIndex = get_uncertain_memory_index(E, S, uncertainAddr);
 
-		uncertain_inst_lr(S->riscv->uncertain, rd, uncertainAddr);
+		/* Due to trouble patching binutils, the best guess memory location is zeroed.
+		* For now use the uncertain memory address for the best guess aswell.
+		*
+		* If the uncertainIndex is negative then we are trying to read a memory location
+		* in the `.text` section of the binary. This is how gnu generated binaries initialise
+		* floats. For now, just load an uncertainty of zero.
+		*/
+		freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, uncertainAddr)));
+		if (uncertainIndex < 0)
+			uncertain_inst_sv(S->riscv->uncertain, rd, 0);
+		else
+			uncertain_inst_lr(S->riscv->uncertain, rd, uncertainIndex);
 		S->riscv->uncertain->last_op.valid = 0;
 	} else {
+		// This a normal floating point load
+		freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
 		uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
 	}
 
@@ -511,7 +536,6 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 {
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
-	superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
 
 	if (S->riscv->uncertain->last_op.valid)
 	{
@@ -523,9 +547,26 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 		uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
 
 		uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+		int uncertainIndex = get_uncertain_memory_index(E, S, uncertainAddr);
 
-		uncertain_inst_sr(S->riscv->uncertain, rs2, uncertainAddr);
+		/* Trying to store an uncertain value into the `.text` section is a bug(?).
+		 *
+		 * Regardless, the uncertain memory does not exist for negative indexes so
+		 * we cannot possibly fulfill this store. Instead, log an error.
+		 *
+		 * See also the note in `rv32f_flw()`.
+		 */
+		if (uncertainIndex < 0)
+		{
+			merror(E, "Cannot store uncertainty to address %X.\n", uncertainAddr);
+		}
+
+		superHwritelong(E, S, uncertainAddr, freg_read_riscv(E, S, rs2));
+		uncertain_inst_sr(S->riscv->uncertain, rs2, uncertainIndex);
 		S->riscv->uncertain->last_op.valid = 0;
+	} else {
+		// This a normal floating point store
+		superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
 	}
 
 	return;

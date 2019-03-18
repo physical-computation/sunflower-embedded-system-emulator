@@ -2051,7 +2051,7 @@ m_run(Engine *E, State *S, char *args)
 	/*	enough stack space during init, which I think	*/
 	/*	more than suffices. The argv goes below it.	*/
 	/*							*/
-	int	argc, ARGVOFFSET = 65536, argstrlen, align;
+	int	argc, ARGVOFFSET = 16, argstrlen, align;
 	char	**tptr, **argv, *simstr;
 	ulong	argvptroffset;
 
@@ -2148,7 +2148,7 @@ m_run(Engine *E, State *S, char *args)
 
 		mprint(E, S, nodeinfo, "args = [%s], argc = %d\n",
 			args, argc);
-		mprint(E, S, nodeinfo, "R2 = [0x %016lx]\n",
+		mprint(E, S, nodeinfo, "R2 = [0x%08lx]\n",
 			S->riscv->R[2]);
 
 		S->runnable = 1;
