@@ -12,6 +12,7 @@
 // unicode symbols may require 4 bytes
 #define PRINT_DIGIT_BUFFER_SIZE (PRINT_DIGITS * 4 + 1)
 
+#define EPSILON (1e-15f)
 
 static size_t covariances_in_mem (size_t memory_size) {
     return (memory_size - 1) * memory_size / 2;
@@ -53,7 +54,9 @@ static void set_uncertain_variance_reg(UncertainState *state, int i, float value
 {
     assert(i >= 0);
     assert(i < UNCERTAIN_REGISTER_SIZE);
-    // printf("%g\n", value);
+    if (value < 0 && value > -EPSILON) {
+        value = 0;
+    }
     assert(value >= 0 || isnan(value));
     state->registers.variances[i] = value;
 }
@@ -104,6 +107,9 @@ static void set_uncertain_variance_mem(UncertainState *state, int i, float value
 {
     assert(i >= 0);
     assert(i < state->memory_size);
+    if (value < 0 &&    value > -EPSILON) {
+        value = 0;
+    }
     assert(value >= 0 || isnan(value));
     state->memory.variances[i] = value;
 }
