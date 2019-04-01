@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/phillipstanleymarbell/sunflower-simulator.svg?branch=master)](https://travis-ci.com/phillipstanleymarbell/sunflower-simulator)
+- - - -
+
 ![Sunflower Simulator Architecture](arch.png)
 
 # Cloning this repository
