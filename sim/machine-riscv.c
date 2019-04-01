@@ -81,7 +81,7 @@ riscvdumpregs(Engine *E, State *S)
 
 	for (i = 0; i < 32; i++)
 	{
-		mprint(E, S, nodeinfo, "R%-2d\t", i);
+		mprint(E, S, nodeinfo, "x%-2d\t", i);
 		print_integer_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
 		mbitprint(E, S, 32, S->riscv->R[i]);
@@ -92,7 +92,7 @@ riscvdumpregs(Engine *E, State *S)
 
 	for (i = 0; i < 32; i++)
 	{
-		mprint(E, S, nodeinfo, "fR%-2d\t", i);
+		mprint(E, S, nodeinfo, "f%-2d\t", i);
 		print_fp_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
 		uint64_t float_bits = S->riscv->fR[i];
