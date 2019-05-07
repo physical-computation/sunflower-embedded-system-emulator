@@ -38,7 +38,7 @@ $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 %.o : %.c
 %.o : %.S
 
-%.s : %.c $(HEADERS) Makefile
+%.s : %.c $(HEADERS) Makefile add-uncertain-instructions.py
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $@ -c $<
 	python3 add-uncertain-instructions.py $@
 
@@ -49,8 +49,10 @@ $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 %.o : %.s $(HEADERS) Makefile
 	$(AS) $(ASFLAGS) -g -o $@ -c $<
 
-$(PROGRAM).out: $(OBJS) Makefile
+$(PROGRAM).out: $(OBJS) Makefile fix-uncertain-binary.py
 	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgcc -lgloss -lm
+	python3 fix-uncertain-binary.py $@ > tmp-$@
+	mv tmp-$@ $@
 
 $(PROGRAM).sr: $(PROGRAM).out Makefile
 	$(OBJCOPY) -O srec $< $@
