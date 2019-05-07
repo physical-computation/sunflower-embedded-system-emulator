@@ -78,6 +78,6 @@ with open(file_name, mode='rb') as file:
             else:
                 prev_instruction_if_uncertain = None
 
-        words_read = words_read + 4
+        words_read = words_read + 1
 
 
