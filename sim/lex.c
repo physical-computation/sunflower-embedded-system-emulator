@@ -196,8 +196,8 @@ TokenTab token_table [] =
 	
 
 
-	{"SETNODEMASS",		T_SETFLASHWLATENCY},		/*+	Set node mass.: <mass in kg>																						*/
-	{"SETPROPULSIONCOEFFS",	T_SETFLASHWLATENCY},		/*+	Set propulsion power model coefficients.: <xk1 xk2 xk3 xk4 xk5 xk6 yk1 yk2 yk3 yk4 yk5 yk6 zk1 zk2 zk3 zk4 zk5 zk6>											*/
+	{"SETNODEMASS",		T_SETNODEMASS},			/*+	Set node mass.: <mass in kg>																						*/
+	{"SETPROPULSIONCOEFFS",	T_SETPROPULSIONCOEFFS},		/*+	Set propulsion power model coefficients.: <xk1 xk2 xk3 xk4 xk5 xk6 yk1 yk2 yk3 yk4 yk5 yk6 zk1 zk2 zk3 zk4 zk5 zk6>											*/
 
 	/*										*/
 	/*	We should use these and get rid of NETSEGFAILPROB and NODEFAILPROB	*/
