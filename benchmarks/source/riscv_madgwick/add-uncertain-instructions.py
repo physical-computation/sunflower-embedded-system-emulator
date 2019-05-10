@@ -23,7 +23,7 @@ def replace_mnemonic(line, mnemonic):
     )
 
 
-with fileinput.input(inplace=True) as file:
+with fileinput.input() as file:
     for line in file:
         lineno = file.lineno()
         line = replace_mnemonic(line, "fadd.s")

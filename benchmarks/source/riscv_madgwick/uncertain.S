@@ -27,54 +27,55 @@ sqrtunf:
 	unfsqrt.s fa0, fa0;
 	ret;
 
+/*
+ * 	We store a nonsense value in fa1 with the
+ *	correct uncertainty.
+ *
+ *	d/dx( atan(x) ) = 1 / (x^2 + 1)
+ *
+ */
 atan2unf:
 	addi 		sp, sp, -16
 	sw 		ra, 12(sp)
-	/*
-	 * 	store a nonsense value in fs0 with the
-	 *	correct uncertainty.
-	 *
-	 *	d/dx( atan(x) ) = 1 / (x^2 + 1)
-	 *
-	 */
-	fsw		fs0, 8(sp)
-	unfdiv.s	fs0, fa0, fa1
+	unfsw		fa0, 8(sp), 8(sp)
+	unfsw		fa1, 4(sp), 4(sp)
+	call 		atan2f
+	unflw		fa1, 8(sp), 8(sp)
+	unflw		fa2, 4(sp), 4(sp)
+	unfdiv.s	fa4, fa1, fa2
 	li		a0, 1
 	fcvt.s.w	fa3, a0
-	fmul.s		fa4, fs0, fs0
-	fadd.s		fa4, fa4, fa3
-	fdiv.s		fa4, fa3, fa4
-	unupg.s		fs0, fs0, fa4
-
-	call 		atan2f
-	uncpvar.s	fa0, fs0
-	flw 		fs0, 8(sp)
+	fmul.s		fa2, fa4, fa4
+	fadd.s		fa2, fa2, fa3
+	fdiv.s		fa2, fa3, fa2
+	unupg.s		fa1, fa1, fa4
+	uncpvar.s	fa0, fa1
 	lw 		ra, 12(sp)
 	addi 		sp, sp, 16
 	ret
 
+
+/*
+ *	We store a nonsense value in fa1 with the
+ *	correct uncertainty.
+ *
+ *	d/dx( atan(x) ) = 1 / sqrt(1 - x^2)
+ *
+ */
 asinunf:
 	addi 		sp, sp, -16
 	sw 		ra, 12(sp)
-	/*
-	 * 	store a nonsense value in fs0 with the
-	 *	correct uncertainty.
-	 *
-	 *	d/dx( atan(x) ) = 1 / sqrt(1 - x^2)
-	 *
-	 */
-	fsw		fs0, 8(sp)
-	unfdiv.s	fs0, fa0, fa1
+	unfsw		fa0, 8(sp), 8(sp)
+	call 		asinf
+	unflw		fa1, 8(sp), 8(sp)
 	li		a0, 1
 	fcvt.s.w	fa3, a0
-	fmul.s		fa4, fs0, fs0
+	fmul.s		fa4, fa1, fa1
 	fsub.s		fa4, fa3, fa4
 	fsqrt.s		fa4, fa4
-	unupg.s		fs0, fs0, fa4
+	unupg.s		fa1, fa1, fa4
 
-	call 		asinf
-	uncpvar.s	fa0, fs0
-	flw 		fs0, 8(sp)
+	uncpvar.s	fa0, fa1
 	lw 		ra, 12(sp)
 	addi 		sp, sp, 16
 	ret

@@ -12,19 +12,17 @@ ASFLAGS		= --march=rv32ifdxun
 LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET) -Map=$(PROGRAM).map
 LOADADDR	= 0x08004000
 
-OBJS	=\
-	init.o\
-	$(UNCERTAIN).o\
-	$(MADGWICK).o\
-	$(PROGRAM).o\
+OBJS		=\
+		init.o\
+		$(UNCERTAIN).o\
+		$(MADGWICK).o\
+		$(PROGRAM).o\
 
-HEADERS	=\
-	$(UNCERTAIN).h\
-	$(MADGWICK).h\
+HEADERS		=\
+		$(UNCERTAIN).h\
+		$(MADGWICK).h\
 
-.SECONDARY:
-
-.PHONY: clean
+.PHONY: all clean
 
 all:		$(PROGRAM).sr $(PROGRAM).dump Makefile
 
@@ -34,17 +32,10 @@ $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 %.s : %.S Makefile
 	$(CPP) -o $@ -c $<
 
-# disable direct compilation of .c and .S files
-%.o : %.c
-%.o : %.S
-
 %.s : %.c $(HEADERS) Makefile add-uncertain-instructions.py
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $@ -c $<
-	python3 add-uncertain-instructions.py $@
-
-# $(MADGWICK).s : $(MADGWICK).c $(HEADERS) Makefile
-# 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $@ -c $<
-# 	python3 add-uncertain-instructions.py $(MADGWICK).s
+	python3 add-uncertain-instructions.py $@ > tmp-$@
+	mv tmp-$@ $@
 
 %.o : %.s $(HEADERS) Makefile
 	$(AS) $(ASFLAGS) -g -o $@ -c $<
@@ -62,3 +53,7 @@ $(PROGRAM).dump: $(PROGRAM).out Makefile
 
 clean:
 	$(RM) *.o *.sr *.out *.map *.s *.dump simlog.*
+
+# disable direct compilation of .c and .S files
+%.o : %.c
+%.o : %.S
