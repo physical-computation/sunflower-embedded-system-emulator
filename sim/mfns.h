@@ -820,6 +820,7 @@ void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd);
-void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
+void rv32un_unclvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
+void rv32un_uncpvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
 
 void rv32un_un_part1(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);

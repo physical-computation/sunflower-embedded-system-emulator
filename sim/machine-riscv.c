@@ -122,7 +122,7 @@ riscvdumpregs(Engine *E, State *S)
 	}
 
 	// TODO: remove me!
-	uncertain_print_system(S->riscv->uncertain, stdout);
+	// uncertain_print_system(S->riscv->uncertain, stdout);
 
 	return;
 }

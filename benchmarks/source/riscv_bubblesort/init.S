@@ -31,7 +31,7 @@ uncertain_exper:
 
 	li		t0, 19;
 	fcvt.s.w fa0, t0;
-	uncvar.s fa0;
+	unclvar.s fa0;
 
 	unfdiv.s	fa3, fa2, fa0;
 

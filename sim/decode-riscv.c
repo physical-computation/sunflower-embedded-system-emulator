@@ -679,19 +679,40 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
 	  		break;
 	  	}
-	  	case 0b1011100: //UNSVARS.S
+	  	case 0b1011100:
 	  	{
-	  		stage->fptr = (void *) rv32un_unsvar_s;
-						  stage->format = INSTR_R;
-						  stage->op = RV32UN_OP_UNSVARS;
+			instr_r4 * r4_tmp = (instr_r4*)tmp;
+			switch(r4_tmp->rs2)
+			{
+				case 0b00000: //UNSVARS.S
+				{
+	  				stage->fptr = (void *) rv32un_unsvar_s;
+							stage->format = INSTR_R;
+							stage->op = RV32UN_OP_UNSVARS;
 
-	  		break;
-	  	}
-	  	case 0b1111100: //UNCVAR.S
-	  	{
-	  		stage->fptr = (void *) rv32un_uncvar_s;
-						  stage->format = INSTR_R;
-						  stage->op = RV32UN_OP_UNCVARS;
+					break;
+				}
+				case 0b00001: //UNCPVAR.S
+				{
+					stage->fptr = (void *) rv32un_uncpvar_s;
+								stage->format = INSTR_R;
+								stage->op = RV32UN_OP_UNCPVARS;
+
+					break;
+				}
+				case 0b00010: //UNCLVAR.S
+				{
+					stage->fptr = (void *) rv32un_unclvar_s;
+								stage->format = INSTR_R;
+								stage->op = RV32UN_OP_UNCLVARS;
+
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
 
 	  		break;
 	  	}

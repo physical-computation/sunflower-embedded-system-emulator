@@ -1810,7 +1810,7 @@ void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	merror(E, "UNUPG.S INSTRUCTION not implemented");
+	uncertain_inst_up1(S->riscv->uncertain, rd, rs1, rs2);
 }
 
 void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
@@ -1834,11 +1834,14 @@ void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
 	uncertain_inst_sv(S->riscv->uncertain, rd, var.float_value);
 }
 
-void rv32un_uncvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)
+void rv32un_unclvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)
 {
 	uncertain_inst_sv(S->riscv->uncertain, rd, 0.0);
+}
 
-	return;
+void rv32un_uncpvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
+{
+	uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
 }
 
 void rv32un_un_part1(Engine *E, State *S, uint8_t _rs1, uint8_t _rd, uint16_t _imm0)
