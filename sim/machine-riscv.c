@@ -106,8 +106,11 @@ riscvdumpregs(Engine *E, State *S)
 			if (S->riscv->uncertain == NULL || !isnan(S->riscv->uncertain->registers.variances[i]))
 			{
 				size_t start_offset = strlen(fp_value);
-				snprintf(fp_value + start_offset, sizeof(fp_value) - start_offset,
-					     " +- %#-.5g", sqrtf(S->riscv->uncertain->registers.variances[i]));
+				snprintf(
+					fp_value + start_offset,
+					sizeof(fp_value) - start_offset,
+					" +- %#-.5g", sqrtf(S->riscv->uncertain->registers.variances[i])
+				);
 			}
 			f_width = "single";
 		}
@@ -133,7 +136,7 @@ uncertainnewstate(Engine *E, char *ID)
 	int i;
 	UncertainState *S = (UncertainState *)mcalloc(E, 1, sizeof(UncertainState), ID);
 
-    if (S == NULL)
+	if (S == NULL)
 	{
 		mexit(E, "Failed to allocate memory uncertain state.", -1);
 	}
@@ -142,28 +145,28 @@ uncertainnewstate(Engine *E, char *ID)
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
-    return S;
+	return S;
 }
 
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-    State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
-    S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
-    S->dumpregs = riscvdumpregs;
+	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
+	S->dumpregs = riscvdumpregs;
 	S->dumppipe = riscvdumppipe;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
 
-    if (S->riscv == NULL)
+	if (S->riscv == NULL)
 	{
 		mexit(E, "Failed to allocate memory for S->riscv.", -1);
 	}
 
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
 
-    S->step = riscvstep;
+	S->step = riscvstep;
 
-    return S;
+	return S;
 }
