@@ -9,23 +9,23 @@
 .globl atan2unf
 
 gcovunf:
-	ungcov.s fa0, fa0, fa1;
-	ret;
+	ungcov.s fa0, fa0, fa1
+	ret
 
 best_guessunf:
-	ret;
+	ret
 
 svarunf:
-	unsvar.s fa0, fa1;
-	ret;
+	unsvar.s fa0, fa1
+	ret
 
 cvarunf:
-	unclvar.s fa0;
-	ret;
+	unclvar.s fa0
+	ret
 
 sqrtunf:
-	unfsqrt.s fa0, fa0;
-	ret;
+	unfsqrt.s fa0, fa0
+	ret
 
 /*
  * 	We store a nonsense value in fa1 with the
