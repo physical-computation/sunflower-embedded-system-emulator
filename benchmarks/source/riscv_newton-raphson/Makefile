@@ -1,32 +1,34 @@
 TREEROOT	= ../../..
 include $(TREEROOT)/conf/setup.conf
 
-PROGRAM		= 1
+PROGRAM		= newton_rapson
 INIT			= init
 
 OPTFLAGS	= -g -O0
-CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall # Do not do since we are linking mOS for libc implementation:	-nostdlib -fno-builtin
-LDFLAGS		= -Ttext $(LOADADDR)
+INCLUDES	= -I$(PREFIX)/include
+CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall
+LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET)
 LOADADDR	= 0x08004000
 
 
 OBJS	=\
-	$(PROGRAM).o\
+	$(INIT).o \
+	$(PROGRAM).o \
 
 
-all:	$(PROGRAM) $(PROGRAM).sr Makefile
+all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
-$(INIT).o: $(INIT).s
-	$(CC) -O0 -c -o $(INIT).o $(INIT).s
+$(INIT).o: $(INIT).S
+	$(CC) $(OPTFLAGS) -o $(INIT).o -c $(INIT).S
 
-$(PROGRAM): $(OBJS) $(INIT).o
-	$(LD) $(LDFLAGS) $(INIT).o $(OBJS) -o $@ -lm -lc -lgloss -Map=1.map
+$(PROGRAM).out: $(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgloss -lgcc
 
-$(PROGRAM).sr:$(PROGRAM)
-	$(OBJCOPY) -O srec $(PROGRAM) $@
+$(PROGRAM).sr: $(PROGRAM).out
+	$(OBJCOPY) -O srec $(PROGRAM).out $@
 
 $(PROGRAM).o: $(PROGRAM).c Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(PROGRAM).c
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PROGRAM).c
 
 clean:
-	$(RM) init.i *.o $(PROGRAM) $(PROGRAM).sr $(PROGRAM).map
+	$(RM) *.o *.out *.sr *.map
