@@ -100,6 +100,7 @@
 %token	T_DUMPALL
 %token	T_DUMPMEM
 %token	T_DUMPPIPE
+%token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
 %token	T_DUMPREGS
 %token	T_DUMPSYSREGS
@@ -1295,6 +1296,13 @@ sf_cmd		: T_QUIT '\n'
 			if (!yyengine->scanning)
 			{
 				yyengine->cp->dumppipe(yyengine, yyengine->cp);
+			}
+		}
+		| T_DUMPDISTRIBUTION '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumpdistribution(yyengine, yyengine->cp);
 			}
 		}
 		| T_RESETCPU '\n'

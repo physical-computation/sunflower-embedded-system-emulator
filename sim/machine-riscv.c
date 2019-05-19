@@ -125,6 +125,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumppipe = riscvdumppipe;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
+	S->dumpdistribution = riscvdumpdistribution;
 
     if (S->riscv == NULL)
 	{
