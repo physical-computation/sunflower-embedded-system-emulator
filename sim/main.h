@@ -684,7 +684,8 @@ struct State
 	void 		(*dumpsysregs)(Engine *, State *S);
 	void 		(*resetcpu)(Engine *, State *S);
 	void 		(*dumppipe)(Engine *, State *S);
-	void 		(*pipeflush)(State *S);
+        void 		(*dumpdistribution)(Engine *, State *S);
+        void 		(*pipeflush)(State *S);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);
