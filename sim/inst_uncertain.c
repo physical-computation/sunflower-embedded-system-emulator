@@ -12,7 +12,7 @@
 // unicode symbols may require 4 bytes
 #define PRINT_DIGIT_BUFFER_SIZE (PRINT_DIGITS * 4 + 1)
 
-#define EPSILON (1e-15f)
+#define EPSILON (1e-5f)
 
 static size_t covariances_in_mem (size_t memory_size) {
     return (memory_size - 1) * memory_size / 2;

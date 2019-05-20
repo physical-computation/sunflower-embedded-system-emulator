@@ -7,6 +7,7 @@ INIT			= init
 OPTFLAGS	= -g -O0
 INCLUDES	= -I$(PREFIX)/include
 CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall
+ASFLAGS		= --march=rv32ifdxun
 LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET)
 LOADADDR	= 0x08004000
 
@@ -18,17 +19,26 @@ OBJS	=\
 
 all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
-$(INIT).o: $(INIT).S
-	$(CC) $(OPTFLAGS) -o $(INIT).o -c $(INIT).S
+$(INIT).s: $(INIT).S Makefile
+	$(CPP) -o $(INIT).s -c $(INIT).S
 
 $(PROGRAM).out: $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgloss -lgcc
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
+	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out
 	$(OBJCOPY) -O srec $(PROGRAM).out $@
 
-$(PROGRAM).o: $(PROGRAM).c Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PROGRAM).c
+$(PROGRAM).s: $(PROGRAM).c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $(PROGRAM).s -c $(PROGRAM).c
+	$(UTILSBIN)/add-uncertain-instructions.py $(PROGRAM).s
+
+%.o : %.s $(HEADERS) Makefile
+	$(AS) $(ASFLAGS) -g -o $@ -c $<
 
 clean:
-	$(RM) *.o *.out *.sr *.map
+	$(RM) *.s *.o *.out *.sr *.map
+
+# disable direct compilation of .c and .S files
+%.o : %.c
+%.o : %.S
