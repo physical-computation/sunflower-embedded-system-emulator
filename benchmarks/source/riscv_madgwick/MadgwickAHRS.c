@@ -16,8 +16,13 @@
 // Header files
 
 #include "MadgwickAHRS.h"
-#include "uncertain.h"
 #include <math.h>
+
+#ifdef NATIVE
+#define sqrtunf sqrtf
+#elif
+#include <uncertain.h>
+#endif
 
 //---------------------------------------------------------------------------------------------------
 // Definitions

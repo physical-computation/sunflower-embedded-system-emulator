@@ -14,12 +14,10 @@ LOADADDR	= 0x08004000
 
 OBJS		=\
 		init.o\
-		$(UNCERTAIN).o\
 		$(MADGWICK).o\
 		$(PROGRAM).o\
 
 HEADERS		=\
-		$(UNCERTAIN).h\
 		$(MADGWICK).h\
 
 .PHONY: all clean
@@ -33,18 +31,15 @@ $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 	$(CPP) -o $@ -c $<
 
 %.s : %.c $(HEADERS) Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o tmp-$@ -c $<
-	$(UTILSBIN)/add-uncertain-instructions.py tmp-$@ > $@
-	rm tmp-$@
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $@ -c $<
+	$(UTILSBIN)/add-uncertain-instructions.py $@
 
 %.o : %.s $(HEADERS) Makefile
 	$(AS) $(ASFLAGS) -g -o $@ -c $<
 
 $(PROGRAM).out: $(OBJS) Makefile
-	$(LD) $(LDFLAGS) $(OBJS) -o tmp-$@ -lprintf -lc -lgcc -lgloss -lm
-	$(UTILSBIN)/fix-uncertain-binary.py tmp-$@ > tmp2-$@
-	mv tmp2-$@ $@
-	rm tmp-$@
+	$(LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgcc -lgloss -lm
+	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out Makefile
 	$(OBJCOPY) -O srec $< $@
