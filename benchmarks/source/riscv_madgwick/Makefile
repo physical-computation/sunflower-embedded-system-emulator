@@ -3,7 +3,6 @@ include $(TREEROOT)/conf/setup.conf
 
 PROGRAM		= main
 MADGWICK	= MadgwickAHRS
-UNCERTAIN	= uncertain
 
 OPTFLAGS	= -g -O0
 INCLUDES	= -I$(PREFIX)/include
