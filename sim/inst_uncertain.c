@@ -107,7 +107,7 @@ static void set_uncertain_variance_mem(UncertainState *state, int i, float value
 {
     assert(i >= 0);
     assert(i < state->memory_size);
-    if (value < 0 &&    value > -EPSILON) {
+    if (value < 0 && value > -EPSILON) {
         value = 0;
     }
     assert(value >= 0 || isnan(value));
@@ -263,6 +263,10 @@ void uncertain_inst_up1(UncertainState *uncertain_state, int ud, int us1, float 
     }
 }
 
+float squaref(float x) {
+    return x * x;
+}
+
 void uncertain_inst_up2(UncertainState *uncertain_state, int ud, int us1, int us2, float g1, float g2)
 {
     int i;
@@ -276,14 +280,16 @@ void uncertain_inst_up2(UncertainState *uncertain_state, int ud, int us1, int us
         {
             new_var =
                 g1 * g1 * get_uncertain_variance_reg(uncertain_state, us1) +
-                2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us1, us2) +
+                // 2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us1, us2) +
+                2 * fabsf(g1 * g2) * sqrtf(get_uncertain_variance_reg(uncertain_state, us1) * get_uncertain_variance_reg(uncertain_state, us2)) +
                 g2 * g2 * get_uncertain_variance_reg(uncertain_state, us2);
         }
         else if (us1 > us2)
         {
             new_var =
                 g1 * g1 * get_uncertain_variance_reg(uncertain_state, us1) +
-                2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us2, us1) +
+                // 2 * g1 * g2 * get_uncertain_covariance_reg_reg(uncertain_state, us2, us1) +
+                2 * fabsf(g1 * g2) * sqrtf(get_uncertain_variance_reg(uncertain_state, us1) * get_uncertain_variance_reg(uncertain_state, us2)) +
                 g2 * g2 * get_uncertain_variance_reg(uncertain_state, us2);
         }
         else

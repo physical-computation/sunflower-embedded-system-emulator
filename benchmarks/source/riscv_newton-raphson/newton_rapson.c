@@ -28,30 +28,36 @@ float percentage_error(float x, float y) {
 }
 
 void newton_rapson() {
-	float x = 0;
+	float x = unf_create_exact(0);
 	float x_new = x - f(x)/df(x);
 	float diff = x_new - x;
+	int i = 0;
 
 	while(fabs(diff) > 1e-5){
+	// while(1){
 		x = x_new;
 		x_new = x - f(x)/df(x);
 		diff = x_new - x;
+		// printf_("iteration = %-3d, variance = %e\n", i, unf_var(x));
+		++i;
 	}
-	printf_(
-		"%.7f\t%.7f\t%.7f\t%.7f\t%.7f\t%.7f\t%.2f%%\t%.2f%%\t%.2f%%\n",
+	printf(
+		"%.7f\t%.7f\t%.7f\t%.7f\t%.7f\t%.7f\t%.7f\t%.2f%%\t%.2f%%\t%.2f%%\t%x\n",
 		unf_var(b), unf_var(c), unf_covar(b, c),
-		unf_var(x), unf_covar(x, b), unf_covar(x, c),
+		unf_var(x), 0.09673 * unf_var(b) - 0.11755 * unf_covar(b, c) + 0.03571 * unf_var(c),
+		unf_covar(x, b), unf_covar(x, c),
 		percentage_error(unf_var(x), 0.09673 * unf_var(b) - 0.11755 * unf_covar(b, c) + 0.03571 * unf_var(c)),
 		percentage_error(unf_covar(x, b), -0.31102 * unf_var(b) + 0.18898 * unf_covar(b, c)),
-		percentage_error(unf_covar(x, c), -0.31102 * unf_covar(b, c) + 0.18898 *unf_var(c))
+		percentage_error(unf_covar(x, c), -0.31102 * unf_covar(b, c) + 0.18898 *unf_var(c)), i
 	);
 }
 
 int main()
 {
-	float var_b, var_c, four, stddev_ratio;
+	float var_b = 0.1, var_c = 0.4, four, stddev_ratio;
 	printf_("\n");
-	printf_("variance[b]\tvariance[c]\tcovariance[bc]\tvariance[x]\tcovariance[xb]\tcovariance[xc]\terr[x]\terr[xb]\terr[xc]\n");
+	printf_("variance[b]\tvariance[c]\tcovariance[bc]\tvariance[x]\ttrue[x]\t"
+		"\tcovariance[xb]\tcovariance[xc]\terr[x]\terr[xb]\terr[xc]\titerations\n");
 	for (var_b = 0; var_b < 0.5; var_b += 0.1) {
 		b = unf_create(2, var_b);
 		for (var_c = 0; var_c < 0.5; var_c += 0.1) {
