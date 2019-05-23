@@ -77,6 +77,8 @@ riscvstep(Engine *E, State *S, int drain_pipe)
 
 		riscvdecode(E, tmpinstr, &(S->riscv->P.EX));
 
+		S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+
 		S->riscv->P.EX.fetchedpc = S->PC;
 		S->PC += 4;
 		S->CLK++;
@@ -190,5 +192,15 @@ riscvdumppipe(Engine *E, State *S)
 
 	mprint(E, S, nodeinfo, "EX: [%s]\n", riscv_opstrs[S->riscv->P.EX.op]);
 	
+	return;
+}
+
+void
+riscvdumpdistribution(Engine *E, State *S)
+{
+	for(int i = 0; i < RISCV_OP_MAX; i++) {
+	    mprint(E, S, nodeinfo, "%-8s {%d}\n", riscv_opstrs[i], S->riscv->instruction_distribution[i]);
+	}
+
 	return;
 }

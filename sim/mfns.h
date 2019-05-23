@@ -691,6 +691,7 @@ void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
 State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
 void    riscvdumpregs(Engine *E, State *S);
 void	riscvdumppipe(Engine *E, State *S);
+void    riscvdumpdistribution(Engine *E, State *S);
 void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
 void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);

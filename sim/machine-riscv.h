@@ -41,6 +41,7 @@ struct RiscvState
 	uint64_t fR[RF32FD_fMAX];
 	uint32_t fCSR;
 	RiscvPipe P;
+        uint32_t instruction_distribution[RISCV_OP_MAX]
 };
 
 /*		Entries in the Decode Cache		*/

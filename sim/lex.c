@@ -70,6 +70,7 @@ TokenTab token_table [] =
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
 	{"DUMPPIPE",	T_DUMPPIPE},				/*+	Show the contents of the pipeline stages.:none									*/
+	{"DUMPDISTR",	T_DUMPDISTRIBUTION},			/*+	Show the number of times each instruction was run.:none								*/
 	{"RESETCPU",	T_RESETCPU},				/*+	Reset entire simulated CPU state.:none										*/ 
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
