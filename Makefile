@@ -20,13 +20,22 @@ cross-superH:
 
 cross-riscv:
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
+	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32i" all;\
+#
+#	Use this to build RISC-V with HW floating-point (float and double)
+#
+#	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
 
 cross-all:
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
 	TARGET=superH TARGET-ARCH=sh-elf all;\
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
+	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32i" all;\
+#
+#	Use this to build RISC-V with HW floating-point (float and double)
+#
+#	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
+#
 #	cd $(TOOLS); $(MAKE) PATH=$(Z)\
 #	TARGET=msp430 TARGET-ARCH=msp430 all;\
 
