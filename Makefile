@@ -20,7 +20,7 @@ cross-superH:
 
 cross-riscv:
 	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32i" all;\
+	TARGET=riscv TARGET-ARCH=riscv32-elf all;\
 #
 #	Use this to build RISC-V with HW floating-point (float and double)
 #

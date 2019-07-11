@@ -242,7 +242,9 @@ TokenTab token_table [] =
 	{".LONG",		T_DOTLONG},
 	{".COMM",		T_DOTCOMM},
 
-	/*	Registers	*/
+	/*	---SuperH---	*/
+
+	/*	SuperH Registers	*/
 	{"R0",		T_R0},
 	{"R1",		T_R1},
 	{"R2",		T_R2},
@@ -269,7 +271,7 @@ TokenTab token_table [] =
 	{"SR",		T_SR},
 	{"SSR",		T_SSR},
 
-	/*	Instructions	*/
+	/*	SuperH Instructions	*/
 	{"ADD",		T_ADD},
 	{"ADDC",	T_ADDC},
 	{"ADDV",	T_ADDV},
@@ -371,6 +373,119 @@ TokenTab token_table [] =
 	{"XOR",		T_XOR},
 	{"XOR.B",	T_XORB},
 	{"XTRCT",	T_XTRCT},
+
+	/*	---RISC-V---	*/
+
+	/*	RISC-V Registers	*/
+	{"X0",		T_X0},	/*	T_zero		hardwired to 0, ignores writes		*/
+	{"X1",		T_X1},	/*	T_ra		return address for jumps	 	*/
+	{"X2",		T_X2},	/*	T_sp		stack pointer			 	*/
+	{"X3",		T_X3},	/*	T_gp		global pointer				*/
+	{"X4",		T_X4},	/*	T_tp		thread pointer				*/
+	{"X5",		T_X5},	/*	T_t0		temporary register 0		 	*/
+	{"X6",		T_X6},	/*	T_t1		temporary register 1		 	*/
+	{"X7",		T_X7},	/*	T_t2		temporary register 2		 	*/
+	{"X8",		T_X8},	/*	T_s0 or fp	saved register 0 or frame pointer 	*/
+	{"X9",		T_X9},	/*	T_s1 		saved register 1		 	*/
+	{"X10",		T_X10},	/*	T_a0		return value or function argument 0	*/
+	{"X11",		T_X11},	/*	T_a1		return value or function argument 1	*/
+	{"X12",		T_X12},	/*	T_a2		function argument 2			*/
+	{"X13",		T_X13},	/*	T_a3		function argument 3			*/
+	{"X14",		T_X14},	/*	T_a4		function argument 4			*/
+	{"X15",		T_X15},	/*	T_a5		function argument 5			*/
+	{"X16",		T_X16},	/*	T_a6		function argument 6			*/
+	{"X17",		T_X17},	/*	T_a7		function argument 7			*/
+	{"X18",		T_X18},	/*	T_s2		saved register 2			*/
+	{"X19",		T_X19},	/*	T_s3		saved register 3			*/
+	{"X20",		T_X20},	/*	T_s4		saved register 4			*/
+	{"X21",		T_X21},	/*	T_s5		saved register 5			*/
+	{"X22",		T_X22},	/*	T_s6		saved register 6			*/
+	{"X23",		T_X23},	/*	T_s7		saved register 6			*/
+	{"X24",		T_X24},	/*	T_s8		saved register 8			*/
+	{"X25",		T_X25},	/*	T_s9		saved register 9			*/
+	{"X26",		T_X26},	/*	T_s10		saved register 10			*/
+	{"X27",		T_X27},	/*	T_s11		saved register 11			*/
+	{"X28",		T_X28},	/*	T_t3		temporary register 3			*/
+	{"X29",		T_X29},	/*	T_t4		temporary register 4			*/
+	{"X30",		T_X30},	/*	T_t5		temporary register 5			*/
+	{"X31",		T_X31},	/*	T_t6		temporary register 6			*/
+	{"PC",		T_PC},	/*	T_PC		program counter				*/
+	
+	/*	RISC-V Floating point registers	*/
+	{"F0",		T_F0},	/*	T_FT0		fp temporaries			*/
+	{"F1",		T_F1},	/*	T_FT1		fp temporaries			*/
+	{"F2",		T_F2},	/*	T_FT2		fp temporaries			*/
+	{"F3",		T_F3},	/*	T_FT3		fp temporaries			*/
+	{"F4",		T_F4},	/*	T_FT4		fp temporaries			*/
+	{"F5",		T_F5},	/*	T_FT5		fp temporaries			*/
+	{"F6",		T_F6},	/*	T_FT6		fp temporaries			*/
+	{"F7",		T_F7},	/*	T_FT7		fp temporaries			*/
+	{"F8",		T_F8},	/*	T_FS0		fp saved registers		*/
+	{"F9",		T_F9},	/*	T_FS1		fp saved registers		*/
+	{"F10",		T_F10},	/*	T_FA0		fp arguments/return values	*/
+	{"F11",		T_F11},	/*	T_FA1		fp arguments/return values	*/
+	{"F12",		T_F12},	/*	T_FA2		fp arguments			*/
+	{"F13",		T_F13},	/*	T_FA3		fp arguments			*/
+	{"F14",		T_F14},	/*	T_FA4		fp arguments			*/
+	{"F15",		T_F15},	/*	T_FA5		fp arguments			*/
+	{"F16",		T_F16},	/*	T_FA6		fp arguments			*/
+	{"F17",		T_F17},	/*	T_FA7		fp arguments			*/
+	{"F18",		T_F18},	/*	T_FS2		fp saved registers		*/
+	{"F19",		T_F19},	/*	T_FS3		fp saved registers		*/
+	{"F20",		T_F20},	/*	T_FS4		fp saved registers		*/
+	{"F21",		T_F21},	/*	T_FS5		fp saved registers		*/
+	{"F22",		T_F22},	/*	T_FS6		fp saved registers		*/
+	{"F23",		T_F23},	/*	T_FS7		fp saved registers		*/
+	{"F24",		T_F24},	/*	T_FS8		fp saved registers		*/
+	{"F25",		T_F25},	/*	T_FS9		fp saved registers		*/
+	{"F26",		T_F26},	/*	T_FS10		fp saved registers		*/
+	{"F27",		T_F27},	/*	T_FS11		fp saved registers		*/
+	{"F28",		T_F28},	/*	T_FT8		fp temporaries			*/
+	{"F29",		T_F29},	/*	T_FT9		fp temporaries			*/
+	{"F30",		T_F30},	/*	T_FT10		fp temporaries			*/
+	{"F31",		T_F31},	/*	T_FT11		fp temporaries			*/
+
+	/*	RISC-V Instructions	*/
+	//{"ADD",		T_ADD},
+	{"ADDI",	T_ADDI},
+	{"AND",		T_AND},
+	{"ANDI",	T_ANDI},
+	{"AUIPC",	T_AUIPC},
+	{"BEQ",		T_BEQ},
+	{"BGE",		T_BGE},
+	{"BGEU",	T_BGEU},
+	{"BLT",		T_BLT},
+	{"BLTU",	T_BLTU},
+	{"BNE",		T_BNE},
+	{"FENCE",	T_FENCE},	/*	Empty definition in file op-riscv.c	*/
+	{"FENCE.I",	T_FENCE_I},	/*	Empty definition in file op-riscv.c	*/ 
+	{"JAL",		T_JAL},
+	{"JALR",	T_JALR},
+	{"LB",		T_LB},
+	{"LBU",		T_LBU},
+	{"LH",		T_LH},
+	{"LHU",		T_LHU},
+	{"LUI",		T_LUI},
+	{"LW",		T_LW},
+	{"OR",		T_OR},
+	{"ORI",		T_ORI},
+	{"SB",		T_SB},
+	{"SH",		T_SH},
+	{"SLL",		T_SLL},
+	{"SLLI",	T_SLLI},
+	{"SLT",		T_SLT},
+	{"SLTI",	T_SLTI},
+	{"SLTIU",	T_SLTIU},
+	{"SLTU",	T_SLTU},
+	{"SRA",		T_SRA},
+	{"SRAI",	T_SRAI},
+	{"SRL",		T_SRL},
+	{"SRLI",	T_SRLI},
+	{"SUB",		T_SUB},
+	{"SW",		T_SW},
+	{"XOR",		T_XOR},
+	{"XORI",	T_XORI},
+
 	{0,		0},
 };
 
