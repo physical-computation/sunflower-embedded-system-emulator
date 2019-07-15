@@ -80,6 +80,7 @@ OBJS	=\
 	syscalls.o\
 	tokenhandling.o\
 	sf.o\
+	sf_riscv.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\
@@ -115,8 +116,14 @@ op-riscv.o: op-riscv.c cache-hitachi-sh.c regaccess-riscv.c $(HEADERS) Makefile
 sf.o: sf.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf.tab.c -o $@
 
+sf_riscv.o: sf_riscv.tab.c $(HEADERS) Makefile
+	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf_riscv.tab.c -o $@
+
 sf.tab.c: sf.y lex.c $(HEADERS) Makefile
-	$(GBISON) $(BFLAGS) sf.y
+	$(GBISON) $(BFLAGS)  sf.y
+
+sf_riscv.tab.c: sf_riscv.y lex_riscv.c $(HEADERS) Makefile
+	$(GBISON) $(BFLAGS) -p rv sf_riscv.y
 
 mspasm.o: mspasm.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c mspasm.tab.c -o $@

@@ -102,6 +102,7 @@
 %token	T_DUMPPIPE
 %token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
+%token	T_DR
 %token	T_DUMPREGS
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
@@ -241,6 +242,34 @@
 %token	T_DOTCOMM
 
 
+/*	SuperH Registers	*/
+%token	T_R0
+%token	T_R1
+%token	T_R2
+%token	T_R3
+%token	T_R4
+%token	T_R5
+%token	T_R6
+%token	T_R7
+%token	T_R8
+%token	T_R9
+%token	T_R10
+%token	T_R11
+%token	T_R12
+%token	T_R13
+%token	T_R14
+%token	T_R15
+%token	T_GBR
+%token	T_VBR
+%token	T_MACH
+%token	T_MACL
+%token	T_PC
+%token	T_PR
+%token	T_TRA
+%token	T_SPC
+%token	T_SR
+%token	T_SSR
+
 /*	RISC-V Registers	*/
 %token	T_X0 	//T_zero	hardwired to 0, ignores writes		
 %token	T_X1 	//T_ra		return address for jumps		 
@@ -313,7 +342,108 @@
 /*    	Misc		*/
 %token	T_LABELDEFN
 
-/*	Instructions	*/
+/*	SuperH Instructions	*/
+%token	T_ADD
+%token	T_ADDC
+%token	T_ADDV
+%token	T_AND
+%token	T_ANDB
+%token	T_BF
+%token	T_BFS
+%token	T_BRA
+%token	T_BRAF	/*      TODO: This instr is not implemented in our interface assembler  	*/
+%token	T_BSR
+%token	T_BSRF
+%token	T_BT
+%token	T_BTS
+%token	T_CLRMAC
+%token	T_CLRS
+%token	T_CLRT
+%token	T_CMPEQ
+%token	T_CMPGE
+%token	T_CMPGT
+%token	T_CMPHI
+%token	T_CMPHS
+%token	T_CMPPL
+%token	T_CMPPZ
+%token	T_CMPSTR
+%token	T_DIV0S
+%token	T_DIV0U	/*    TODO: This instr is not implemented in our interface assembler  	*/
+%token	T_DIV1
+%token	T_DMULSL
+%token	T_DMULUL
+%token	T_DT
+%token	T_EXTSB
+%token	T_EXTSW
+%token	T_EXTUB
+%token	T_EXTUW
+%token	T_JMP
+%token	T_JSR
+%token	T_LDC
+%token	T_LDCL
+%token	T_LDS
+%token	T_LDSL
+%token	T_LDTLB
+%token	T_MACL
+%token	T_MACW
+%token	T_MOV
+%token	T_MOVB
+%token	T_MOVL
+%token	T_MOVW
+%token	T_MOVA
+%token	T_MOVT
+%token	T_MULL
+%token	T_MULS
+%token	T_MULSW
+%token	T_MULU
+%token	T_MULUW
+%token	T_NEG
+%token	T_NEGC
+%token	T_NOP
+%token	T_NOT
+%token	T_OR
+%token	T_ORB
+%token	T_PREF
+%token	T_RFG 	/* 	New instr : Reconfigure (never used) 	*/
+%token	T_ROTCL
+%token	T_ROTCR
+%token	T_ROTL
+%token	T_ROTR
+%token	T_RTE
+%token	T_RTS
+%token	T_SETS
+%token	T_SETT
+%token	T_SHAD
+%token	T_SHAL
+%token	T_SHAR
+%token	T_SHLD
+%token	T_SHLL
+%token	T_SHLL2
+%token	T_SHLL8
+%token	T_SHLL16
+%token	T_SHLR
+%token	T_SHLR2
+%token	T_SHLR8
+%token	T_SHLR16
+%token	T_SLEEP
+%token	T_STC
+%token	T_STCL
+%token	T_STS
+%token	T_STSL
+%token	T_SUB
+%token	T_SUBC
+%token	T_SUBV
+%token	T_SWAPB
+%token	T_SWAPW
+%token	T_TASB
+%token	T_TRAPA
+%token	T_TST
+%token	T_TSTB
+%token	T_XOR
+%token	T_XORB
+%token	T_XTRCT
+
+/*	RISC-V Instructions	*/
 %token T_ADD
 %token T_ADDI
 %token T_AND
@@ -1135,6 +1265,13 @@ sf_cmd		: T_QUIT '\n'
 			if (!yyengine->scanning)
 			{
 				yyengine->cp->cache_printstats(yyengine, yyengine->cp);
+			}
+		}
+		| T_DR '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
 		| T_DUMPREGS '\n'
@@ -2042,7 +2179,7 @@ auipc_riscv_instr	: T_AUIPC reg ',' simm
 		}
 		;
 
-beq_riscv_instr	: T_BEQ reg ',' reg ',' simm	/*	the PC offset of type simm should be half of the desired jump	*/
+beq_riscv_instr	: T_BEQ reg ',' reg ',' simm	/*	the PC offset (of type simm) should be half of the desired jump	*/
 		{
 			if (yyengine->scanning)
 			{
@@ -2267,13 +2404,18 @@ bgeu_riscv_instr	: T_BGEU reg ',' reg ',' uimm	/*	the PC offset of type simm sho
 		}
 		;
 
-fence_riscv_instr: T_FENCE reg
+fence_riscv_instr: T_FENCE
 		{
 			mprint(yyengine, NULL, siminfo, 
-					"on the fence.%d", $2);
+					"Not implemented.");
 		}
 		;
-fence_i_riscv_instr: T_FENCE_I;
+fence_i_riscv_instr: T_FENCE_I
+		{
+			mprint(yyengine, NULL, siminfo, 
+					"Not implemented.");
+		}
+		;
 jal_riscv_instr	: T_JAL reg ',' simm
 		{
 			if (yyengine->scanning)
@@ -4048,11 +4190,10 @@ reg		: T_X0 {$$ = 0;}
 		| T_X29 {$$ = 29;}
 		| T_X30 {$$ = 30;}
 		| T_X31 {$$ = 31;}
-
 ;
 %%
 
-#include "lex.c"
+#include "lex_riscv.c"
 
 int
 yyerror(char *err)

@@ -334,7 +334,14 @@ scan_labels_and_globalvars(Engine *E)
 
 	E->scanning = 1;
 	tmp_pc = E->cp->PC;
-	yyparse();
+	if (E->cp->machinetype == MACHINE_SUPERH)
+	{
+		yyparse();
+	}
+	else if (E->cp->machinetype == MACHINE_RISCV)
+	{
+		rvparse();
+	}
 	E->cp->PC = tmp_pc;
 	E->scanning = 0;
 	//mprint(E, NULL, siminfo, "Done assigning true disp's to labels.\n\n");

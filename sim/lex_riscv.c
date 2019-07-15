@@ -55,7 +55,7 @@ typedef struct
 /*	so do not use them. These comments are used to build "help.h"	*/
 /*	and also to generate LaTeX for the manual.			*/
 /*									*/
-TokenTab token_table [] =
+TokenTab riscv_token_table [] =
 {
 	/*	Simulator Commands	*/
 	{"RUN",		T_RUN},					/*+	Mark a node as runnable.:none											*/
@@ -242,138 +242,6 @@ TokenTab token_table [] =
 	{".DATA",		T_DOTDATA},
 	{".LONG",		T_DOTLONG},
 	{".COMM",		T_DOTCOMM},
-
-	/*	---SuperH---	*/
-
-	/*	SuperH Registers	*/
-	{"R0",		T_R0},
-	{"R1",		T_R1},
-	{"R2",		T_R2},
-	{"R3",		T_R3},
-	{"R4",		T_R4},
-	{"R5",		T_R5},
-	{"R6",		T_R6},
-	{"R7",		T_R7},
-	{"R8",		T_R8},
-	{"R9",		T_R9},
-	{"R10",		T_R10},
-	{"R11",		T_R11},
-	{"R12",		T_R12},
-	{"R13",		T_R13},
-	{"R14",		T_R14},
-	{"R15",		T_R15},
-	{"GBR",		T_GBR},
-	{"VBR",		T_VBR},
-	{"MACH",	T_MACH},
-	{"MACL",	T_MACL},
-	{"PC",		T_PC},
-	{"PR",		T_PR},
-	{"SPC",		T_SPC},
-	{"SR",		T_SR},
-	{"SSR",		T_SSR},
-
-	/*	SuperH Instructions	*/
-	{"ADD",		T_ADD},
-	{"ADDC",	T_ADDC},
-	{"ADDV",	T_ADDV},
-	{"AND",		T_AND},
-	{"ANDB",	T_ANDB},
-	{"BF",		T_BF},
-	{"BF.S",	T_BFS},
-	{"BF/S",	T_BFS},
-	{"BRA",		T_BRA},
-	{"BRAF",	T_BRAF},
-	{"BSR",		T_BSR},
-	{"BSRF",	T_BSRF},
-	{"BT",		T_BT},
-	{"BT.S",	T_BTS},
-	{"BT/S",	T_BTS},
-	{"CLRMAC",	T_CLRMAC},
-	{"CLRS",	T_CLRS},
-	{"CLRT",	T_CLRT},
-	{"CMP/EQ",	T_CMPEQ},
-	{"CMP/GE",	T_CMPGE},
-	{"CMP/GT",	T_CMPGT},
-	{"CMP/HI",	T_CMPHI},
-	{"CMP/HS",	T_CMPHS},
-	{"CMP/PL",	T_CMPPL},
-	{"CMP/PZ",	T_CMPPZ},
-	{"CMP/STR",	T_CMPSTR},
-	{"DIV0S",	T_DIV0S},
-	{"DIV0U",	T_DIV0U},
-	{"DIV1",	T_DIV1},
-	{"DMULS.L",	T_DMULSL},
-	{"DMULU.L",	T_DMULUL},
-	{"DT",		T_DT},
-	{"EXTS.B",	T_EXTSB},
-	{"EXTS.W",	T_EXTSW},
-	{"EXTU.B",	T_EXTUB},
-	{"EXTU.W",	T_EXTUW},
-	{"JMP",		T_JMP},
-	{"JSR",		T_JSR},
-	{"LDC",		T_LDC},
-	{"LDC.L",	T_LDCL},
-	{"LDS",		T_LDS},
-	{"LDS.L",	T_LDSL},
-	{"LDTLB",	T_LDTLB},
-	{"MAC.L",	T_MACL},
-	{"MAC.W",	T_MACW},
-	{"MOV",		T_MOV},
-	{"MOV.B",	T_MOVB},
-	{"MOV.L",	T_MOVL},
-	{"MOV.W",	T_MOVW},
-	{"MOVA",	T_MOVA},
-	{"MOVT",	T_MOVT},
-	{"MUL.L",	T_MULL},
-	{"MULS",	T_MULS},
-	{"MULS.W",	T_MULSW},
-	{"MULU",	T_MULU},
-	{"MULU.W",	T_MULUW},
-	{"NEG",		T_NEG},
-	{"NEGC",	T_NEGC},
-	{"NOP",		T_NOP},
-	{"NOT",		T_NOT},
-	{"OR",		T_OR},
-	{"OR.B",	T_ORB},
-	{"PREF",	T_PREF},
-	{"RFG",		T_RFG},
-	{"ROTCL",	T_ROTCL},
-	{"ROTCR",	T_ROTCR},
-	{"ROTL",	T_ROTL},
-	{"ROTR",	T_ROTR},
-	{"RTE",		T_RTE},
-	{"RTS",		T_RTS},
-	{"SETS",	T_SETS},
-	{"SETT",	T_SETT},
-	{"SHAD",	T_SHAD},
-	{"SHAL",	T_SHAL},
-	{"SHAR",	T_SHAR},
-	{"SHLD",	T_SHLD},
-	{"SHLL",	T_SHLL},
-	{"SHLL2",	T_SHLL2},
-	{"SHLL8",	T_SHLL8},
-	{"SHLL16",	T_SHLL16},
-	{"SHLR",	T_SHLR},
-	{"SHLR2",	T_SHLR2},
-	{"SHLR8",	T_SHLR8},
-	{"SHLR16",	T_SHLR16},
-	{"SLEEP",	T_SLEEP},
-	{"STC",		T_STC},
-	{"STC.L",	T_STCL},
-	{"STS",		T_STS},
-	{"STS.L",	T_STSL},
-	{"SUB",		T_SUB},
-	{"SUBC",	T_SUBC},
-	{"SUBV",	T_SUBV},
-	{"SWAP.B",	T_SWAPB},
-	{"SWAP.W",	T_SWAPW},
-	{"TAS.B",	T_TASB},
-	{"TRAPA",	T_TRAPA},
-	{"TST",		T_TST},
-	{"TSTB",	T_TSTB},
-	{"XOR",		T_XOR},
-	{"XOR.B",	T_XORB},
-	{"XTRCT",	T_XTRCT},
 
 	/*	---RISC-V---	*/
 
@@ -740,10 +608,10 @@ yylex(void)
 	}
 
 	/* 	check if it is a token 		*/
-	for (i = 0; token_table[i].token != 0; i++)
+	for (i = 0; riscv_token_table[i].token != 0; i++)
 	{
 			/*	Generic match found:	*/
-			if (!strcmp(tmpdata, token_table[i].token))
+			if (!strcmp(tmpdata, riscv_token_table[i].token))
 			{
 				/* we do not set yylval : token has no "value" */
 				tmphd = yyengine->istream.head;
@@ -758,7 +626,7 @@ yylex(void)
 				/*	This was allocated just for uppercase stuff. Free it	*/
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
-				return token_table[i].token_value;
+				return riscv_token_table[i].token_value;
 			}
 
 			if (!strncmp(tmpdata, "#", 1))

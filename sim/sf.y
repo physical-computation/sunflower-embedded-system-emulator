@@ -102,6 +102,7 @@
 %token	T_DUMPPIPE
 %token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
+%token	T_DR
 %token	T_DUMPREGS
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
@@ -240,7 +241,7 @@
 %token	T_DOTLONG
 %token	T_DOTCOMM
 
-/*	Registers	*/
+/*	SuperH Registers	*/
 %token	T_R0
 %token	T_R1
 %token	T_R2
@@ -268,10 +269,79 @@
 %token	T_SR
 %token	T_SSR
 
+/*	RISC-V Registers	*/
+%token	T_X0 	//T_zero	hardwired to 0, ignores writes
+%token	T_X1 	//T_ra		return address for jumps
+%token	T_X2 	//T_sp		stack pointer
+%token	T_X3 	//T_gp		global pointer
+%token	T_X4 	//T_tp		thread pointer
+%token	T_X5 	//T_t0		temporary register 0
+%token	T_X6 	//T_t1		temporary register 1
+%token	T_X7 	//T_t2		temporary register 2
+%token	T_X8 	//T_s0 or fp	saved register 0 or frame pointer
+%token	T_X9 	//T_s1 		saved register 1
+%token	T_X10 	//T_a0		return value or function argument 0 	 
+%token	T_X11 	//T_a1		return value or function argument 1 	 
+%token	T_X12 	//T_a2		function argument 2 			 
+%token	T_X13 	//T_a3		function argument 3 			 
+%token	T_X14 	//T_a4		function argument 4 			 
+%token	T_X15 	//T_a5		function argument 5 			 
+%token	T_X16 	//T_a6		function argument 6 			 
+%token	T_X17 	//T_a7		function argument 7 			 
+%token	T_X18 	//T_s2		saved register 2 			 
+%token	T_X19 	//T_s3		saved register 3 			 
+%token	T_X20 	//T_s4		saved register 4 			
+%token	T_X21 	//T_s5		saved register 5 		
+%token	T_X22 	//T_s6		saved register 6 			
+%token	T_X23 	//T_s7		saved register 6 			
+%token	T_X24 	//T_s8		saved register 8 		
+%token	T_X25 	//T_s9		saved register 9 		
+%token	T_X26 	//T_s10		saved register 10 			
+%token	T_X27 	//T_s11		saved register 11 		
+%token	T_X28 	//T_t3		temporary register 3 		
+%token	T_X29 	//T_t4		temporary register 4 		
+%token	T_X30 	//T_t5		temporary register 5 		
+%token	T_X31 	//T_t6		temporary register 6 		
+%token	T_PC 	//T_PC		program counter
+
+/*	RISC-V Floating point registers	*/
+%token	T_F0 	//T_FT0		fp temporaries
+%token	T_F1 	//T_FT1		fp temporaries
+%token	T_F2 	//T_FT2		fp temporaries
+%token	T_F3 	//T_FT3		fp temporaries
+%token	T_F4 	//T_FT4		fp temporaries
+%token	T_F5 	//T_FT5		fp temporaries
+%token	T_F6 	//T_FT6		fp temporaries
+%token	T_F7 	//T_FT7		fp temporaries
+%token	T_F8 	//T_FS0		fp saved registers
+%token	T_F9 	//T_FS1		fp saved registers
+%token	T_F10 	//T_FA0		fp arguments/return values
+%token	T_F11 	//T_FA1		fp arguments/return values
+%token	T_F12 	//T_FA2		fp arguments
+%token	T_F13 	//T_FA3		fp arguments
+%token	T_F14 	//T_FA4		fp arguments
+%token	T_F15 	//T_FA5		fp arguments
+%token	T_F16 	//T_FA6		fp arguments
+%token	T_F17 	//T_FA7		fp arguments
+%token	T_F18 	//T_FS2		fp saved registers
+%token	T_F19 	//T_FS3		fp saved registers
+%token	T_F20 	//T_FS4		fp saved registers
+%token	T_F21 	//T_FS5		fp saved registers
+%token	T_F22 	//T_FS6		fp saved registers
+%token	T_F23 	//T_FS7		fp saved registers
+%token	T_F24 	//T_FS8		fp saved registers
+%token	T_F25 	//T_FS9		fp saved registers
+%token	T_F26 	//T_FS10	fp saved registers
+%token	T_F27 	//T_FS11	fp saved registers
+%token	T_F28 	//T_FT8		fp temporaries
+%token	T_F29 	//T_FT9		fp temporaries
+%token	T_F30 	//T_FT10	fp temporaries
+%token	T_F31 	//T_FT11	fp temporaries
+
 /*    	Misc		*/
 %token	T_LABELDEFN
 
-/*	Instructions	*/
+/*	SuperH Instructions	*/
 %token	T_ADD
 %token	T_ADDC
 %token	T_ADDV
@@ -372,6 +442,47 @@
 %token	T_XORB
 %token	T_XTRCT
 
+/*	RISC-V Instructions	*/
+%token T_ADD
+%token T_ADDI
+%token T_AND
+%token T_ANDI
+%token T_AUIPC
+%token T_BEQ
+%token T_BGE
+%token T_BGEU
+%token T_BLT
+%token T_BLTU
+%token T_BNE
+%token T_FENCE		/*	Empty definition in file op-riscv.c	*/
+%token T_FENCE_I	/*	Empty definition in file op-riscv.c	*/
+%token T_JAL
+%token T_JALR
+%token T_LB
+%token T_LBU
+%token T_LH
+%token T_LHU
+%token T_LUI
+%token T_LW
+%token T_OR
+%token T_ORI
+%token T_SB
+%token T_SH
+%token T_SLL
+%token T_SLLI
+%token T_SLT
+%token T_SLTI
+%token T_SLTIU
+%token T_SLTU
+%token T_SRA
+%token T_SRAI
+%token T_SRL
+%token T_SRLI
+%token T_SUB
+%token T_SW
+%token T_XOR
+%token T_XORI
+
 %type	<uval>	reg
 %type	<sval>	disp
 %type	<uval>	uimm
@@ -463,6 +574,7 @@ asm_ctl		: dotalign
 		;
 
 expr		: add_instr
+		| blt_riscv_instr
 		| addi_instr
 		| addc_instr
 		| addv_instr
@@ -1277,6 +1389,13 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->cache_printstats(yyengine, yyengine->cp);
 			}
 		}
+		| T_DR '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumpregs(yyengine, yyengine->cp);
+			}
+		}
 		| T_DUMPREGS '\n'
 		{
 			if (!yyengine->scanning)
@@ -2023,9 +2142,16 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 		}
 		;
 
-		
-add_instr	: T_ADD reg ',' reg
+blt_riscv_instr	: T_BLT
 		{
+			mprint(yyengine, NULL, siminfo, 
+				"[BaconLettuceTomaydo]");
+		}
+		;
+
+add_instr	: T_ADD reg ',' reg
+		{	mprint(yyengine, NULL, siminfo, 
+				"[BaconLettuceTomato%d]", $2);
 			if (yyengine->scanning)
 			{
 				yyengine->cp->PC += 2;
@@ -2056,7 +2182,7 @@ add_instr	: T_ADD reg ',' reg
 		}
 		;
 
-addi_instr	: T_ADD '#' simm ',' reg
+addi_instr	: T_ADD "h" simm ',' reg
 		{
 			if (yyengine->scanning)
 			{
@@ -3884,7 +4010,7 @@ mov_instr	: T_MOV reg ',' reg
 			else if (yyengine->cp->machinetype != MACHINE_SUPERH)
 			{
 				mprint(yyengine, NULL, siminfo, 
-					"Inline assembler is for Hitachi SH nodes only. Check node type.");
+					"Inline assembler is for troll Hitachi SH nodes only. Check node type.");
 			}
 			else
 			{

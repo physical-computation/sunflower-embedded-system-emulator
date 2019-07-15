@@ -38,6 +38,7 @@
 int	yylex(void);
 int	yyerror(char *);
 int	yyparse(void);
+int	rvparse(void);
 
 
 /*											*/
