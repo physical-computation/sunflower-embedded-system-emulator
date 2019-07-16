@@ -59,8 +59,8 @@ Engine*		engines[MAX_NUM_ENGINES];
 int		nengines;
 
 Engine		*yyengine;
-extern int	yyparse(void);
-extern int	rvparse(void);
+extern int	sf_superh_parse(void);
+extern int	sf_riscv_parse(void);
 
 static void	spinbaton(Engine *, int);
 static void	do_numaregion(Engine *, State *, char *, ulong, ulong, long, long, long, long, int, ulong, int, int, int, ulong, int, int);
@@ -195,7 +195,7 @@ main(int nargs, char *args[])
 	E->verbose = 1;
 	marchinit();	
 	m_version(E);
-	m_newnode(E, /*"superH"*/"riscv", 0, 0, 0, nil, 0, 0.0);	/*	default processor	*/
+	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);	/*	default processor	*/
 //	S = E->sp[0];
 
 
@@ -228,11 +228,11 @@ main(int nargs, char *args[])
 			yyengine = E;
 			if (yyengine->cp->machinetype == MACHINE_SUPERH)
 			{
-				yyparse();
+				sf_superh_parse();
 			}
 			else if (yyengine->cp->machinetype == MACHINE_RISCV)
 			{
-				rvparse();
+				sf_riscv_parse();
 			}
   			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 				E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
@@ -769,17 +769,17 @@ loadcmds(Engine *E, char *filename)
 	}
 
 	//streamchk();
-        /*      NOTE: scan_labels_and_globalvars does a yyparse(), so need yyengine set before  */
+        /*      NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before  */
 	yyengine = E;
 	scan_labels_and_globalvars(E);
 	//streamchk();
 	if (yyengine->cp->machinetype == MACHINE_SUPERH)
 	{
-		yyparse();
+		sf_superh_parse();
 	}
 	else if (yyengine->cp->machinetype == MACHINE_RISCV)
 	{
-		rvparse();
+		sf_riscv_parse();
 	}
 	mclose(fd);
 

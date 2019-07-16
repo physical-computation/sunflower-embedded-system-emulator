@@ -336,11 +336,11 @@ scan_labels_and_globalvars(Engine *E)
 	tmp_pc = E->cp->PC;
 	if (E->cp->machinetype == MACHINE_SUPERH)
 	{
-		yyparse();
+		sf_superh_parse();
 	}
 	else if (E->cp->machinetype == MACHINE_RISCV)
 	{
-		rvparse();
+		sf_riscv_parse();
 	}
 	E->cp->PC = tmp_pc;
 	E->scanning = 0;

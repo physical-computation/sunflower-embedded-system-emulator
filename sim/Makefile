@@ -79,8 +79,8 @@ OBJS	=\
 	regaccess-riscv.o\
 	syscalls.o\
 	tokenhandling.o\
-	sf.o\
-	sf_riscv.o\
+	sf-hitachi-sh.o\
+	sf-riscv.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\
@@ -113,17 +113,17 @@ op-riscv.o: op-riscv.c cache-hitachi-sh.c regaccess-riscv.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-hitachi-sh.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-riscv.c -o $@
 
-sf.o: sf.tab.c $(HEADERS) Makefile
-	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf.tab.c -o $@
+sf-hitachi-sh.o: sf-hitachi-sh.tab.c $(HEADERS) Makefile
+	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf-hitachi-sh.tab.c -o $@
 
-sf_riscv.o: sf_riscv.tab.c $(HEADERS) Makefile
-	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf_riscv.tab.c -o $@
+sf-riscv.o: sf-riscv.tab.c $(HEADERS) Makefile
+	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf-riscv.tab.c -o $@
 
-sf.tab.c: sf.y lex.c $(HEADERS) Makefile
-	$(GBISON) $(BFLAGS)  sf.y
+sf-hitachi-sh.tab.c: sf-hitachi-sh.y lex-hitachi-sh.c $(HEADERS) Makefile
+	$(GBISON) $(BFLAGS) -p sf_superh_ sf-hitachi-sh.y
 
-sf_riscv.tab.c: sf_riscv.y lex_riscv.c $(HEADERS) Makefile
-	$(GBISON) $(BFLAGS) -p rv sf_riscv.y
+sf-riscv.tab.c: sf-riscv.y lex-riscv.c $(HEADERS) Makefile
+	$(GBISON) $(BFLAGS) -p sf_riscv_ sf-riscv.y
 
 mspasm.o: mspasm.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c mspasm.tab.c -o $@
@@ -144,10 +144,10 @@ opstr-ti-msp430.h: decode-ti-msp430.h Makefile
 opstr-riscv.h: decode-ti-msp430.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
-help.h: lex.c Makefile
+help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 
-commands.tex: lex.c Makefile
+commands.tex: lex-hitachi-sh.c Makefile
 	./mkmantex $(GAWK) > commands.tex
 
 

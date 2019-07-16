@@ -66,7 +66,6 @@ TokenTab riscv_token_table [] =
 	{"CA",		T_MODECA},				/*+	Set simulator in cycle-accurate mode.:none									*/
 	{"FF",		T_MODEFF},				/*+	Set simulator in fast functional mode.:none									*/
 	{"MMAP",	T_MMAP},				/*+	Map memory of one simulated node into another.:<source (integer)> <destination (integer)>			*/
-	{"DR",		T_DUMPREGS},				/*+	Synonym for DUMPREGS.:none											*/
 	{"DUMPREGS",	T_DUMPREGS},				/*+	Show the contents of the general purpose registers.:none							*/
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/

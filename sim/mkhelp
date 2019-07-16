@@ -8,7 +8,7 @@
 
 	echo 'Help Helpstrs[] =\'
 	echo '{\'
-	cat lex.c | grep '/\*+' | sort | $1 -F'*|_|}|{|+|,|:' '{print "\t{\n\t\t\t" $2 ",\n\t\t\t\"\tDescription:" $8 "\",\n\t\t\t\"\tArguments:\t" $9 "\",\n\t},"}'
+	cat lex-hitachi-sh.c | grep '/\*+' | sort | $1 -F'*|_|}|{|+|,|:' '{print "\t{\n\t\t\t" $2 ",\n\t\t\t\"\tDescription:" $8 "\",\n\t\t\t\"\tArguments:\t" $9 "\",\n\t},"}'
 	echo '};'
-	echo 'int	nHelpstrs ='`cat lex.c | grep '/\*+' | wc -l`';'
-	echo 'int	uniqHelpstrs ='`cat lex.c | grep '/\*+' | sort -t '"' -k 2 | $1 '{print $2}' | sort | uniq | wc -l`';'
+	echo 'int	nHelpstrs ='`cat lex-hitachi-sh.c | grep '/\*+' | wc -l`';'
+	echo 'int	uniqHelpstrs ='`cat lex-hitachi-sh.c | grep '/\*+' | sort -t '"' -k 2 | $1 '{print $2}' | sort | uniq | wc -l`';'

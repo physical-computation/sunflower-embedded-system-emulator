@@ -575,7 +575,14 @@ devsfwrite(Chan *c, void *a, long n, vlong offset)
 				munchinput(E, "\n");
 			}
 			yyengine = E;
-			yyparse();
+			if (yyengine->cp->machinetype == MACHINE_SUPERH)
+			{
+				sf_superh_parse();
+			}
+			else if (yyengine->cp->machinetype == MACHINE_RISCV)
+			{
+				sf_riscv_parse();
+			}
 			mstateunlock();
 
                         break;
@@ -602,7 +609,14 @@ devsfwrite(Chan *c, void *a, long n, vlong offset)
 			//streamchk();
                         //print("before yyparse...\n");
 			yyengine = E;
-			yyparse();
+			if (yyengine->cp->machinetype == MACHINE_SUPERH)
+			{
+				sf_superh_parse();
+			}
+			else if (yyengine->cp->machinetype == MACHINE_RISCV)
+			{
+				sf_riscv_parse();
+			}
                         //print("after yyparse...\n");
 			mstateunlock();
 

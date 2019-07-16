@@ -37,8 +37,8 @@
 
 int	yylex(void);
 int	yyerror(char *);
-int	yyparse(void);
-int	rvparse(void);
+int	sf_superh_parse(void);
+int	sf_riscv_parse(void);
 
 
 /*											*/
