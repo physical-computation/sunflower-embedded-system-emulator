@@ -2055,7 +2055,7 @@ add_instr	: T_ADD reg ',' reg
 		}
 		;
 
-addi_instr	: T_ADD "#" simm ',' reg
+addi_instr	: T_ADD '#' simm ',' reg
 		{
 			if (yyengine->scanning)
 			{
