@@ -1,6 +1,6 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
-			2019, Samuel Wong (author)
+			2019, Samuel Man-Shun Wong (author)
  
 	All rights reserved.
 
