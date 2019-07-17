@@ -144,6 +144,7 @@ opstr-ti-msp430.h: decode-ti-msp430.h Makefile
 opstr-riscv.h: decode-ti-msp430.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
+#	Either of the lex-* would suffice for generating the LaTeX / help command array.
 help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 
