@@ -75,6 +75,8 @@ TokenTab superH_token_table [] =
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
+	{"SETMEMBASE",	T_SETMEMBASE},				/*+	Set base address of simulator memorry array.:<address (integer)>						*/
+	{"SHOWMEMBASE",	T_SHOWMEMBASE},				/*+	Show base address of simulator memorry array.:none								*/
 	{"PD",		T_DISABLEPIPELINE},			/*+	Disable simulation of processor's pipeline.:none								*/
 	{"PE",		T_ENABLEPIPELINE},			/*+	Enable simulation of processor's pipeline.:none									*/
 	{"PF",		T_PIPEFLUSH},				/*+	Flush the pipeline.:none											*/
@@ -161,7 +163,6 @@ TokenTab superH_token_table [] =
 	{"THROTTLEWIN",		T_THROTTLEWIN},			/*+	Set the throttling window --- main simulation loop sleeps for throttlensecs x throttlewin nanosecs every throttlewin simulation cycles, for an average of throttlensecs sleep per simulation cycle.:<throttle window period in clock cycles (integer)>		*/
 	{"RESETNODECTRS",	T_RESETNODECTRS},		/*+	Reset simulation rate measurement trip counters for current node only.:none																*/
 	{"RESETALLCTRS",	T_RESETALLCTRS},		/*+	Reset simulation rate measurement trip counters for all nodes.:none																	*/
-
 	{"SIGSRC",		T_SIGNALSRC},			/*+	Create a physical phenomenon signal source.:<type (integer)> <description (string)> <tau (real)> <propagationspeed (real)> <A (real)> <B (real)> <C (real)> <D (real)> <E (real)> <F (real)> <G (real)> <H (real)> <I (real)> <J (real)> <K (real)> <m (real)> <n (real)> <o (real)> <p (real)> <q (real)> <r (real)> <s (real)> <t (real)> <x (real)> <y (real)> <z (real)> <trajectoryfile (string)> <trajectoryrate (real)> <looptrajectory (Boolean)> <samplesfile (string)> <samplerate (integer)> <fixedsampleval (real)> <loopsamples (Boolean)>	*/
 	{"SIGSUBSCRIBE",	T_SIGNALSUBSCRIBE},		/*+	Subscribe sensor X on the current node to a signal source Y.:<X (integer)> <Y (integer)>														*/
 	{"SENSORSDEBUG",	T_SENSORSDEBUG},		/*+	Display various statistics on sensors and signals.:none 																		*/
@@ -171,7 +172,6 @@ TokenTab superH_token_table [] =
 	{"FORCEAVGPWR",		T_FORCEAVGPWR},			/*+	Bypass ILPA analysis and set avg pwr consumption.:<avg pwr in Watts (real)> <sleep pwr in Watts (real)>													*/
 	{"NETSEGPROPMODEL",	T_NETSEGPROPMODEL},		/*+	Associate a network segment with a signal propagation model.:<netseg ID (integer)> <sigsrc ID (integer)> <minimum SNR (real)>										*/
 	{"NUMAREGION",		T_NUMAREGION},			/*+	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.:<name string (string)> <start address (inclusive) (hexadecimal)> <end address (non-inclusive) (hexadecimal)> <local read latency in cycles (integer)> <local write latency in cycles (integer)> <remote read latency in cycles (integer)> <remote write latency in cycles (integer)> <Map ID (integer)> <Map offset (integer)> <private flag (Boolean)> */
-
 	{"NUMASTATS",		T_NUMASTATS},			/*+	Display access statistics for all NUMA regions for current node.:none																	*/
 	{"NUMASTATSALL",	T_NUMASTATSALL},		/*+	Display access statistics for all NUMA regions for all nodes.:none																	*/
 	{"NUMASETMAPID",	T_NUMASETMAPID},		/*+	Change the mapid for nth map table entry on all nodes to i.:<n (integer)> <i (integer)>															*/

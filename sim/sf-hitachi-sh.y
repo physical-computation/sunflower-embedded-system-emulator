@@ -184,6 +184,7 @@
 %token	T_SETFAULTPERIOD
 %token	T_SETFREQ
 %token	T_SETIFCOUI
+%token	T_SETMEMBASE
 %token	T_SETNODE
 %token	T_SETPC
 %token	T_SETPHYSICSPERIOD
@@ -202,6 +203,7 @@
 %token	T_SETFLASHWLATENCY
 %token	T_SHAREBUS
 %token	T_SHOWCLK
+%token	T_SHOWMEMBASE
 %token	T_SHOWPIPE
 %token	T_SHOWTAGS
 %token	T_SIGNALSRC
@@ -1695,6 +1697,14 @@ sf_cmd		: T_QUIT '\n'
 				power_scalevdd(yyengine, yyengine->cp, $2);
 			}
 		}
+		| T_SETMEMBASE uimm
+		{
+			yyengine->cp->MEMBASE = $2;
+		}
+		| T_SHOWMEMBASE
+		{
+			mprint(yyengine, NULL, siminfo, "Memory base address is %d.",yyengine->cp->MEMBASE);
+		}
 		| T_HELP '\n'
 		{
 			if (!yyengine->scanning)
@@ -2048,8 +2058,17 @@ add_instr	: T_ADD reg ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0011;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within alocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
+
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -3182,6 +3201,9 @@ jmp_instr	: T_JMP '@' reg
 			{
 				instr_n tmp;
 
+				mprint(yyengine, NULL, siminfo, 
+					"Hi, %d, %d, %d", yyengine->cp->PC, yyengine->cp->MEMBASE, yyengine->cp->MEMSIZE);
+				
 				if (!yyengine->cp->pipelined)
 				{
 					superH_jmp(yyengine, yyengine->cp, $3);
@@ -3191,8 +3213,19 @@ jmp_instr	: T_JMP '@' reg
 				tmp.code_lo = B00101011;
 				tmp.code_hi = B0100;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within alocated memory.");
+				}
+				else
+				{
+					void * t = &yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE];
+					memmove(t,
+						&tmp, sizeof(tmp));
+				}
+
 				yyengine->cp->PC += 2;
 			}
 		}

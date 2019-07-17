@@ -76,6 +76,8 @@ TokenTab riscv_token_table [] =
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
+	{"SETMEMBASE",	T_SETMEMBASE},				/*+	Set base address of simulator memorry array.:<address (integer)>						*/
+	{"SHOWMEMBASE",	T_SHOWMEMBASE},				/*+	Show base address of simulator memorry array.:none								*/
 	{"PD",		T_DISABLEPIPELINE},			/*+	Disable simulation of processor's pipeline.:none								*/
 	{"PE",		T_ENABLEPIPELINE},			/*+	Enable simulation of processor's pipeline.:none									*/
 	{"PF",		T_PIPEFLUSH},				/*+	Flush the pipeline.:none											*/
