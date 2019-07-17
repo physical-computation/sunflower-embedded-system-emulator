@@ -1,5 +1,7 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+
+	Additional contributions, 2019, Samuel Wong
  
 	All rights reserved.
 
