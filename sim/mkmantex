@@ -8,9 +8,8 @@
 
 
 	echo '\chapter{Sunflower Commands}'
-	cat lex.c | grep '/\*+' | sort -t ',' | sed 's/none//' | $1 -F'*|_|}|{|+|,|:|"'\
+	cat lex-hitachi-sh.c | grep '/\*+' | sort -t ',' | sed 's/none//' | $1 -F'*|_|}|{|+|,|:|"'\
 		'{print "\n\\section{\\quad\\code{" $3 "}}\\inxx{Commands,{\\code{"tolower($3)"}}}\n\\label{manpages:"toupper($3)"}\n\\label{manpages:"tolower($3)"}\n\\vspace{-0.1in}\n{\\bf Description}: " $10\
 		"\\\\[1.5ex]\n{\\em Synopsis}:\n\\vspace{-0.05in}\n\\scriptsize\n\\begin{lstlisting}\n"\
 	"   " $3 "   " $11\
 		"\n\\end{lstlisting}\n\\normalsize\n\\vspace{-0.05in}\n"}'
-

@@ -780,7 +780,8 @@ devportwritebyte(Engine *E, State *S, ulong addr, uchar data)
 		if (S->cmdbuf_nbytes == MAX_CMD_LEN - 2)
 		{
 			State		*tmpstate = E->cp;
-			extern	int	yyparse(void);
+			extern	int	sf_superh_parse(void);
+			extern	int	sf_riscv_parse(void);
 
 			S->cmdbuf[S->cmdbuf_nbytes++] = '\n';
 			S->cmdbuf[S->cmdbuf_nbytes++] = '\0';
@@ -795,14 +796,22 @@ devportwritebyte(Engine *E, State *S, ulong addr, uchar data)
 			/*							*/
 			E->cp = S;
 			yyengine = E;
-			yyparse();
+			if (yyengine->cp->machinetype == MACHINE_SUPERH)
+			{
+				sf_superh_parse();
+			}
+			else if (yyengine->cp->machinetype == MACHINE_RISCV)
+			{
+				sf_riscv_parse();
+			}
 			E->cp = tmpstate;
 		}
 	}
 	else if (addr == SUPERH_SIMCMD_CTL)
 	{
 		State		*tmpstate = E->cp;
-		extern	int	yyparse(void);
+		extern	int	sf_superh_parse(void);
+		extern	int	sf_riscv_parse(void);
 
 
 		/*								*/
@@ -822,7 +831,14 @@ devportwritebyte(Engine *E, State *S, ulong addr, uchar data)
 		/*							*/
 		E->cp = S;
 		yyengine = E;
-		yyparse();
+		if (yyengine->cp->machinetype == MACHINE_SUPERH)
+			{
+				sf_superh_parse();
+			}
+			else if (yyengine->cp->machinetype == MACHINE_RISCV)
+			{
+				sf_riscv_parse();
+			}
 		E->cp = tmpstate;
 	}
 	else if ((addr >= SUPERH_ORBIT_BEGIN) && (addr < SUPERH_ORBIT_END))
