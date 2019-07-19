@@ -34,6 +34,7 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
+
 typedef struct
 {
 	uint32_t	instr;
@@ -41,11 +42,17 @@ typedef struct
 	void 		(*fptr)();
 	uint8_t		op;
 	uint8_t		format;
+	int		cycles;
 	int		valid;
 } RiscvPipestage;
 
 typedef struct
 {
+	RiscvPipestage	IF;
+	RiscvPipestage	ID;
 	RiscvPipestage	EX;
+	RiscvPipestage	MA;
+	RiscvPipestage	WB;
+	int 		fetch_stall_cycles;
 } RiscvPipe;
 

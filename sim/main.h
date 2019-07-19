@@ -535,7 +535,7 @@ struct State
 
 	/*	Instruction-level power analysis	*/
 	EnergyInfo	energyinfo;
-	double		scaledcurrents[OP_MAX];
+	double		scaledcurrents[SUPERH_OP_MAX];		/*	Power support for superH only?	*/
 
 	/*		The operating voltage. 		*/
 	double		VDD;
@@ -756,6 +756,7 @@ struct Engine
 
 	/*				Decode caches			*/
 	SuperHDCEntry	superHDC[1<<16];
+	RiscvDCEntry	riscvDC[1<<16];
 	MSP430DCEntry	msp430DC[1<<16];
 
 

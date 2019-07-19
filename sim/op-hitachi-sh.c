@@ -95,19 +95,19 @@ delayslot(Engine *E, State *S, ulong dPC)
 
 	switch (S->superH->P.ID.op)
 	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
+		case SUPERH_OP_BF:
+		case SUPERH_OP_BT:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTS:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_TRAPA:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSRF:
 		{
 			sfatal(E, S, "Illegal slot instruction !\n");
 			break;
@@ -117,10 +117,10 @@ delayslot(Engine *E, State *S, ulong dPC)
 		/*	See pages 107 and 115 of the programming manual		*/
 		/*	for an explanation of the following:			*/
 		/*								*/
-		case OP_MOVI:
-		case OP_MOVWI:
-		case OP_MOVLI:
-		case OP_MOVA:
+		case SUPERH_OP_MOVI:
+		case SUPERH_OP_MOVWI:
+		case SUPERH_OP_MOVLI:
+		case SUPERH_OP_MOVA:
 		{
 			/*							*/
 			/*	When we call (*(S->superH->P.ID.fptr)), it will use	*/

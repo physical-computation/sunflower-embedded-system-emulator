@@ -14,8 +14,10 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 	/*	to check for valid fptrs ever, when using decode cache	*/
 	/*	and, e.g., instr is '0'.				*/
 	/*								*/
-	stage->format = INSTR_N;
-    stage->fptr = (void *)superH_nop;
+	stage->format = INSTR_N;	/*	RISCV has no NOP instruction.				*/
+    stage->fptr = (void *)superH_nop;	/*	ADDI x0,x0,x0 requires arguments so no can do...	*/
+					/*	superH_nop will suffice for instrutcion simulation,	*/
+					/*	but not sure for power analysis.			*/
 
 	tmp = (void *)&instr;
 

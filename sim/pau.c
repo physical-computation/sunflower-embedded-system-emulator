@@ -158,7 +158,7 @@ pau_clk(Engine *E, State *S)
 
 					/*	Rfg. penalty = PAU_RFG_CYCLES*(NOP Energy)     */
 					S->energyinfo.CPUEtot +=\
-						S->scaledcurrents[OP_NOP]*\
+						S->scaledcurrents[SUPERH_OP_NOP]*\
 						S->VDD*\
 						S->CYCLETIME*\
 						PAU_RFG_CYCLES;
@@ -212,7 +212,7 @@ pau_lvdd(Engine *E, State *S, int pauentry)
 
 	/*	Rcfg. penalty = PAU_RFG_CYCLES*(NOP Energy cost)	*/
 	S->energyinfo.CPUEtot +=\
-		S->scaledcurrents[OP_NOP]*\
+		S->scaledcurrents[SUPERH_OP_NOP]*\
 		S->VDD*\
 		S->CYCLETIME*\
 		PAU_RFG_CYCLES;
@@ -238,7 +238,7 @@ pau_lvdd(Engine *E, State *S, int pauentry)
 	S->VDD = calc_vdd;
 	power_scaledelay(E, S, S->VDD);
 
-	for (i = OP_ADD; i <= OP_XTRCT; i++)
+	for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 	{
 		double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
 

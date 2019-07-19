@@ -55,3 +55,4 @@ typedef struct
 	SuperHPipestage	WB;
 	int		fetch_stall_cycles;
 } SuperHPipe;
+

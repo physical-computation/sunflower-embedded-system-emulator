@@ -225,7 +225,6 @@ void riscv_andi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 void riscv_ori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) | sign_extend(imm0, 12)));
-
 	return;
 }
 

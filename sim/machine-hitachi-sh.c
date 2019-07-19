@@ -61,19 +61,19 @@ interruptible(State *S)
 
 	switch (S->superH->P.ID.op)
 	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
+		case SUPERH_OP_BF:
+		case SUPERH_OP_BT:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTS:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_TRAPA:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSRF:
 		{
 			return 0;
 		}
@@ -81,19 +81,19 @@ interruptible(State *S)
 
 	switch (S->superH->P.IF.op)
 	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
+		case SUPERH_OP_BF:
+		case SUPERH_OP_BT:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTS:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_TRAPA:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSRF:
 		{
 			return 0;
 		}
@@ -838,7 +838,7 @@ superHresetcpu(Engine *E, State *S)
 			S->superH->npau);
 	}
 
-	for (i = OP_ADD; i <= OP_XTRCT; i++)
+	for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 	{
 		double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
 

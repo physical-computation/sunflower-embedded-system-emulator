@@ -48,64 +48,64 @@ superHtouchesmem(int op)
 {
 	switch (op)
 	{
-		case OP_ANDM:
-		case OP_LDCMSR:
-		case OP_LDCMGBR:
-		case OP_LDCMVBR:
-		case OP_LDCMSSR:
-		case OP_LDCMSPC:
-		case OP_LDCMRBANK:
-		case OP_LDSMMACH:
-		case OP_LDSMMACL:
-		case OP_LDSMPR:
-		case OP_MACL:
-		case OP_MACW:
-		case OP_MOVBL:
-		case OP_MOVWL:
-		case OP_MOVLL:
-		case OP_MOVBP:
-		case OP_MOVWP:
-		case OP_MOVLP:
-		case OP_MOVBL0:
-		case OP_MOVWL0:
-		case OP_MOVLL0:
-		case OP_MOVWI:
-		case OP_MOVLI:
-		case OP_MOVBLG:
-		case OP_MOVWLG:
-		case OP_MOVLLG:
-		case OP_MOVBL4:
-		case OP_MOVWL4:
-		case OP_MOVLL4:
-		case OP_ORM:
-		case OP_TAS:
-		case OP_TSTM:
-		case OP_XORM:
+		case SUPERH_OP_ANDM:
+		case SUPERH_OP_LDCMSR:
+		case SUPERH_OP_LDCMGBR:
+		case SUPERH_OP_LDCMVBR:
+		case SUPERH_OP_LDCMSSR:
+		case SUPERH_OP_LDCMSPC:
+		case SUPERH_OP_LDCMRBANK:
+		case SUPERH_OP_LDSMMACH:
+		case SUPERH_OP_LDSMMACL:
+		case SUPERH_OP_LDSMPR:
+		case SUPERH_OP_MACL:
+		case SUPERH_OP_MACW:
+		case SUPERH_OP_MOVBL:
+		case SUPERH_OP_MOVWL:
+		case SUPERH_OP_MOVLL:
+		case SUPERH_OP_MOVBP:
+		case SUPERH_OP_MOVWP:
+		case SUPERH_OP_MOVLP:
+		case SUPERH_OP_MOVBL0:
+		case SUPERH_OP_MOVWL0:
+		case SUPERH_OP_MOVLL0:
+		case SUPERH_OP_MOVWI:
+		case SUPERH_OP_MOVLI:
+		case SUPERH_OP_MOVBLG:
+		case SUPERH_OP_MOVWLG:
+		case SUPERH_OP_MOVLLG:
+		case SUPERH_OP_MOVBL4:
+		case SUPERH_OP_MOVWL4:
+		case SUPERH_OP_MOVLL4:
+		case SUPERH_OP_ORM:
+		case SUPERH_OP_TAS:
+		case SUPERH_OP_TSTM:
+		case SUPERH_OP_XORM:
 
-		case OP_MOVBS:
-		case OP_MOVWS:
-		case OP_MOVLS:
-		case OP_MOVBM:
-		case OP_MOVWM:
-		case OP_MOVLM:
-		case OP_MOVBS0:
-		case OP_MOVWS0:
-		case OP_MOVLS0:
-		case OP_MOVBSG:
-		case OP_MOVWSG:
-		case OP_MOVLSG:
-		case OP_MOVBS4:
-		case OP_MOVWS4:
-		case OP_MOVLS4:
-		case OP_STCMSR:
-		case OP_STCMGBR:
-		case OP_STCMVBR:
-		case OP_STCMSSR:
-		case OP_STCMSPC:
-		case OP_STCMRBANK:
-		case OP_STSMMACH:
-		case OP_STSMMACL:
-		case OP_STSMPR:
+		case SUPERH_OP_MOVBS:
+		case SUPERH_OP_MOVWS:
+		case SUPERH_OP_MOVLS:
+		case SUPERH_OP_MOVBM:
+		case SUPERH_OP_MOVWM:
+		case SUPERH_OP_MOVLM:
+		case SUPERH_OP_MOVBS0:
+		case SUPERH_OP_MOVWS0:
+		case SUPERH_OP_MOVLS0:
+		case SUPERH_OP_MOVBSG:
+		case SUPERH_OP_MOVWSG:
+		case SUPERH_OP_MOVLSG:
+		case SUPERH_OP_MOVBS4:
+		case SUPERH_OP_MOVWS4:
+		case SUPERH_OP_MOVLS4:
+		case SUPERH_OP_STCMSR:
+		case SUPERH_OP_STCMGBR:
+		case SUPERH_OP_STCMVBR:
+		case SUPERH_OP_STCMSSR:
+		case SUPERH_OP_STCMSPC:
+		case SUPERH_OP_STCMRBANK:
+		case SUPERH_OP_STSMMACH:
+		case SUPERH_OP_STSMMACL:
+		case SUPERH_OP_STSMPR:
 		{
 			return 1;
 		}
@@ -129,16 +129,16 @@ superHEXtouchesmem(State *S)
 
 	switch (S->superH->P.EX.op)
 	{
-		case OP_BFS:
-		case OP_BRA:
-		case OP_BRAF:
-		case OP_BSR:
-		case OP_BSRF:
-		case OP_BTS:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTE:
-		case OP_RTS:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_BSRF:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_RTS:
 			if (superHtouchesmem(S->superH->P.ID.op))
 			{
 				return 1;
@@ -193,7 +193,7 @@ superHfaststep(Engine *E, State *S, int drain_pipeline)
 
 		if (S->sleep)
 		{
-			update_energy(OP_SLEEP, 0, 0);
+			update_energy(SUPERH_OP_SLEEP, 0, 0);
 			S->ICLK++;
 			S->TIME += S->CYCLETIME;
 			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
@@ -410,7 +410,6 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
 			{
 				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
-
 				continue;
 			}
 
@@ -439,7 +438,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 
 			if (S->sleep)
 			{
-				update_energy(OP_SLEEP, 0, 0);
+				update_energy(SUPERH_OP_SLEEP, 0, 0);
 				S->ICLK++;
 				S->TIME += S->CYCLETIME;
 				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
@@ -468,7 +467,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*							*/
 			if (SF_POWER_ANALYSIS)
 			{
-				update_energy(OP_NOP, 0, 0);
+				update_energy(SUPERH_OP_NOP, 0, 0);
 				stall_energy_updated = 1;
 			}
 		}
@@ -732,7 +731,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			{
 				if (!stall_energy_updated && !exec_energy_updated)
 				{
-					update_energy(OP_NOP, 0, 0);
+					update_energy(SUPERH_OP_NOP, 0, 0);
 				}
 			}
 		}
@@ -787,7 +786,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 	
 		/*									*/
 		/* 	  Put instr in IF stage if it is empty, and increment PC	*/
-		/*	Check against bus lock is for the enclosing lonmgword address	*/
+		/*	Check against bus lock is for the enclosing longword address	*/
 		/*									*/
 		if (	!(S->superH->P.IF.valid)
 			&& (!S->superH->B->pbuslock ||
