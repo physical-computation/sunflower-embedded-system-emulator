@@ -39,11 +39,82 @@
 #include <string.h>
 #include "sf.h"
 #include "instr-riscv.h"
-#include "opstr-riscv.h"
 #include "mextern.h"
 
+void print_bin_instr(Engine* E, State* S, int32_t m, int format_op)/* Will delete later...*/
+{ 
+	uint32_t binaryNum[32];
+	uint32_t n = (uint32_t) m;
+	int i;
+	for (i = 31; i>=0; i--)
+	{ 
+		binaryNum[i] = n % 2; 
+		n = n / 2;
+	}
+	for (i = 0; i<32; i++)
+	{
+		mprint(E, S, nodeinfo, "%d", binaryNum[i]);
+		if (format_op)
+		{
+			if (i == 6 ||i == 11 || i== 16 || i==19 || i==24)
+			{
+				mprint(E, S, nodeinfo, " ");
+			}
+		}
+		else
+		{
+			if (i == 3 ||i == 7 || i== 11 || i==15 || i==19 || i==23 || i==27)
+			{
+				mprint(E, S, nodeinfo, " ");
+			}
+		}
+	}
+}
+
+
+/*	Arithmetic instr are forwarded, so dependent arithmetic instr do not stall	*/
+/*	LOAD instr are forwarded, so cause only 1 stall					*/
+/*	BRANCH instr are tested in an earlier stage to reduce cost of incorrect branch	*/
+/*	JUMP locations are calculated in an earlier stage so only cost 1/2 cycles	*/
+/*	BRANCH instr always take the wrong path, so always stall 1 cycle		*/
+
+
+
+//Hazards that cause stalling:
+//	1 stall:
+//		LOAD instructions that write to a register-required-by-the-next-instruction after reading from memory:
+//			...EX of next instruction needs reg data from MA of LOAD instructions.
+//		JAL instruction calculates the PC of next instruction using arithmetic in ID.
+//			...IF of next instruction needs PC from ID of JAL instruction.
+//		BRANCH instructions test for (in)equality in ID, dependent on previous instruction:
+//			...ID of BRANCH istruction needs reg data from EX of previous instruction.
+//		BRANCH instruction guessed incorrectly, so need to flush:
+//			...IF of next instruction needs PC from ID of BRANCH instruction.
+//	2 stalls:
+//		LOAD instruction followed by dependent BRANCH instruction:
+//			...ID of BRANCH instruction needs reg data from MA of LOAD instructions.
+//		JALR instruction calculates the PC of next instruction by using register.
+//			...IF of next instruction needs reg data from EX of JALR instruction.
+
 int
-riscvtouchesmem(int op)
+riscvbranches(int op)
+{
+	switch(op)
+	{
+		case RISCV_OP_BEQ:
+		case RISCV_OP_BNE:
+		case RISCV_OP_BLT:
+		case RISCV_OP_BGE:
+		case RISCV_OP_BLTU:
+		case RISCV_OP_BGEU:
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+int
+riscvloads(int op)
 {
 	switch (op)
 	{
@@ -52,9 +123,9 @@ riscvtouchesmem(int op)
 		case RISCV_OP_LW:
 		case RISCV_OP_LBU:
 		case RISCV_OP_LHU:
-		case RISCV_OP_SB:
-		case RISCV_OP_SH:
-		case RISCV_OP_SW:
+
+		case RV32F_OP_FLW:
+		case RV32D_OP_FLD:
 		{
 			return 1;
 		}
@@ -64,40 +135,132 @@ riscvtouchesmem(int op)
 }
 
 int
-riscvEXtouchesmem(State *S)
+riscvreadsreg(int op)
 {
-	if (!S->riscv->P.EX.valid)
+	switch(op)
 	{
-		return 0;
-	}
-
-	if (riscvtouchesmem(S->riscv->P.EX.op))
-	{
-		return 1;
-	}
-
-	switch (S->riscv->P.EX.op)
-	{
-		case RISCV_OP_LUI:
-		case RISCV_OP_AUIPC:
-		case RISCV_OP_JAL:
 		case RISCV_OP_JALR:
+		case RISCV_OP_LB:
+		case RISCV_OP_LH:
+		case RISCV_OP_LW:
+		case RISCV_OP_LBU:
+		case RISCV_OP_LHU:
+		case RISCV_OP_ADDI:
+		case RISCV_OP_SLTI:
+		case RISCV_OP_SLTIU:
+		case RISCV_OP_XORI:
+		case RISCV_OP_ORI:
+		case RISCV_OP_ANDI:
+		case RISCV_OP_SLLI:
+		case RISCV_OP_SRLI:
+		case RISCV_OP_SRAI:
+		{
+			return 1;
+		}
 		case RISCV_OP_BEQ:
 		case RISCV_OP_BNE:
 		case RISCV_OP_BLT:
 		case RISCV_OP_BGE:
 		case RISCV_OP_BLTU:
 		case RISCV_OP_BGEU:
-			if (superHtouchesmem(S->riscv->P.ID.op))
+		case RISCV_OP_SB:
+		case RISCV_OP_SH:
+		case RISCV_OP_SW:
+		case RISCV_OP_ADD:
+		case RISCV_OP_SUB:
+		case RISCV_OP_SLL:
+		case RISCV_OP_SLT:
+		case RISCV_OP_SLTU:
+		case RISCV_OP_XOR:
+		case RISCV_OP_SRL:
+		case RISCV_OP_SRA:
+		case RISCV_OP_OR:
+		case RISCV_OP_AND:
+		{
+			return 2;
+		}
+	}
+	return 0;
+}
+int
+riscvsetsreg(int op)
+{
+	switch(op)
+	{
+		/*	LUI and AUIPC: Info is there by end of ID so no need to stall for next instr	*/
+		/*	JAL and JALR cause their own stall(s) anyway	*/
+		/*	LOADs have their own stall tests	*/
+		case RISCV_OP_ADDI:
+		case RISCV_OP_SLTI:
+		case RISCV_OP_SLTIU:
+		case RISCV_OP_XORI:
+		case RISCV_OP_ORI:
+		case RISCV_OP_ANDI:
+		case RISCV_OP_SLLI:
+		case RISCV_OP_SRLI:
+		case RISCV_OP_SRAI:
+		case RISCV_OP_ADD:
+		case RISCV_OP_SUB:
+		case RISCV_OP_SLL:
+		case RISCV_OP_SLT:
+		case RISCV_OP_SLTU:
+		case RISCV_OP_XOR:
+		case RISCV_OP_SRL:
+		case RISCV_OP_SRA:
+		case RISCV_OP_OR:
+		case RISCV_OP_AND:
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int
+riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
+{
+	uint8_t IDrd	= (IDstage.instr&Bits7to11) >> 7;
+	uint8_t IFrs1	= (IFstage.instr&Bits15to19) >> 15;
+	uint8_t IFrs2	= (IFstage.instr&Bits20to24) >> 20;
+
+	if (riscvloads(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 2;
+			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 1)
+		{
+			if (IFrs1 == IDrd)
 			{
 				return 1;
 			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 2)
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 1;
+			}
+		}
+	}
+	if (riscvsetsreg(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd)
+			{
+				return 1;
+			}
+		}
 	}
 
 	return 0;
 }
 
-int
 riscvfaststep(Engine *E, State *S, int drain_pipeline)
 {
 	int		i;
@@ -216,7 +379,7 @@ riscvfaststep(Engine *E, State *S, int drain_pipeline)
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
 			S->Cycletrans = 0;
 		}
-/*	Not needed for fast step?	*/
+/*	Not needed for fast step...?
 		if (S->pipeshow)
 		{					
 			riscvdumppipe(E, S);
@@ -236,12 +399,12 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 	int		i, exec_energy_updated = 0, stall_energy_updated = 0;
 	ulong		tmpPC;
 	Picosec		saved_globaltime;
+	S->superH->SR.MD = 1;
 
 
 	saved_globaltime = E->globaltimepsec;
 	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
 	{
-
 		/*	superH equivalent has some sort of bus locking managment inserted here.	*/
 
 		if (!drain_pipeline)
@@ -323,29 +486,9 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			sfatal(E, S, "Illegal instruction.");
 		}
 
-		/*								*/
-		/* 	Execution "completes" only if next stage is empty.	*/
-		/*	Since we currently do mem acceses in EX, only go	*/
-		/*	ahead if bus is not locked.				*/
-		/*								*/
-		/*	TODO: only instructions which would cause an access	*/
-		/*	to main memory (non-cacheable / miss in cache) should	*/
-		/*	wait on bus lock. This can be fixed cleanly, if we	*/
-		/*	make actual memory access happen at the end of the	*/
-		/*	stall, in the MA stage (like it should). To do this,	*/
-		/*	would have to (1) mark pipestage as "memaccess-pending"	*/
-		/*	or "re-exec-in-MA". But then how to deal with instrs	*/
-		/*	for which the mem access is not the last step of 	*/
-		/*	execution, e.g. TAS ?  The logically cleanest solution	*/
-		/*	seems to use setjmp to save context as soon as a mem	*/
-		/*	access happens, and then setting the CPU's stall cycles	*/
-		/*	when stall cycles diminish to 0, do a longjmp to cont	*/
-		/*	the simulation of that node...				*/
-		/*								*/
 		if (	(S->riscv->P.EX.valid)
 			&& (S->riscv->P.EX.cycles == 0)
 			&& !(S->riscv->P.MA.valid)
-			&& !superHEXtouchesmem(S)
 		)
 		{
 			switch (S->riscv->P.EX.format)
@@ -360,8 +503,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				case INSTR_R:
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits15to19, tmp&Bits20to24, tmp&Bits7to11);
+					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits15to19) >> 15,
+								(tmp&Bits20to24) >> 20,
+								(tmp&Bits7to11) >> 7);
 					S->dyncnt++;
 
 					break;
@@ -369,8 +515,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				case INSTR_I:
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits15to19, tmp&Bits7to11,tmp&Bits20to31);
+					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits15to19) >> 15,
+								(tmp&Bits7to11) >> 7,
+								(tmp&Bits20to31) >> 20);
 					S->dyncnt++;
 
 					break;
@@ -378,8 +527,12 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				case INSTR_S:
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits15to19, tmp&Bits20to24, tmp&Bits7to11, tmp&Bits25to31);
+					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits15to19) >> 15,
+								(tmp&Bits20to24) >> 20,
+								(tmp&Bits7to11) >> 7,
+								(tmp&Bits25to31) >> 25);
 					S->dyncnt++;
 
 					break;
@@ -387,8 +540,14 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				case INSTR_B:
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits15to19, tmp&Bits20to24, tmp&Bits8to11, tmp&Bits25to30, tmp&Bit7, tmp&Bit31);
+					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits15to19) >> 15,
+								(tmp&Bits20to24) >> 20,
+								(tmp&Bits8to11) >> 8,
+								(tmp&Bits25to30) >> 25,
+								(tmp&Bit7) >> 7,
+								(tmp&Bit31) >> 31);
 					S->dyncnt++;
 
 					break;
@@ -396,19 +555,28 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				case INSTR_U:
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits7to11, tmp&Bits12to31);
+					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits7to11) >> 7,
+								(tmp&Bits12to31) >> 12);
 					S->dyncnt++;
 
 					break;
 				}
 
 				case INSTR_J:
+/*	There is only one instruction of J-type, which is JAL, which does early PC calculation	*/
 				{
-					uint32_t tmp = (uint32_t *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp&Bits7to11, tmp&Bits21to30, tmp&Bit20, tmp&Bits12to19, tmp&Bit31);
+/*	Do nothing, because its already done in ID stage
+					uint32_t tmp = S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&Bits7to11) >> 7,
+								(tmp&Bits21to30) >> 21,
+								(tmp&Bit20) >> 20,
+								(tmp&Bits12to19) >> 12,
+								(tmp&Bit31) >> 31);
 					S->dyncnt++;
-
+*/
 					break;
 				}
 
@@ -424,6 +592,13 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			{
 				S->Cycletrans += bit_flips_32(S->riscv->P.EX.instr,
 							S->riscv->P.MA.instr);
+			}
+
+			/*	Prevents next 2 instructions from moving to EX if jumping	*/
+			if (S->riscv->P.EX.op == RISCV_OP_JALR || riscvbranches(S->riscv->P.EX.op))
+			{
+				S->riscv->P.ID.valid = 0;/*	Same effect as flushing	*/
+				S->riscv->P.IF.valid = 0;
 			}
 
 			memmove(&S->riscv->P.MA, &S->riscv->P.EX, sizeof(RiscvPipestage));
@@ -450,14 +625,12 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				}
 			}
 		}
-
 		/*									*/
 		/* 	move instr in ID stage to EX stage if EX stage is empty.	*/
 		/*									*/
 		if (	(S->riscv->P.ID.valid)
 			&& (S->riscv->P.fetch_stall_cycles == 0)
 			&& (!S->riscv->P.EX.valid)
-			&& !riscvEXtouchesmem(S)
 		)
 		{
 			/*		Count # bits flipping in EX		*/
@@ -467,11 +640,31 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							S->riscv->P.EX.instr);
 			}
 
-			/*	We use Decode Cache Rather than call decode()	*/
-			S->riscv->P.ID.fptr 	= E->riscvDC[(int)(S->riscv->P.ID.instr)].dc_p.fptr;
-			S->riscv->P.ID.op 	= E->riscvDC[(int)(S->riscv->P.ID.instr)].dc_p.op;
-			S->riscv->P.ID.format 	= E->riscvDC[(int)(S->riscv->P.ID.instr)].dc_p.format;
-			S->riscv->P.ID.cycles 	= E->riscvDC[(int)(S->riscv->P.ID.instr)].dc_p.cycles;
+			riscvdecode(E, S->riscv->P.ID.instr, &S->riscv->P.ID);
+			/*	Now we should have the PC and imm data needed to calculate branch	*/
+			/*	targets, unless there is dependancy on the previous instruction.	*/
+
+
+			/*	check if need to stall next instuction (currently in IF)	*/
+			S->riscv->P.fetch_stall_cycles += riscvnumstalls(S->riscv->P.ID, S->riscv->P.IF);
+
+//mprint(E,NULL,siminfo,"\nPC:%d---%d--------%d----\n",S->PC, S->riscv->P.ID.op,RISCV_OP_JAL);
+			/*	Stops next instr from moving to ID if jump/branch. Assumes next instr is always wrong.	*/
+			if (S->riscv->P.ID.op == RISCV_OP_JAL)
+			{
+				S->PC = S->riscv->P.ID.fetchedpc;/*	set PC back to when it was at JAL instr	*/
+				uint32_t tmp = S->riscv->P.ID.instr;
+				(*(S->riscv->P.ID.fptr))(E, S,
+							(tmp&Bits7to11) >> 7,
+							(tmp&Bits21to30) >> 21,
+							(tmp&Bit20) >> 20,
+							(tmp&Bits12to19) >> 12,
+							(tmp&Bit31) >> 31);
+				S->dyncnt++;
+
+				S->riscv->P.IF.valid = 0;/*	Same effect as flushing	*/
+			}
+//mprint(E,NULL,siminfo,"\nPC:%d---%d--------%d----\n",S->PC, S->riscv->P.ID.op,RISCV_OP_JAL);
 			memmove(&S->riscv->P.EX, &S->riscv->P.ID, sizeof(RiscvPipestage));
 
 			S->riscv->P.ID.valid = 0;
@@ -499,12 +692,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 		/*									*/
 		/* 	  Put instr in IF stage if it is empty, and increment PC	*/
-		/*	Check against bus lock is for the enclosing longword address	*/
 		/*									*/
 		if (	!(S->riscv->P.IF.valid)
 		)
 		{
-			ushort	instrlong;
+			uint32_t	instrlong;
 
 			/*						*/
 			/*	Get inst from mem hierarchy or fetch	*/
@@ -512,7 +704,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			/*						*/
 			if (drain_pipeline)
 			{
-				instrlong = 0x0009;/*	should be 0x00000000?	*/
+				instrlong = 51;/*	should be 0x00000000000000000000000000110011 for ADD x0,x0,x0?	*/
 			}
 			else
 			{
@@ -522,7 +714,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				S->nfetched++;
 				S->riscv->mem_access_type = MEM_ACCESS_NIL;
 */
-				instrlong = S->MEM[S->PC - S->MEMBASE];
+				instrlong = superHreadlong(E, S, S->PC-4);
+//		mprint(E, S, nodeinfo, "PC: %d, instr: %d. ", S->PC, instrlong);
 				S->nfetched++;
 			}
 
@@ -542,13 +735,13 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			/*	if instr in IF is of type which uses	*/
 			/*	delay slot.				*/
 			/*						*/
-			S->riscv->P.IF.op = E->riscvDC[(int)(instrlong)].dc_p.op;
-			S->riscv->P.IF.op = E->riscvDC[(int)(instrlong)].dc_p.op;
+			riscvdecode(E, instrlong, &S->riscv->P.IF);
+			//S->riscv->P.IF.instr = instrlong;
 
 			if (!drain_pipeline)
 			{
 				S->riscv->P.IF.fetchedpc = S->PC;
-				S->PC += 2;
+				S->PC += 4;
 			}
 		}
 
@@ -559,6 +752,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if (S->pipeshow)
 		{
 			riscvdumppipe(E, S);
+			riscvdumpregs(E,S);
 		}
 /*	Power Adaptation Unit not implemented...
 		if (SF_PAU_DEFINED && S->riscv->PAUs != NULL)
@@ -583,10 +777,54 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 void
 riscvdumppipe(Engine *E, State *S)
 {
-	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ", sleep?=%d\n",
-		S->NODE_ID, S->PC, S->ICLK, S->sleep);
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC={\t",S->NODE_ID);print_bin_instr(E,S,S->PC,0);mprint(E, S, nodeinfo,"}[0x" UHLONGFMT "], ICLK=" UVLONGFMT "\n",S->PC, S->ICLK);
 
-	mprint(E, S, nodeinfo, "EX: [%s]\n", riscv_opstrs[S->riscv->P.EX.op]);
+	if (S->riscv->P.WB.valid)
+	{
+		mprint(E, S, nodeinfo, "WB: [0x%x][%d]\t[%s]\t[",S->riscv->P.WB.op, S->riscv->P.WB.format, riscv_opstrs[S->riscv->P.WB.op]);print_bin_instr(E,S,S->riscv->P.WB.instr,1);mprint(E, S, nodeinfo, "]\t[");print_bin_instr(E,S,S->riscv->P.WB.fetchedpc,0);mprint(E, S, nodeinfo, "]\n");
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "WB: []\n");
+	}
+
+	if (S->riscv->P.MA.valid)
+	{
+		mprint(E, S, nodeinfo, "MA: [0x%x][%d]\t[%s]\t[",S->riscv->P.MA.op, S->riscv->P.MA.format, riscv_opstrs[S->riscv->P.MA.op]);print_bin_instr(E,S,S->riscv->P.MA.instr,1);mprint(E, S, nodeinfo, "]\t[");print_bin_instr(E,S,S->riscv->P.MA.fetchedpc,0);mprint(E, S, nodeinfo, "]\n");
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "MA: []\n");
+	}
+
+	if (S->riscv->P.EX.valid)
+	{
+		mprint(E, S, nodeinfo, "EX: [0x%x][%d]\t[%s]\t[",S->riscv->P.EX.op, S->riscv->P.EX.format, riscv_opstrs[S->riscv->P.EX.op]);print_bin_instr(E,S,S->riscv->P.EX.instr,1);mprint(E, S, nodeinfo, "]\t[");print_bin_instr(E,S,S->riscv->P.EX.fetchedpc,0);mprint(E, S, nodeinfo, "]\n");
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "EX: []\n");
+	}
+
+	if (S->riscv->P.ID.valid)
+	{
+		mprint(E, S, nodeinfo, "ID: [0x%x][%d]\t[%s]\t[",S->riscv->P.ID.op, S->riscv->P.ID.format, riscv_opstrs[S->riscv->P.ID.op]);print_bin_instr(E,S,S->riscv->P.ID.instr,1);mprint(E, S, nodeinfo, "]\t[");print_bin_instr(E,S,S->riscv->P.ID.fetchedpc,0);mprint(E, S, nodeinfo, "]\n");
+			//S->riscv->P.ID.op, S->riscv->P.ID.instr, S->riscv->P.ID.cycles);
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "ID: []\n");
+	}
+
+	if (S->riscv->P.IF.valid)
+	{
+		mprint(E, S, nodeinfo, "IF: [0x%x][%d]\t[%s]\t[",S->riscv->P.IF.op, S->riscv->P.IF.format, riscv_opstrs[S->riscv->P.IF.op]);print_bin_instr(E,S,S->riscv->P.IF.instr,1);mprint(E, S, nodeinfo, "]\t[");print_bin_instr(E,S,S->riscv->P.IF.fetchedpc,0);mprint(E, S, nodeinfo, "]\n");
+			//S->riscv->P.IF.op, S->riscv->P.IF.instr, S->riscv->P.IF.cycles);
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "IF: []\n\n");
+	}
 
 	return;
 }
@@ -595,8 +833,42 @@ void
 riscvdumpdistribution(Engine *E, State *S)
 {
 	for(int i = 0; i < RISCV_OP_MAX; i++) {
-	    mprint(E, S, nodeinfo, "%-8s {%d}\n", riscv_opstrs[i], S->riscv->instruction_distribution[i]);
+		mprint(E, S, nodeinfo, "%-8s {%d}\n", riscv_opstrs[i], S->riscv->instruction_distribution[i]);
 	}
 
 	return;
-}		
+}
+
+void
+riscvpipeflush(State *S)
+{
+	/*								*/
+	/*	Flush pipeline, count # bits we clear in pipe regs	*/
+	/*								*/
+	S->riscv->P.IF.cycles = 0;
+	S->riscv->P.IF.valid = 0;
+
+	S->riscv->P.ID.cycles = 0;
+	S->riscv->P.ID.valid = 0;
+
+	S->riscv->P.EX.cycles = 0;
+	S->riscv->P.EX.valid = 0;
+
+	S->riscv->P.MA.cycles = 0;
+	S->riscv->P.MA.valid = 0;
+
+	S->riscv->P.WB.cycles = 0;
+	S->riscv->P.WB.valid = 0;
+
+	if (SF_BITFLIP_ANALYSIS)
+	{
+		S->Cycletrans += bit_flips_32(S->riscv->P.IF.instr, 0);
+		S->Cycletrans += bit_flips_32(S->riscv->P.ID.instr, 0);
+		S->Cycletrans += bit_flips_32(S->riscv->P.EX.instr, 0);
+		S->Cycletrans += bit_flips_32(S->riscv->P.MA.instr, 0);
+		S->Cycletrans += bit_flips_32(S->riscv->P.WB.instr, 0);
+	}
+
+	return;
+}
+

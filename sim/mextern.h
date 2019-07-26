@@ -36,6 +36,8 @@
 */
 
 extern Currents		R0000[];
-extern char*		opstrs[];
+extern char*		superH_opstrs[];
+extern char*		riscv_opstrs[];
+extern char*		msp430_opstrs[];
 extern char const	MVERSION[];
 extern Engine*		yyengine;

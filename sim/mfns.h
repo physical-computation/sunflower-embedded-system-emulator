@@ -697,6 +697,7 @@ void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
 void	reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
 
+void 	riscv_nop(Engine *E, State *S);
 void 	riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void 	riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void 	riscv_slt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);

@@ -52,6 +52,7 @@
 #include "endian-hitachi-sh.h"
 #include "help.h"
 #include "opstr-hitachi-sh.h"
+#include "opstr-riscv.h"
 
 
 

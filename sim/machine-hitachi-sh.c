@@ -259,7 +259,7 @@ superHfatalaction(Engine *E, State *S)
 {
 	superHdumptlb(E, S);
 	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
-			S->NODE_ID, opstrs[S->superH->P.EX.op]);
+			S->NODE_ID, superH_opstrs[S->superH->P.EX.op]);
 
 	return;
 }

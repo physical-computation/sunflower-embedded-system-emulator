@@ -92,7 +92,7 @@ msp430dumppipe(Engine *E, State *S)
 	if (S->msp430->P.EX.valid)
 	{
 		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
-			opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
+			msp430_opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
 	}
 	else
 	{

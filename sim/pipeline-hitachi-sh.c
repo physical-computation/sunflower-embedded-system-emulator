@@ -929,7 +929,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.WB.valid)
 	{
 		mprint(E, S, nodeinfo, "WB: [%s],%d\n",
-			opstrs[S->superH->P.WB.op], S->superH->P.WB.cycles);
+			superH_opstrs[S->superH->P.WB.op], S->superH->P.WB.cycles);
 	}
 	else
 	{
@@ -939,7 +939,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.MA.valid)
 	{
 		mprint(E, S, nodeinfo, "MA: [%s],%d\n",
-			opstrs[S->superH->P.MA.op], S->superH->P.MA.cycles);
+			superH_opstrs[S->superH->P.MA.op], S->superH->P.MA.cycles);
 	}
 	else
 	{
@@ -949,7 +949,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.EX.valid)
 	{
 		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
-			opstrs[S->superH->P.EX.op], S->superH->P.EX.cycles);
+			superH_opstrs[S->superH->P.EX.op], S->superH->P.EX.cycles);
 	}
 	else
 	{

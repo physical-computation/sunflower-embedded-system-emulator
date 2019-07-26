@@ -7,7 +7,7 @@
 	fi
 
 
-	echo 'char *opstrs[] =\'
+	echo 'char *msp430_opstrs[] =\'
 	echo '{'
 	cat decode-ti-msp430.h | grep OP | $1 -F',|_' '{print "\t[OP_"$2"] \t\t\""$2"\","}'
 	echo '};'

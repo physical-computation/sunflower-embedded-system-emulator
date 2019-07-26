@@ -95,7 +95,7 @@ $(TARGET): $(OBJS) commands.tex
 	$(CC) $(DBGFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
 
-arch-$(OSTYPE).o: arch-$(OSTYPE).c Makefile
+arch-$(OSTYPE).o: arch-$(OSTYPE).c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c arch-$(OSTYPE).c
 
 batt-test: batt-test.c batt.c Makefile
