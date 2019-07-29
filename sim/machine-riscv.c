@@ -87,7 +87,7 @@ riscvdumpregs(Engine *E, State *S)
 		mbitprint(E, S, 32, S->riscv->R[i]);
 		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
 	}
-/*
+
 	mprint(E, S, nodeinfo, "\n");
 
 	for (i = 0; i < 32; i++)
@@ -111,7 +111,7 @@ riscvdumpregs(Engine *E, State *S)
 		mprint(E, S, nodeinfo, "%-32s", buffer);
 		mprint(E, S, nodeinfo, "  [0x%016llx]\n", S->riscv->fR[i]);
 	}
-*/
+
 	return;
 }
 

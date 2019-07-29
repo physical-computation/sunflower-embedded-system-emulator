@@ -9,5 +9,5 @@
 
 	echo 'char *superH_opstrs[] =\'
 	echo '{'
-	cat decode-hitachi-sh.h | grep SUPERH_OP | $1 -F',|_' '{print "\t\t\""$3"\","}'
+	cat decode-hitachi-sh.h | grep SUPERH_OP | $1 -F',|_' '{print "\t[SUPERH_OP_"$3"]\t\t\""$3"\","}'
 	echo '};'

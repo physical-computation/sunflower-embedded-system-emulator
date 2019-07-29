@@ -41,7 +41,8 @@
 #include "instr-riscv.h"
 #include "mextern.h"
 
-void print_bin_instr(Engine* E, State* S, int32_t m, int format_op)/* Will delete later...*/
+void
+print_bin_instr(Engine* E, State* S, int32_t m, int format_op)/* Will delete later...*/
 { 
 	uint32_t binaryNum[32];
 	uint32_t n = (uint32_t) m;
@@ -113,6 +114,7 @@ riscvbranches(int op)
 	}
 	return 0;
 }
+
 int
 riscvloads(int op)
 {
@@ -182,6 +184,7 @@ riscvreadsreg(int op)
 	}
 	return 0;
 }
+
 int
 riscvsetsreg(int op)
 {
@@ -790,6 +793,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 void
 riscvdumppipe(Engine *E, State *S)
 {
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ". ",
+			S->NODE_ID, S->PC, S->ICLK);
 	if (S->riscv->P.WB.valid)
 	{
 		mprint(E, S, nodeinfo, "WB: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.WB.op]);

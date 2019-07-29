@@ -9,5 +9,5 @@
 
 	echo 'char *msp430_opstrs[] =\'
 	echo '{'
-	cat decode-ti-msp430.h | grep OP | $1 -F',|_' '{print "\t[OP_"$2"] \t\t\""$2"\","}'
+	cat decode-ti-msp430.h | grep MSP430_OP | $1 -F',|_' '{print "\t[MSP430_OP_"$3"]\t\t\""$3"\","}'
 	echo '};'
