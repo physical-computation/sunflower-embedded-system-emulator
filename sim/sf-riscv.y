@@ -1150,7 +1150,8 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->dumpsysregs(yyengine, yyengine->cp);
+				mprint(yyengine, NULL, siminfo,
+					"RISC-V does not have system registers.");
 			}
 		}
 		| T_DUMPPIPE '\n'
@@ -1583,7 +1584,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->pipeflush(yyengine->cp);
+				yyengine->cp->flushpipe(yyengine->cp);
 			}
 		}
 		| T_SHOWPIPE '\n'

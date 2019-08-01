@@ -58,7 +58,7 @@ msp430faststep(Engine *E, State *S, int drain_pipe)
 }
 
 void
-msp430pipeflush(State *S)
+msp430flushpipe(State *S)
 {
 	/*								*/
 	/*	Flush pipeline, count # bits we clear in pipe regs	*/

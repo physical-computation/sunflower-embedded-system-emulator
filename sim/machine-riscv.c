@@ -114,15 +114,29 @@ riscvdumpregs(Engine *E, State *S)
 
 	return;
 }
+void/*	riscv does not have system registers	*/
+riscvdumpsysregs(){}
+
+void
+riscvfatalaction(Engine *E, State *S)
+{
+	//superHdumptlb(E, S); Blindly copied over from superH version.
+	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
+			S->NODE_ID, riscv_opstrs[S->riscv->P.EX.op]);
+
+	return;
+}
 
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-    State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
-    S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
-    S->dumpregs = riscvdumpregs;
+	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
+	S->dumpregs = riscvdumpregs;
+	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
+	S->fatalaction = riscvfatalaction;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
 	S->dumpdistribution = riscvdumpdistribution;

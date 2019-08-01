@@ -50,15 +50,17 @@ enum
     INSTR_R4,
 
     /* We introduce this new type to accomodate for any invalid instruction
-       , including 0. These instructions will be executed as nop       */
+       , including 0. These instructions will be executed as nop	*/
     INSTR_N
 };
 
-/*	These structs are currently used in fp operations in op-riscv.c. They are not used in sf-riscv.y with the RISC-V inline assembler implementation as we chose to stop using bit fields	*/
+/*	These structs are currently used in fp operations in op-riscv.c.
+	They are not used in sf-riscv.y with the RISC-V inline assembler
+	implementation as we chose to stop using bit fields.			*/
 
-/*In the following structs, the number following imm corresponds to the*/
-/*starting position of this section in the immediate number            */
-/* e.g. imm5:7 corresponds to bits [5:11] in the immediate number      */
+/*	In the following structs, the number following imm corresponds to the	
+	starting position of this section in the immediate number	
+	e.g. imm5:7 corresponds to bits [5:11] in the immediate number		*/
 
 typedef struct
 {

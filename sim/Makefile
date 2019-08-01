@@ -12,7 +12,7 @@ DEL		= /bin/rm -f
 HEADERS =\
 	batt.h\
 	big-endian-hitachi-sh.h\
-	cache-hitachi-sh.h\
+	memory-hierarchy.h\
 	config.h\
 	decode-hitachi-sh.h\
 	decode-ti-msp430.h\
@@ -101,7 +101,7 @@ arch-$(OSTYPE).o: arch-$(OSTYPE).c $(HEADERS) Makefile
 batt-test: batt-test.c batt.c Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) batt-test.c arch-$(OSTYPE).c mmalloc.c batt.c $(LDFLAGS) -o $@
 
-op-hitachi-sh.o: op-hitachi-sh.c cache-hitachi-sh.c regaccess-hitachi-sh.c $(HEADERS) Makefile
+op-hitachi-sh.o: op-hitachi-sh.c memory-hierarchy.c regaccess-hitachi-sh.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-hitachi-sh.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-hitachi-sh.c -o $@
 
@@ -109,7 +109,7 @@ op-ti-msp430.o: op-ti-msp430.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-ti-msp430.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-ti-msp430.c -o $@
 
-op-riscv.o: op-riscv.c cache-hitachi-sh.c regaccess-riscv.c $(HEADERS) Makefile
+op-riscv.o: op-riscv.c memory-hierarchy.c regaccess-riscv.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-hitachi-sh.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-riscv.c -o $@
 

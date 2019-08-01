@@ -42,34 +42,29 @@
 #include "mextern.h"
 
 void
-print_bin_instr(Engine* E, State* S, int32_t m, int format_op)/* Will delete later...*/
-{ 
-	uint32_t binaryNum[32];
-	uint32_t n = (uint32_t) m;
+print_bin_instr(Engine* E, State* S, uint32_t n, int halfbytespacing)
+{
 	int i;
-	for (i = 31; i>=0; i--)
-	{ 
-		binaryNum[i] = n % 2; 
-		n = n / 2;
-	}
-	for (i = 0; i<32; i++)
+
+	int length = 32 + 1 + (5 + halfbytespacing * 2);
+	char binaryNum[length];
+	binaryNum[length-1] = '\0';
+
+	for (i = length - 2; i >= 0; i--)
 	{
-		mprint(E, S, nodeinfo, "%d", binaryNum[i]);
-		if (format_op)
+		if (	(halfbytespacing && (i == 4 || i == 9 || i == 14 || i == 19 || i == 24 || i == 29 || i == 34)) ||
+			(!halfbytespacing && (i == 7 || i == 13 || i == 19 || i == 23 || i == 29))
+		)
 		{
-			if (i == 6 ||i == 11 || i== 16 || i==19 || i==24)
-			{
-				mprint(E, S, nodeinfo, " ");
-			}
+			binaryNum[i] = ' ';
 		}
 		else
 		{
-			if (i == 3 ||i == 7 || i== 11 || i==15 || i==19 || i==23 || i==27)
-			{
-				mprint(E, S, nodeinfo, " ");
-			}
+			binaryNum[i] = (char)((n % 2) + 48);
+			n = n / 2;
 		}
 	}
+	mprint(E, S, nodeinfo, "%s",binaryNum);
 }
 
 
@@ -222,9 +217,9 @@ riscvsetsreg(int op)
 int
 riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
 {
-	uint8_t IDrd	= (IDstage.instr&Bits7to11) >> 7;
-	uint8_t IFrs1	= (IFstage.instr&Bits15to19) >> 15;
-	uint8_t IFrs2	= (IFstage.instr&Bits20to24) >> 20;
+	uint8_t IDrd	= (IDstage.instr&maskExtractBits7to11) >> 7;
+	uint8_t IFrs1	= (IFstage.instr&maskExtractBits15to19) >> 15;
+	uint8_t IFrs2	= (IFstage.instr&maskExtractBits20to24) >> 20;
 
 	if (riscvloads(IDstage.op))
 	{
@@ -383,12 +378,7 @@ riscvfaststep(Engine *E, State *S, int drain_pipeline)
 			S->Cycletrans += bit_flips_32(tmpPC, S->PC);	
 			S->Cycletrans = 0;
 		}
-/*	Not needed for fast step...?
-		if (S->pipeshow)
-		{					
-			riscvdumppipe(E, S);
-		}
-*/
+
 		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 	}
 	E->globaltimepsec = saved_globaltime;
@@ -408,7 +398,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 	saved_globaltime = E->globaltimepsec;
 	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
 	{
-		/*	superH equivalent has some sort of bus locking managment inserted here.	*/
+		/*	superH equivalent has bus locking managment inserted here.	*/
 
 		if (!drain_pipeline)
 		{
@@ -443,7 +433,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 			if (SF_POWER_ANALYSIS)
 			{
-				update_energy(SUPERH_OP_NOP, 0, 0);
+				update_energy(SUPERH_OP_NOP, 0, 0);/*	Power data is only available for superH	*/
 				stall_energy_updated = 1;
 			}
 
@@ -471,13 +461,12 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.EX.valid) && (S->riscv->P.EX.cycles > 0))
 		{
 			S->riscv->P.EX.cycles -= 1;
-/*	Power analysis for riscv not implemented...?
 			if (SF_POWER_ANALYSIS)
 			{
 				update_energy(S->riscv->P.EX.op, 0, 0);
 				exec_energy_updated = 1;
 			}
-*/
+
 		}
 
 		if (S->riscv->P.EX.valid && (S->riscv->P.EX.fptr == NULL))
@@ -523,9 +512,9 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits15to19) >> 15,
-								(tmp&Bits20to24) >> 20,
-								(tmp&Bits7to11) >> 7);
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits20to24) >> 20,
+								(tmp&maskExtractBits7to11) >> 7);
 					S->dyncnt++;
 
 					break;
@@ -535,9 +524,9 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits15to19) >> 15,
-								(tmp&Bits7to11) >> 7,
-								(tmp&Bits20to31) >> 20);
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits7to11) >> 7,
+								(tmp&maskExtractBits20to31) >> 20);
 					S->dyncnt++;
 
 					break;
@@ -547,10 +536,10 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits15to19) >> 15,
-								(tmp&Bits20to24) >> 20,
-								(tmp&Bits7to11) >> 7,
-								(tmp&Bits25to31) >> 25);
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits20to24) >> 20,
+								(tmp&maskExtractBits7to11) >> 7,
+								(tmp&maskExtractBits25to31) >> 25);
 					S->dyncnt++;
 
 					break;
@@ -560,12 +549,12 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits15to19) >> 15,
-								(tmp&Bits20to24) >> 20,
-								(tmp&Bits8to11) >> 8,
-								(tmp&Bits25to30) >> 25,
-								(tmp&Bit7) >> 7,
-								(tmp&Bit31) >> 31);
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits20to24) >> 20,
+								(tmp&maskExtractBits8to11) >> 8,
+								(tmp&maskExtractBits25to30) >> 25,
+								(tmp&maskExtractBit7) >> 7,
+								(tmp&maskExtractBit31) >> 31);
 					S->dyncnt++;
 
 					break;
@@ -575,26 +564,27 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits7to11) >> 7,
-								(tmp&Bits12to31) >> 12);
+								(tmp&maskExtractBits7to11) >> 7,
+								(tmp&maskExtractBits12to31) >> 12);
 					S->dyncnt++;
 
 					break;
 				}
 
 				case INSTR_J:
-/*	There is only one instruction of J-type, which is JAL, which does early PC calculation	*/
 				{
-/*	Do nothing, because its already done in ID stage
+					/*	There is only one instruction of J-type, which is JAL,	*/
+					/*	which does early PC calculation	in the ID stage.	*/
+					/*	So do nothing, because it's already done in ID stage
 					uint32_t tmp = S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
-								(tmp&Bits7to11) >> 7,
-								(tmp&Bits21to30) >> 21,
-								(tmp&Bit20) >> 20,
-								(tmp&Bits12to19) >> 12,
-								(tmp&Bit31) >> 31);
+								(tmp&maskExtractBits7to11) >> 7,
+								(tmp&maskExtractBits21to30) >> 21,
+								(tmp&maskExtractBit20) >> 20,
+								(tmp&maskExtractBits12to19) >> 12,
+								(tmp&maskExtractBit31) >> 31);
 					S->dyncnt++;
-*/
+													*/
 					break;
 				}
 
@@ -616,6 +606,25 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			memmove(&S->riscv->P.MA, &S->riscv->P.EX, sizeof(RiscvPipestage));
 			S->riscv->P.EX.valid = 0;
 			S->riscv->P.MA.valid = 1;
+		}
+
+		/*								*/
+		/*   ID cycles--. If 0, move instr in ID to EX if EX is empty	*/
+		/*								*/
+		if ((S->riscv->P.MA.valid) && (S->riscv->P.MA.cycles > 0))
+		{
+			S->riscv->P.MA.cycles -= 1;
+
+			/*							*/
+			/*	For mem stall, energy cost assigned is NOP	*/
+			/*							*/
+
+			if (SF_POWER_ANALYSIS)
+			{
+				update_energy(SUPERH_OP_NOP, 0, 0);/*	Power data is only available for superH	*/
+				stall_energy_updated = 1;
+			}
+
 		}
 
 		/*	     First : If fetch unit is stalled, dec its counter		*/
@@ -642,6 +651,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		/*									*/
 		if (	(S->riscv->P.ID.valid)
 			&& (S->riscv->P.fetch_stall_cycles == 0)
+			&& (S->riscv->P.ID.cycles == 0)
 			&& (!S->riscv->P.EX.valid)
 		)
 		{
@@ -659,7 +669,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 
 			/*	check if need to stall next instuction (currently in IF)	*/
-			S->riscv->P.fetch_stall_cycles += riscvnumstalls(S->riscv->P.ID, S->riscv->P.IF);
+//S->riscv->P.fetch_stall_cycles += riscvnumstalls(S->riscv->P.ID, S->riscv->P.IF);
+			S->riscv->P.IF.cycles += riscvnumstalls(S->riscv->P.ID, S->riscv->P.IF);
 
 			/*	Stops next instr from moving to ID if jump/branch. Assumes next instr is always wrong.	*/
 			if (S->riscv->P.ID.op == RISCV_OP_JAL)
@@ -672,11 +683,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 				uint32_t tmp = S->riscv->P.ID.instr;
 				(*(S->riscv->P.ID.fptr))(E, S,
-							(tmp&Bits7to11) >> 7,
-							(tmp&Bits21to30) >> 21,
-							(tmp&Bit20) >> 20,
-							(tmp&Bits12to19) >> 12,
-							(tmp&Bit31) >> 31);
+							(tmp&maskExtractBits7to11) >> 7,
+							(tmp&maskExtractBits21to30) >> 21,
+							(tmp&maskExtractBit20) >> 20,
+							(tmp&maskExtractBits12to19) >> 12,
+							(tmp&maskExtractBit31) >> 31);
 				S->dyncnt++;
 
 				S->riscv->P.IF.valid = 0;/*	Same effect as flushing	*/
@@ -688,11 +699,31 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			S->riscv->P.EX.valid = 1;
 		}
 
+		/*								*/
+		/*   IF cycles--. If 0, move instr in IF to ID if ID is empty	*/
+		/*								*/
+		if ((S->riscv->P.IF.valid) && (S->riscv->P.IF.cycles > 0))
+		{
+			S->riscv->P.IF.cycles -= 1;
+
+			/*							*/
+			/*	For mem stall, energy cost assigned is NOP	*/
+			/*							*/
+
+			if (SF_POWER_ANALYSIS)
+			{
+				update_energy(SUPERH_OP_NOP, 0, 0);/*	Power data is only available for superH	*/
+				stall_energy_updated = 1;
+			}
+
+		}
+
 		/*									*/
 		/* 	    Move instr in IF stage to ID stage if ID stage is empty	*/
 		/*									*/
 		if (	!(S->riscv->P.ID.valid)
 			&& (S->riscv->P.IF.valid)
+			&& (S->riscv->P.IF.cycles == 0)
 			&& (S->riscv->P.fetch_stall_cycles == 0))
 		{
 			/*		Count # bits flipping in ID		*/
@@ -722,7 +753,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			/*						*/
 			if (drain_pipeline)
 			{
-				instrlong = 51;/*	should be 0x00000000000000000000000000110011 for ADD x0,x0,x0?	*/
+				instrlong = 51;/*	should be 00000000000000000000000000110011 for ADD x0,x0,x0	*/
 			}
 			else
 			{
@@ -793,13 +824,13 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 void
 riscvdumppipe(Engine *E, State *S)
 {
-	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ". ",
+	mprint(E, S, nodeinfo, "\nnode ID=%d, PC=0x" UHLONGFMT ", ICLK=" UVLONGFMT ". \n",
 			S->NODE_ID, S->PC, S->ICLK);
 	if (S->riscv->P.WB.valid)
 	{
 		mprint(E, S, nodeinfo, "WB: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.WB.op]);
-	print_bin_instr(E,S,S->riscv->P.WB.instr,1);
-	mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.WB.fetchedpc);
+		print_bin_instr(E,S,S->riscv->P.WB.instr,0);
+		mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.WB.fetchedpc);
 	}
 	else
 	{
@@ -809,8 +840,8 @@ riscvdumppipe(Engine *E, State *S)
 	if (S->riscv->P.MA.valid)
 	{
 		mprint(E, S, nodeinfo, "MA: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.MA.op]);
-	print_bin_instr(E,S,S->riscv->P.MA.instr,1);
-	mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.MA.fetchedpc);
+		print_bin_instr(E,S,S->riscv->P.MA.instr,0);
+		mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.MA.fetchedpc);
 	}
 	else
 	{
@@ -820,7 +851,7 @@ riscvdumppipe(Engine *E, State *S)
 	if (S->riscv->P.EX.valid)
 	{
 		mprint(E, S, nodeinfo, "EX: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.EX.op]);
-		print_bin_instr(E,S,S->riscv->P.EX.instr,1);
+		print_bin_instr(E,S,S->riscv->P.EX.instr,0);
 		mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.EX.fetchedpc);
 	}
 	else
@@ -830,8 +861,8 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.ID.valid)
 	{
-		mprint(E, S, nodeinfo, "ID: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.ID.op]);
-		print_bin_instr(E,S,S->riscv->P.ID.instr,1);
+		mprint(E, S, nodeinfo, "ID: [---]\tinstr: [");
+		print_bin_instr(E,S,S->riscv->P.ID.instr,0);
 		mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n",S->riscv->P.ID.fetchedpc);
 	}
 	else
@@ -841,8 +872,8 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.IF.valid)
 	{
-		mprint(E, S, nodeinfo, "IF: [%s]\tinstr: [", riscv_opstrs[S->riscv->P.IF.op]);
-		print_bin_instr(E,S,S->riscv->P.IF.instr,1);
+		mprint(E, S, nodeinfo, "IF: [---]\tinstr: [");
+		print_bin_instr(E,S,S->riscv->P.IF.instr,0);
 		mprint(E, S, nodeinfo, "]\tfetched: [0x%x]\n\n",S->riscv->P.IF.fetchedpc);
 	}
 	else
@@ -864,7 +895,7 @@ riscvdumpdistribution(Engine *E, State *S)
 }
 
 void
-riscvpipeflush(State *S)
+riscvflushpipe(State *S)
 {
 	/*								*/
 	/*	Flush pipeline, count # bits we clear in pipe regs	*/

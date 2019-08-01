@@ -535,7 +535,7 @@ struct State
 
 	/*	Instruction-level power analysis	*/
 	EnergyInfo	energyinfo;
-	double		scaledcurrents[SUPERH_OP_MAX];		/*	Power support for superH only?	*/
+	double		scaledcurrents[SUPERH_OP_MAX];/*	Currently, power data is only for superH	*/
 
 	/*		The operating voltage. 		*/
 	double		VDD;
@@ -685,7 +685,7 @@ struct State
 	void 		(*resetcpu)(Engine *, State *S);
 	void 		(*dumppipe)(Engine *, State *S);
         void 		(*dumpdistribution)(Engine *, State *S);
-        void 		(*pipeflush)(State *S);
+        void 		(*flushpipe)(State *S);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);
@@ -756,7 +756,6 @@ struct Engine
 
 	/*				Decode caches			*/
 	SuperHDCEntry	superHDC[1<<16];
-	RiscvDCEntry	riscvDC[1<<16];
 	MSP430DCEntry	msp430DC[1<<16];
 
 

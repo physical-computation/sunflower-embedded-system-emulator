@@ -501,7 +501,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 				exec_energy_updated = 1;
 			}
 		}
-	
+
 		if (S->superH->P.EX.valid && (S->superH->P.EX.fptr == NULL))
 		{
 			mprint(E, S, nodeinfo, "PC=0x" UHLONGFMT "\n",
@@ -867,7 +867,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 }
 
 void
-superHpipeflush(State *S)
+superHflushpipe(State *S)
 {
 	/*								*/
 	/*	Flush pipeline, count # bits we clear in pipe regs	*/

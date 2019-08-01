@@ -1714,6 +1714,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 tuck ulong 	
 superHreadlong(Engine *E, State *S, ulong vaddr)
 {
+mprint(E,NULL,siminfo,"superHreadlong vaddr: "UHLONGFMT"\n",vaddr);
 	int		inram, latency = 0;
 	int		i, id, j;
 	ulong		offset, destoffset = 0, destbase;
@@ -1774,6 +1775,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 
 	if (i != -1)
 	{
+mprint(E,NULL,siminfo,"map_offset: " UHLONGFMT "\n",X->regions[i]->map_offset);
 		X->regions[i]->nreads++;
 
 		id = X->regions[i]->map_id;

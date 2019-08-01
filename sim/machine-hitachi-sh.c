@@ -513,11 +513,11 @@ superHtake_exception(Engine *E, State *S)
 	if (handling == ABORTED)
 	{
 		/*	Current instruction is aborted		*/
-		superHpipeflush(S);
+		superHflushpipe(S);
 	}
 	else if (handling == ABORTED_AND_RETRIED)
 	{
-		superHpipeflush(S);
+		superHflushpipe(S);
 		S->superH->SPC = intr->value;
 	}
 	else if (handling == COMPLETED)
@@ -720,7 +720,7 @@ superHresetcpu(Engine *E, State *S)
 	int	i;
 
 
-	superHpipeflush(S);
+	superHflushpipe(S);
 
 
 	S->MEMSIZE = DEFLT_MEMSIZE;
@@ -997,7 +997,7 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 	S->cyclestep = superHstep;
 	S->faststep = superHfaststep;
 	S->dumppipe = superHdumppipe;
-	S->pipeflush = superHpipeflush;
+	S->flushpipe = superHflushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev7708readbyte;

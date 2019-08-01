@@ -76,7 +76,7 @@ static tuck void	delayslot(Engine *E, State *S, ulong dPC);
 #include "regaccess-hitachi-sh.c"
 
 /*	We do this so that the superHreadword etc. can get inlined.		*/
-#include "cache-hitachi-sh.c"
+#include "memory-hierarchy.c"
 
 
 tuck void	
