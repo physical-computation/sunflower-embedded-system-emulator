@@ -608,25 +608,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			S->riscv->P.MA.valid = 1;
 		}
 
-		/*								*/
-		/*   ID cycles--. If 0, move instr in ID to EX if EX is empty	*/
-		/*								*/
-		if ((S->riscv->P.MA.valid) && (S->riscv->P.MA.cycles > 0))
-		{
-			S->riscv->P.MA.cycles -= 1;
-
-			/*							*/
-			/*	For mem stall, energy cost assigned is NOP	*/
-			/*							*/
-
-			if (SF_POWER_ANALYSIS)
-			{
-				update_energy(SUPERH_OP_NOP, 0, 0);/*	Power data is only available for superH	*/
-				stall_energy_updated = 1;
-			}
-
-		}
-
 		/*	     First : If fetch unit is stalled, dec its counter		*/
 		if (S->riscv->P.fetch_stall_cycles > 0)
 		{
@@ -697,25 +678,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 			S->riscv->P.ID.valid = 0;
 			S->riscv->P.EX.valid = 1;
-		}
-
-		/*								*/
-		/*   IF cycles--. If 0, move instr in IF to ID if ID is empty	*/
-		/*								*/
-		if ((S->riscv->P.IF.valid) && (S->riscv->P.IF.cycles > 0))
-		{
-			S->riscv->P.IF.cycles -= 1;
-
-			/*							*/
-			/*	For mem stall, energy cost assigned is NOP	*/
-			/*							*/
-
-			if (SF_POWER_ANALYSIS)
-			{
-				update_energy(SUPERH_OP_NOP, 0, 0);/*	Power data is only available for superH	*/
-				stall_energy_updated = 1;
-			}
-
 		}
 
 		/*									*/
