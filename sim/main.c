@@ -2239,8 +2239,9 @@ m_off(Engine *E, State *S)
 			S->TIME);
 		mprint(E, NULL, siminfo, "Simulated Clock Cycles = " UVLONGFMT "\n",
 			S->finishclk - S->startclk);
-		mprint(E, NULL, siminfo, "Cycles wasted due to hazards = " UVLONGFMT " (%.2f%)\n",
-			S->hazard_cycles_stalled, S->hazard_cycles_stalled/(S->finishclk - S->startclk));
+		mprint(E, NULL, siminfo, "Cycles Spent Waiting = " UVLONGFMT " (%.2f%)\n",
+			S->num_cycles_waiting, 100*((float)(S->num_cycles_waiting))/(float)(S->finishclk - S->startclk));
+
 	}
 
 	mprint(E, NULL, siminfo,
@@ -2249,7 +2250,6 @@ m_off(Engine *E, State *S)
 		(S->ufinish - S->ustart))/1E6)));
 
 	E->on = 0;
-
 
 	return;
 }

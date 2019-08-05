@@ -455,7 +455,10 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.MA.valid) && (S->riscv->P.MA.cycles > 0))
 		{
 			S->riscv->P.MA.cycles--;
-			S->num_cycles_waiting++;
+			if (S->riscv->P.MA.cycles != 0)
+			{
+				S->num_cycles_waiting++;
+			}
 
 			/*							*/
 			/*	For mem stall, energy cost assigned is NOP	*/
@@ -472,7 +475,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.MA.valid) && (S->riscv->P.MA.cycles == 0)
 			&& (!S->riscv->P.WB.valid))
 		{
-			S->num_cycles_waiting--;
 
 			/*		Count # bits flipping in WB		*/
 			if (SF_BITFLIP_ANALYSIS)
@@ -493,7 +495,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.EX.valid) && (S->riscv->P.EX.cycles > 0))
 		{
 			S->riscv->P.EX.cycles--;
-			S->num_cycles_waiting++;
+			if (S->riscv->P.EX.cycles != 0)
+			{
+				S->num_cycles_waiting++;
+			}
+
 			if (SF_POWER_ANALYSIS)
 			{
 				update_energy(S->riscv->P.EX.op, 0, 0);
@@ -516,7 +522,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			&& !(S->riscv->P.MA.valid)
 		)
 		{
-			S->num_cycles_waiting--;
 
 			/*	Rewind PC so that instrs that use PC have	*/
 			/*	the correct PC. Will bring PC back after.	*/
@@ -650,7 +655,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.ID.valid) && (S->riscv->P.ID.cycles > 0))
 		{
 			S->riscv->P.ID.cycles--;
-			S->num_cycles_waiting++;
+			if (S->riscv->P.ID.cycles != 0)
+			{
+				S->num_cycles_waiting++;
+			}
+
 			if (SF_POWER_ANALYSIS)
 			{
 				update_energy(S->riscv->P.ID.op, 0, 0);
@@ -687,8 +696,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			&& (!S->riscv->P.EX.valid)
 		)
 		{
-			S->num_cycles_waiting--;
-
 			/*	check if hazards need to stall next instuction (currently in IF)	*/
 			S->riscv->P.IF.cycles += riscvnumstalls(S->riscv->P.ID, S->riscv->P.IF);
 
@@ -743,7 +750,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 		if ((S->riscv->P.IF.valid) && (S->riscv->P.IF.cycles > 0))
 		{
 			S->riscv->P.IF.cycles--;
-			S->num_cycles_waiting++;
+			if (S->riscv->P.IF.cycles != 0)
+			{
+				S->num_cycles_waiting++;
+			}
+
 			if (SF_POWER_ANALYSIS)
 			{
 				update_energy(S->riscv->P.IF.op, 0, 0);
@@ -759,8 +770,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			&& (S->riscv->P.IF.cycles == 0)
 			&& (S->riscv->P.fetch_stall_cycles == 0))
 		{
-			S->num_cycles_waiting--;
-
 			/*		Count # bits flipping in ID		*/
 			if (SF_BITFLIP_ANALYSIS)
 			{
@@ -972,6 +981,7 @@ riscvIFflush(State *S)
 	S->riscv->P.IF.cycles = 0;
 	S->riscv->P.IF.valid = 0;
 
+	S->num_cycles_waiting++;
 
 	if (SF_BITFLIP_ANALYSIS)
 	{
@@ -991,6 +1001,7 @@ riscvIFIDflush(State *S)
 	S->riscv->P.ID.cycles = 0;
 	S->riscv->P.ID.valid = 0;
 
+	S->num_cycles_waiting += 2;
 
 	if (SF_BITFLIP_ANALYSIS)
 	{
