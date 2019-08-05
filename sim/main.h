@@ -639,6 +639,7 @@ struct State
 	ulong		ustart, ufinish;
 	uvlong		startclk, finishclk;
 	uvlong		trip_ustart, trip_startclk;
+	uvlong		hazard_cycles_stalled;
 
 
 	/*	    		Topology Information			*/

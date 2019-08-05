@@ -900,7 +900,7 @@ superHflushpipe(State *S)
 }
 
 void
-superHifidflush(State *S)
+superHIFIDflush(State *S)
 {
 	S->superH->P.IF.cycles = 0;
 	S->superH->P.IF.valid = 0;

@@ -1714,7 +1714,6 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 tuck ulong 	
 superHreadlong(Engine *E, State *S, ulong vaddr)
 {
-mprint(E,NULL,siminfo,"superHreadlong vaddr: "UHLONGFMT"\n",vaddr);
 	int		inram, latency = 0;
 	int		i, id, j;
 	ulong		offset, destoffset = 0, destbase;

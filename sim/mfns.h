@@ -370,7 +370,7 @@ void	superHdumpregs(Engine *E, State *S);
 void	superHdumpsysregs(Engine *E, State *S);
 int	superHfaststep(Engine *, State *S, int drain_pipeline);
 void	superHfatalaction(Engine *, State *S);
-void	superHifidflush(State *S);
+void	superHIFIDflush(State *S);
 State*	superHnewstate(Engine *E, double, double, double, char *);
 void	superHflushpipe(State *S);
 void	superHresetcpu(Engine *, State *S);
@@ -414,7 +414,6 @@ void	dev7708writebyte(Engine *E, State *S, ulong addr, uchar data);
 //void	dev7708write(State *S, ulong, uchar);
 //uchar	dev7708read(State *S, ulong);
 
-int riscvstep(Engine *E, State *S, int drain_pipe);
 
 int	superHtlb_init(Engine *, State *S, int size, int blocksize, int assoc);
 void	superHvmtranslate(Engine *, State *S, int op, TransAddr *transladdr);
@@ -692,6 +691,12 @@ void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
 State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
 void    riscvdumpregs(Engine *E, State *S);
 void	riscvdumppipe(Engine *E, State *S);
+void	riscvflushpipe(State *S);
+void	riscvIFflush(State *S);
+void	riscvIFIDflush(State *S);
+int	riscvstep(Engine *E, State *S, int drain_pipe);
+int	riscvfaststep(Engine *E, State *S, int drain_pipe);
+
 void    riscvdumpdistribution(Engine *E, State *S);
 void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);

@@ -133,20 +133,28 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
+	if (S->riscv == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->riscv.", -1);
+		}
+
 	S->dumpregs = riscvdumpregs;
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
+	S->flushpipe = riscvflushpipe;
+	S->riscv->P.WB.cycles = 1;
+	S->riscv->P.MA.cycles = 1;
+	S->riscv->P.EX.cycles = 1;
+	S->riscv->P.ID.cycles = 1;
+	S->riscv->P.IF.cycles = 1;
+
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
 	S->dumpdistribution = riscvdumpdistribution;
 
-    if (S->riscv == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->riscv.", -1);
-	}
+	S->step = riscvstep;
+	S->faststep = riscvfaststep;
 
-    S->step = riscvstep;
-
-    return S;
+	return S;
 }

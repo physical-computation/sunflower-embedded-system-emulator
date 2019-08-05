@@ -1894,7 +1894,6 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 		}
 		;
 
-/*	--------------------------------------------------------------------	*/
 add_riscv_instr	: T_ADD reg ',' reg ',' reg
 		{
 			if (yyengine->scanning)
@@ -3443,8 +3442,6 @@ xori_riscv_instr	: T_XORI reg ',' reg ',' simm
 			}
 		}
 		;
-
-/*	--------------------------------------------------------------------	*/
 
 rnd		: rnd_const | rnd_var
 		;

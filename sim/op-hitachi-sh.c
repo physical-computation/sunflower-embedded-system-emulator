@@ -535,7 +535,7 @@ superH_bf(Engine *E, State *S, long d)
 		/*			NOP <- this PC is used to calc targ	*/
 		/*								*/
 		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);		
-		superHifidflush(S);
+		superHIFIDflush(S);
 		S->superH->P.EX.cycles += 2;
 	}
 	else
@@ -614,7 +614,7 @@ superH_bfs(Engine *E, State *S, long d)
 		
 		/* 	Exec instr in delay slot before flushing IF/ID		*/
 		delayslot(E, S, temp+2);
-		superHifidflush(S);
+		superHIFIDflush(S);
 	}
 	else
 	{
@@ -683,7 +683,7 @@ superH_bra(Engine *E, State *S, long d)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, temp+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 
 	return;
@@ -720,7 +720,7 @@ superH_braf(Engine *E, State *S, ulong n)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, temp+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 		
 	return;
@@ -774,7 +774,7 @@ superH_bsr(Engine *E, State *S, long d)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 	
 	/*								*/
 	/*		For simulators debugging facilities		*/
@@ -832,7 +832,7 @@ superH_bsrf(Engine *E, State *S, ulong n)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	/*								*/
 	/*		For simulators debugging facilities		*/
@@ -895,7 +895,7 @@ superH_bt(Engine *E, State *S, long d)
 	{
 		/*	Taken : flush IF and ID		*/
 		S->PC = (S->superH->P.EX.fetchedpc+4)+(disp<<1);
-		superHifidflush(S);
+		superHIFIDflush(S);
 	}
 	else
 	{
@@ -958,7 +958,7 @@ superH_bts(Engine *E, State *S, long d)
 
 		/* 	Exec instr in delay slot before flushing IF/ID		*/
 		delayslot(E, S, temp+2);
-		superHifidflush(S);
+		superHIFIDflush(S);
 	}
 	else
 	{
@@ -1672,7 +1672,7 @@ superH_jmp(Engine *E, State *S, ulong n)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, temp+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	return;
 }
@@ -1709,7 +1709,7 @@ superH_jsr(Engine *E, State *S, ulong n)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, S->superH->PR+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	/*								*/
 	/*		For simulators debugging facilities		*/
@@ -3385,7 +3385,7 @@ superH_rte(Engine *E, State *S)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, temp+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	return;
 }
@@ -3424,7 +3424,7 @@ superH_rts(Engine *E, State *S)
 
 	/* 	Exec instr in delay slot before flushing IF/ID		*/
 	delayslot(E, S, temp+2);
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	/*								*/
 	/*		For simulators debugging facilities		*/
@@ -4355,7 +4355,7 @@ superH_trapa(Engine *E, State *S, long i)
 	S->superH->EXPEVT = 0x00000160;
 
 	S->PC = S->superH->VBR+0x00000100;
-	superHifidflush(S);
+	superHIFIDflush(S);
 
 	return;
 }

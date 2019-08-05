@@ -554,7 +554,7 @@ superHtake_nic_intr(Engine *E, State *S)
 	/*	(PC is incremented at end of step() in pipeline.c)	*/
 	/*	We need to re-exec instruction which is currently in	*/
 	/*	ID when we RTE, so save that kids PC! (then do a 	*/
-	/*	ifidflush()). If we are faststeping, then S->PC is 	*/
+	/*	IFIDflush()). If we are faststeping, then S->PC is 	*/
 	/*	the next instr that we would place into EX and exec.	*/
 	/*								*/
 	/*	i.e., at this point, we are yet to execute instruction	*/

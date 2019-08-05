@@ -1076,11 +1076,11 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
 		/*		Prime the decode caches		*/		
- 		for (int i = 0; i < (1 << 16); i++)		
- 		{		
- 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
- 		}		
-		
+		for (int i = 0; i < (1 << 16); i++)
+		{
+			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);
+		}
+
 		S = superHnewstate(E, x, y, z, trajfilename);
 	}
 	else if (!strncmp(type, "riscv", strlen("riscv")))
@@ -2239,6 +2239,8 @@ m_off(Engine *E, State *S)
 			S->TIME);
 		mprint(E, NULL, siminfo, "Simulated Clock Cycles = " UVLONGFMT "\n",
 			S->finishclk - S->startclk);
+		mprint(E, NULL, siminfo, "Cycles wasted due to hazards = " UVLONGFMT " (%.2f%)\n",
+			S->hazard_cycles_stalled, S->hazard_cycles_stalled/(S->finishclk - S->startclk));
 	}
 
 	mprint(E, NULL, siminfo,
