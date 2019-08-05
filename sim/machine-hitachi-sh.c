@@ -280,6 +280,8 @@ superHstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*								*/
 	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
 	{
+		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
+		/*	IF.cycles (he doesn't know either) but I'll leave it as it is...	*/
 		S->superH->P.fetch_stall_cycles += latency;
 	}
 	else

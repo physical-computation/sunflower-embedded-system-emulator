@@ -73,6 +73,41 @@ print_fp_register_abi(Engine *E, State *S, ulong reg_index)
 	}
 }
 
+tuck void
+riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
+{
+	/*	PAU may change VDD	*/
+	if (SF_PAU_DEFINED)
+	{
+		pau_feed(E, S, type, addr);
+	}
+
+	/*								*/
+	/*	Stall fetch unit on next access or instr in EX		*/
+	/*	the stall actually occurs when in MA, since we've	*/
+	/*	completed the EX wait before we get executed.		*/
+	/*								*/
+	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
+	{
+		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
+		/*	IF.cycles (he doesn't know either) but I'll leave it as it is...	*/
+		S->riscv->P.fetch_stall_cycles += latency;
+	}
+	else
+	{
+		S->riscv->P.EX.cycles += latency;
+	}
+
+	/*								*/
+	/*	TODO: This will have to change when we implement	*/
+	/*	setjmp idea for simulating memory stalls		*/
+	/*								*/
+
+	//superH equivalent has buslocking management here
+
+	return;
+}
+
 void
 riscvdumpregs(Engine *E, State *S)
 {
@@ -87,7 +122,7 @@ riscvdumpregs(Engine *E, State *S)
 		mbitprint(E, S, 32, S->riscv->R[i]);
 		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
 	}
-
+/*
 	mprint(E, S, nodeinfo, "\n");
 
 	for (i = 0; i < 32; i++)
@@ -111,7 +146,7 @@ riscvdumpregs(Engine *E, State *S)
 		mprint(E, S, nodeinfo, "%-32s", buffer);
 		mprint(E, S, nodeinfo, "  [0x%016llx]\n", S->riscv->fR[i]);
 	}
-
+*/
 	return;
 }
 void/*	riscv does not have system registers	*/
@@ -142,16 +177,12 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
-	S->riscv->P.WB.cycles = 1;
-	S->riscv->P.MA.cycles = 1;
-	S->riscv->P.EX.cycles = 1;
-	S->riscv->P.ID.cycles = 1;
-	S->riscv->P.IF.cycles = 1;
 
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
 	S->dumpdistribution = riscvdumpdistribution;
+	S->stallaction = riscvstallaction;
 
 	S->step = riscvstep;
 	S->faststep = riscvfaststep;

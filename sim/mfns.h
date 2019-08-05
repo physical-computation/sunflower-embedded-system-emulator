@@ -689,6 +689,7 @@ void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
 /*									*/
 
 State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
+void	riscvstallaction(Engine *, State *S, ulong addr, int type, int latency);
 void    riscvdumpregs(Engine *E, State *S);
 void	riscvdumppipe(Engine *E, State *S);
 void	riscvflushpipe(State *S);

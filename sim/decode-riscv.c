@@ -15,8 +15,8 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 	/*	and, e.g., instr is '0'.				*/
 	/*								*/
 	stage->format = INSTR_I;		/*	RISCV has no NOP instruction.				*/
-	stage->fptr = (void *)riscv_nop;	/*	ADDI x0,x0,x0 is used as a pseudo instruction instead.	*/
-						/*	Need to sort out with regards to power analysis.	*/
+	stage->cycles = 1;			/*	ADDI x0,x0,x0 is used as a pseudo instruction instead.	*/
+	stage->fptr = (void *)riscv_nop;	/*	Need to sort out with regards to power analysis.	*/
 
 	tmp = (void *)&instr;
 
