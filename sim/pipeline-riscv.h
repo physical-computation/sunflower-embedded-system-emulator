@@ -42,18 +42,13 @@ typedef struct
 	void 		(*fptr)();
 	uint8_t		op;
 	uint8_t		format;
-	int		cycles;
 	int		valid;
 
 /*	Every instr should have its own time/cycle count for how long
 	it spends on each pipeline stage, which is then moved to this
-	variable. It can be increased depending on external factors
+	variable. It can be increased depending on other factors
 	like cache misses.						*/
 	int		cycles;
-
-/*	This does not affect running of the sunflower riscv pipeline,
-	but is used to give information on the runtime spent on hazards	*/
-	int		hazardstalls;
 } RiscvPipestage;
 
 typedef struct
@@ -65,4 +60,3 @@ typedef struct
 	RiscvPipestage	WB;
 	int 		fetch_stall_cycles;
 } RiscvPipe;
-
