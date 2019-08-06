@@ -1,0 +1,14 @@
+#!/bin/sh
+
+
+	if [ $# -ne 0 ]; then
+		echo 1>&2 Usage: $0
+		exit 127
+	fi
+
+
+	echo '/*\tThis file is generated from latencies-riscv.h\t*/'
+	echo 'enum'
+	echo '{'
+	cat latencies-riscv.h | grep OP| sed "s/.*\[\(R.*_OP_.*[A-Z]\)\].*/\t\1,/" | sed "s/MAX,/MAX,\n/"
+	echo '};'
