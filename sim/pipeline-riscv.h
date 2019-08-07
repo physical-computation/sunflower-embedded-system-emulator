@@ -43,7 +43,6 @@ typedef struct
 	uint8_t		op;
 	uint8_t		format;
 	int		valid;
-	int		stagenum;
 
 /*	Every instr should have its own time/cycle count for how long
 	it spends on each pipeline stage, which is then moved to this

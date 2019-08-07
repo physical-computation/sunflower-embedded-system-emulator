@@ -172,14 +172,6 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		{
 			mexit(E, "Failed to allocate memory for S->riscv.", -1);
 		}
-	else
-	{/*	Enumerating	*/
-		S->riscv->P.IF.stagenum = 0;
-		S->riscv->P.ID.stagenum = 1;
-		S->riscv->P.EX.stagenum = 2;
-		S->riscv->P.MA.stagenum = 3;
-		S->riscv->P.WB.stagenum = 4;
-	}
 
 	S->dumpregs = riscvdumpregs;
 	S->dumpsysregs = riscvdumpsysregs;
