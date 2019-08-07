@@ -24,7 +24,7 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
- 	latencies-riscv.h\
+	latencies-riscv.h\
 	listutils.h\
 	little-endian-hitachi-sh.h\
 	machine-hitachi-sh.h\
