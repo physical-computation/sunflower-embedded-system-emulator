@@ -24,6 +24,8 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
+ 	latencies-riscv.h\
+	listutils.h\
 	little-endian-hitachi-sh.h\
 	machine-hitachi-sh.h\
 	machine-ti-msp430.h\
@@ -48,7 +50,6 @@ HEADERS =\
 	regs-riscv.h\
 	sf.h\
 	syscalls.h\
-	listutils.h\
 
 OBJS	=\
 	randgen.o\
@@ -145,7 +146,7 @@ opstr-riscv.h: decode-riscv.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 decode-riscv.h: latencies-riscv.h Makefile
-	./mkdecode-riscv > decode-riscv.h
+	bash ./mkdecode-riscv > decode-riscv.h
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
 help.h: lex-hitachi-sh.c Makefile
@@ -160,4 +161,4 @@ install: $(TARGET)
 	cp $(TARGET) $(BIN)/
 
 clean:
-	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h parsedriver.i lex.i sf.output gmon.out sunflower.out
+	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h decode-riscv.h parsedriver.i lex.i sf.output gmon.out sunflower.out

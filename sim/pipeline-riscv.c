@@ -484,6 +484,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.WB, &S->riscv->P.MA, sizeof(RiscvPipestage));
+			S->riscv->P.WB.cycles = S->riscv->P.WB.instr_latencies[WB];
+
 			S->riscv->P.MA.valid = 0;
 			S->riscv->P.WB.valid = 1;
 		}
@@ -522,7 +524,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			&& !(S->riscv->P.MA.valid)
 		)
 		{
-
 			/*	Rewind PC so that instrs that use PC have	*/
 			/*	the correct PC. Will bring PC back after.	*/
 			S->PC = S->riscv->P.EX.fetchedpc + 4;
@@ -644,6 +645,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.MA, &S->riscv->P.EX, sizeof(RiscvPipestage));
+			S->riscv->P.MA.cycles = S->riscv->P.MA.instr_latencies[MA];
+
 			S->riscv->P.EX.valid = 0;
 			S->riscv->P.MA.valid = 1;
 		}
@@ -738,6 +741,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.EX, &S->riscv->P.ID, sizeof(RiscvPipestage));
+			S->riscv->P.EX.cycles = S->riscv->P.EX.instr_latencies[EX];
 
 			S->riscv->P.ID.valid = 0;
 			S->riscv->P.EX.valid = 1;
@@ -778,6 +782,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.ID, &S->riscv->P.IF, sizeof(RiscvPipestage));
+			S->riscv->P.ID.cycles = S->riscv->P.ID.instr_latencies[ID];
+
 			S->riscv->P.IF.valid = 0;
 			S->riscv->P.ID.valid = 1;
 		}
@@ -815,15 +821,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			S->riscv->P.IF.instr = instrlong;
 			S->riscv->P.IF.valid = 1;
 
-
-			/*						*/
-			/*	We also set this here (early) to	*/
-			/*	enable intr/excp handling, since	*/
-			/*	there, we do not drain the pipeline	*/
-			/*	if instr in IF is of type which uses	*/
-			/*	delay slot.				*/
-			/*						*/
 			riscvdecode(E, S->riscv->P.IF.instr, &S->riscv->P.IF);
+			S->riscv->P.IF.cycles = S->riscv->P.IF.instr_latencies[IF];
 
 			if (!drain_pipeline)
 			{
@@ -904,7 +903,8 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.ID.valid)
 	{
-		mprint(E, S, nodeinfo, "ID: [---],\t[%s], pc: [0x%x], \n",
+		mprint(E, S, nodeinfo, "ID: [%s],\t[%s], pc: [0x%x], \n",
+					riscv_opstrs[S->riscv->P.ID.op],
 					formatbininstr(S->riscv->P.ID.instr,0),
 					S->riscv->P.ID.fetchedpc);
 	}
@@ -915,7 +915,8 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.IF.valid)
 	{
-		mprint(E, S, nodeinfo, "IF: [---],\t[%s], pc: [0x%x], \n\n",
+		mprint(E, S, nodeinfo, "IF: [%s],\t[%s], pc: [0x%x], \n\n",
+					riscv_opstrs[S->riscv->P.IF.op],
 					formatbininstr(S->riscv->P.IF.instr,0),
 					S->riscv->P.IF.fetchedpc);
 	}

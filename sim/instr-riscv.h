@@ -50,7 +50,7 @@ enum
 	INSTR_R4,
 
 	/*	We introduce this new type to accomodate for any invalid instruction,
-	/*	including 0. These instructions will be executed as nop				*/
+		including 0. These instructions will be executed as nop				*/
 	INSTR_N
 };
 

@@ -7,7 +7,7 @@
 	fi
 
 
-	echo '/*\tThis file is generated from latencies-riscv.h\t*/'
+	echo '/*	This is dependent on latencies-riscv.h	*/'
 	echo 'enum'
 	echo '{'
 	cat latencies-riscv.h | grep OP| sed "s/.*\[\(R.*_OP_.*[A-Z]\)\].*/\t\1,/" | sed "s/MAX,/MAX,\n/"

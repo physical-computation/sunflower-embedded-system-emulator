@@ -49,6 +49,7 @@ typedef struct
 	variable. It can be increased depending on other factors
 	like cache misses.						*/
 	int		cycles;
+	int		*instr_latencies;
 } RiscvPipestage;
 
 typedef struct
@@ -60,3 +61,13 @@ typedef struct
 	RiscvPipestage	WB;
 	int 		fetch_stall_cycles;
 } RiscvPipe;
+
+/*	This is used when indexing stage->instr_latencies	*/
+enum
+{
+	IF,
+	ID,
+	EX,
+	MA,
+	WB,
+};
