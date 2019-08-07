@@ -16,7 +16,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 	stage->format = INSTR_I;		/*	RISCV has no NOP instruction.				*/
 	stage->cycles = 1;			/*	ADDI x0,x0,x0 is used as a pseudo instruction instead.	*/
 	stage->fptr = (void *)riscv_nop;	/*	Need to sort out with regards to power analysis.	*/
-	
+
 	tmp = (void *)&instr;
 
 	switch(tmp->opcode)
@@ -752,9 +752,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				case 0b0001000: //FMUL.S
 				{
 					stage->fptr = (void *) rv32f_fmul_s;
-							  stage->format = INSTR_R;
-							  stage->op = RV32F_OP_FMULS;
-//stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FMULS];
+					stage->format = INSTR_R;
+					stage->op = RV32F_OP_FMULS;
+					stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FMULS];
 
 					break;
 				}
@@ -762,9 +762,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				case 0b0001100: //FDIV.S
 				{
 					stage->fptr = (void *) rv32f_fdiv_s;
-							  stage->format = INSTR_R;
-							  stage->op = RV32F_OP_FDIVS;
-//stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FDIVS];
+					stage->format = INSTR_R;
+					stage->op = RV32F_OP_FDIVS;
+					stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FDIVS];
 
 					break;
 				}
@@ -772,9 +772,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				case 0b0101100: //FSQRT.S
 				{
 					stage->fptr = (void *) rv32f_fsqrt_s;
-							  stage->format = INSTR_R;
-							  stage->op = RV32F_OP_FSQRTS;
-//stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSQRTS];
+					stage->format = INSTR_R;
+					stage->op = RV32F_OP_FSQRTS;
+					stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSQRTS];
 
 					break;
 				}
@@ -786,9 +786,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 						case 0b000: //FSGNJ.S
 						{
 							stage->fptr = (void *) rv32f_fsgnj_s;
-										stage->format = INSTR_R;
-										stage->op = RV32F_OP_FSGNJS;
-										stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJS];
+							stage->format = INSTR_R;
+							stage->op = RV32F_OP_FSGNJS;
+							stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJS];
 
 							break;
 						}
@@ -796,9 +796,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 						case 0b001: //FSGNJN.S
 						{
 							stage->fptr = (void *) rv32f_fsgnjn_s;
-										stage->format = INSTR_R;
-										stage->op = RV32F_OP_FSGNJNS;
-										stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJNS];
+							stage->format = INSTR_R;
+							stage->op = RV32F_OP_FSGNJNS;
+							stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJNS];
 
 							break;
 						}
@@ -806,9 +806,9 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 						case 0b010: //FSGNJX.S
 						{
 							stage->fptr = (void *) rv32f_fsgnjx_s;
-										stage->format = INSTR_R;
-										stage->op = RV32F_OP_FSGNJXS;
-										stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJXS];
+							stage->format = INSTR_R;
+							stage->op = RV32F_OP_FSGNJXS;
+							stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FSGNJXS];
 
 							break;
 						}
@@ -861,16 +861,16 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 					{
 						stage->fptr = (void *) rv32f_fcvt_wu_s;
 						stage->format = INSTR_R;
-									stage->op = RV32F_OP_FCVTWUS;
-									stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FCVTWUS];
+						stage->op = RV32F_OP_FCVTWUS;
+						stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FCVTWUS];
 
 					}
 					else //FCVT.W.S
 					{
 						stage->fptr = (void *) rv32f_fcvt_w_s;
 						stage->format = INSTR_R;
-									stage->op = RV32F_OP_FCVTWS;
-									stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FCVTWS];
+						stage->op = RV32F_OP_FCVTWS;
+						stage->instr_latencies = &riscv_instr_latencies[RV32F_OP_FCVTWS];
 
 					}
 

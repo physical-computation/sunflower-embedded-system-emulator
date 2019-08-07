@@ -903,8 +903,7 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.ID.valid)
 	{
-		mprint(E, S, nodeinfo, "ID: [%s],\t[%s], pc: [0x%x], \n",
-					riscv_opstrs[S->riscv->P.ID.op],
+		mprint(E, S, nodeinfo, "ID: [---],\t[%s], pc: [0x%x], \n",
 					formatbininstr(S->riscv->P.ID.instr,0),
 					S->riscv->P.ID.fetchedpc);
 	}
@@ -915,8 +914,7 @@ riscvdumppipe(Engine *E, State *S)
 
 	if (S->riscv->P.IF.valid)
 	{
-		mprint(E, S, nodeinfo, "IF: [%s],\t[%s], pc: [0x%x], \n\n",
-					riscv_opstrs[S->riscv->P.IF.op],
+		mprint(E, S, nodeinfo, "IF: [---],\t[%s], pc: [0x%x], \n\n",
 					formatbininstr(S->riscv->P.IF.instr,0),
 					S->riscv->P.IF.fetchedpc);
 	}
