@@ -53,6 +53,7 @@
 #include "help.h"
 #include "opstr-hitachi-sh.h"
 #include "opstr-riscv.h"
+#include "latencies-riscv.h"
 
 
 
