@@ -2,7 +2,7 @@
 int riscv_instr_latencies[][5] =\
 {
 	[RISCV_OP_LUI]		{1	,1	,1	,1	,1	},
-	[RISCV_OP_AUIPC]	{100	,1	,1	,1	,1	},
+	[RISCV_OP_AUIPC]	{1	,1	,1	,1	,1	},
 	[RISCV_OP_JAL]		{1	,1	,1	,1	,1	},
 	[RISCV_OP_JALR]		{1	,1	,1	,1	,1	},
 	[RISCV_OP_BEQ]		{1	,1	,1	,1	,1	},
