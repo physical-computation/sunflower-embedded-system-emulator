@@ -755,11 +755,9 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 							S->superH->P.EX.instr);
 			}
 	
-			/*	We use Decode Cache Rather than call decode()	*//*
-			S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
-			S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
-			S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-			S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;*/
+			/*	We should decode here but instead we do it in the IF
+				so that all relevant information is available by IF		*/
+
 			memmove(&S->superH->P.EX, &S->superH->P.ID, sizeof(SuperHPipestage));
 			S->superH->P.EX.cycles = S->superH->P.EX.instr_latencies[EX];
 	
@@ -871,7 +869,6 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 		E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
 	}
 	E->globaltimepsec = saved_globaltime;
-
 
 	return i;
 }
