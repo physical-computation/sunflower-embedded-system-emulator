@@ -110,51 +110,6 @@ Hazards:
 */
 
 int
-riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
-{
-	uint8_t IDrd	= (IDstage.instr&maskExtractBits7to11) >> 7;
-	uint8_t IFrs1	= (IFstage.instr&maskExtractBits15to19) >> 15;
-	uint8_t IFrs2	= (IFstage.instr&maskExtractBits20to24) >> 20;
-
-	if (riscvloads(IDstage.op))
-	{
-		if (riscvbranches(IFstage.op))
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 2;
-			}
-		}
-		else if (riscvreadsreg(IFstage.op) == 1)
-		{
-			if (IFrs1 == IDrd)
-			{
-				return 1;
-			}
-		}
-		else if (riscvreadsreg(IFstage.op) == 2)
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 1;
-			}
-		}
-	}
-	if (riscvsetsreg(IDstage.op))
-	{
-		if (riscvbranches(IFstage.op))
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-int
 riscvbranches(int op)
 {
 	switch(op)
@@ -286,6 +241,51 @@ riscvsetsreg(int op)
 			return 1;
 		}
 	}
+	return 0;
+}
+
+int
+riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
+{
+	uint8_t IDrd	= (IDstage.instr&maskExtractBits7to11) >> 7;
+	uint8_t IFrs1	= (IFstage.instr&maskExtractBits15to19) >> 15;
+	uint8_t IFrs2	= (IFstage.instr&maskExtractBits20to24) >> 20;
+
+	if (riscvloads(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 2;
+			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 1)
+		{
+			if (IFrs1 == IDrd)
+			{
+				return 1;
+			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 2)
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 1;
+			}
+		}
+	}
+	if (riscvsetsreg(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 1;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -584,7 +584,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				case INSTR_B:
 				{
 					/*	BRANCH executes in the ID stage. So do
-					/*	nothing, because it's already done in ID stage
+						nothing, because it's already done in ID stage
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
 								(tmp&maskExtractBits15to19) >> 15,
