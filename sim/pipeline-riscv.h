@@ -61,13 +61,3 @@ typedef struct
 	RiscvPipestage	WB;
 	int 		fetch_stall_cycles;
 } RiscvPipe;
-
-/*	This is used when indexing stage->instr_latencies	*/
-enum
-{
-	IF,
-	ID,
-	EX,
-	MA,
-	WB,
-};

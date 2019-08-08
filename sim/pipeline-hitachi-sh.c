@@ -405,8 +405,8 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			S->superH->B->pbuslocker = -1;
 		}
 
-	    	if (!drain_pipeline)
-	    	{
+		if (!drain_pipeline)
+		{
 			if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
 			{
 				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
@@ -483,6 +483,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.WB, &S->superH->P.MA, sizeof(SuperHPipestage));
+			S->superH->P.WB.cycles = S->superH->P.WB.instr_latencies[WB];
 			S->superH->P.MA.valid = 0;
 			S->superH->P.WB.valid = 1;
 		}
@@ -712,6 +713,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.MA, &S->superH->P.EX, sizeof(SuperHPipestage));
+			S->superH->P.MA.cycles = S->superH->P.MA.instr_latencies[MA];
 			S->superH->P.EX.valid = 0;
 			S->superH->P.MA.valid = 1;
 		}
@@ -753,12 +755,13 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 							S->superH->P.EX.instr);
 			}
 	
-			/*	We use Decode Cache Rather than call decode()	*/
+			/*	We use Decode Cache Rather than call decode()	*//*
 			S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
 			S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
 			S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-			S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
+			S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;*/
 			memmove(&S->superH->P.EX, &S->superH->P.ID, sizeof(SuperHPipestage));
+			S->superH->P.EX.cycles = S->superH->P.EX.instr_latencies[EX];
 	
 			S->superH->P.ID.valid = 0;
 			S->superH->P.EX.valid = 1;
@@ -780,6 +783,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.ID, &S->superH->P.IF, sizeof(SuperHPipestage));
+			S->superH->P.ID.cycles = S->superH->P.ID.instr_latencies[ID];
 			S->superH->P.IF.valid = 0;
 			S->superH->P.ID.valid = 1;
 		}
@@ -827,8 +831,14 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*	there, we do not drain the pipeline	*/
 			/*	if instr in IF is of type which uses	*/
 			/*	delay slot.				*/
-			/*						*/	
-			S->superH->P.IF.op = E->superHDC[(int)(instrword)].dc_p.op;
+			/*						*/
+
+			/*	We use Decode Cache Rather than call decode()	*/
+			S->superH->P.IF.op		= E->superHDC[(int)(instrword)].dc_p.op;
+			S->superH->P.IF.fptr		= E->superHDC[(int)(instrword)].dc_p.fptr;
+			S->superH->P.IF.format		= E->superHDC[(int)(instrword)].dc_p.format;
+			S->superH->P.IF.instr_latencies		= E->superHDC[(int)(instrword)].dc_p.instr_latencies;
+			S->superH->P.IF.cycles		= S->superH->P.IF.instr_latencies[IF];
 
 			if (!drain_pipeline)
 			{

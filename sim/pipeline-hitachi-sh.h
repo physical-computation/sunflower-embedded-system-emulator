@@ -44,6 +44,7 @@ typedef struct
 	int		format;
 	int		cycles;
 	int		valid;
+	int		*instr_latencies;
 } SuperHPipestage;
 
 typedef struct
@@ -55,4 +56,3 @@ typedef struct
 	SuperHPipestage	WB;
 	int		fetch_stall_cycles;
 } SuperHPipe;
-
