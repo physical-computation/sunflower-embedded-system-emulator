@@ -41,3 +41,13 @@ extern char*		riscv_opstrs[];
 extern char*		msp430_opstrs[];
 extern char const	MVERSION[];
 extern Engine*		yyengine;
+
+/*	This is used when indexing stage->instr_latencies	*/
+enum
+{
+	IF,
+	ID,
+	EX,
+	MA,
+	WB,
+};

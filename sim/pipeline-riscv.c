@@ -110,51 +110,6 @@ Hazards:
 */
 
 int
-riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
-{
-	uint8_t IDrd	= (IDstage.instr&maskExtractBits7to11) >> 7;
-	uint8_t IFrs1	= (IFstage.instr&maskExtractBits15to19) >> 15;
-	uint8_t IFrs2	= (IFstage.instr&maskExtractBits20to24) >> 20;
-
-	if (riscvloads(IDstage.op))
-	{
-		if (riscvbranches(IFstage.op))
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 2;
-			}
-		}
-		else if (riscvreadsreg(IFstage.op) == 1)
-		{
-			if (IFrs1 == IDrd)
-			{
-				return 1;
-			}
-		}
-		else if (riscvreadsreg(IFstage.op) == 2)
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 1;
-			}
-		}
-	}
-	if (riscvsetsreg(IDstage.op))
-	{
-		if (riscvbranches(IFstage.op))
-		{
-			if (IFrs1 == IDrd || IFrs2 == IDrd)
-			{
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-int
 riscvbranches(int op)
 {
 	switch(op)
@@ -286,6 +241,51 @@ riscvsetsreg(int op)
 			return 1;
 		}
 	}
+	return 0;
+}
+
+int
+riscvnumstalls(RiscvPipestage IDstage, RiscvPipestage IFstage)
+{
+	uint8_t IDrd	= (IDstage.instr&maskExtractBits7to11) >> 7;
+	uint8_t IFrs1	= (IFstage.instr&maskExtractBits15to19) >> 15;
+	uint8_t IFrs2	= (IFstage.instr&maskExtractBits20to24) >> 20;
+
+	if (riscvloads(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 2;
+			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 1)
+		{
+			if (IFrs1 == IDrd)
+			{
+				return 1;
+			}
+		}
+		else if (riscvreadsreg(IFstage.op) == 2)
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 1;
+			}
+		}
+	}
+	if (riscvsetsreg(IDstage.op))
+	{
+		if (riscvbranches(IFstage.op))
+		{
+			if (IFrs1 == IDrd || IFrs2 == IDrd)
+			{
+				return 1;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -484,6 +484,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.WB, &S->riscv->P.MA, sizeof(RiscvPipestage));
+			S->riscv->P.WB.cycles = S->riscv->P.WB.instr_latencies[WB];
+
 			S->riscv->P.MA.valid = 0;
 			S->riscv->P.WB.valid = 1;
 		}
@@ -522,7 +524,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			&& !(S->riscv->P.MA.valid)
 		)
 		{
-
 			/*	Rewind PC so that instrs that use PC have	*/
 			/*	the correct PC. Will bring PC back after.	*/
 			S->PC = S->riscv->P.EX.fetchedpc + 4;
@@ -583,7 +584,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				case INSTR_B:
 				{
 					/*	BRANCH executes in the ID stage. So do
-					/*	nothing, because it's already done in ID stage
+						nothing, because it's already done in ID stage
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
 					(*(S->riscv->P.EX.fptr))(E, S,
 								(tmp&maskExtractBits15to19) >> 15,
@@ -644,6 +645,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.MA, &S->riscv->P.EX, sizeof(RiscvPipestage));
+			S->riscv->P.MA.cycles = S->riscv->P.MA.instr_latencies[MA];
+
 			S->riscv->P.EX.valid = 0;
 			S->riscv->P.MA.valid = 1;
 		}
@@ -738,6 +741,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.EX, &S->riscv->P.ID, sizeof(RiscvPipestage));
+			S->riscv->P.EX.cycles = S->riscv->P.EX.instr_latencies[EX];
 
 			S->riscv->P.ID.valid = 0;
 			S->riscv->P.EX.valid = 1;
@@ -778,6 +782,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 
 			memmove(&S->riscv->P.ID, &S->riscv->P.IF, sizeof(RiscvPipestage));
+			S->riscv->P.ID.cycles = S->riscv->P.ID.instr_latencies[ID];
+
 			S->riscv->P.IF.valid = 0;
 			S->riscv->P.ID.valid = 1;
 		}
@@ -815,15 +821,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			S->riscv->P.IF.instr = instrlong;
 			S->riscv->P.IF.valid = 1;
 
-
-			/*						*/
-			/*	We also set this here (early) to	*/
-			/*	enable intr/excp handling, since	*/
-			/*	there, we do not drain the pipeline	*/
-			/*	if instr in IF is of type which uses	*/
-			/*	delay slot.				*/
-			/*						*/
 			riscvdecode(E, S->riscv->P.IF.instr, &S->riscv->P.IF);
+			S->riscv->P.IF.cycles = S->riscv->P.IF.instr_latencies[IF];
 
 			if (!drain_pipeline)
 			{
