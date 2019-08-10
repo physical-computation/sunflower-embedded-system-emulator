@@ -80,7 +80,7 @@ msp430take_timer_intr(State *S)
 void
 msp430resetcpu(Engine *E, State *S)
 {
-	msp430pipeflush(S);
+	msp430flushpipe(S);
 
 	S->MEMSIZE = MSP430_DEFLT_MEMSIZE;
 	S->MEMBASE = MSP430_MEMBASE;
@@ -253,7 +253,7 @@ msp430newstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 	S->resetcpu = msp430resetcpu;
 	S->step = msp430step;
 	S->dumppipe = msp430dumppipe;
-	S->pipeflush = msp430pipeflush;
+	S->flushpipe = msp430flushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev430x1xxreadbyte;

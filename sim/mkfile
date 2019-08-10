@@ -41,7 +41,7 @@ OFILES=\
 HFILES=\
 	batt.h\
 	big-endian-hitachi-sh.h\
-	cache-hitachi-sh.h\
+	memory-hierarchy.h\
 	decode-hitachi-sh.h\
 	decode-ti-msp430.h\
 	dev7708.h\

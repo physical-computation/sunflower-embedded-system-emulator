@@ -41,13 +41,13 @@ struct RiscvState
 	uint64_t fR[RF32FD_fMAX];
 	uint32_t fCSR;
 	RiscvPipe P;
-        uint32_t instruction_distribution[RISCV_OP_MAX]
+	uint32_t instruction_distribution[RISCV_OP_MAX];
 };
 
-/*		Entries in the Decode Cache		*/
+/*		Decode Cache not used for riscv
 typedef struct
 {
 	RiscvPipestage	dc_p;
 } RiscvDCEntry;
-
+*/
 typedef struct RiscvState RiscvState;
