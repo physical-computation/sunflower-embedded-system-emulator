@@ -49,6 +49,7 @@ HEADERS =\
 	sf.h\
 	syscalls.h\
 	listutils.h\
+	taint.h\
 
 OBJS	=\
 	randgen.o\
@@ -81,6 +82,7 @@ OBJS	=\
 	tokenhandling.o\
 	sf-hitachi-sh.o\
 	sf-riscv.o\
+	taint.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\

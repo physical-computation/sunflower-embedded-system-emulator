@@ -2016,6 +2016,11 @@ void
 m_sizemem(Engine *E, State *S, int size)
 {
 	uchar *tmp;
+	ShadowMem *tainttmp;
+
+	/*
+	*	Memory reallocation:
+	*/
 
 	if (S->MEM == NULL)
 	{
@@ -2041,6 +2046,34 @@ m_sizemem(Engine *E, State *S, int size)
 		S->MEMEND = S->MEMBASE+S->MEMSIZE;
 		mprint(E, S, nodeinfo,
 			"Set memory size to %d Kilobytes\n", S->MEMSIZE/1024);
+	}
+
+	/*
+	*	Shadow/taintmemory reallocation:
+	*/
+	if (S->TAINTMEM == NULL)
+	{
+		S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, sizeof(ShadowMem)*size, "(ShadowMem *)S->TAINTMEM");
+		if (S->MEM == NULL)
+		{
+			mexit(E, "Could not allocate mem for S->TAINTMEM in main.c", -1);
+		}
+
+		return;
+	}
+	tainttmp = (ShadowMem *)mrealloc(E, S->TAINTMEM, sizeof(ShadowMem)*size, "(ShadowMem *)S->TAINTMEM");
+	if (tainttmp == NULL)
+	{
+		mprint(E, S, nodeinfo,
+			"SIZEMEM Shadow failed: could not allocate memory for %d bytes.\n", (size*sizeof(ShadowMem)));
+	}
+	else
+	{
+		S->TAINTMEM = tainttmp;
+		S->TAINTMEMSIZE = size*sizeof(ShadowMem);
+		S->TAINTMEMEND = S->TAINTMEMBASE+S->TAINTMEMSIZE;
+		mprint(E, S, nodeinfo,
+			"Set shadow memory size to %d Kilobytes\n", (S->TAINTMEMSIZE)/1024);
 	}
 
 	return;
