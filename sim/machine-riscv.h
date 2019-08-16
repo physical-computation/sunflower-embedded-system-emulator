@@ -40,7 +40,7 @@ struct RiscvState
 	uint64_t fR[RF32FD_fMAX];
 	uint32_t fCSR;
 	RiscvPipe P;
-        uint32_t instruction_distribution[RISCV_OP_MAX];
+  uint32_t instruction_distribution[RISCV_OP_MAX];
 
 	/*
 	*	Taint analysis for registers:
@@ -48,13 +48,12 @@ struct RiscvState
 
 	ShadowMem taintR[RISCV_XMAX+1]; //Need last entry for PC's taint entry 32
 	ShadowMem taintfR[RF32FD_fMAX+1];
-
 };
 
-/*		Entries in the Decode Cache		*/
+/*		Decode Cache not used for riscv
 typedef struct
 {
 	RiscvPipestage	dc_p;
 } RiscvDCEntry;
-
+*/
 typedef struct RiscvState RiscvState;
