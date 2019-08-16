@@ -2046,7 +2046,8 @@ m_sizemem(Engine *E, State *S, int size)
 			"Set memory size to %d Kilobytes\n", S->MEMSIZE/1024);
 	}
 
-	/*Shadow/taintmemory reallocation:
+	/*
+	*	Shadow/taintmemory reallocation:
 	*/
 	if (S->TAINTMEM == NULL)
 	{

@@ -42,8 +42,10 @@ struct RiscvState
 	RiscvPipe P;
         uint32_t instruction_distribution[RISCV_OP_MAX];
 
-	//Taint analysis for registers:
-	
+	/*
+	*	Taint analysis for registers:
+	*/
+
 	ShadowMem taintR[RISCV_XMAX+1]; //Need last entry for PC's taint entry 32
 	ShadowMem taintfR[RF32FD_fMAX+1];
 

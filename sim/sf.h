@@ -84,7 +84,6 @@
 #include "network-hitachi-sh.h"
 #include "pic.h"
 #include "interrupts-ti-msp430.h"
-#include "taint-analysis-structures.h"
 #include "machine-hitachi-sh.h"
 #include "machine-riscv.h"
 #include "dev430x1xx.h"

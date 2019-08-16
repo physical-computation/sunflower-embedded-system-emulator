@@ -49,7 +49,6 @@ HEADERS =\
 	sf.h\
 	syscalls.h\
 	listutils.h\
-	taint-analysis-structures.h\
 
 OBJS	=\
 	randgen.o\
@@ -147,10 +146,10 @@ opstr-riscv.h: decode-ti-msp430.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
-help.h: lex-riscv.c Makefile
+help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 
-commands.tex: lex-riscv.c Makefile
+commands.tex: lex-hitachi-sh.c Makefile
 	./mkmantex $(GAWK) > commands.tex
 
 
