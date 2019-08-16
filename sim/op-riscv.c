@@ -84,6 +84,13 @@ uint32_t is_nan_boxed(uint64_t f)
 	else return 0x7FFFFFFF;
 }
 
+void riscv_nop(Engine *E, State *S)/*	pseudo instruction	*/
+{
+	riscv_addi(E, S, 0, 0, 0);
+
+	return;
+}
+
 void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + reg_read_riscv(E, S, rs2)));

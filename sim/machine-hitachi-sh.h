@@ -46,7 +46,7 @@ enum
 	SUPERH_MEMADDRBITS		= 32,
 
 	/*   	Max num of chars in an opcode name eg ADD = 3		*/
-	MAXOPCHARS = 16,		
+	MAX_OPCHARS = 16,
 	DEFAULT_MISS_PENALTY = 100,
 };
 
@@ -152,7 +152,7 @@ struct SuperHState
 	ulong		VBR;
 
 	SuperHPipe	P;
-	int		opncycles[OP_MAX];
+	int		opncycles[SUPERH_OP_MAX];
 
 	/*		Power Adaptation Unit		*/
 	PAUentry	*PAUs;

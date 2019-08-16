@@ -61,19 +61,19 @@ interruptible(State *S)
 
 	switch (S->superH->P.ID.op)
 	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
+		case SUPERH_OP_BF:
+		case SUPERH_OP_BT:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTS:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_TRAPA:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSRF:
 		{
 			return 0;
 		}
@@ -81,19 +81,19 @@ interruptible(State *S)
 
 	switch (S->superH->P.IF.op)
 	{
-		case OP_BF:
-		case OP_BT:
-		case OP_BRA:
-		case OP_BSR:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTS:
-		case OP_RTE:
-		case OP_TRAPA:
-		case OP_BFS:
-		case OP_BTS:
-		case OP_BRAF:
-		case OP_BSRF:
+		case SUPERH_OP_BF:
+		case SUPERH_OP_BT:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTS:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_TRAPA:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSRF:
 		{
 			return 0;
 		}
@@ -259,7 +259,7 @@ superHfatalaction(Engine *E, State *S)
 {
 	superHdumptlb(E, S);
 	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
-			S->NODE_ID, opstrs[S->superH->P.EX.op]);
+			S->NODE_ID, superH_opstrs[S->superH->P.EX.op]);
 
 	return;
 }
@@ -280,6 +280,8 @@ superHstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*								*/
 	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
 	{
+		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
+		/*	IF.cycles (he doesn't remember either) but I'll leave it as it is...	*/
 		S->superH->P.fetch_stall_cycles += latency;
 	}
 	else
@@ -513,11 +515,11 @@ superHtake_exception(Engine *E, State *S)
 	if (handling == ABORTED)
 	{
 		/*	Current instruction is aborted		*/
-		superHpipeflush(S);
+		superHflushpipe(S);
 	}
 	else if (handling == ABORTED_AND_RETRIED)
 	{
-		superHpipeflush(S);
+		superHflushpipe(S);
 		S->superH->SPC = intr->value;
 	}
 	else if (handling == COMPLETED)
@@ -554,7 +556,7 @@ superHtake_nic_intr(Engine *E, State *S)
 	/*	(PC is incremented at end of step() in pipeline.c)	*/
 	/*	We need to re-exec instruction which is currently in	*/
 	/*	ID when we RTE, so save that kids PC! (then do a 	*/
-	/*	ifidflush()). If we are faststeping, then S->PC is 	*/
+	/*	IFIDflush()). If we are faststeping, then S->PC is 	*/
 	/*	the next instr that we would place into EX and exec.	*/
 	/*								*/
 	/*	i.e., at this point, we are yet to execute instruction	*/
@@ -720,7 +722,7 @@ superHresetcpu(Engine *E, State *S)
 	int	i;
 
 
-	superHpipeflush(S);
+	superHflushpipe(S);
 
 
 	S->MEMSIZE = DEFLT_MEMSIZE;
@@ -846,7 +848,7 @@ superHresetcpu(Engine *E, State *S)
 			S->superH->npau);
 	}
 
-	for (i = OP_ADD; i <= OP_XTRCT; i++)
+	for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 	{
 		double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
 
@@ -1017,7 +1019,7 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 	S->cyclestep = superHstep;
 	S->faststep = superHfaststep;
 	S->dumppipe = superHdumppipe;
-	S->pipeflush = superHpipeflush;
+	S->flushpipe = superHflushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev7708readbyte;

@@ -1174,7 +1174,8 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->dumpsysregs(yyengine, yyengine->cp);
+				mprint(yyengine, NULL, siminfo,
+					"RISC-V does not have system registers.");
 			}
 		}
 		| T_DUMPPIPE '\n'
@@ -1608,7 +1609,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->pipeflush(yyengine->cp);
+				yyengine->cp->flushpipe(yyengine->cp);
 			}
 		}
 		| T_SHOWPIPE '\n'
@@ -1918,7 +1919,6 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 		}
 		;
 
-/*	--------------------------------------------------------------------	*/
 add_riscv_instr	: T_ADD reg ',' reg ',' reg
 		{
 			if (yyengine->scanning)
@@ -3467,8 +3467,6 @@ xori_riscv_instr	: T_XORI reg ',' reg ',' simm
 			}
 		}
 		;
-
-/*	--------------------------------------------------------------------	*/
 
 rnd		: rnd_const | rnd_var
 		;

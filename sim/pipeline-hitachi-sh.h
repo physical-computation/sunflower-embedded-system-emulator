@@ -44,6 +44,7 @@ typedef struct
 	int		format;
 	int		cycles;
 	int		valid;
+	int		*instr_latencies;
 } SuperHPipestage;
 
 typedef struct
