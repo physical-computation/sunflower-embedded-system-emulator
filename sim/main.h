@@ -510,6 +510,15 @@ struct State
 	int		MEMBASE;
 	int		MEMEND;
 
+	/*Shadow Memory structure allocation
+	*/
+	ShadowMem	*TAINTMEM;
+	int 		TAINTMEMSIZE;
+	int 		TAINTMEMBASE;
+	int 		TAINTMEMEND;
+
+	int		taintliberal; //0 = conservative, 1 = liberal
+
 	//	TODO:
 	Mem		*M;
 	int		nmems;

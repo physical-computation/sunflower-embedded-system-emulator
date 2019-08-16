@@ -8,5 +8,5 @@
 
 
 	echo '\section{Simulator Command Set}'
-	cat lex-hitachi-sh.c | grep '/\*+' | sort -t ',' | sed 's/none//' | $1 -F'*|_|}|{|+|,|:|"' '{print tolower($3)","}'
+	cat lex-riscv.c | grep '/\*+' | sort -t ',' | sed 's/none//' | $1 -F'*|_|}|{|+|,|:|"' '{print tolower($3)","}'
 

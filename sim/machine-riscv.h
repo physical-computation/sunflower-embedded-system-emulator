@@ -34,14 +34,19 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
-
 struct RiscvState
 {
 	uint32_t R[RISCV_XMAX];
 	uint64_t fR[RF32FD_fMAX];
 	uint32_t fCSR;
 	RiscvPipe P;
-        uint32_t instruction_distribution[RISCV_OP_MAX]
+        uint32_t instruction_distribution[RISCV_OP_MAX];
+
+	//Taint analysis for registers:
+	
+	ShadowMem taintR[RISCV_XMAX+1]; //Need last entry for PC's taint
+	ShadowMem taintfR[RF32FD_fMAX+1];
+
 };
 
 /*		Entries in the Decode Cache		*/

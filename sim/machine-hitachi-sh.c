@@ -726,6 +726,12 @@ superHresetcpu(Engine *E, State *S)
 	S->MEMSIZE = DEFLT_MEMSIZE;
 	S->MEMBASE = SUPERH_MEMBASE;
 	S->MEMEND = S->MEMBASE + S->MEMSIZE;
+
+	//Initialisation of shadow memory:
+
+	S->TAINTMEMSIZE = DEFLT_MEMSIZE*sizeof(ShadowMem);
+	S->TAINTMEMBASE = SUPERH_MEMBASE; //Same as for normal MEMBASE; I hope this works
+	S->TAINTMEMEND = S->TAINTMEMBASE + S->TAINTMEMSIZE;
 	
 	S->mem_r_latency = DEFAULT_MEMREAD_LATENCY;
 	S->mem_w_latency = DEFAULT_MEMWRITE_LATENCY;
@@ -888,6 +894,15 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 	if (S->MEM == NULL)
 	{
 		mexit(E, "Failed to allocate memory for S->MEM.", -1);
+	}
+
+	//Initialise array of ShadowMem objects:
+
+	S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, DEFLT_MEMSIZE*sizeof(ShadowMem), "(ShadowMem *)S->TAINTMEM"); 
+	
+	if (S->TAINTMEM == NULL)
+	{
+		mexit(E, "Failed to allocate memory for S->TAINTMEM.", -1);
 	}
 
 	S->superH->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->superH->B");
