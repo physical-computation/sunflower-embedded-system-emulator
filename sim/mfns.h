@@ -94,16 +94,10 @@ ulong 	riscv_sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
 
 /*									*/
 /*				Miscellaneous helper routines		*/
-/*
-									*/
-//Start edit:
-
+/*									*/
 void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength);
 void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol); 
 void	taintprop(Engine *E, State *S, uint64_t Addr1, ShadowMem SM1, uint64_t Addr2, ShadowMem SM2, ShadowMem SMO);
-
-//End edit
-
 void	mexit(Engine *, char *, int);
 void	marchinit();
 void	mlog(Engine *, State *S, char *fmt, ...);

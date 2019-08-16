@@ -502,9 +502,6 @@ sf_cmd		: T_QUIT '\n'
 		/*
 		 *	NOTE: We no longer accept the old-style velocity and orbit syntax, though we allow you to omit either the x/y/z location, or the trajectory file, rate, and loop flag
 		 */
-
-//Just demarking work
-
 		| T_TAINTMEM uimm uimm uimm uimm '\n' //"signature" is user input (indexing from 1) - need a hex number input / bin number input;
 		//Arguments: Address, PC, Taint, size
 		{	/*
@@ -527,8 +524,6 @@ sf_cmd		: T_QUIT '\n'
 				m_taintreg(yyengine,yyengine->cp, $2, $3, $4); //May need to change this signature later
 			}
 		}
-
-//End work
 		| T_NEWNODE optstring '\n'
 		{
 			/*
