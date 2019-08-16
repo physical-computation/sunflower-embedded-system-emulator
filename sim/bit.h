@@ -42,6 +42,7 @@
 /*										*/
 
 /* Constants with a leading '0' */
+
 enum
 {
 	B0000 = 0,
@@ -130,6 +131,20 @@ enum
 	B0000000001011000 = 88,
 	B0000001111111111 = 1023,
 	B000000001111111100000000 = 0x00FF00,
+	maskExtractBit7		= 0x1 << 7,
+	maskExtractBits7to11	= 0x1F << 7,
+	maskExtractBits8to11	= 0xF << 8,
+	maskExtractBits12to19	= 0xFF << 12,
+	maskExtractBits12to31	= 0xFFFFF << 12,
+	maskExtractBits15to19	= 0x1F << 15,
+	maskExtractBit20	= 0x1 << 20,
+	maskExtractBits20to24	= 0x1F << 20,
+	maskExtractBits20to31	= 0xFFF << 20,
+	maskExtractBits21to30	= 0x7FE << 20,
+	maskExtractBits25to30	= 0x3F << 25,
+	maskExtractBits25to31	= 0x7F << 25,
+	maskExtractBit31	= 0x1 << 31,
+
 };
 
 

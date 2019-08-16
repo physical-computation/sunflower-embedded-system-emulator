@@ -544,7 +544,7 @@ struct State
 
 	/*	Instruction-level power analysis	*/
 	EnergyInfo	energyinfo;
-	double		scaledcurrents[OP_MAX];
+	double		scaledcurrents[SUPERH_OP_MAX];/*	Currently, power data is only for superH	*/
 
 	/*		The operating voltage. 		*/
 	double		VDD;
@@ -648,7 +648,7 @@ struct State
 	ulong		ustart, ufinish;
 	uvlong		startclk, finishclk;
 	uvlong		trip_ustart, trip_startclk;
-
+	uvlong		num_cycles_waiting;
 
 	/*	    		Topology Information			*/
 	double		xloc;
@@ -694,7 +694,7 @@ struct State
 	void 		(*resetcpu)(Engine *, State *S);
 	void 		(*dumppipe)(Engine *, State *S);
         void 		(*dumpdistribution)(Engine *, State *S);
-        void 		(*pipeflush)(State *S);
+        void 		(*flushpipe)(State *S);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);

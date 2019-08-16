@@ -71,7 +71,7 @@
 #include "regs-hitachi-sh.h"
 #include "regs-ti-msp430.h"
 #include "regs-riscv.h"
-#include "cache-hitachi-sh.h"
+#include "memory-hierarchy.h"
 #include "decode-hitachi-sh.h"
 #include "decode-ti-msp430.h"
 #include "decode-riscv.h"

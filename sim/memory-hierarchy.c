@@ -1774,6 +1774,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 
 	if (i != -1)
 	{
+mprint(E,NULL,siminfo,"map_offset: " UHLONGFMT "\n",X->regions[i]->map_offset);
 		X->regions[i]->nreads++;
 
 		id = X->regions[i]->map_id;

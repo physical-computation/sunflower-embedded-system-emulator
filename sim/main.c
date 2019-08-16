@@ -52,6 +52,9 @@
 #include "endian-hitachi-sh.h"
 #include "help.h"
 #include "opstr-hitachi-sh.h"
+#include "opstr-riscv.h"
+#include "latencies-hitachi-sh.h"
+#include "latencies-riscv.h"
 
 
 
@@ -1075,11 +1078,11 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
 		/*		Prime the decode caches		*/		
- 		for (int i = 0; i < (1 << 16); i++)		
- 		{		
- 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
- 		}		
-		
+		for (int i = 0; i < (1 << 16); i++)
+		{
+			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);
+		}
+
 		S = superHnewstate(E, x, y, z, trajfilename);
 	}
 	else if (!strncmp(type, "riscv", strlen("riscv")))
@@ -2267,6 +2270,9 @@ m_off(Engine *E, State *S)
 			S->TIME);
 		mprint(E, NULL, siminfo, "Simulated Clock Cycles = " UVLONGFMT "\n",
 			S->finishclk - S->startclk);
+		mprint(E, NULL, siminfo, "Cycles Spent Waiting = " UVLONGFMT " (%.2f%)\n",
+			S->num_cycles_waiting, 100*((float)(S->num_cycles_waiting))/(float)(S->finishclk - S->startclk));
+
 	}
 
 	mprint(E, NULL, siminfo,
@@ -2275,7 +2281,6 @@ m_off(Engine *E, State *S)
 		(S->ufinish - S->ustart))/1E6)));
 
 	E->on = 0;
-
 
 	return;
 }
