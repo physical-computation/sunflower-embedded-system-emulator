@@ -37,13 +37,13 @@ printList(Engine *E, State *S)
 }
 
 bool
-isEmpty()
+isEmpty(void)
 {
 	return taintOriginHead == NULL;
 }
 
 int
-length()
+length(void)
 {
 	int len = 0;
 	TaintOriginNode * current;
