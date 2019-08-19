@@ -119,7 +119,7 @@ insertFirst (uint64_t addr, uint32_t PCval, uint64_t taintCol, int memType)
 }
 
 TaintOriginNode *
-deleteFirst()
+deleteFirst(void)
 {
 	TaintOriginNode * templink 	= taintOriginHead;
 	taintOriginHead			= taintOriginHead -> next;
@@ -210,7 +210,6 @@ taintprop(Engine *E, State *S,
 void
 m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength)
 {
-
 	/*	
 	*	iterate over all addresses within taintLength (assumption:
 	*	taintLength in bytes)
