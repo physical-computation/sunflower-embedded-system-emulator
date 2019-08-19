@@ -73,6 +73,41 @@ print_fp_register_abi(Engine *E, State *S, ulong reg_index)
 	}
 }
 
+tuck void
+riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
+{
+	/*	PAU may change VDD	*/
+	if (SF_PAU_DEFINED)
+	{
+		pau_feed(E, S, type, addr);
+	}
+
+	/*								*/
+	/*	Stall fetch unit on next access or instr in EX		*/
+	/*	the stall actually occurs when in MA, since we've	*/
+	/*	completed the EX wait before we get executed.		*/
+	/*								*/
+	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
+	{
+		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
+		/*	IF.cycles (he doesn't remember either) but I'll leave it as it is...	*/
+		S->riscv->P.fetch_stall_cycles += latency;
+	}
+	else
+	{
+		S->riscv->P.EX.cycles += latency;
+	}
+
+	/*								*/
+	/*	TODO: This will have to change when we implement	*/
+	/*	setjmp idea for simulating memory stalls		*/
+	/*								*/
+
+	//superH equivalent has buslocking management here
+
+	return;
+}
+
 void
 riscvdumpregs(Engine *E, State *S)
 {
@@ -114,25 +149,43 @@ riscvdumpregs(Engine *E, State *S)
 
 	return;
 }
+void/*	riscv does not have system registers	*/
+riscvdumpsysregs(){}
+
+void
+riscvfatalaction(Engine *E, State *S)
+{
+	//superHdumptlb(E, S); Blindly copied over from superH version.
+	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
+			S->NODE_ID, riscv_opstrs[S->riscv->P.EX.op]);
+
+	return;
+}
 
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-    State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
-    S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
-    S->dumpregs = riscvdumpregs;
+	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
+	if (S->riscv == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->riscv.", -1);
+		}
+
+	S->dumpregs = riscvdumpregs;
+	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
+	S->flushpipe = riscvflushpipe;
+
+	S->fatalaction = riscvfatalaction;
 	S->endian = Little;
 	S->machinetype = MACHINE_RISCV;
 	S->dumpdistribution = riscvdumpdistribution;
+	S->stallaction = riscvstallaction;
 
-    if (S->riscv == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->riscv.", -1);
-	}
+	S->step = riscvstep;
+	S->faststep = riscvfaststep;
 
-    S->step = riscvstep;
-
-    return S;
+	return S;
 }

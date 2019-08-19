@@ -158,7 +158,7 @@ power_scaledelay(Engine *E, State *S, double Vdd)
 	{
 		S->CYCLETIME = K*Vdd/pow(Vdd - Vt, alpha);
 
-		for (i = OP_ADD; i <= OP_XTRCT; i++)
+		for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 		{
 			double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
 
@@ -282,7 +282,7 @@ power_scalevdd(Engine *E, State *S, double freq)
 	{
 		S->VDD = newvdd;
 
-		for (i = OP_ADD; i <= OP_XTRCT; i++)
+		for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 		{
 			double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
 

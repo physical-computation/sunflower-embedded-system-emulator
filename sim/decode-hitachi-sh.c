@@ -40,6 +40,7 @@
 #include "instr-hitachi-sh.h"
 #include "endian-hitachi-sh.h"
 #include "sf.h"
+extern int	superH_instr_latencies[][5];
 
 void
 superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
@@ -82,7 +83,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcsr;
-							stage->op = OP_STCSR;
+							stage->op = SUPERH_OP_STCSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCSR]);
 		
 							break;						
 						}
@@ -91,7 +93,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcgbr;
-							stage->op = OP_STCGBR;
+							stage->op = SUPERH_OP_STCGBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCGBR]);
 
 							break;						
 						}
@@ -101,7 +104,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcvbr;
-							stage->op = OP_STCVBR;
+							stage->op = SUPERH_OP_STCVBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCVBR]);
 
 							break;						
 						}
@@ -111,7 +115,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcssr;
-							stage->op = OP_STCSSR;
+							stage->op = SUPERH_OP_STCSSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCSSR]);
 
 							break;						
 						}
@@ -121,7 +126,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcspc;
-							stage->op = OP_STCSPC;
+							stage->op = SUPERH_OP_STCSPC;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCSPC]);
 
 							break;						
 						}
@@ -131,7 +137,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -141,7 +148,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -151,7 +159,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -161,7 +170,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -171,7 +181,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -181,7 +192,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -191,7 +203,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -201,7 +214,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcr_bank;
-							stage->op = OP_STCRBANK;
+							stage->op = SUPERH_OP_STCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCRBANK]);
 
 							break;						
 						}
@@ -217,7 +231,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_bsrf;
-							stage->op = OP_BSRF;
+							stage->op = SUPERH_OP_BSRF;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BSRF]);
 
 							break;
 						}
@@ -227,7 +242,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_braf;
-							stage->op = OP_BRAF;
+							stage->op = SUPERH_OP_BRAF;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BRAF]);
 
 							break;
 						}
@@ -237,7 +253,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_pref;
-							stage->op = OP_PREF;
+							stage->op = SUPERH_OP_PREF;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_PREF]);
 
 							break;
 						}
@@ -251,7 +268,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbs0;
-					stage->op = OP_MOVBS0;
+					stage->op = SUPERH_OP_MOVBS0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBS0]);
 
 					break;
 				}
@@ -261,7 +279,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movws0;
-					stage->op = OP_MOVWS0;
+					stage->op = SUPERH_OP_MOVWS0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWS0]);
 
 					break;
 				}
@@ -271,7 +290,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movls0;
-					stage->op = OP_MOVLS0;
+					stage->op = SUPERH_OP_MOVLS0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLS0]);
 
 					break;
 				}
@@ -281,7 +301,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 5;
 					stage->fptr = (void *)superH_mull;
-					stage->op = OP_MULL;
+					stage->op = SUPERH_OP_MULL;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MULL]);
 
 					break;
 				}
@@ -296,7 +317,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 1;
 								stage->fptr = (void *)superH_sets;
-								stage->op = OP_SETS;
+								stage->op = SUPERH_OP_SETS;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SETS]);
 							}
 
 							break;
@@ -309,7 +331,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 1;
 								stage->fptr = (void *)superH_sett;
-								stage->op = OP_SETT;
+								stage->op = SUPERH_OP_SETT;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SETT]);
 							}
 
 							break;
@@ -330,7 +353,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 1;
 								stage->fptr = (void *)superH_nop;
-								stage->op = OP_NOP;
+								stage->op = SUPERH_OP_NOP;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_NOP]);
 							}
 
 							break;
@@ -341,7 +365,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_movt;
-							stage->op = OP_MOVT;
+							stage->op = SUPERH_OP_MOVT;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVT]);
 
 							break;
 						}
@@ -358,7 +383,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stsmach;
-							stage->op = OP_STSMACH;
+							stage->op = SUPERH_OP_STSMACH;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSMACH]);
 
 							break;
 						}
@@ -367,7 +393,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stsmacl;
-							stage->op = OP_STSMACL;
+							stage->op = SUPERH_OP_STSMACL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSMACL]);
 
 							break;
 						}
@@ -376,7 +403,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stspr;
-							stage->op = OP_STSPR;
+							stage->op = SUPERH_OP_STSPR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSPR]);
 
 							break;
 						}
@@ -397,7 +425,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 2;
 								stage->fptr = (void *)superH_rts;
-								stage->op = OP_RTS;
+								stage->op = SUPERH_OP_RTS;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_RTS]);
 							}
 
 							break;
@@ -410,7 +439,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 4;
 								stage->fptr = (void *)superH_sleep;
-								stage->op = OP_SLEEP;
+								stage->op = SUPERH_OP_SLEEP;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SLEEP]);
 							}
 
 							break;
@@ -423,7 +453,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 								stage->format = INSTR_0;
 								stage->cycles = 4;
 								stage->fptr = (void *)superH_rte;
-								stage->op = OP_RTE;
+								stage->op = SUPERH_OP_RTE;
+								stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_RTE]);
 							}
 
 							break;
@@ -436,7 +467,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbl0;
-					stage->op = OP_MOVBL0;
+					stage->op = SUPERH_OP_MOVBL0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBL0]);
 
 					break;
 				}
@@ -446,7 +478,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwl0;
-					stage->op = OP_MOVWL0;
+					stage->op = SUPERH_OP_MOVWL0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWL0]);
 
 					break;
 				}
@@ -456,7 +489,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movll0;
-					stage->op = OP_MOVLL0;
+					stage->op = SUPERH_OP_MOVLL0;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLL0]);
 
 					break;
 				}
@@ -466,7 +500,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 5;
 					stage->fptr = (void *)superH_macl;
-					stage->op = OP_MACL;
+					stage->op = SUPERH_OP_MACL;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MACL]);
 
 					break;
 				}
@@ -487,7 +522,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 									stage->format = INSTR_0;
 									stage->cycles = 1;
 									stage->fptr = (void *)superH_clrt;
-									stage->op = OP_CLRT;
+									stage->op = SUPERH_OP_CLRT;
+									stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CLRT]);
 
 									break;
 								}
@@ -497,7 +533,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 									stage->format = INSTR_0;
 									stage->cycles = 1;
 									stage->fptr = (void *)superH_clrmac;
-									stage->op = OP_CLRMAC;
+									stage->op = SUPERH_OP_CLRMAC;
+									stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CLRMAC]);
 
 									break;
 								}
@@ -507,7 +544,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 									stage->format = INSTR_0;
 									stage->cycles = 1;
 									stage->fptr = (void *)superH_ldtlb;
-									stage->op = OP_LDTLB;
+									stage->op = SUPERH_OP_LDTLB;
+									stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDTLB]);
 
 									break;
 								}
@@ -516,7 +554,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 									stage->format = INSTR_0;
 									stage->cycles = 1;
 									stage->fptr = (void *)superH_clrs;
-									stage->op = OP_CLRS;
+									stage->op = SUPERH_OP_CLRS;
+									stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CLRS]);
 
 									break;
 								}
@@ -534,7 +573,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 									stage->format = INSTR_0;
 									stage->cycles = 1;
 									stage->fptr = (void *)superH_div0u;
-									stage->op = OP_DIV0U;
+									stage->op = SUPERH_OP_DIV0U;
+									stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DIV0U]);
 
 									break;
 								}
@@ -554,7 +594,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_NMD;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_movls4;
-			stage->op = OP_MOVLS4;
+			stage->op = SUPERH_OP_MOVLS4;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLS4]);
 
 			break;
 		}
@@ -568,7 +609,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbs;
-					stage->op = OP_MOVBS;
+					stage->op = SUPERH_OP_MOVBS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBS]);
 
 					break;
 				}
@@ -578,7 +620,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movws;
-					stage->op = OP_MOVWS;
+					stage->op = SUPERH_OP_MOVWS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWS]);
 
 					break;
 				}
@@ -588,7 +631,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movls;
-					stage->op = OP_MOVLS;
+					stage->op = SUPERH_OP_MOVLS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLS]);
 
 					break;
 				}
@@ -598,7 +642,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbm;
-					stage->op = OP_MOVBM;
+					stage->op = SUPERH_OP_MOVBM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBM]);
 
 					break;
 				}
@@ -608,7 +653,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwm;
-					stage->op = OP_MOVWM;
+					stage->op = SUPERH_OP_MOVWM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWM]);
 
 					break;
 				}
@@ -618,7 +664,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movlm;
-					stage->op = OP_MOVLM;
+					stage->op = SUPERH_OP_MOVLM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLM]);
 
 					break;
 				}
@@ -628,7 +675,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_div0s;
-					stage->op = OP_DIV0S;
+					stage->op = SUPERH_OP_DIV0S;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DIV0S]);
 
 					break;
 				}
@@ -638,7 +686,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_tst;
-					stage->op = OP_TST;
+					stage->op = SUPERH_OP_TST;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_TST]);
 
 					break;
 				}
@@ -648,7 +697,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_and;
-					stage->op = OP_AND;
+					stage->op = SUPERH_OP_AND;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_AND]);
 
 					break;
 				}
@@ -658,7 +708,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_xor;
-					stage->op = OP_XOR;
+					stage->op = SUPERH_OP_XOR;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_XOR]);
 
 					break;
 				}
@@ -668,7 +719,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_or;
-					stage->op = OP_OR;
+					stage->op = SUPERH_OP_OR;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_OR]);
 
 					break;
 				}
@@ -678,7 +730,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmpstr;
-					stage->op = OP_CMPSTR;
+					stage->op = SUPERH_OP_CMPSTR;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPSTR]);
 
 					break;
 				}
@@ -688,7 +741,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_xtrct;
-					stage->op = OP_XTRCT;
+					stage->op = SUPERH_OP_XTRCT;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_XTRCT]);
 
 					break;
 				}
@@ -698,7 +752,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_mulu;
-					stage->op = OP_MULU;
+					stage->op = SUPERH_OP_MULU;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MULU]);
 
 					break;
 				}
@@ -708,7 +763,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_muls;
-					stage->op = OP_MULS;
+					stage->op = SUPERH_OP_MULS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MULS]);
 
 					break;
 				}
@@ -726,7 +782,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmpeq;
-					stage->op = OP_CMPEQ;
+					stage->op = SUPERH_OP_CMPEQ;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPEQ]);
 
 					break;
 				}
@@ -736,7 +793,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmphs;
-					stage->op = OP_CMPHS;
+					stage->op = SUPERH_OP_CMPHS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPHS]);
 
 					break;
 				}
@@ -746,7 +804,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmpge;
-					stage->op = OP_CMPGE;
+					stage->op = SUPERH_OP_CMPGE;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPGE]);
 
 					break;
 				}
@@ -756,7 +815,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_div1;
-					stage->op = OP_DIV1;
+					stage->op = SUPERH_OP_DIV1;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DIV1]);
 
 					break;
 				}
@@ -766,7 +826,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 5;
 					stage->fptr = (void *)superH_dmulu;
-					stage->op = OP_DMULU;
+					stage->op = SUPERH_OP_DMULU;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DMULU]);
 
 					break;
 				}
@@ -776,7 +837,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmphi;
-					stage->op = OP_CMPHI;
+					stage->op = SUPERH_OP_CMPHI;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPHI]);
 
 					break;
 				}
@@ -786,7 +848,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmpgt;
-					stage->op = OP_CMPGT;
+					stage->op = SUPERH_OP_CMPGT;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPGT]);
 
 					break;
 				}
@@ -796,7 +859,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_sub;
-					stage->op = OP_SUB;
+					stage->op = SUPERH_OP_SUB;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SUB]);
 
 					break;
 				}
@@ -805,7 +869,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_subc;
-					stage->op = OP_SUBC;
+					stage->op = SUPERH_OP_SUBC;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SUBC]);
 
 					break;
 				}
@@ -814,7 +879,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_subv;
-					stage->op = OP_SUBV;
+					stage->op = SUPERH_OP_SUBV;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SUBV]);
 
 					break;
 				}
@@ -824,7 +890,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_add;
-					stage->op = OP_ADD;
+					stage->op = SUPERH_OP_ADD;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ADD]);
 
 					break;
 				}
@@ -834,7 +901,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 5;
 					stage->fptr = (void *)superH_dmuls;
-					stage->op = OP_DMULS;
+					stage->op = SUPERH_OP_DMULS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DMULS]);
 
 					break;
 				}
@@ -844,7 +912,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_addc;
-					stage->op = OP_ADDC;
+					stage->op = SUPERH_OP_ADDC;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ADDC]);
 
 					break;
 				}
@@ -854,7 +923,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_addv;
-					stage->op = OP_ADDV;
+					stage->op = SUPERH_OP_ADDV;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ADDV]);
 
 					break;
 				}
@@ -875,7 +945,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shll;
-							stage->op = OP_SHLL;
+							stage->op = SUPERH_OP_SHLL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLL]);
 
 							break;
 						}
@@ -885,7 +956,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shal;
-							stage->op = OP_SHAL;
+							stage->op = SUPERH_OP_SHAL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHAL]);
 
 							break;
 						}
@@ -902,7 +974,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shlr;
-							stage->op = OP_SHLR;
+							stage->op = SUPERH_OP_SHLR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLR]);
 
 							break;
 						}
@@ -912,7 +985,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shar;
-							stage->op = OP_SHAR;
+							stage->op = SUPERH_OP_SHAR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHAR]);
 
 							break;
 						}
@@ -929,7 +1003,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stsmmach;
-							stage->op = OP_STSMMACH;
+							stage->op = SUPERH_OP_STSMMACH;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSMMACH]);
 
 							break;
 						}
@@ -939,7 +1014,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stsmmacl;
-							stage->op = OP_STSMMACL;
+							stage->op = SUPERH_OP_STSMMACL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSMMACL]);
 
 							break;
 						}
@@ -949,7 +1025,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stsmpr;
-							stage->op = OP_STSMPR;
+							stage->op = SUPERH_OP_STSMPR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STSMPR]);
 
 							break;
 						}
@@ -966,7 +1043,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcmsr;
-							stage->op = OP_STCMSR;
+							stage->op = SUPERH_OP_STCMSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMSR]);
 
 							break;
 						}
@@ -976,7 +1054,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcmgbr;
-							stage->op = OP_STCMGBR;
+							stage->op = SUPERH_OP_STCMGBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMGBR]);
 
 							break;
 						}
@@ -986,7 +1065,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcmvbr;
-							stage->op = OP_STCMVBR;
+							stage->op = SUPERH_OP_STCMVBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMVBR]);
 
 							break;
 						}
@@ -996,7 +1076,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcmssr;
-							stage->op = OP_STCMSSR;
+							stage->op = SUPERH_OP_STCMSSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMSSR]);
 
 							break;
 						}
@@ -1006,7 +1087,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_stcmspc;
-							stage->op = OP_STCMSPC;
+							stage->op = SUPERH_OP_STCMSPC;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMSPC]);
 
 							break;
 						}
@@ -1016,7 +1098,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1026,7 +1109,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1036,7 +1120,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1046,7 +1131,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1056,7 +1142,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1066,7 +1153,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1076,7 +1164,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1086,7 +1175,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_NBANK;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_stcmr_bank;
-							stage->op = OP_STCMRBANK;
+							stage->op = SUPERH_OP_STCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_STCMRBANK]);
 
 							break;
 						}
@@ -1103,7 +1193,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_rotl;
-							stage->op = OP_ROTL;
+							stage->op = SUPERH_OP_ROTL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ROTL]);
 
 							break;
 						}
@@ -1113,7 +1204,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_rotcl;
-							stage->op = OP_ROTCL;
+							stage->op = SUPERH_OP_ROTCL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ROTCL]);
 
 							break;
 						}
@@ -1130,7 +1222,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_rotr;
-							stage->op = OP_ROTR;
+							stage->op = SUPERH_OP_ROTR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ROTR]);
 
 							break;
 						}
@@ -1140,7 +1233,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_rotcr;
-							stage->op = OP_ROTCR;
+							stage->op = SUPERH_OP_ROTCR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ROTCR]);
 
 							break;
 						}
@@ -1157,7 +1251,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldsmmach;
-							stage->op = OP_LDSMMACH;
+							stage->op = SUPERH_OP_LDSMMACH;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSMMACH]);
 
 							break;
 						}
@@ -1167,7 +1262,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldsmmacl;
-							stage->op = OP_LDSMMACL;
+							stage->op = SUPERH_OP_LDSMMACL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSMMACL]);
 
 							break;
 						}
@@ -1177,7 +1273,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldsmpr;
-							stage->op = OP_LDSMPR;
+							stage->op = SUPERH_OP_LDSMPR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSMPR]);
 
 							break;
 						}
@@ -1196,7 +1293,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 7;
 							stage->fptr = (void *)superH_ldcmsr;
-							stage->op = OP_LDCMSR;
+							stage->op = SUPERH_OP_LDCMSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMSR]);
 
 							break;
 						}
@@ -1206,7 +1304,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmgbr;
-							stage->op = OP_LDCMGBR;
+							stage->op = SUPERH_OP_LDCMGBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMGBR]);
 
 							break;
 						}
@@ -1216,7 +1315,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmvbr;
-							stage->op = OP_LDCMVBR;
+							stage->op = SUPERH_OP_LDCMVBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMVBR]);
 
 							break;
 						}
@@ -1226,7 +1326,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmssr;
-							stage->op = OP_LDCMSSR;
+							stage->op = SUPERH_OP_LDCMSSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMSSR]);
 
 							break;
 						}
@@ -1236,7 +1337,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmspc;
-							stage->op = OP_LDCMSPC;
+							stage->op = SUPERH_OP_LDCMSPC;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMSPC]);
 
 							break;
 						}
@@ -1247,7 +1349,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1257,7 +1360,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1267,7 +1371,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1277,7 +1382,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1287,7 +1393,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1297,7 +1404,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1307,7 +1415,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1317,7 +1426,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcmr_bank;
-							stage->op = OP_LDCMRBANK;
+							stage->op = SUPERH_OP_LDCMRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCMRBANK]);
 
 							break;
 						}
@@ -1335,7 +1445,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shll2;
-							stage->op = OP_SHLL2;
+							stage->op = SUPERH_OP_SHLL2;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLL2]);
 
 							break;
 						}
@@ -1344,7 +1455,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shll8;
-							stage->op = OP_SHLL8;
+							stage->op = SUPERH_OP_SHLL8;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLL8]);
 
 							break;
 						}
@@ -1353,7 +1465,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shll16;
-							stage->op = OP_SHLL16;
+							stage->op = SUPERH_OP_SHLL16;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLL16]);
 
 							break;
 						}
@@ -1370,7 +1483,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shlr2;
-							stage->op = OP_SHLR2;
+							stage->op = SUPERH_OP_SHLR2;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLR2]);
 
 							break;
 						}
@@ -1379,7 +1493,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shlr8;
-							stage->op = OP_SHLR8;
+							stage->op = SUPERH_OP_SHLR8;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLR8]);
 
 							break;
 						}
@@ -1388,7 +1503,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_shlr16;
-							stage->op = OP_SHLR16;
+							stage->op = SUPERH_OP_SHLR16;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLR16]);
 
 							break;
 						}
@@ -1404,7 +1520,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldsmach;
-							stage->op = OP_LDSMACH;
+							stage->op = SUPERH_OP_LDSMACH;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSMACH]);
 
 							break;
 						}
@@ -1414,7 +1531,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldsmacl;
-							stage->op = OP_LDSMACL;
+							stage->op = SUPERH_OP_LDSMACL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSMACL]);
 
 							break;
 						}
@@ -1424,7 +1542,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldspr;
-							stage->op = OP_LDSPR;
+							stage->op = SUPERH_OP_LDSPR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDSPR]);
 
 							break;
 						}
@@ -1442,7 +1561,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_jsr;
-							stage->op = OP_JSR;
+							stage->op = SUPERH_OP_JSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_JSR]);
 
 							break;
 						}
@@ -1452,7 +1572,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 3;
 							stage->fptr = (void *)superH_tas;
-							stage->op = OP_TAS;
+							stage->op = SUPERH_OP_TAS;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_TAS]);
 
 							break;
 						}
@@ -1462,7 +1583,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 2;
 							stage->fptr = (void *)superH_jmp;
-							stage->op = OP_JMP;
+							stage->op = SUPERH_OP_JMP;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_JMP]);
 
 							break;
 						}
@@ -1476,7 +1598,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_shad;
-					stage->op = OP_SHAD;
+					stage->op = SUPERH_OP_SHAD;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHAD]);
 
 					break;
 				}
@@ -1486,7 +1609,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_shld;
-					stage->op = OP_SHLD;
+					stage->op = SUPERH_OP_SHLD;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SHLD]);
 
 					break;
 				}
@@ -1500,7 +1624,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 5;
 							stage->fptr = (void *)superH_ldcsr;
-							stage->op = OP_LDCSR;
+							stage->op = SUPERH_OP_LDCSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCSR]);
 
 							break;
 						}
@@ -1510,7 +1635,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcgbr;
-							stage->op = OP_LDCGBR;
+							stage->op = SUPERH_OP_LDCGBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCGBR]);
 
 							break;
 						}
@@ -1520,7 +1646,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcvbr;
-							stage->op = OP_LDCVBR;
+							stage->op = SUPERH_OP_LDCVBR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCVBR]);
 
 							break;
 						}
@@ -1530,7 +1657,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcssr;
-							stage->op = OP_LDCSSR;
+							stage->op = SUPERH_OP_LDCSSR;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCSSR]);
 
 							break;
 						}
@@ -1540,7 +1668,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_M;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcspc;
-							stage->op = OP_LDCSPC;
+							stage->op = SUPERH_OP_LDCSPC;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCSPC]);
 
 							break;
 						}
@@ -1551,7 +1680,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1561,7 +1691,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1571,7 +1702,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1581,7 +1713,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1591,7 +1724,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1601,7 +1735,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1611,7 +1746,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1621,7 +1757,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_MBANK;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_ldcr_bank;
-							stage->op = OP_LDCRBANK;
+							stage->op = SUPERH_OP_LDCRBANK;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_LDCRBANK]);
 
 							break;
 						}
@@ -1635,7 +1772,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 5;
 					stage->fptr = (void *)superH_macw;
-					stage->op = OP_MACW;
+					stage->op = SUPERH_OP_MACW;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MACW]);
 
 					break;
 				}
@@ -1652,7 +1790,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_dt;
-							stage->op = OP_DT;
+							stage->op = SUPERH_OP_DT;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_DT]);
 
 							break;
 						}
@@ -1662,7 +1801,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_cmppz;
-							stage->op = OP_CMPPZ;
+							stage->op = SUPERH_OP_CMPPZ;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPPZ]);
 
 							break;
 						}
@@ -1672,7 +1812,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 							stage->format = INSTR_N;
 							stage->cycles = 1;
 							stage->fptr = (void *)superH_cmppl;
-							stage->op = OP_CMPPL;
+							stage->op = SUPERH_OP_CMPPL;
+							stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPPL]);
 
 							break;
 						}
@@ -1689,7 +1830,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_NMD;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_movll4;
-			stage->op = OP_MOVLL4;
+			stage->op = SUPERH_OP_MOVLL4;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLL4]);
 
 			break;
 		}
@@ -1703,7 +1845,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbl;
-					stage->op = OP_MOVBL;
+					stage->op = SUPERH_OP_MOVBL;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBL]);
 
 					break;
 				}
@@ -1713,7 +1856,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwl;
-					stage->op = OP_MOVWL;
+					stage->op = SUPERH_OP_MOVWL;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWL]);
 
 					break;
 				}
@@ -1723,7 +1867,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movll;
-					stage->op = OP_MOVLL;
+					stage->op = SUPERH_OP_MOVLL;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLL]);
 
 					break;
 				}
@@ -1733,7 +1878,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_mov;
-					stage->op = OP_MOV;
+					stage->op = SUPERH_OP_MOV;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOV]);
 
 					break;
 				}
@@ -1743,7 +1889,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbp;
-					stage->op = OP_MOVBP;
+					stage->op = SUPERH_OP_MOVBP;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBP]);
 
 					break;
 				}
@@ -1753,7 +1900,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwp;
-					stage->op = OP_MOVWP;
+					stage->op = SUPERH_OP_MOVWP;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWP]);
 
 					break;
 				}
@@ -1763,7 +1911,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movlp;
-					stage->op = OP_MOVLP;
+					stage->op = SUPERH_OP_MOVLP;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLP]);
 
 					break;
 				}
@@ -1773,7 +1922,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_not;
-					stage->op = OP_NOT;
+					stage->op = SUPERH_OP_NOT;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_NOT]);
 
 					break;
 				}
@@ -1783,7 +1933,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_swapb;
-					stage->op = OP_SWAPB;
+					stage->op = SUPERH_OP_SWAPB;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SWAPB]);
 
 					break;
 				}
@@ -1793,7 +1944,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_swapw;
-					stage->op = OP_SWAPW;
+					stage->op = SUPERH_OP_SWAPW;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_SWAPW]);
 
 					break;
 				}
@@ -1803,7 +1955,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_negc;
-					stage->op = OP_NEGC;
+					stage->op = SUPERH_OP_NEGC;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_NEGC]);
 
 					break;
 				}
@@ -1813,7 +1966,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_neg;
-					stage->op = OP_NEG;
+					stage->op = SUPERH_OP_NEG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_NEG]);
 
 					break;
 				}
@@ -1823,7 +1977,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_extub;
-					stage->op = OP_EXTUB;
+					stage->op = SUPERH_OP_EXTUB;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_EXTUB]);
 
 					break;
 				}
@@ -1833,7 +1988,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_extuw;
-					stage->op = OP_EXTUW;
+					stage->op = SUPERH_OP_EXTUW;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_EXTUW]);
 
 					break;
 				}
@@ -1843,7 +1999,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_extsb;
-					stage->op = OP_EXTSB;
+					stage->op = SUPERH_OP_EXTSB;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_EXTSB]);
 
 					break;
 				}
@@ -1853,7 +2010,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_NM;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_extsw;
-					stage->op = OP_EXTSW;
+					stage->op = SUPERH_OP_EXTSW;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_EXTSW]);
 
 					break;
 				}
@@ -1867,7 +2025,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_NI;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_addi;
-			stage->op = OP_ADDI;
+			stage->op = SUPERH_OP_ADDI;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ADDI]);
 
 			break;
 		}
@@ -1881,7 +2040,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_ND4;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbs4;
-					stage->op = OP_MOVBS4;
+					stage->op = SUPERH_OP_MOVBS4;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBS4]);
 
 					break;
 				}
@@ -1891,7 +2051,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_ND4;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movws4;
-					stage->op = OP_MOVWS4;
+					stage->op = SUPERH_OP_MOVWS4;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWS4]);
 
 					break;
 				}
@@ -1901,7 +2062,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_MD;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbl4;
-					stage->op = OP_MOVBL4;
+					stage->op = SUPERH_OP_MOVBL4;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBL4]);
 
 					break;
 				}
@@ -1911,7 +2073,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_MD;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwl4;
-					stage->op = OP_MOVWL4;
+					stage->op = SUPERH_OP_MOVWL4;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWL4]);
 
 					break;
 				}
@@ -1921,7 +2084,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_cmpim;
-					stage->op = OP_CMPIM;
+					stage->op = SUPERH_OP_CMPIM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_CMPIM]);
 
 					break;
 				}
@@ -1931,7 +2095,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_bt;
-					stage->op = OP_BT;
+					stage->op = SUPERH_OP_BT;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BT]);
 
 					break;
 				}
@@ -1941,7 +2106,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 2;
 					stage->fptr = (void *)superH_bf;
-					stage->op = OP_BF;
+					stage->op = SUPERH_OP_BF;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BF]);
 
 					break;
 				}
@@ -1951,7 +2117,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 2;
 					stage->fptr = (void *)superH_bts;
-					stage->op = OP_BTS;
+					stage->op = SUPERH_OP_BTS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BTS]);
 
 					break;
 				}
@@ -1961,7 +2128,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_bfs;
-					stage->op = OP_BFS;
+					stage->op = SUPERH_OP_BFS;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BFS]);
 
 					break;
 				}
@@ -1974,7 +2142,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_ND8;
 			stage->cycles = 2;
 			stage->fptr = (void *)superH_movwi;
-			stage->op = OP_MOVWI;
+			stage->op = SUPERH_OP_MOVWI;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWI]);
 
 			break;
 		}
@@ -1984,7 +2153,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_D12;
 			stage->cycles = 2;
 			stage->fptr = (void *)superH_bra;
-			stage->op = OP_BRA;
+			stage->op = SUPERH_OP_BRA;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BRA]);
 
 			break;
 		}
@@ -1994,7 +2164,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_D12;
 			stage->cycles = 2;
 			stage->fptr = (void *)superH_bsr;
-			stage->op = OP_BSR;
+			stage->op = SUPERH_OP_BSR;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_BSR]);
 
 			break;
 		}
@@ -2008,7 +2179,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movbsg;
-					stage->op = OP_MOVBSG;
+					stage->op = SUPERH_OP_MOVBSG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBSG]);
 
 					break;
 				}
@@ -2018,7 +2190,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwsg;
-					stage->op = OP_MOVWSG;
+					stage->op = SUPERH_OP_MOVWSG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWSG]);
 
 					break;
 				}
@@ -2028,7 +2201,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movlsg;
-					stage->op = OP_MOVLSG;
+					stage->op = SUPERH_OP_MOVLSG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLSG]);
 
 					break;
 				}
@@ -2038,7 +2212,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 6;
 					stage->fptr = (void *)superH_trapa;
-					stage->op = OP_TRAPA;
+					stage->op = SUPERH_OP_TRAPA;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_TRAPA]);
 
 					break;
 				}
@@ -2048,7 +2223,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movblg;
-					stage->op = OP_MOVBLG;
+					stage->op = SUPERH_OP_MOVBLG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVBLG]);
 
 					break;
 				}
@@ -2058,7 +2234,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movwlg;
-					stage->op = OP_MOVWLG;
+					stage->op = SUPERH_OP_MOVWLG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVWLG]);
 
 					break;
 				}
@@ -2068,7 +2245,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_movllg;
-					stage->op = OP_MOVLLG;
+					stage->op = SUPERH_OP_MOVLLG;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLLG]);
 
 					break;
 				}
@@ -2078,7 +2256,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_D8;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_mova;
-					stage->op = OP_MOVA;
+					stage->op = SUPERH_OP_MOVA;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVA]);
 
 					break;
 				}
@@ -2088,7 +2267,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_tsti;
-					stage->op = OP_TSTI;
+					stage->op = SUPERH_OP_TSTI;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_TSTI]);
 
 					break;
 				}
@@ -2098,7 +2278,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_andi;
-					stage->op = OP_ANDI;
+					stage->op = SUPERH_OP_ANDI;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ANDI]);
 
 					break;
 				}
@@ -2108,7 +2289,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_xori;
-					stage->op = OP_XORI;
+					stage->op = SUPERH_OP_XORI;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_XORI]);
 
 					break;
 				}
@@ -2118,7 +2300,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 1;
 					stage->fptr = (void *)superH_ori;
-					stage->op = OP_ORI;
+					stage->op = SUPERH_OP_ORI;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ORI]);
 
 					break;
 				}
@@ -2128,7 +2311,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_tstm;
-					stage->op = OP_TSTM;
+					stage->op = SUPERH_OP_TSTM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_TSTM]);
 
 					break;
 				}
@@ -2138,7 +2322,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_andm;
-					stage->op = OP_ANDM;
+					stage->op = SUPERH_OP_ANDM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ANDM]);
 
 					break;
 				}
@@ -2148,7 +2333,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_xorm;
-					stage->op = OP_XORM;
+					stage->op = SUPERH_OP_XORM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_XORM]);
 
 					break;
 				}
@@ -2158,7 +2344,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 					stage->format = INSTR_I;
 					stage->cycles = 3;
 					stage->fptr = (void *)superH_orm;
-					stage->op = OP_ORM;
+					stage->op = SUPERH_OP_ORM;
+					stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_ORM]);
 
 					break;
 				}
@@ -2172,7 +2359,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_ND8;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_movli;
-			stage->op = OP_MOVLI;
+			stage->op = SUPERH_OP_MOVLI;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVLI]);
 
 			break;
 		}
@@ -2182,7 +2370,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_NI;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_movi;
-			stage->op = OP_MOVI;
+			stage->op = SUPERH_OP_MOVI;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_MOVI]);
 
 			break;
 		}
@@ -2192,7 +2381,8 @@ superHdecode(Engine *E, ushort instr, SuperHPipestage *stage)
 			stage->format = INSTR_I;
 			stage->cycles = 1;
 			stage->fptr = (void *)superH_rfg;
-			stage->op = OP_RFG;
+			stage->op = SUPERH_OP_RFG;
+			stage->instr_latencies = (int *)(&superH_instr_latencies[SUPERH_OP_RFG]);
 
 			break;
 		}

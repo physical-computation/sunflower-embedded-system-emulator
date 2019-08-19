@@ -34,6 +34,7 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
+
 typedef struct
 {
 	uint32_t	instr;
@@ -42,10 +43,21 @@ typedef struct
 	uint8_t		op;
 	uint8_t		format;
 	int		valid;
+
+/*	Every instr should have its own time/cycle count for how long
+	it spends on each pipeline stage, which is then moved to this
+	variable. It can be increased depending on other factors
+	like cache misses.						*/
+	int		cycles;
+	int		*instr_latencies;
 } RiscvPipestage;
 
 typedef struct
 {
+	RiscvPipestage	IF;
+	RiscvPipestage	ID;
 	RiscvPipestage	EX;
+	RiscvPipestage	MA;
+	RiscvPipestage	WB;
+	int 		fetch_stall_cycles;
 } RiscvPipe;
-

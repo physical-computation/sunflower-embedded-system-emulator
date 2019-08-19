@@ -48,64 +48,64 @@ superHtouchesmem(int op)
 {
 	switch (op)
 	{
-		case OP_ANDM:
-		case OP_LDCMSR:
-		case OP_LDCMGBR:
-		case OP_LDCMVBR:
-		case OP_LDCMSSR:
-		case OP_LDCMSPC:
-		case OP_LDCMRBANK:
-		case OP_LDSMMACH:
-		case OP_LDSMMACL:
-		case OP_LDSMPR:
-		case OP_MACL:
-		case OP_MACW:
-		case OP_MOVBL:
-		case OP_MOVWL:
-		case OP_MOVLL:
-		case OP_MOVBP:
-		case OP_MOVWP:
-		case OP_MOVLP:
-		case OP_MOVBL0:
-		case OP_MOVWL0:
-		case OP_MOVLL0:
-		case OP_MOVWI:
-		case OP_MOVLI:
-		case OP_MOVBLG:
-		case OP_MOVWLG:
-		case OP_MOVLLG:
-		case OP_MOVBL4:
-		case OP_MOVWL4:
-		case OP_MOVLL4:
-		case OP_ORM:
-		case OP_TAS:
-		case OP_TSTM:
-		case OP_XORM:
+		case SUPERH_OP_ANDM:
+		case SUPERH_OP_LDCMSR:
+		case SUPERH_OP_LDCMGBR:
+		case SUPERH_OP_LDCMVBR:
+		case SUPERH_OP_LDCMSSR:
+		case SUPERH_OP_LDCMSPC:
+		case SUPERH_OP_LDCMRBANK:
+		case SUPERH_OP_LDSMMACH:
+		case SUPERH_OP_LDSMMACL:
+		case SUPERH_OP_LDSMPR:
+		case SUPERH_OP_MACL:
+		case SUPERH_OP_MACW:
+		case SUPERH_OP_MOVBL:
+		case SUPERH_OP_MOVWL:
+		case SUPERH_OP_MOVLL:
+		case SUPERH_OP_MOVBP:
+		case SUPERH_OP_MOVWP:
+		case SUPERH_OP_MOVLP:
+		case SUPERH_OP_MOVBL0:
+		case SUPERH_OP_MOVWL0:
+		case SUPERH_OP_MOVLL0:
+		case SUPERH_OP_MOVWI:
+		case SUPERH_OP_MOVLI:
+		case SUPERH_OP_MOVBLG:
+		case SUPERH_OP_MOVWLG:
+		case SUPERH_OP_MOVLLG:
+		case SUPERH_OP_MOVBL4:
+		case SUPERH_OP_MOVWL4:
+		case SUPERH_OP_MOVLL4:
+		case SUPERH_OP_ORM:
+		case SUPERH_OP_TAS:
+		case SUPERH_OP_TSTM:
+		case SUPERH_OP_XORM:
 
-		case OP_MOVBS:
-		case OP_MOVWS:
-		case OP_MOVLS:
-		case OP_MOVBM:
-		case OP_MOVWM:
-		case OP_MOVLM:
-		case OP_MOVBS0:
-		case OP_MOVWS0:
-		case OP_MOVLS0:
-		case OP_MOVBSG:
-		case OP_MOVWSG:
-		case OP_MOVLSG:
-		case OP_MOVBS4:
-		case OP_MOVWS4:
-		case OP_MOVLS4:
-		case OP_STCMSR:
-		case OP_STCMGBR:
-		case OP_STCMVBR:
-		case OP_STCMSSR:
-		case OP_STCMSPC:
-		case OP_STCMRBANK:
-		case OP_STSMMACH:
-		case OP_STSMMACL:
-		case OP_STSMPR:
+		case SUPERH_OP_MOVBS:
+		case SUPERH_OP_MOVWS:
+		case SUPERH_OP_MOVLS:
+		case SUPERH_OP_MOVBM:
+		case SUPERH_OP_MOVWM:
+		case SUPERH_OP_MOVLM:
+		case SUPERH_OP_MOVBS0:
+		case SUPERH_OP_MOVWS0:
+		case SUPERH_OP_MOVLS0:
+		case SUPERH_OP_MOVBSG:
+		case SUPERH_OP_MOVWSG:
+		case SUPERH_OP_MOVLSG:
+		case SUPERH_OP_MOVBS4:
+		case SUPERH_OP_MOVWS4:
+		case SUPERH_OP_MOVLS4:
+		case SUPERH_OP_STCMSR:
+		case SUPERH_OP_STCMGBR:
+		case SUPERH_OP_STCMVBR:
+		case SUPERH_OP_STCMSSR:
+		case SUPERH_OP_STCMSPC:
+		case SUPERH_OP_STCMRBANK:
+		case SUPERH_OP_STSMMACH:
+		case SUPERH_OP_STSMMACL:
+		case SUPERH_OP_STSMPR:
 		{
 			return 1;
 		}
@@ -129,16 +129,16 @@ superHEXtouchesmem(State *S)
 
 	switch (S->superH->P.EX.op)
 	{
-		case OP_BFS:
-		case OP_BRA:
-		case OP_BRAF:
-		case OP_BSR:
-		case OP_BSRF:
-		case OP_BTS:
-		case OP_JMP:
-		case OP_JSR:
-		case OP_RTE:
-		case OP_RTS:
+		case SUPERH_OP_BFS:
+		case SUPERH_OP_BRA:
+		case SUPERH_OP_BRAF:
+		case SUPERH_OP_BSR:
+		case SUPERH_OP_BSRF:
+		case SUPERH_OP_BTS:
+		case SUPERH_OP_JMP:
+		case SUPERH_OP_JSR:
+		case SUPERH_OP_RTE:
+		case SUPERH_OP_RTS:
 			if (superHtouchesmem(S->superH->P.ID.op))
 			{
 				return 1;
@@ -193,7 +193,7 @@ superHfaststep(Engine *E, State *S, int drain_pipeline)
 
 		if (S->sleep)
 		{
-			update_energy(OP_SLEEP, 0, 0);
+			update_energy(SUPERH_OP_SLEEP, 0, 0);
 			S->ICLK++;
 			S->TIME += S->CYCLETIME;
 			E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
@@ -405,12 +405,11 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			S->superH->B->pbuslocker = -1;
 		}
 
-	    	if (!drain_pipeline)
-	    	{
+		if (!drain_pipeline)
+		{
 			if (!eventready(E->globaltimepsec, S->TIME, S->CYCLETIME))
 			{
 				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
-
 				continue;
 			}
 
@@ -439,7 +438,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 
 			if (S->sleep)
 			{
-				update_energy(OP_SLEEP, 0, 0);
+				update_energy(SUPERH_OP_SLEEP, 0, 0);
 				S->ICLK++;
 				S->TIME += S->CYCLETIME;
 				E->globaltimepsec = max(E->globaltimepsec, S->TIME) + S->CYCLETIME;
@@ -468,7 +467,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*							*/
 			if (SF_POWER_ANALYSIS)
 			{
-				update_energy(OP_NOP, 0, 0);
+				update_energy(SUPERH_OP_NOP, 0, 0);
 				stall_energy_updated = 1;
 			}
 		}
@@ -484,6 +483,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.WB, &S->superH->P.MA, sizeof(SuperHPipestage));
+			S->superH->P.WB.cycles = S->superH->P.WB.instr_latencies[WB];
 			S->superH->P.MA.valid = 0;
 			S->superH->P.WB.valid = 1;
 		}
@@ -502,7 +502,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 				exec_energy_updated = 1;
 			}
 		}
-	
+
 		if (S->superH->P.EX.valid && (S->superH->P.EX.fptr == NULL))
 		{
 			mprint(E, S, nodeinfo, "PC=0x" UHLONGFMT "\n",
@@ -713,6 +713,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.MA, &S->superH->P.EX, sizeof(SuperHPipestage));
+			S->superH->P.MA.cycles = S->superH->P.MA.instr_latencies[MA];
 			S->superH->P.EX.valid = 0;
 			S->superH->P.MA.valid = 1;
 		}
@@ -732,7 +733,7 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			{
 				if (!stall_energy_updated && !exec_energy_updated)
 				{
-					update_energy(OP_NOP, 0, 0);
+					update_energy(SUPERH_OP_NOP, 0, 0);
 				}
 			}
 		}
@@ -754,12 +755,11 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 							S->superH->P.EX.instr);
 			}
 	
-			/*	We use Decode Cache Rather than call decode()	*/
-			S->superH->P.ID.fptr 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.fptr;
-			S->superH->P.ID.op 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.op;
-			S->superH->P.ID.format 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.format;
-			S->superH->P.ID.cycles 	= E->superHDC[(int)(S->superH->P.ID.instr)].dc_p.cycles;
+			/*	We should decode here but instead we do it in the IF
+				so that all relevant information is available by IF		*/
+
 			memmove(&S->superH->P.EX, &S->superH->P.ID, sizeof(SuperHPipestage));
+			S->superH->P.EX.cycles = S->superH->P.EX.instr_latencies[EX];
 	
 			S->superH->P.ID.valid = 0;
 			S->superH->P.EX.valid = 1;
@@ -781,13 +781,14 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.ID, &S->superH->P.IF, sizeof(SuperHPipestage));
+			S->superH->P.ID.cycles = S->superH->P.ID.instr_latencies[ID];
 			S->superH->P.IF.valid = 0;
 			S->superH->P.ID.valid = 1;
 		}
 	
 		/*									*/
 		/* 	  Put instr in IF stage if it is empty, and increment PC	*/
-		/*	Check against bus lock is for the enclosing lonmgword address	*/
+		/*	Check against bus lock is for the enclosing longword address	*/
 		/*									*/
 		if (	!(S->superH->P.IF.valid)
 			&& (!S->superH->B->pbuslock ||
@@ -828,8 +829,14 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*	there, we do not drain the pipeline	*/
 			/*	if instr in IF is of type which uses	*/
 			/*	delay slot.				*/
-			/*						*/	
-			S->superH->P.IF.op = E->superHDC[(int)(instrword)].dc_p.op;
+			/*						*/
+
+			/*	We use Decode Cache Rather than call decode()	*/
+			S->superH->P.IF.op		= E->superHDC[(int)(instrword)].dc_p.op;
+			S->superH->P.IF.fptr		= E->superHDC[(int)(instrword)].dc_p.fptr;
+			S->superH->P.IF.format		= E->superHDC[(int)(instrword)].dc_p.format;
+			S->superH->P.IF.instr_latencies		= E->superHDC[(int)(instrword)].dc_p.instr_latencies;
+			S->superH->P.IF.cycles		= S->superH->P.IF.instr_latencies[IF];
 
 			if (!drain_pipeline)
 			{
@@ -863,12 +870,11 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 	}
 	E->globaltimepsec = saved_globaltime;
 
-
 	return i;
 }
 
 void
-superHpipeflush(State *S)
+superHflushpipe(State *S)
 {
 	/*								*/
 	/*	Flush pipeline, count # bits we clear in pipe regs	*/
@@ -901,7 +907,7 @@ superHpipeflush(State *S)
 }
 
 void
-superHifidflush(State *S)
+superHIFIDflush(State *S)
 {
 	S->superH->P.IF.cycles = 0;
 	S->superH->P.IF.valid = 0;
@@ -930,7 +936,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.WB.valid)
 	{
 		mprint(E, S, nodeinfo, "WB: [%s],%d\n",
-			opstrs[S->superH->P.WB.op], S->superH->P.WB.cycles);
+			superH_opstrs[S->superH->P.WB.op], S->superH->P.WB.cycles);
 	}
 	else
 	{
@@ -940,7 +946,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.MA.valid)
 	{
 		mprint(E, S, nodeinfo, "MA: [%s],%d\n",
-			opstrs[S->superH->P.MA.op], S->superH->P.MA.cycles);
+			superH_opstrs[S->superH->P.MA.op], S->superH->P.MA.cycles);
 	}
 	else
 	{
@@ -950,7 +956,7 @@ superHdumppipe(Engine *E, State *S)
 	if (S->superH->P.EX.valid)
 	{
 		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
-			opstrs[S->superH->P.EX.op], S->superH->P.EX.cycles);
+			superH_opstrs[S->superH->P.EX.op], S->superH->P.EX.cycles);
 	}
 	else
 	{
