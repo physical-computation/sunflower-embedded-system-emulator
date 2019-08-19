@@ -1,24 +1,22 @@
 typedef struct
 {
 	uint64_t		taintCol;
-	int			memType; 
-
-	/*
-	*	memType: 0 for memory, 1 for register
-	*/
+	SunflowerTaintMemType	memType; 
 } ShadowMem;
 
 
-struct TaintOriginNode
+typedef struct
 {
 	uint64_t		taintAddress;
 	uint32_t		taintPC;
 	uint64_t		taintCol;
-	int			memType;
-	/*
-	*	memType: 0 for memory, 1 for register
-	*/
+	SunflowerTaintMemType	memType;
 	struct TaintOriginNode	* next;
-};
+} TaintOriginNode;
 
-typedef struct TaintOriginNode TaintOriginNode;
+enum
+{
+	kSunflowerTaintMemTypeMemory
+	kSunflowerTaintMemTypeRegister
+} SunflowerTaintType
+
