@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "sf.h" //Need this for the definition of ShadowMem and TaintOriginNode
+#include "sf.h"
 
 
 /*	For ease of flexibility (to avoid different functions for
@@ -12,27 +12,28 @@
 *	as arguments
 */
 
-TaintOriginNode * taintOriginHead = NULL; //useful as global state
+TaintOriginNode * taintOriginHead = NULL;
 
 
 
-//Below here is the implementation of the linked list for storing TaintOriginNode objects:
-
+/*
+*	Implementation of the linked list for storing TaintOriginNode objects:
+*/
 
 
 void
-printList()
+printList(Engine *E, State *S)
 {
 	TaintOriginNode * ptr = taintOriginHead;
-	printf("\n[ ");
+	mprint(E,S,nodeinfo,"\n[ ");
 
 	while (ptr != NULL)
 	{
-		printf("%llu,%u,%llu\n",ptr->taintAddress,ptr->taintPC,ptr->taintCol);
+		mprint(E,S,nodeinfo,"%llu,%u,%llu\n",ptr->taintAddress,ptr->taintPC,ptr->taintCol);
 		ptr = ptr->next;
 	}
 	
-	printf(" ]");
+	mprint(E,S,nodeinfo," ]");
 }
 
 bool
@@ -54,13 +55,13 @@ length()
 }
 
 TaintOriginNode *
-find (uint64_t searchAddr)
+find (Engine *E, State *S, uint64_t searchAddr)
 {
 	TaintOriginNode * current = taintOriginHead;
 	
 	if (taintOriginHead == NULL)
 	{
-		printf("Couldn't find taintOriginHead in find function");
+		mprint(E,S,nodeinfo,"Couldn't find taintOriginHead in find function");
 		return NULL;
 	}
 
@@ -68,7 +69,7 @@ find (uint64_t searchAddr)
 	{
 		if (current->next == NULL)
 		{
-			printf("Couldn't find taintOriginHead in find function");
+			mprint(E,S,nodeinfo,"Couldn't find taintOriginHead in find function");
 			return NULL;
 		}
 		else
@@ -76,9 +77,6 @@ find (uint64_t searchAddr)
 			current = current -> next;
 		}
 	}
-
-	//if data found, return the current node
-
 	return current;
 }
 
@@ -103,9 +101,6 @@ contains (uint64_t searchAddr)
 			current = current -> next;
 		}
 	}
-
-	//if data found, return the current node
-
 	return true;
 }
 
@@ -133,14 +128,14 @@ deleteFirst()
 }
 
 TaintOriginNode *
-delete(uint64_t addr) //Currently returns pointer to deleted item - may want to change this
+delete(Engine *E, State *S, uint64_t addr)
 {
 	TaintOriginNode * current 	= taintOriginHead;
 	TaintOriginNode * prev		= NULL;
 
 	if (taintOriginHead == NULL)
 	{
-		printf("Tried to delete from an empty list in delete()");
+		mprint(E,S,nodeinfo,"Tried to delete from an empty list in delete()");
 		return NULL;
 	}
 
@@ -148,7 +143,7 @@ delete(uint64_t addr) //Currently returns pointer to deleted item - may want to 
 	{
 		if (current->next == NULL)
 		{
-			printf("Tried to delete non-existant entry from list in delete()");
+			mprint(E,S,nodeinfo,"Tried to delete non-existant entry from list in delete()");
 			return NULL;
 		}
 		else
@@ -170,8 +165,9 @@ delete(uint64_t addr) //Currently returns pointer to deleted item - may want to 
 
 
 
-// End of implementation of linked list of TaintOriginNode
-
+/*
+*	End of implementation of linked list of TaintOriginNode
+*/
 
 
 void
@@ -183,18 +179,18 @@ taintprop(Engine *E, State *S,
 	uint64_t tempCol1;
 	uint64_t tempCol2;
 
-	if (contains(Addr1) && (find(Addr1)->taintPC == S->PC)) 
+	if (contains(Addr1) && (find(E,S,Addr1)->taintPC == S->PC)) 
 	{
-		tempCol1 = find(Addr1)->taintCol;
+		tempCol1 = find(E,S,Addr1)->taintCol;
 	}
 	else
 	{
 		tempCol1 = SM1.taintCol;
 	}
 
-	if (contains(Addr2) && (find(Addr2)->taintPC == S->PC))
+	if (contains(Addr2) && (find(E,S,Addr2)->taintPC == S->PC))
 	{
-		tempCol2 = find(Addr2)->taintCol;
+		tempCol2 = find(E,S,Addr2)->taintCol;
 	}
 	else
 	{
@@ -204,7 +200,9 @@ taintprop(Engine *E, State *S,
 
 	SMO.taintCol = tempCol1 || tempCol2 || S->riscv->taintR[32].taintCol;
 
-	//Last OR represents PC taint which should be propagated on every step
+	/*
+	*	Last OR represents PC taint which should be propagated on every step
+	*/
 
 	return;
 }
@@ -213,7 +211,8 @@ void
 m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength)
 {
 
-	/*	iterate over all addresses within taintLength (assumption:
+	/*	
+	*	iterate over all addresses within taintLength (assumption:
 	*	taintLength in bytes)
 	*/
 	for (int i = 0; i < taintLength; i++)
@@ -224,7 +223,7 @@ m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintC
 }
 
 void
-m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol) //HeinDo: swap addr for regname
+m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol)
 {
 	insertFirst(addr, taintPC, taintCol, 1);
 

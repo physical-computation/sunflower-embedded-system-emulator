@@ -47,8 +47,12 @@ struct RiscvState
 	*	Taint analysis for registers:
 	*/
 
-	ShadowMem taintR[RISCV_XMAX+1]; //Need last entry for PC's taint entry 32
+	ShadowMem taintR[RISCV_XMAX+1];
 	ShadowMem taintfR[RF32FD_fMAX+1];
+
+	/*
+	*	Need last entry for PC's taint entry 32
+	*/
 };
 
 /*		Entries in the Decode Cache		*/

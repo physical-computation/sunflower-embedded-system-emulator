@@ -735,7 +735,7 @@ superHresetcpu(Engine *E, State *S)
 	*/
 
 	S->TAINTMEMSIZE = DEFLT_MEMSIZE*sizeof(ShadowMem);
-	S->TAINTMEMBASE = SUPERH_MEMBASE; //Same as for normal MEMBASE; I hope this works
+	S->TAINTMEMBASE = SUPERH_MEMBASE;
 	S->TAINTMEMEND = S->TAINTMEMBASE + S->TAINTMEMSIZE;
 
 
@@ -902,7 +902,7 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 	*	Initialise array of ShadowMem objects:
 	*/
 
-	S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, DEFLT_MEMSIZE*sizeof(ShadowMem), "(ShadowMem *)S->TAINTMEM"); 
+	S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, S->TAINTMEMSIZE, "(ShadowMem *)S->TAINTMEM"); 
 
 	if (S->TAINTMEM == NULL)
 	{

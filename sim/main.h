@@ -205,6 +205,12 @@ typedef enum
 	BPT_SENSORREADING,
 } Breaktype;
 
+typedef enum
+{
+	kSunflowerTaintModeLiberal,
+	kSunflowerTaintModeConservative,
+} SunflowerTaintMode;
+
 
 
 
@@ -518,7 +524,6 @@ struct State
 	int 		TAINTMEMBASE;
 	int 		TAINTMEMEND;
 
-	int		taintliberal; //0 = conservative, 1 = liberal
 
 	//	TODO:
 	Mem		*M;

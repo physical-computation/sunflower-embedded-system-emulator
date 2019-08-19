@@ -503,7 +503,9 @@ sf_cmd		: T_QUIT '\n'
 		 *	NOTE: We no longer accept the old-style velocity and orbit syntax, though we allow you to omit either the x/y/z location, or the trajectory file, rate, and loop flag
 		 */
 		| T_TAINTMEM uimm uimm uimm uimm '\n'
-		//Arguments: Address, PC, Taint, size
+		/*
+		*	Arguments: Address, PC, Taint, size
+		*/
 		{	/*
 			 *	Taint any memory which originally derives from the uimm address
 			 */
@@ -514,7 +516,9 @@ sf_cmd		: T_QUIT '\n'
 			}
 		}
 		| T_TAINTREG reg uimm uimm '\n'
-		//Arguments: RegisterName, PC, Taint
+		/*
+		*	Arguments: RegisterName, PC, Taint
+		*/
 		{
 			/*
 			 *	Taint any registers which originally derive from the input address
