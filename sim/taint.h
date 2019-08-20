@@ -4,7 +4,7 @@ typedef struct
 	int			memType; 
 
 	/*
-	*	memType: 0 for memory, 1 for register
+	*	memType: 0 for memory, 1 for register, 2 for fregister
 	*/
 } ShadowMem;
 
@@ -16,7 +16,7 @@ struct TaintOriginNode
 	uint64_t		taintCol;
 	int			memType;
 	/*
-	*	memType: 0 for memory, 1 for register
+	*	memType: 0 for memory, 1 for register, 2 for fregister
 	*/
 	struct TaintOriginNode	* next;
 };

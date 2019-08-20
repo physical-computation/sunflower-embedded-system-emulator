@@ -37,13 +37,13 @@ printList(Engine *E, State *S)
 }
 
 bool
-isEmpty()
+isEmpty(void)
 {
 	return taintOriginHead == NULL;
 }
 
 int
-length()
+length(void)
 {
 	int len = 0;
 	TaintOriginNode * current;
@@ -119,12 +119,12 @@ insertFirst (uint64_t addr, uint32_t PCval, uint64_t taintCol, int memType)
 }
 
 TaintOriginNode *
-deleteFirst()
+deleteFirst(void)
 {
-	TaintOriginNode * templink 	= taintOriginHead;
+	TaintOriginNode * tmplink 	= taintOriginHead;
 	taintOriginHead			= taintOriginHead -> next;
 	
-	return templink;
+	return tmplink;
 }
 
 TaintOriginNode *
@@ -176,34 +176,156 @@ taintprop(Engine *E, State *S,
 	uint64_t Addr2, ShadowMem SM2,
 			ShadowMem SMO)
 {
-	uint64_t tempCol1;
-	uint64_t tempCol2;
+	uint64_t tmpCol1;
+	uint64_t tmpCol2;
 
 	if (contains(Addr1) && (find(E,S,Addr1)->taintPC == S->PC)) 
 	{
-		tempCol1 = find(E,S,Addr1)->taintCol;
+		tmpCol1 = find(E,S,Addr1)->taintCol;
 	}
 	else
 	{
-		tempCol1 = SM1.taintCol;
+		tmpCol1 = SM1.taintCol;
 	}
 
 	if (contains(Addr2) && (find(E,S,Addr2)->taintPC == S->PC))
 	{
-		tempCol2 = find(E,S,Addr2)->taintCol;
+		tmpCol2 = find(E,S,Addr2)->taintCol;
 	}
 	else
 	{
-		tempCol2 = SM2.taintCol;
+		tmpCol2 = SM2.taintCol;
 	}
 
 
-	SMO.taintCol = tempCol1 || tempCol2 || S->riscv->taintR[32].taintCol;
+	SMO.taintCol = tmpCol1 | tmpCol2 | S->riscv->taintR[32].taintCol;
 
 	/*
 	*	Last OR represents PC taint which should be propagated on every step
 	*/
 
+	return;
+}
+
+void
+taintpropi(Engine *E, State *S,
+	uint64_t Addr1, ShadowMem SM1,
+	uint64_t immtaint, ShadowMem SMO)
+{
+	uint64_t tmpCol1;
+
+	if (contains(Addr1) && (find(E,S,Addr1)->taintPC == S->PC)) 
+	{
+		tmpCol1 = find(E,S,Addr1)->taintCol;
+	}
+	else
+	{
+		tmpCol1 = SM1.taintCol;
+	}
+
+	SMO.taintCol = tmpCol1 | immtaint | S->riscv->taintR[32].taintCol;
+	return;
+}
+
+void
+taintpropPC(Engine *E, State *S,
+	uint64_t Addr1, ShadowMem SM1,
+	uint64_t Addr2, ShadowMem SM2)
+{
+	/*
+	*	This procedure is used specifically to update the taint of the PC
+	*	Assumption: PC taint can be overwritten
+	*/
+	uint64_t tmpCol1;
+	uint64_t tmpCol2;
+
+	if (contains(Addr1) && (find(E,S,Addr1)->taintPC == S->PC)) 
+	{
+		tmpCol1 = find(E,S,Addr1)->taintCol;
+	}
+	else
+	{
+		tmpCol1 = SM1.taintCol;
+	}
+
+	if (contains(Addr2) && (find(E,S,Addr2)->taintPC == S->PC))
+	{
+		tmpCol2 = find(E,S,Addr2)->taintCol;
+	}
+	else
+	{
+		tmpCol2 = SM2.taintCol;
+	}
+
+	S->riscv->taintR[32].taintCol = tmpCol1 | tmpCol2;
+	return;
+}
+
+uint64_t
+taintretmems(Engine *E, State *S, uint64_t Addr1, int NumBytes)
+{
+	/*
+	*	Function returns the ORed taintCol of the n consecutive memory addresses
+	*	after Addr1
+	*/
+	uint64_t tmpCol1;
+	uint64_t outCol = 0;
+	uint64_t tmpAddr = Addr1;
+
+	for (int i = 0; i < NumBytes ; i++)
+	{
+		if (contains(tmpAddr) && (find(E,S,tmpAddr)->taintPC == S->PC)) 
+		{
+			tmpCol1 = find(E,S,Addr1)->taintCol;
+		}
+		else
+		{
+			tmpCol1 = S->TAINTMEM[tmpAddr].taintCol;
+		}
+		outCol = tmpCol1 | outCol;
+	}
+	return outCol;
+}
+
+uint64_t
+taintretreg(Engine *E, State *S, uint64_t rs1)
+{
+	uint64_t outCol;
+
+	if (contains(rs1) && (find(E,S,rs1)->taintPC == S->PC)) 
+	{
+		outCol = find(E,S,rs1)->taintCol;
+	}
+	else
+	{
+		outCol = S->riscv->taintR[rs1].taintCol;
+	}
+
+	return outCol;
+}
+
+uint64_t
+ftaintretreg(Engine *E, State *S, uint64_t rs1)
+{
+	uint64_t outCol;
+
+	if (contains(rs1) && (find(E,S,rs1)->taintPC == S->PC)) 
+	{
+		outCol = find(E,S,rs1)->taintCol;
+	}
+	else
+	{
+		outCol = S->riscv->taintfR[rs1].taintCol;
+	}
+
+	return outCol;
+}
+
+
+void
+taintclear(Engine *E, State *S,ShadowMem SM1)
+{
+	SM1.taintCol = 0;
 	return;
 }
 
