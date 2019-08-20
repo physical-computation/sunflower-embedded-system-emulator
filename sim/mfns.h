@@ -44,6 +44,9 @@ int	sf_riscv_parse(void);
 /*											*/
 /*					Network modeling				*/
 /*											*/
+void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength);
+void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol); 
+void	taintprop(Engine *E, State *S, uint64_t Addr1, ShadowMem SM1, uint64_t Addr2, ShadowMem SM2, ShadowMem SMO);
 void	network_netseg2file(Engine *E, int which, char *filename);
 void	network_file2netseg(Engine *E, char *file, int whichseg);
 void	network_netsegpropmodel(Engine *, int whichseg, int whichmodel, double minsnr);

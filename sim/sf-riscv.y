@@ -225,6 +225,8 @@
 %token	T_BPT
 %token	T_BPTLS
 %token	T_BPTDEL
+%token	T_TAINTMEM
+%token	T_TAINTREG
 
 
 /*	Breakpoint types	*/
@@ -357,6 +359,7 @@
 %token T_XORI
 
 %type	<uval>	reg
+%type	<uval>	freg
 %type	<sval>	disp
 %type	<uval>	uimm
 %type	<sval>	simm
@@ -497,9 +500,36 @@ sf_cmd		: T_QUIT '\n'
 		}
 
 		/*
-		 *	NOTE: We no longer accept the old-style velocity and orbit syntax, though we allow you to omit either the x/y/z location, or the trajectory file, rate, and loop flag
+		 *	NOTE: We no longer accept the old-style velocity and orbit syntax,
+		 *	though we allow you to omit either the x/y/z location,
+		 *	or the trajectory file, rate, and loop flag.
 		 */
+		| T_TAINTMEM uimm uimm uimm uimm '\n'
+		/*
+		*	Arguments: Address, PC, Taint, size
+		*/
+		{	/*
+			 *	Taint any memory which originally derives from the uimm address
+			 */
+			if (!yyengine->scanning)
+			{
+				m_taintmem(yyengine,yyengine->cp, $2, $3, $4, $5);
 
+			}
+		}
+		| T_TAINTREG reg uimm uimm '\n'
+		/*
+		*	Arguments: RegisterName, PC, Taint
+		*/
+		{
+			/*
+			 *	Taint any registers which originally derive from the input address
+			 */
+			if (!yyengine->scanning)
+			{
+				m_taintreg(yyengine,yyengine->cp, $2, $3, $4);
+			}
+		}
 		| T_NEWNODE optstring '\n'
 		{
 			/*
@@ -1561,6 +1591,7 @@ sf_cmd		: T_QUIT '\n'
 		| T_SETMEMBASE uimm
 		{
 			yyengine->cp->MEMBASE = $2;
+			yyengine->cp->TAINTMEMBASE = $2;
 		}
 		| T_SHOWMEMBASE
 		{
@@ -4358,6 +4389,40 @@ reg		: T_X0 {$$ = 0;}
 		| T_X29 {$$ = 29;}
 		| T_X30 {$$ = 30;}
 		| T_X31 {$$ = 31;}
+;
+
+freg		: T_F0 {$$ = 0;}
+		| T_F1 {$$ = 1;}
+		| T_F2 {$$ = 2;}
+		| T_F3 {$$ = 3;}
+		| T_F4 {$$ = 4;}
+		| T_F5 {$$ = 5;}
+		| T_F6 {$$ = 6;}
+		| T_F7 {$$ = 7;}
+		| T_F8 {$$ = 8;}
+		| T_F9 {$$ = 9;}
+		| T_F10 {$$ = 10;}
+		| T_F11 {$$ = 11;}
+		| T_F12 {$$ = 12;}
+		| T_F13 {$$ = 13;}
+		| T_F14 {$$ = 14;}
+		| T_F15 {$$ = 15;}
+		| T_F16 {$$ = 16;}
+		| T_F17 {$$ = 17;}
+		| T_F18 {$$ = 18;}
+		| T_F19 {$$ = 19;}
+		| T_F20 {$$ = 20;}
+		| T_F21 {$$ = 21;}
+		| T_F22 {$$ = 22;}
+		| T_F23 {$$ = 23;}
+		| T_F24 {$$ = 24;}
+		| T_F25 {$$ = 25;}
+		| T_F26 {$$ = 26;}
+		| T_F27 {$$ = 27;}
+		| T_F28 {$$ = 28;}
+		| T_F29 {$$ = 29;}
+		| T_F30 {$$ = 30;}
+		| T_F31 {$$ = 31;}
 ;
 %%
 

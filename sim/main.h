@@ -205,6 +205,12 @@ typedef enum
 	BPT_SENSORREADING,
 } Breaktype;
 
+typedef enum
+{
+	kSunflowerTaintModeLiberal,
+	kSunflowerTaintModeConservative,
+} SunflowerTaintMode;
+
 
 
 
@@ -509,6 +515,15 @@ struct State
 	int		MEMSIZE;
 	int		MEMBASE;
 	int		MEMEND;
+
+	/*
+	*	Shadow Memory structure allocation
+	*/
+	ShadowMem	*TAINTMEM;
+	int 		TAINTMEMSIZE;
+	int 		TAINTMEMBASE;
+	int 		TAINTMEMEND;
+
 
 	//	TODO:
 	Mem		*M;
