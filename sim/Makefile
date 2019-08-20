@@ -51,7 +51,6 @@ HEADERS =\
 	regs-riscv.h\
 	sf.h\
 	syscalls.h\
-	listutils.h\
 	taint.h\
 
 OBJS	=\

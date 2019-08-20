@@ -332,7 +332,6 @@ taintclear(Engine *E, State *S,ShadowMem SM1)
 void
 m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength)
 {
-
 	/*	
 	*	iterate over all addresses within taintLength (assumption:
 	*	taintLength in bytes)

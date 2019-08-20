@@ -500,7 +500,9 @@ sf_cmd		: T_QUIT '\n'
 		}
 
 		/*
-		 *	NOTE: We no longer accept the old-style velocity and orbit syntax, though we allow you to omit either the x/y/z location, or the trajectory file, rate, and loop flag
+		 *	NOTE: We no longer accept the old-style velocity and orbit syntax,
+		 *	though we allow you to omit either the x/y/z location,
+		 *	or the trajectory file, rate, and loop flag.
 		 */
 		| T_TAINTMEM uimm uimm uimm uimm '\n'
 		/*
