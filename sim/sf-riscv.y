@@ -227,6 +227,7 @@
 %token	T_BPTDEL
 %token	T_TAINTMEM
 %token	T_TAINTREG
+%token	T_DUMPTAINTDISTR
 
 
 /*	Breakpoint types	*/
@@ -509,7 +510,7 @@ sf_cmd		: T_QUIT '\n'
 		*	Arguments: Address, PC, Taint, size
 		*/
 		{	/*
-			 *	Taint any memory which originally derives from the uimm address
+			 *	Mark given memory as origin of taint
 			 */
 			if (!yyengine->scanning)
 			{
@@ -523,11 +524,24 @@ sf_cmd		: T_QUIT '\n'
 		*/
 		{
 			/*
-			 *	Taint any registers which originally derive from the input address
+			 *	Mark given register as an origin of taint
 			 */
 			if (!yyengine->scanning)
 			{
 				m_taintreg(yyengine,yyengine->cp, $2, $3, $4);
+			}
+		}
+		| T_DUMPTAINTDISTR '\n'
+		/*
+		*	Arguments: None
+		*/
+		{
+			/*
+			 *	Give taint of each RISC-V command
+			 */
+			if (!yyengine->scanning)
+			{
+				m_riscvdumptaintdistr(yyengine,yyengine->cp);
 			}
 		}
 		| T_NEWNODE optstring '\n'
