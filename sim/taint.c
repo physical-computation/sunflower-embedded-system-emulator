@@ -7,11 +7,6 @@
 #include "mextern.h"
 
 
-/*	For ease of flexibility (to avoid different functions for
-*	different combinations of registers and memory in propagation,
-*	taintprop has ShadowMems (rather than addresses to ShadowMems)
-*	as arguments
-*/
 
 TaintOriginNode * taintOriginHead = NULL;
 bool RegMarked = false;
@@ -207,92 +202,129 @@ delete(Engine *E, State *S, uint64_t addr, uint32_t taintPC, SunflowerTaintMemTy
 
 void
 taintprop(Engine *E, State *S,
-	uint64_t Addr1, ShadowMem SM1,
-	uint64_t Addr2, ShadowMem SM2,
-			ShadowMem SMO)
+	uint64_t immtaint1, uint64_t immtaint2,
+	uint64_t AddrOut, SunflowerTaintMemType memType)
 {
-	uint64_t tmpCol1;
-	uint64_t tmpCol2;
+	uint64_t outCol;
 
-	if (contains(Addr1,S->PC,SM1.memType))
-	{
-		tmpCol1 = findByAll(E,S,Addr1,S->PC,SM1.memType)->taintCol;
-	}
-	else
-	{
-		tmpCol1 = SM1.taintCol;
-	}
-
-	if (contains(Addr2,S->PC,SM2.memType))
-	{
-		tmpCol2 = findByAll(E,S,Addr2,S->PC,SM2.memType)->taintCol;
-	}
-	else
-	{
-		tmpCol2 = SM2.taintCol;
-	}
-
-
-	SMO.taintCol = tmpCol1 | tmpCol2 | S->riscv->taintR[32].taintCol;
+	outCol = immtaint1 | immtaint2 | S->riscv->taintR[32].taintCol;
 
 	/*
 	*	Last OR represents PC taint which should be propagated on every step
 	*/
 
-	return;
-}
-
-void
-taintpropi(Engine *E, State *S,
-	uint64_t Addr1, ShadowMem SM1,
-	uint64_t immtaint, ShadowMem SMO)
-{
-	uint64_t tmpCol1;
-
-	if (contains(Addr1,S->PC,SM1.memType))
+	if (S->riscv->P.EX.op != 39) 
 	{
-		tmpCol1 = findByAll(E,S,Addr1,S->PC,SM1.memType)->taintCol;
-	}
-	else
-	{
-		tmpCol1 = SM1.taintCol;
+		/*
+		*	Ecall is the 40th (indexing from 1, so 39 above) instruction
+		*	which I don't know what to do with, hence its exclusion
+		*/
+		switch (S->riscv->P.ID.op)
+		{
+			case 2:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
+						S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
+						| immtaint1 | immtaint2;
+				break;
+			default:
+				break;
+		}
+		switch (S->riscv->P.EX.op)
+		{
+			case 0:
+			case 3:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			case 16:
+			case 17:
+			case 18:
+			case 19:
+			case 20:
+			case 21:
+			case 22:
+			case 23:
+			case 24:
+			case 25:
+			case 26:
+			case 27:
+			case 28:
+			case 29:
+			case 30:
+			case 31:
+			case 32:
+			case 33:
+			case 34:
+			case 35:
+			case 36:
+			case 37:
+			case 38:
+			case 40:
+			case 41:
+			case 42:
+			case 43:
+			case 44:
+			case 45:
+			case 46:
+				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
+						S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
+						| immtaint1 | immtaint2;
+				break;
+			default:
+				break;
+		}
 	}
 
-	SMO.taintCol = tmpCol1 | immtaint | S->riscv->taintR[32].taintCol;
-	return;
-}
-
-void
-taintpropPC(Engine *E, State *S,
-	uint64_t Addr1, ShadowMem SM1,
-	uint64_t Addr2, ShadowMem SM2)
-{
-	/*
-	*	This procedure is used specifically to update the taint of the PC
-	*	Assumption: PC taint can be overwritten
-	*/
-	uint64_t tmpCol1;
-	uint64_t tmpCol2;
-
-	if (contains(Addr1,S->PC,SM1.memType))
+	switch(memType)
 	{
-		tmpCol1 = findByAll(E,S,Addr1,S->PC,SM1.memType)->taintCol;
-	}
-	else
-	{
-		tmpCol1 = SM1.taintCol;
+		case kSunflowerTaintMemTypeMemory:
+			if ((immtaint1 != 0) | (immtaint2 != 0))
+			{
+				mprint(E,S,nodeinfo,
+					"\nShadow Memory taint col of input 1 is %llu\nShadow Memory taint col of input 2 is %llu\n",
+					immtaint1,immtaint2);
+				mprint(E,S,nodeinfo,
+					"\n Shadow Memory taint col of address %llu (output pre-change) is %llu\n",
+					AddrOut, S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol);
+			}
+			S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol = outCol;
+
+			if ((immtaint1 != 0) | (immtaint2 != 0))
+			{
+				mprint(E,S,nodeinfo,
+					"\n Shadow Memory taint col of address %llu is %llu\n",
+					AddrOut, S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol);
+			}
+			break;
+
+		case kSunflowerTaintMemTypeRegister:
+
+			S->riscv->taintR[AddrOut].taintCol = outCol;
+
+			break;
+
+		case kSunflowerTaintMemTypefltRegister:
+			S->riscv->taintfR[AddrOut].taintCol = outCol;
+			break;
+
+		case kSunflowerTaintMemTypeInstruction:
+			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintproptest this should never be the case!");
+			break;
+
+		default:
+			mprint(E,S,nodeinfo,"In taintproptest something went very wrong: illegal memType passed");
+			break;
 	}
 
-	if (contains(Addr2,S->PC,SM2.memType))
-	{
-		tmpCol2 = findByAll(E,S,Addr2,S->PC,SM2.memType)->taintCol;
-	}
-	else
-	{
-		tmpCol2 = SM2.taintCol;
-	}
-
-	S->riscv->taintR[32].taintCol = tmpCol1 | tmpCol2;
 	return;
 }
 
@@ -357,9 +389,29 @@ ftaintretreg(Engine *E, State *S, uint64_t rs1)
 
 
 void
-taintclear(Engine *E, State *S,ShadowMem SM1)
+taintclear(Engine *E, State *S,uint64_t addr, SunflowerTaintMemType memType)
 {
-	SM1.taintCol = 0;
+	switch(memType)
+	{
+		case kSunflowerTaintMemTypeMemory:
+			S->TAINTMEM[addr-S->TAINTMEMBASE].taintCol = 0;
+			break;
+
+		case kSunflowerTaintMemTypeRegister:	
+			S->riscv->taintR[addr].taintCol = 0;
+			break;
+
+		case kSunflowerTaintMemTypefltRegister:
+			S->riscv->taintfR[addr].taintCol = 0;
+			break;
+
+		case kSunflowerTaintMemTypeInstruction:
+			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintproptest this should never be the case!");
+			break;
+
+		default:
+			mprint(E,S,nodeinfo,"In taintproptest something went very wrong: illegal memType passed");
+	}
 	return;
 }
 

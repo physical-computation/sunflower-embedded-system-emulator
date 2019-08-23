@@ -97,12 +97,8 @@ void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
-
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 	}
 
 	return;
@@ -114,12 +110,10 @@ void riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -139,12 +133,10 @@ void riscv_slt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 
@@ -164,12 +156,10 @@ void riscv_sltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 
@@ -182,12 +172,10 @@ void riscv_and(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -199,12 +187,10 @@ void riscv_or(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -216,12 +202,10 @@ void riscv_xor(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -236,12 +220,10 @@ void riscv_sll(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -256,12 +238,10 @@ void riscv_srl(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 
 	return;
@@ -277,12 +257,10 @@ void riscv_sra(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+
 	}
 	return;
 }
@@ -298,12 +276,10 @@ void riscv_addi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 	return;
 }
@@ -321,12 +297,10 @@ void riscv_slti(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -345,12 +319,10 @@ void riscv_sltiu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -362,12 +334,10 @@ void riscv_andi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -379,12 +349,10 @@ void riscv_ori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -396,12 +364,10 @@ void riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -417,12 +383,10 @@ void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -438,12 +402,10 @@ void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -459,12 +421,10 @@ void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1], S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1);
+
 	}
 
 	return;
@@ -486,13 +446,10 @@ void riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 		/*
 		*	Propagate taint of PC into register[rd]:
 		*/
-		taintprop(E, S, (uint64_t)32, S->riscv->taintR[32],
-				(uint64_t)32, S->riscv->taintR[32],
-				S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| S->riscv->taintR[32].taintCol;
+		
 	}
 
 	return;
@@ -507,13 +464,16 @@ void riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, ui
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)32, S->riscv->taintR[32],
-				(uint64_t)32, S->riscv->taintR[32],
-				S->riscv->taintR[rd]);
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			|S->riscv->taintR[32].taintCol;
+		/*
+		*	If immediates are seen as carrying taint, more then their taint
+		*	should also be propagated to the PC (ORed with the PC's previous
+		*	taint).
+		*/
+
+		
 	}
 
 	return;
@@ -530,15 +490,13 @@ void riscv_jalr(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)32, S->riscv->taintR[32],
-				(uint64_t)32, S->riscv->taintR[32],
-				S->riscv->taintR[rd]);
-		taintpropPC(E,S,(uint64_t)rs1,S->riscv->taintR[rs1],
-				(uint64_t)rs1,S->riscv->taintR[rs1]);
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | S->riscv->taintR[32].taintCol;
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 
 	return;
@@ -556,12 +514,9 @@ void riscv_beq(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+		
 	}
 	return;
 }
@@ -579,12 +534,9 @@ void riscv_bne(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -602,12 +554,10 @@ void riscv_blt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 
 	return;
@@ -625,12 +575,10 @@ void riscv_bltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 	return;
 }
@@ -647,12 +595,10 @@ void riscv_bge(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 
 	return;
@@ -670,12 +616,10 @@ void riscv_bgeu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->riscv->taintR[32]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-			| S->riscv->taintR[32].taintCol | taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 
 	return;
@@ -691,13 +635,8 @@ void riscv_lw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintR[rs1],
-				taintretmems(E,S,addr,4),
-				S->riscv->taintR[rd]);
-
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretmems(E,S,addr,4);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,4),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
 	}
 
 	return;
@@ -711,12 +650,9 @@ void riscv_lh(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintR[rs1],
-				taintretmems(E,S,addr,2),
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretmems(E,S,addr,2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -730,12 +666,9 @@ void riscv_lhu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintR[rs1],
-				taintretmems(E,S,addr,2),
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretmems(E,S,addr,2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -751,12 +684,9 @@ void riscv_lb(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)addr,S->TAINTMEM[addr-S->TAINTMEMBASE],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretmems(E,S,addr,1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,1),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -772,12 +702,9 @@ void riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)addr,S->TAINTMEM[addr-S->TAINTMEMBASE],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-			| taintretreg(E,S,rs1) | taintretmems(E,S,addr,1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,1),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -795,13 +722,10 @@ void riscv_sw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 	{
 		for (int i = 0 ; i<4 ; i++)
 		{
-			taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-					(uint64_t)rs2, S->riscv->taintR[rs2],
-					S->TAINTMEM[addr+i-S->TAINTMEMBASE]);
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+			taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
 		}
+		
 	}
 }
 
@@ -815,13 +739,10 @@ void riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 	{
 		for (int i = 0 ; i<2 ; i++)
 		{
-			taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-					(uint64_t)rs2, S->riscv->taintR[rs2],
-					S->TAINTMEM[addr+i-S->TAINTMEMBASE]);
+			taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
 		}
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		
 	}
 }
 
@@ -833,12 +754,9 @@ void riscv_sb(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintR[rs2],
-				S->TAINTMEM[addr-S->TAINTMEMBASE]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | taintretreg(E,S,rs2);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)addr,	kSunflowerTaintMemTypeMemory);
+		
 	}
 }
 
@@ -875,12 +793,9 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-				taintretmems(E,S,addr,4),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | taintretmems(E,S,addr,4);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,4),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -896,12 +811,8 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 	{
 		for (int i = 0 ; i<4 ; i++)
 		{
-			taintprop(E, S, (uint64_t)rs1, S->riscv->taintR[rs1],
-					(uint64_t)rs2, S->riscv->taintfR[rs2],
-					S->TAINTMEM[addr+i-S->TAINTMEMBASE]);
-			S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+			taintprop(E, S,	taintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
 		}
 	}
 
@@ -927,12 +838,8 @@ void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
 	}
 
 	return;
@@ -957,12 +864,9 @@ void rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -987,12 +891,9 @@ void rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1017,12 +918,9 @@ void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1048,12 +946,9 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1079,12 +974,9 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1111,12 +1003,9 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1142,12 +1031,9 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1172,12 +1058,9 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1194,12 +1077,9 @@ void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1216,12 +1096,9 @@ void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1238,12 +1115,9 @@ void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1262,12 +1136,9 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1286,12 +1157,9 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -1377,12 +1245,9 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -1468,12 +1333,9 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -1485,12 +1347,9 @@ void rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -1507,12 +1366,9 @@ void rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -1529,12 +1385,9 @@ void rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -1551,12 +1404,9 @@ void rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -1604,12 +1454,9 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -1629,12 +1476,9 @@ void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1654,12 +1498,9 @@ void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1671,12 +1512,9 @@ void rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1703,12 +1541,9 @@ void rv32d_fld(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintR[rs1],
-				taintretmems(E,S,addr,8),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | taintretmems(E,S,addr,8);
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,8),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1730,13 +1565,10 @@ void rv32d_fsd(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 	{
 		for (int i = 0 ; i<8 ;i++)
 		{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->TAINTMEM[addr+i-S->TAINTMEMBASE]);
+			taintprop(E, S,	taintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
 		}
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		
 	}
 
 	return;
@@ -1761,12 +1593,9 @@ void rv32d_fmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -1791,12 +1620,10 @@ void rv32d_fmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
 	}
 
 	return;
@@ -1821,12 +1648,10 @@ void rv32d_fnmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
 
 	}
 
@@ -1852,12 +1677,10 @@ void rv32d_fnmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintpropi(E, S,(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(ftaintretreg(E,S,(uint64_t)rs2) | ftaintretreg(E,S,(uint64_t)rs3)),
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
 	}
 
 	return;
@@ -1883,12 +1706,10 @@ void rv32d_fadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
 	}
 
 	return;
@@ -1914,12 +1735,10 @@ void rv32d_fsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
 	}
 
 	return;
@@ -1946,12 +1765,10 @@ void rv32d_fmul_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
 	}
 
 	return;
@@ -1977,12 +1794,9 @@ void rv32d_fdiv_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2009,12 +1823,9 @@ void rv32d_fsqrt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -2031,12 +1842,9 @@ void rv32d_fsgnj_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2053,12 +1861,9 @@ void rv32d_fsgnjn_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2075,12 +1880,9 @@ void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2099,12 +1901,9 @@ void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2123,12 +1922,9 @@ void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
 	}
 
 	return;
@@ -2151,12 +1947,9 @@ void rv32d_fcvt_s_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -2179,12 +1972,9 @@ void rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
@@ -2201,12 +1991,9 @@ void rv32d_feq_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -2223,12 +2010,9 @@ void rv32d_flt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -2245,12 +2029,9 @@ void rv32d_fle_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs2, S->riscv->taintfR[rs2],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1) | ftaintretreg(E,S,rs2);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
 	}
 
 	return;
@@ -2298,12 +2079,9 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -2388,12 +2166,9 @@ void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -2476,12 +2251,9 @@ void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintfR[rs1],
-				(uint64_t)rs1, S->riscv->taintfR[rs1],
-				S->riscv->taintR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| ftaintretreg(E,S,rs1);
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -2503,18 +2275,15 @@ void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
 }
 
-void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 
@@ -2528,12 +2297,9 @@ void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	if (SF_TAINTANALYSIS)
 	{
-		taintprop(E, S,	(uint64_t)rs1, S->riscv->taintR[rs1],
-				(uint64_t)rs1, S->riscv->taintR[rs1],
-				S->riscv->taintfR[rd]);
-		S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
-				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-				| taintretreg(E,S,rs1);
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
 	}
 
 	return;
