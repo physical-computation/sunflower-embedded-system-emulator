@@ -95,7 +95,7 @@ findByAll (Engine *E, State *S, uint64_t searchAddr, uint32_t taintPC, Sunflower
 	{
 		if (current->next == NULL)
 		{
-			mprint(E,S,nodeinfo,"Couldn't find taintOriginHead in findByAll function");
+			mprint(E,S,nodeinfo,"Couldn't find desired TaintOriginNode with in findByAll function");
 			return NULL;
 		}
 		else
@@ -230,7 +230,7 @@ taintprop(Engine *E, State *S,
 			case 9:
 				S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
 						S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
-						| immtaint1 | immtaint2;
+						| immtaint1 | immtaint2 | S->riscv->taintR[32].taintCol;
 				break;
 			default:
 				break;
@@ -277,7 +277,7 @@ taintprop(Engine *E, State *S,
 			case 46:
 				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
 						S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
-						| immtaint1 | immtaint2;
+						| immtaint1 | immtaint2 | S->riscv->taintR[32].taintCol;
 				break;
 			default:
 				break;
@@ -301,11 +301,11 @@ taintprop(Engine *E, State *S,
 			break;
 
 		case kSunflowerTaintMemTypeInstruction:
-			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintproptest this should never be the case!");
+			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintprop this should never be the case!");
 			break;
 
 		default:
-			mprint(E,S,nodeinfo,"In taintproptest something went very wrong: illegal memType passed");
+			mprint(E,S,nodeinfo,"In taintprop something went very wrong: illegal memType passed");
 			break;
 	}
 
@@ -390,11 +390,11 @@ taintclear(Engine *E, State *S,uint64_t addr, SunflowerTaintMemType memType)
 			break;
 
 		case kSunflowerTaintMemTypeInstruction:
-			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintproptest this should never be the case!");
+			mprint(E,S,nodeinfo,"A ShadowMem of type kSunflowerTaintMemTypeInstruction was passed to taintclear this should never be the case!");
 			break;
 
 		default:
-			mprint(E,S,nodeinfo,"In taintproptest something went very wrong: illegal memType passed");
+			mprint(E,S,nodeinfo,"In taintclear something went very wrong: illegal memType passed");
 	}
 	return;
 }
@@ -406,9 +406,21 @@ m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintC
 	*	iterate over all addresses within taintLength (assumption:
 	*	taintLength in bytes)
 	*/
+
+	uint64_t tmpAddr = addr;
+
 	for (int i = 0; i < taintLength; i++)
 	{
-		insertFirst(addr, taintPC, taintCol, kSunflowerTaintMemTypeMemory);
+		tmpAddr = addr + i;
+		if (contains(tmpAddr,taintPC,kSunflowerTaintMemTypeMemory))
+		{
+			findByAll(E,S,tmpAddr,taintPC,kSunflowerTaintMemTypeMemory)->taintCol =
+				findByAll(E,S,tmpAddr,taintPC,kSunflowerTaintMemTypeMemory)->taintCol | taintCol;
+		}
+		else
+		{
+			insertFirst(tmpAddr, taintPC, taintCol, kSunflowerTaintMemTypeMemory);
+		}
 	}
 	return;
 }
@@ -416,7 +428,15 @@ m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintC
 void
 m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol)
 {
-	insertFirst(addr, taintPC, taintCol, kSunflowerTaintMemTypeRegister);
+	if (contains(addr,taintPC,kSunflowerTaintMemTypeRegister))
+	{
+		findByAll(E,S,addr,taintPC,kSunflowerTaintMemTypeRegister)->taintCol =
+			findByAll(E,S,addr,taintPC,kSunflowerTaintMemTypeRegister)->taintCol | taintCol;
+	}
+	else
+	{
+		insertFirst(addr, taintPC, taintCol, kSunflowerTaintMemTypeRegister);
+	}
 
 	if (!RegMarked)
 	{
@@ -432,7 +452,15 @@ m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintC
 void
 m_ftaintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol)
 {
-	insertFirst(addr, taintPC, taintCol, kSunflowerTaintMemTypefltRegister);
+	if (contains(addr,taintPC,kSunflowerTaintMemTypefltRegister))
+	{
+		findByAll(E,S,addr,taintPC,kSunflowerTaintMemTypefltRegister)->taintCol =
+			findByAll(E,S,addr,taintPC,kSunflowerTaintMemTypefltRegister)->taintCol | taintCol;
+	}
+	else
+	{
+		insertFirst(addr, taintPC, taintCol, kSunflowerTaintMemTypefltRegister);
+	}
 
 	if (!fRegMarked)
 	{
