@@ -95,12 +95,26 @@ void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + reg_read_riscv(E, S, rs2)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+	}
+
 	return;
 }
 
 void riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) - reg_read_riscv(E, S, rs2)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -116,6 +130,15 @@ void riscv_slt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	{
 		reg_set_riscv(E, S, rd, 0);
 	}
+	
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 
 	return;
 }
@@ -131,6 +154,14 @@ void riscv_sltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	{
 		reg_set_riscv(E, S, rd, 0);
 	}
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 
 	return;
 }
@@ -139,6 +170,14 @@ void riscv_and(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) & reg_read_riscv(E, S, rs2)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
@@ -146,12 +185,28 @@ void riscv_or(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) | reg_read_riscv(E, S, rs2)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
 void riscv_xor(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) ^ reg_read_riscv(E, S, rs2)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -163,6 +218,14 @@ void riscv_sll(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint8_t shift = reg_read_riscv(E, S, rs2) & mask;
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) << shift));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
@@ -172,6 +235,14 @@ void riscv_srl(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	int mask = ((1 << xlen_b) - 1);
 	uint8_t shift = reg_read_riscv(E, S, rs2) & mask;
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) >> shift));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -184,13 +255,32 @@ void riscv_sra(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint32_t data = ((signed int) reg_read_riscv(E, S, rs1)) >> shift;
 	reg_set_riscv(E, S, rd, data);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 	return;
 }
 
 void riscv_addi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 {
+	/*
+	*	Assumption: imm0 carries no taint (assumption carries on to all other functions
+	*	with immediate values but will only be stated here)
+	*/
+
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + (int32_t) sign_extend(imm0, 12)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 	return;
 }
 
@@ -203,6 +293,14 @@ void riscv_slti(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 	else
 	{
 		reg_set_riscv(E, S, rd, 0);
+	}
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
 	}
 
 	return;
@@ -219,12 +317,28 @@ void riscv_sltiu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 		reg_set_riscv(E, S, rd, 0);
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
 void riscv_andi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) & sign_extend(imm0, 12)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -233,12 +347,28 @@ void riscv_ori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) | sign_extend(imm0, 12)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
 void riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) ^ sign_extend(imm0, 12)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -251,6 +381,14 @@ void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) << shift));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
@@ -262,6 +400,14 @@ void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) >> shift));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
+
 	return;
 }
 
@@ -272,6 +418,14 @@ void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0)
 	uint8_t shift = imm0 & mask;
 	uint32_t data = ((signed int)reg_read_riscv(E, S, rs1)) >> shift;
 	reg_set_riscv(E, S, rd, data);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+
+	}
 
 	return;
 }
@@ -287,6 +441,17 @@ void riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0)
 {
 	reg_set_riscv(E, S, rd, (imm0<<12) + S->PC - 4);
 
+	if (SF_TAINTANALYSIS)
+	{
+		/*
+		*	Propagate taint of PC into register[rd]:
+		*/
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+		
+	}
+
 	return;
 }
 
@@ -296,6 +461,20 @@ void riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, ui
 
 	reg_set_riscv(E, S, rd, S->PC);
 	S->PC += offset - 4;
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+		/*
+		*	If immediates are seen as carrying taint, more then their taint
+		*	should also be propagated to the PC (ORed with the PC's previous
+		*	taint).
+		*/
+
+		
+	}
 
 	return;
 }
@@ -308,6 +487,17 @@ void riscv_jalr(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	reg_set_riscv(E, S, rd, S->PC);
 	S->PC = (addr) & mask;
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,32),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
+	}
 
 	return;
 }
@@ -322,6 +512,12 @@ void riscv_beq(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 		S->PC += offset - 4;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+		
+	}
 	return;
 }
 
@@ -334,6 +530,13 @@ void riscv_bne(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 		int32_t offset = sign_extend((imm1 << 1) + (imm5 << 5) + (imm11 << 11) \
 									 + (imm12 << 12), 13);
 		S->PC += offset - 4;
+	}
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+		
 	}
 
 	return;
@@ -349,6 +552,14 @@ void riscv_blt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 		S->PC += offset - 4;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
+	}
+
 	return;
 }
 
@@ -362,6 +573,13 @@ void riscv_bltu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 		S->PC += offset - 4;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
+	}
 	return;
 }
 
@@ -373,6 +591,14 @@ void riscv_bge(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uint
 		int32_t offset = sign_extend((imm1 << 1) + (imm5 << 5) + (imm11 << 11) \
 									 + (imm12 << 12), 13);
 		S->PC += offset - 4;
+	}
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
 	}
 
 	return;
@@ -388,6 +614,14 @@ void riscv_bgeu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t imm1, uin
 		S->PC += offset - 4;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+				(uint64_t)32,		kSunflowerTaintMemTypeRegister);
+
+		
+	}
+
 	return;
 }
 
@@ -399,6 +633,12 @@ void riscv_lw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	reg_set_riscv(E, S, rd, value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,4),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+	}
+
 	return;
 }
 
@@ -408,6 +648,13 @@ void riscv_lh(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	reg_set_riscv(E, S, rd, sign_extend(superHreadword(E, S, addr), 16));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -416,6 +663,13 @@ void riscv_lhu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0, 12);
 
 	reg_set_riscv(E, S, rd, (uint32_t) superHreadword(E, S, addr));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
 
 	return;
 }
@@ -428,6 +682,13 @@ void riscv_lb(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	reg_set_riscv(E, S, rd, sign_extend(data_b, 8));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,1),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -439,6 +700,13 @@ void riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	reg_set_riscv(E, S, rd, (uint32_t) data_b);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,1),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -449,6 +717,16 @@ void riscv_sw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 	uint32_t value = reg_read_riscv(E,S, rs2);
 
 	superHwritelong(E, S, addr, value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		for (int i = 0 ; i<4 ; i++)
+		{
+			taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
+		}
+		
+	}
 }
 
 void riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
@@ -456,6 +734,16 @@ void riscv_sh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
 	superHwriteword(E, S,addr, reg_read_riscv(E,S, rs2) & 0xffff);
+
+	if (SF_TAINTANALYSIS)
+	{
+		for (int i = 0 ; i<2 ; i++)
+		{
+			taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
+		}
+		
+	}
 }
 
 void riscv_sb(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5)
@@ -463,6 +751,13 @@ void riscv_sb(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint
 	uint32_t addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
 	superHwritebyte(E, S,addr, reg_read_riscv(E,S, rs2) & 0xff);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretreg(E,S,rs2),
+					(uint64_t)addr,	kSunflowerTaintMemTypeMemory);
+		
+	}
 }
 
 void 	riscv_fence(Engine *E, State *S) {}
@@ -483,6 +778,9 @@ void 	riscv_ecall(Engine *E, State *S) {
 				reg_read_riscv(E, S, RISCV_A0),
 				reg_read_riscv(E, S, RISCV_A1),
 				reg_read_riscv(E, S, RISCV_A2));
+	/*
+	*	No taint propagation implemented in this function
+	*/
 }
 
 
@@ -493,6 +791,13 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,4),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -501,6 +806,15 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
 	superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
+
+	if (SF_TAINTANALYSIS)
+	{
+		for (int i = 0 ; i<4 ; i++)
+		{
+			taintprop(E, S,	taintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
+		}
+	}
 
 	return;
 }
@@ -522,6 +836,12 @@ void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+	}
+
 	return;
 }
 
@@ -541,6 +861,13 @@ void rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
 
 	return;
 }
@@ -562,6 +889,13 @@ void rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -581,6 +915,13 @@ void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
 
 	return;
 }
@@ -603,6 +944,13 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -623,6 +971,13 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -646,6 +1001,13 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -667,6 +1029,13 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -687,6 +1056,13 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -698,6 +1074,13 @@ void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint32_t result = (src1 & (-1 - (1 << 31))) | (src2 & (1 << 31));
 
 	freg_set_riscv(E, S, rd, nan_box(result));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -711,6 +1094,13 @@ void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -722,6 +1112,13 @@ void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint32_t result = (src1 & (-1 - (1 << 31))) | ((src1 ^ src2) & (1 << 31));
 
 	freg_set_riscv(E, S, rd, nan_box(result));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -737,6 +1134,13 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -750,6 +1154,13 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	result.float_value = fmaxf(src1.float_value, src2.float_value);
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -830,7 +1241,14 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			return;
 	}
 
-	freg_set_riscv(E, S, rd, nan_box(result));
+	reg_set_riscv(E, S, rd, result);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
 
 	return;
 }
@@ -911,7 +1329,14 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			return;
 	}
 
-	freg_set_riscv(E, S, rd, nan_box(result));
+	reg_set_riscv(E, S, rd, result);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
 
 	return;
 }
@@ -919,6 +1344,13 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 void rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, is_nan_boxed(freg_read_riscv(E, S, rs1)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
 
 	return;
 }
@@ -932,6 +1364,13 @@ void rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	reg_set_riscv(E, S, rd, (src1.float_value == src2.float_value) ? 1 : 0);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
+
 	return;
 }
 
@@ -944,6 +1383,13 @@ void rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	reg_set_riscv(E, S, rd, (src1.float_value < src2.float_value) ? 1 : 0);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
+
 	return;
 }
 
@@ -955,6 +1401,13 @@ void rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
 	reg_set_riscv(E, S, rd, (src1.float_value <= src2.float_value) ? 1 : 0);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
 
 	return;
 }
@@ -999,6 +1452,13 @@ void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	reg_set_riscv(E, S, rd, (uint32_t)(1 << shift));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -1013,6 +1473,13 @@ void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	result.float_value = (float)src1; //cast to float
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
 
 	return;
 }
@@ -1029,12 +1496,26 @@ void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
 void rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	freg_set_riscv(E, S, rd, nan_box(reg_read_riscv(E, S, rs1)));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
 
 	return;
 }
@@ -1058,6 +1539,13 @@ void rv32d_fld(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 
 	freg_set_riscv(E, S, rd, data);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,8),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -1072,6 +1560,16 @@ void rv32d_fsd(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 
 	superHwritelong(E, S, addr, data_lsw);
 	superHwritelong(E, S, addr+4, data_msw);
+
+	if (SF_TAINTANALYSIS)
+	{
+		for (int i = 0 ; i<8 ;i++)
+		{
+			taintprop(E, S,	taintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
+		}
+		
+	}
 
 	return;
 }
@@ -1093,6 +1591,13 @@ void rv32d_fmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -1112,6 +1617,14 @@ void rv32d_fmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, u
 	}
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
+	}
 
 	return;
 }
@@ -1133,6 +1646,15 @@ void rv32d_fnmsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
+
+	}
+
 	return;
 }
 
@@ -1152,6 +1674,14 @@ void rv32d_fnmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, 
 	}
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	(ftaintretreg(E,S,rs2) | ftaintretreg(E,S,rs3)),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+		
+	}
 
 	return;
 }
@@ -1174,6 +1704,14 @@ void rv32d_fadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
+	}
+
 	return;
 }
 
@@ -1194,6 +1732,14 @@ void rv32d_fsub_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
+	}
 
 	return;
 }
@@ -1217,6 +1763,14 @@ void rv32d_fmul_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+
+	}
+
 	return;
 }
 
@@ -1237,6 +1791,13 @@ void rv32d_fdiv_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -1260,6 +1821,13 @@ void rv32d_fsqrt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -1271,6 +1839,13 @@ void rv32d_fsgnj_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint64_t result = (src1 & ((uint64_t)(-1) - ((uint64_t)1 << 63))) | (src2 & ((uint64_t)1 << 63));
 
 	freg_set_riscv(E, S, rd, result);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -1284,6 +1859,13 @@ void rv32d_fsgnjn_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -1295,6 +1877,13 @@ void rv32d_fsgnjx_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint64_t result = (src1 & ((uint64_t)(-1) - ((uint64_t)1 << 63))) | ((src1 ^ src2) & ((uint64_t)1 << 63));
 
 	freg_set_riscv(E, S, rd, result);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -1310,6 +1899,13 @@ void rv32d_fmin_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
+
 	return;
 }
 
@@ -1323,6 +1919,13 @@ void rv32d_fmax_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	result.double_value = fmax(src1.double_value, src2.double_value);
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+
+	}
 
 	return;
 }
@@ -1342,6 +1945,13 @@ void rv32d_fcvt_s_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, nan_box(result.bit_value));
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -1360,6 +1970,13 @@ void rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
@@ -1371,6 +1988,13 @@ void rv32d_feq_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
 
 	reg_set_riscv(E, S, rd, (src1.double_value == src2.double_value) ? 1 : 0);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
 
 	return;
 }
@@ -1384,6 +2008,13 @@ void rv32d_flt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	reg_set_riscv(E, S, rd, (src1.double_value < src2.double_value) ? 1 : 0);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
+
 	return;
 }
 
@@ -1395,6 +2026,13 @@ void rv32d_fle_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src2.bit64_value = freg_read_riscv(E, S, rs2);
 
 	reg_set_riscv(E, S, rd, (src1.double_value <= src2.double_value) ? 1 : 0);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+
+	}
 
 	return;
 }
@@ -1438,6 +2076,13 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	}
 
 	reg_set_riscv(E, S, rd, (uint32_t)(1 << shift));
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
 
 	return;
 }
@@ -1519,6 +2164,13 @@ void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			break;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -1597,6 +2249,13 @@ void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			break;
 	}
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypeRegister);
+		
+	}
+
 	return;
 }
 
@@ -1614,10 +2273,17 @@ void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
 
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
+
 	return;
 }
 
-void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 
@@ -1628,6 +2294,13 @@ void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	result.double_value = (double)src1; //cast to double
 
 	freg_set_riscv(E, S, rd, result.bit64_value);
+
+	if (SF_TAINTANALYSIS)
+	{
+		taintprop(E, S,	taintretreg(E,S,rs1),	0,
+				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
+		
+	}
 
 	return;
 }

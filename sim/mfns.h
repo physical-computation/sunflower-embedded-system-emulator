@@ -46,7 +46,12 @@ int	sf_riscv_parse(void);
 /*											*/
 void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength);
 void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol); 
-void	taintprop(Engine *E, State *S, uint64_t Addr1, ShadowMem SM1, uint64_t Addr2, ShadowMem SM2, ShadowMem SMO);
+void	m_riscvdumptaintdistr(Engine *E, State *S);
+void	taintprop(Engine *E, State *S, uint64_t immtaint1, uint64_t immtaint2, uint64_t AddrOut, SunflowerTaintMemType memType);
+uint64_t taintretmems(Engine *E, State *S, uint64_t Addr1, int NumBytes);
+uint64_t taintretreg(Engine *E, State *S, uint64_t rs1);
+uint64_t ftaintretreg(Engine *E, State *S, uint64_t rs1);
+void	taintclear(Engine *E, State *S,uint64_t addr, SunflowerTaintMemType memType);
 void	network_netseg2file(Engine *E, int which, char *filename);
 void	network_file2netseg(Engine *E, char *file, int whichseg);
 void	network_netsegpropmodel(Engine *, int whichseg, int whichmodel, double minsnr);
@@ -822,5 +827,5 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 

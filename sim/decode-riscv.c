@@ -1211,7 +1211,7 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 				{
 					if(tmp->b20) //FCVT.D.WU
 					{
-						stage->fptr = (void *) rv32f_fcvt_d_wu;
+						stage->fptr = (void *) rv32d_fcvt_d_wu;
 						stage->format = INSTR_R;
 						stage->op = RV32D_OP_FCVTDWU;
 						stage->instr_latencies = (int *)(&riscv_instr_latencies[RV32D_OP_FCVTDWU]);

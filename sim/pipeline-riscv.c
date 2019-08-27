@@ -541,6 +541,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 					(*(S->riscv->P.EX.fptr))(E, S);	/*	riscv_nop??	*/
 					S->dyncnt++;
 
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+
 					break;
 				}
 
@@ -552,6 +554,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits20to24) >> 20,
 								(tmp&maskExtractBits7to11) >> 7);
 					S->dyncnt++;
+
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 
 					break;
 				}
@@ -565,6 +569,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits20to31) >> 20);
 					S->dyncnt++;
 
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+
 					break;
 				}
 
@@ -577,6 +583,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits7to11) >> 7,
 								(tmp&maskExtractBits25to31) >> 25);
 					S->dyncnt++;
+
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 
 					break;
 				}
@@ -593,7 +601,20 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits25to30) >> 25,
 								(tmp&maskExtractBit7) >> 7,
 								(tmp&maskExtractBit31) >> 31);
-					S->dyncnt++;				*/
+					S->dyncnt++;				
+
+					The implementation of the pipeline also affects the taint
+					propagation statistics gathered in op-riscv (to find all
+					instances hereof, use the find function to search for
+					"instruction_taintDistribution"), be aware of this if
+					changing the pipeline implementation.
+
+					If branch instructions were included in the EX stage of the
+					pipeline then the instruction below should be included:
+
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+
+					*/
 					break;
 				}
 
@@ -604,6 +625,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits7to11) >> 7,
 								(tmp&maskExtractBits12to31) >> 12);
 					S->dyncnt++;
+
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 
 					break;
 				}
@@ -621,6 +644,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBits12to19) >> 12,
 								(tmp&maskExtractBit31) >> 31);
 					S->dyncnt++;				*/
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 					break;
 				}
 
@@ -716,6 +740,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBit20) >> 20,
 							(tmp&maskExtractBits12to19) >> 12,
 							(tmp&maskExtractBit31) >> 31);
+				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
 				else
 				{
@@ -727,9 +752,9 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBits25to30) >> 25,
 							(tmp&maskExtractBit7) >> 7,
 							(tmp&maskExtractBit31) >> 31);
+				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
 				S->dyncnt++;
-
 				riscvIFflush(S);
 			}
 
