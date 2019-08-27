@@ -827,5 +827,5 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 

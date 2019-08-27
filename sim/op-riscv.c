@@ -1241,7 +1241,7 @@ void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			return;
 	}
 
-	reg_set_riscv(E, S, rd, nan_box(result));
+	reg_set_riscv(E, S, rd, result);
 
 	if (SF_TAINTANALYSIS)
 	{
@@ -1329,7 +1329,7 @@ void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 			return;
 	}
 
-	reg_set_riscv(E, S, rd, nan_box(result));
+	reg_set_riscv(E, S, rd, result);
 
 	if (SF_TAINTANALYSIS)
 	{
@@ -2283,7 +2283,7 @@ void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	return;
 }
 
-void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 
