@@ -287,23 +287,7 @@ taintprop(Engine *E, State *S,
 	switch(memType)
 	{
 		case kSunflowerTaintMemTypeMemory:
-			if ((immtaint1 != 0) | (immtaint2 != 0))
-			{
-				mprint(E,S,nodeinfo,
-					"\nShadow Memory taint col of input 1 is %llu\nShadow Memory taint col of input 2 is %llu\n",
-					immtaint1,immtaint2);
-				mprint(E,S,nodeinfo,
-					"\n Shadow Memory taint col of address %llu (output pre-change) is %llu\n",
-					AddrOut, S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol);
-			}
 			S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol = outCol;
-
-			if ((immtaint1 != 0) | (immtaint2 != 0))
-			{
-				mprint(E,S,nodeinfo,
-					"\n Shadow Memory taint col of address %llu is %llu\n",
-					AddrOut, S->TAINTMEM[AddrOut-S->TAINTMEMBASE].taintCol);
-			}
 			break;
 
 		case kSunflowerTaintMemTypeRegister:
