@@ -44,8 +44,9 @@ int	sf_riscv_parse(void);
 /*											*/
 /*					Network modeling				*/
 /*											*/
-void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol, uint64_t taintLength);
-void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintPC, uint64_t taintCol); 
+void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol, uint64_t taintLength);
+void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol);
+void	m_ftaintreg(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol);
 void	m_riscvdumptaintdistr(Engine *E, State *S);
 void	taintprop(Engine *E, State *S, uint64_t immtaint1, uint64_t immtaint2, uint64_t AddrOut, SunflowerTaintMemType memType);
 uint64_t taintretmems(Engine *E, State *S, uint64_t Addr1, int NumBytes);

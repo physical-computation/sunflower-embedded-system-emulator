@@ -227,6 +227,7 @@
 %token	T_BPTDEL
 %token	T_TAINTMEM
 %token	T_TAINTREG
+%token	T_FTAINTREG
 %token	T_DUMPTAINTDISTR
 
 
@@ -505,22 +506,22 @@ sf_cmd		: T_QUIT '\n'
 		 *	though we allow you to omit either the x/y/z location,
 		 *	or the trajectory file, rate, and loop flag.
 		 */
-		| T_TAINTMEM uimm uimm uimm uimm '\n'
+		| T_TAINTMEM uimm uimm uimm uimm uimm '\n'
 		/*
-		*	Arguments: Address, PC, Taint, size
+		*	Arguments: Address, start PC, end PC, Taint, size
 		*/
 		{	/*
 			 *	Mark given memory as origin of taint
 			 */
 			if (!yyengine->scanning)
 			{
-				m_taintmem(yyengine,yyengine->cp, $2, $3, $4, $5);
+				m_taintmem(yyengine,yyengine->cp, $2, $3, $4, $5, $6);
 
 			}
 		}
-		| T_TAINTREG reg uimm uimm '\n'
+		| T_TAINTREG reg uimm uimm uimm '\n'
 		/*
-		*	Arguments: RegisterName, PC, Taint
+		*	Arguments: RegisterName, start PC, end PC, Taint
 		*/
 		{
 			/*
@@ -528,7 +529,20 @@ sf_cmd		: T_QUIT '\n'
 			 */
 			if (!yyengine->scanning)
 			{
-				m_taintreg(yyengine,yyengine->cp, $2, $3, $4);
+				m_taintreg(yyengine,yyengine->cp, $2, $3, $4, $5);
+			}
+		}
+		| T_FTAINTREG reg uimm uimm uimm '\n'
+		/*
+		*	Arguments: RegisterName, start PC, end PC, Taint
+		*/
+		{
+			/*
+			 *	Mark given register as an origin of taint
+			 */
+			if (!yyengine->scanning)
+			{
+				m_taintreg(yyengine,yyengine->cp, $2, $3, $4, $5);
 			}
 		}
 		| T_DUMPTAINTDISTR '\n'
