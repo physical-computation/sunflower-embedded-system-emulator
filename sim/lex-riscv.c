@@ -123,8 +123,9 @@ TokenTab riscv_token_table [] =
 	{"EFAULTS",	T_EFAULTS},				/*+	Enable interuppt when too many faults occur.:none								*/
 	{"FLTTHRESH",	T_FLTTHRESH},				/*+	Set threshold for EFAULTS.:<threshold (integer)>								*/
 
-	{"TAINTMEM",		T_TAINTMEM},			/*+	Taint a specific memory address and PC (part of taint analysis).: <Address> <PC> <TaintColour> <Taintlength (in bytes)>	*/
-	{"TAINTREG",		T_TAINTREG},			/*+	Taint a specific register (part of taint analysis).: <Register> <PC> <TaintColour>				*/
+	{"TAINTMEM",		T_TAINTMEM},			/*+	Taint a specific memory address and PC (part of taint analysis).: <Address> <Start PC> <End PC> <TaintColour> <Taintlength (in bytes)>	*/
+	{"TAINTREG",		T_TAINTREG},			/*+	Taint a specific register (part of taint analysis).: <Register> <Start PC> <End PC> <TaintColour>		*/
+	{"FTAINTREG",		T_FTAINTREG},			/*+	Taint a specific floating point register (part of taint analysis).: <Floating Register> <Start PC> <End PC> <TaintColour> */
 	{"DUMPTAINTDISTR",	T_DUMPTAINTDISTR},		/*+	Dumps the taint of every RISC-V command.:none									*/
 
 	{"PFUN",	T_PFUN},				/*+	Change probability distrib fxn (default is uniform).:none							*/

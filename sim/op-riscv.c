@@ -1,5 +1,6 @@
 /*
 	Copyright (c) 2017-2018, Zhengyang Gu (author)
+			2019, Hein Alexander Mante (author)
 
 	All rights reserved.
 
