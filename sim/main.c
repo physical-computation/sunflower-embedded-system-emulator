@@ -52,6 +52,9 @@
 #include "endian-hitachi-sh.h"
 #include "help.h"
 #include "opstr-hitachi-sh.h"
+#include "opstr-riscv.h"
+#include "latencies-hitachi-sh.h"
+#include "latencies-riscv.h"
 
 
 
@@ -59,15 +62,14 @@ Engine*		engines[MAX_NUM_ENGINES];
 int		nengines;
 
 Engine		*yyengine;
-extern int	yyparse(void);
+extern int	sf_superh_parse(void);
+extern int	sf_riscv_parse(void);
 
 static void	spinbaton(Engine *, int);
 static void	do_numaregion(Engine *, State *, char *, ulong, ulong, long, long, long, long, int, ulong, int, int, int, ulong, int, int);
 static void	updaterandsched(Engine *);
 static void	bpts_feed(Engine *);
 static void	readnodetrajectory(Engine *, State *, char*, int, int);
-
-
 
 Engine *
 m_lookupengine(uvlong engineid)
@@ -196,7 +198,7 @@ main(int nargs, char *args[])
 	E->verbose = 1;
 	marchinit();	
 	m_version(E);
-	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);
+	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);	/*	default processor	*/
 //	S = E->sp[0];
 
 
@@ -227,7 +229,14 @@ main(int nargs, char *args[])
 			mstatelock();
 			munchinput(E, buf);
 			yyengine = E;
-			yyparse();
+			if (yyengine->cp->machinetype == MACHINE_SUPERH)
+			{
+				sf_superh_parse();
+			}
+			else if (yyengine->cp->machinetype == MACHINE_RISCV)
+			{
+				sf_riscv_parse();
+			}
   			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 				E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 				E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
@@ -763,11 +772,18 @@ loadcmds(Engine *E, char *filename)
 	}
 
 	//streamchk();
-        /*      NOTE: scan_labels_and_globalvars does a yyparse(), so need yyengine set before  */
+        /*      NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before  */
 	yyengine = E;
 	scan_labels_and_globalvars(E);
 	//streamchk();
-	yyparse();
+	if (yyengine->cp->machinetype == MACHINE_SUPERH)
+	{
+		sf_superh_parse();
+	}
+	else if (yyengine->cp->machinetype == MACHINE_RISCV)
+	{
+		sf_riscv_parse();
+	}
 	mclose(fd);
 
 
@@ -1062,11 +1078,11 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
 		/*		Prime the decode caches		*/		
- 		for (int i = 0; i < (1 << 16); i++)		
- 		{		
- 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);		
- 		}		
-		
+		for (int i = 0; i < (1 << 16); i++)
+		{
+			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);
+		}
+
 		S = superHnewstate(E, x, y, z, trajfilename);
 	}
 	else if (!strncmp(type, "riscv", strlen("riscv")))
@@ -2003,6 +2019,11 @@ void
 m_sizemem(Engine *E, State *S, int size)
 {
 	uchar *tmp;
+	ShadowMem *tainttmp;
+
+	/*
+	*	Memory reallocation:
+	*/
 
 	if (S->MEM == NULL)
 	{
@@ -2028,6 +2049,34 @@ m_sizemem(Engine *E, State *S, int size)
 		S->MEMEND = S->MEMBASE+S->MEMSIZE;
 		mprint(E, S, nodeinfo,
 			"Set memory size to %d Kilobytes\n", S->MEMSIZE/1024);
+	}
+
+	/*
+	*	Shadow/taintmemory reallocation:
+	*/
+	if (S->TAINTMEM == NULL)
+	{
+		S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, sizeof(ShadowMem)*size, "(ShadowMem *)S->TAINTMEM");
+		if (S->MEM == NULL)
+		{
+			mexit(E, "Could not allocate mem for S->TAINTMEM in main.c", -1);
+		}
+
+		return;
+	}
+	tainttmp = (ShadowMem *)mrealloc(E, S->TAINTMEM, sizeof(ShadowMem)*size, "(ShadowMem *)S->TAINTMEM");
+	if (tainttmp == NULL)
+	{
+		mprint(E, S, nodeinfo,
+			"SIZEMEM Shadow failed: could not allocate memory for %d bytes.\n", (size*sizeof(ShadowMem)));
+	}
+	else
+	{
+		S->TAINTMEM = tainttmp;
+		S->TAINTMEMSIZE = size*sizeof(ShadowMem);
+		S->TAINTMEMEND = S->TAINTMEMBASE+S->TAINTMEMSIZE;
+		mprint(E, S, nodeinfo,
+			"Set shadow memory size to %d Kilobytes\n", (S->TAINTMEMSIZE)/1024);
 	}
 
 	return;
@@ -2225,6 +2274,9 @@ m_off(Engine *E, State *S)
 			S->TIME);
 		mprint(E, NULL, siminfo, "Simulated Clock Cycles = " UVLONGFMT "\n",
 			S->finishclk - S->startclk);
+		mprint(E, NULL, siminfo, "Cycles Spent Waiting = " UVLONGFMT " (%.2f%)\n",
+			S->num_cycles_waiting, 100*((float)(S->num_cycles_waiting))/(float)(S->finishclk - S->startclk));
+
 	}
 
 	mprint(E, NULL, siminfo,
@@ -2233,7 +2285,6 @@ m_off(Engine *E, State *S)
 		(S->ufinish - S->ustart))/1E6)));
 
 	E->on = 0;
-
 
 	return;
 }

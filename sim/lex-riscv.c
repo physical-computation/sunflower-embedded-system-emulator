@@ -1,5 +1,6 @@
 /*
 	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+			2019, Samuel Man-Shun Wong (author)
  
 	All rights reserved.
 
@@ -55,7 +56,7 @@ typedef struct
 /*	so do not use them. These comments are used to build "help.h"	*/
 /*	and also to generate LaTeX for the manual.			*/
 /*									*/
-TokenTab token_table [] =
+TokenTab riscv_token_table [] =
 {
 	/*	Simulator Commands	*/
 	{"RUN",		T_RUN},					/*+	Mark a node as runnable.:none											*/
@@ -75,6 +76,8 @@ TokenTab token_table [] =
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
+	{"SETMEMBASE",	T_SETMEMBASE},				/*+	Set base address of simulator memorry array.:<address (integer)>						*/
+	{"SHOWMEMBASE",	T_SHOWMEMBASE},				/*+	Show base address of simulator memorry array.:none								*/
 	{"PD",		T_DISABLEPIPELINE},			/*+	Disable simulation of processor's pipeline.:none								*/
 	{"PE",		T_ENABLEPIPELINE},			/*+	Enable simulation of processor's pipeline.:none									*/
 	{"PF",		T_PIPEFLUSH},				/*+	Flush the pipeline.:none											*/
@@ -96,7 +99,7 @@ TokenTab token_table [] =
 	{"HELP",	T_HELP},				/*+	Print list of commands.:none											*/
 	{"MAN",		T_MAN},					/*+	Print synopsis for command usage.:<command name>								*/
 	{"SHOWCLK",	T_SHOWCLK},				/*+	Show the number of clock cycles simulated since processor reset.:none						*/
-	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
+	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|riscv|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
 	{"SETNODE",	T_SETNODE},				/*+	Set the current simulated node.:<node id (integer)>								*/
 	{"PAUINFO",	T_PAUINFO},				/*+	Show information about all valid PAU entries.:none								*/
 	{"PI",		T_PAUINFO},				/*+	Synonym for PAUINFO.:none											*/
@@ -119,6 +122,11 @@ TokenTab token_table [] =
 
 	{"EFAULTS",	T_EFAULTS},				/*+	Enable interuppt when too many faults occur.:none								*/
 	{"FLTTHRESH",	T_FLTTHRESH},				/*+	Set threshold for EFAULTS.:<threshold (integer)>								*/
+
+	{"TAINTMEM",		T_TAINTMEM},			/*+	Taint a specific memory address and PC (part of taint analysis).: <Address> <Start PC> <End PC> <TaintColour> <Taintlength (in bytes)>	*/
+	{"TAINTREG",		T_TAINTREG},			/*+	Taint a specific register (part of taint analysis).: <Register> <Start PC> <End PC> <TaintColour>		*/
+	{"FTAINTREG",		T_FTAINTREG},			/*+	Taint a specific floating point register (part of taint analysis).: <Floating Register> <Start PC> <End PC> <TaintColour> */
+	{"DUMPTAINTDISTR",	T_DUMPTAINTDISTR},		/*+	Dumps the taint of every RISC-V command.:none									*/
 
 	{"PFUN",	T_PFUN},				/*+	Change probability distrib fxn (default is uniform).:none							*/
 	{"NANOPAUSE",	T_PAUSE},				/*+	Pause the simulation for arg nanoseconds.:<duration of pause in nanoseconds (integer)>				*/
@@ -242,135 +250,118 @@ TokenTab token_table [] =
 	{".LONG",		T_DOTLONG},
 	{".COMM",		T_DOTCOMM},
 
-	/*	Registers	*/
-	{"R0",		T_R0},
-	{"R1",		T_R1},
-	{"R2",		T_R2},
-	{"R3",		T_R3},
-	{"R4",		T_R4},
-	{"R5",		T_R5},
-	{"R6",		T_R6},
-	{"R7",		T_R7},
-	{"R8",		T_R8},
-	{"R9",		T_R9},
-	{"R10",		T_R10},
-	{"R11",		T_R11},
-	{"R12",		T_R12},
-	{"R13",		T_R13},
-	{"R14",		T_R14},
-	{"R15",		T_R15},
-	{"GBR",		T_GBR},
-	{"VBR",		T_VBR},
-	{"MACH",	T_MACH},
-	{"MACL",	T_MACL},
-	{"PC",		T_PC},
-	{"PR",		T_PR},
-	{"SPC",		T_SPC},
-	{"SR",		T_SR},
-	{"SSR",		T_SSR},
+	/*	---RISC-V---	*/
 
-	/*	Instructions	*/
+	/*	RISC-V Registers	*/
+	{"X0",		T_X0},	/*	T_zero		hardwired to 0, ignores writes		*/
+	{"X1",		T_X1},	/*	T_ra		return address for jumps	 	*/
+	{"X2",		T_X2},	/*	T_sp		stack pointer			 	*/
+	{"X3",		T_X3},	/*	T_gp		global pointer				*/
+	{"X4",		T_X4},	/*	T_tp		thread pointer				*/
+	{"X5",		T_X5},	/*	T_t0		temporary register 0		 	*/
+	{"X6",		T_X6},	/*	T_t1		temporary register 1		 	*/
+	{"X7",		T_X7},	/*	T_t2		temporary register 2		 	*/
+	{"X8",		T_X8},	/*	T_s0 or fp	saved register 0 or frame pointer 	*/
+	{"X9",		T_X9},	/*	T_s1 		saved register 1		 	*/
+	{"X10",		T_X10},	/*	T_a0		return value or function argument 0	*/
+	{"X11",		T_X11},	/*	T_a1		return value or function argument 1	*/
+	{"X12",		T_X12},	/*	T_a2		function argument 2			*/
+	{"X13",		T_X13},	/*	T_a3		function argument 3			*/
+	{"X14",		T_X14},	/*	T_a4		function argument 4			*/
+	{"X15",		T_X15},	/*	T_a5		function argument 5			*/
+	{"X16",		T_X16},	/*	T_a6		function argument 6			*/
+	{"X17",		T_X17},	/*	T_a7		function argument 7			*/
+	{"X18",		T_X18},	/*	T_s2		saved register 2			*/
+	{"X19",		T_X19},	/*	T_s3		saved register 3			*/
+	{"X20",		T_X20},	/*	T_s4		saved register 4			*/
+	{"X21",		T_X21},	/*	T_s5		saved register 5			*/
+	{"X22",		T_X22},	/*	T_s6		saved register 6			*/
+	{"X23",		T_X23},	/*	T_s7		saved register 6			*/
+	{"X24",		T_X24},	/*	T_s8		saved register 8			*/
+	{"X25",		T_X25},	/*	T_s9		saved register 9			*/
+	{"X26",		T_X26},	/*	T_s10		saved register 10			*/
+	{"X27",		T_X27},	/*	T_s11		saved register 11			*/
+	{"X28",		T_X28},	/*	T_t3		temporary register 3			*/
+	{"X29",		T_X29},	/*	T_t4		temporary register 4			*/
+	{"X30",		T_X30},	/*	T_t5		temporary register 5			*/
+	{"X31",		T_X31},	/*	T_t6		temporary register 6			*/
+	{"PC",		T_PC},	/*	T_PC		program counter				*/
+	
+	/*	RISC-V Floating point registers	*/
+	{"F0",		T_F0},	/*	T_FT0		fp temporaries			*/
+	{"F1",		T_F1},	/*	T_FT1		fp temporaries			*/
+	{"F2",		T_F2},	/*	T_FT2		fp temporaries			*/
+	{"F3",		T_F3},	/*	T_FT3		fp temporaries			*/
+	{"F4",		T_F4},	/*	T_FT4		fp temporaries			*/
+	{"F5",		T_F5},	/*	T_FT5		fp temporaries			*/
+	{"F6",		T_F6},	/*	T_FT6		fp temporaries			*/
+	{"F7",		T_F7},	/*	T_FT7		fp temporaries			*/
+	{"F8",		T_F8},	/*	T_FS0		fp saved registers		*/
+	{"F9",		T_F9},	/*	T_FS1		fp saved registers		*/
+	{"F10",		T_F10},	/*	T_FA0		fp arguments/return values	*/
+	{"F11",		T_F11},	/*	T_FA1		fp arguments/return values	*/
+	{"F12",		T_F12},	/*	T_FA2		fp arguments			*/
+	{"F13",		T_F13},	/*	T_FA3		fp arguments			*/
+	{"F14",		T_F14},	/*	T_FA4		fp arguments			*/
+	{"F15",		T_F15},	/*	T_FA5		fp arguments			*/
+	{"F16",		T_F16},	/*	T_FA6		fp arguments			*/
+	{"F17",		T_F17},	/*	T_FA7		fp arguments			*/
+	{"F18",		T_F18},	/*	T_FS2		fp saved registers		*/
+	{"F19",		T_F19},	/*	T_FS3		fp saved registers		*/
+	{"F20",		T_F20},	/*	T_FS4		fp saved registers		*/
+	{"F21",		T_F21},	/*	T_FS5		fp saved registers		*/
+	{"F22",		T_F22},	/*	T_FS6		fp saved registers		*/
+	{"F23",		T_F23},	/*	T_FS7		fp saved registers		*/
+	{"F24",		T_F24},	/*	T_FS8		fp saved registers		*/
+	{"F25",		T_F25},	/*	T_FS9		fp saved registers		*/
+	{"F26",		T_F26},	/*	T_FS10		fp saved registers		*/
+	{"F27",		T_F27},	/*	T_FS11		fp saved registers		*/
+	{"F28",		T_F28},	/*	T_FT8		fp temporaries			*/
+	{"F29",		T_F29},	/*	T_FT9		fp temporaries			*/
+	{"F30",		T_F30},	/*	T_FT10		fp temporaries			*/
+	{"F31",		T_F31},	/*	T_FT11		fp temporaries			*/
+
+	/*	RISC-V Instructions	*/
 	{"ADD",		T_ADD},
-	{"ADDC",	T_ADDC},
-	{"ADDV",	T_ADDV},
+	{"ADDI",	T_ADDI},
 	{"AND",		T_AND},
-	{"ANDB",	T_ANDB},
-	{"BF",		T_BF},
-	{"BF.S",	T_BFS},
-	{"BF/S",	T_BFS},
-	{"BRA",		T_BRA},
-	{"BRAF",	T_BRAF},
-	{"BSR",		T_BSR},
-	{"BSRF",	T_BSRF},
-	{"BT",		T_BT},
-	{"BT.S",	T_BTS},
-	{"BT/S",	T_BTS},
-	{"CLRMAC",	T_CLRMAC},
-	{"CLRS",	T_CLRS},
-	{"CLRT",	T_CLRT},
-	{"CMP/EQ",	T_CMPEQ},
-	{"CMP/GE",	T_CMPGE},
-	{"CMP/GT",	T_CMPGT},
-	{"CMP/HI",	T_CMPHI},
-	{"CMP/HS",	T_CMPHS},
-	{"CMP/PL",	T_CMPPL},
-	{"CMP/PZ",	T_CMPPZ},
-	{"CMP/STR",	T_CMPSTR},
-	{"DIV0S",	T_DIV0S},
-	{"DIV0U",	T_DIV0U},
-	{"DIV1",	T_DIV1},
-	{"DMULS.L",	T_DMULSL},
-	{"DMULU.L",	T_DMULUL},
-	{"DT",		T_DT},
-	{"EXTS.B",	T_EXTSB},
-	{"EXTS.W",	T_EXTSW},
-	{"EXTU.B",	T_EXTUB},
-	{"EXTU.W",	T_EXTUW},
-	{"JMP",		T_JMP},
-	{"JSR",		T_JSR},
-	{"LDC",		T_LDC},
-	{"LDC.L",	T_LDCL},
-	{"LDS",		T_LDS},
-	{"LDS.L",	T_LDSL},
-	{"LDTLB",	T_LDTLB},
-	{"MAC.L",	T_MACL},
-	{"MAC.W",	T_MACW},
-	{"MOV",		T_MOV},
-	{"MOV.B",	T_MOVB},
-	{"MOV.L",	T_MOVL},
-	{"MOV.W",	T_MOVW},
-	{"MOVA",	T_MOVA},
-	{"MOVT",	T_MOVT},
-	{"MUL.L",	T_MULL},
-	{"MULS",	T_MULS},
-	{"MULS.W",	T_MULSW},
-	{"MULU",	T_MULU},
-	{"MULU.W",	T_MULUW},
-	{"NEG",		T_NEG},
-	{"NEGC",	T_NEGC},
-	{"NOP",		T_NOP},
-	{"NOT",		T_NOT},
+	{"ANDI",	T_ANDI},
+	{"AUIPC",	T_AUIPC},
+	{"BEQ",		T_BEQ},
+	{"BGE",		T_BGE},
+	{"BGEU",	T_BGEU},
+	{"BLT",		T_BLT},
+	{"BLTU",	T_BLTU},
+	{"BNE",		T_BNE},
+	{"FENCE",	T_FENCE},	/*	Empty definition in file op-riscv.c	*/
+	{"FENCE.I",	T_FENCE_I},	/*	Empty definition in file op-riscv.c	*/ 
+	{"JAL",		T_JAL},
+	{"JALR",	T_JALR},
+	{"LB",		T_LB},
+	{"LBU",		T_LBU},
+	{"LH",		T_LH},
+	{"LHU",		T_LHU},
+	{"LUI",		T_LUI},
+	{"LW",		T_LW},
 	{"OR",		T_OR},
-	{"OR.B",	T_ORB},
-	{"PREF",	T_PREF},
-	{"RFG",		T_RFG},
-	{"ROTCL",	T_ROTCL},
-	{"ROTCR",	T_ROTCR},
-	{"ROTL",	T_ROTL},
-	{"ROTR",	T_ROTR},
-	{"RTE",		T_RTE},
-	{"RTS",		T_RTS},
-	{"SETS",	T_SETS},
-	{"SETT",	T_SETT},
-	{"SHAD",	T_SHAD},
-	{"SHAL",	T_SHAL},
-	{"SHAR",	T_SHAR},
-	{"SHLD",	T_SHLD},
-	{"SHLL",	T_SHLL},
-	{"SHLL2",	T_SHLL2},
-	{"SHLL8",	T_SHLL8},
-	{"SHLL16",	T_SHLL16},
-	{"SHLR",	T_SHLR},
-	{"SHLR2",	T_SHLR2},
-	{"SHLR8",	T_SHLR8},
-	{"SHLR16",	T_SHLR16},
-	{"SLEEP",	T_SLEEP},
-	{"STC",		T_STC},
-	{"STC.L",	T_STCL},
-	{"STS",		T_STS},
-	{"STS.L",	T_STSL},
+	{"ORI",		T_ORI},
+	{"SB",		T_SB},
+	{"SH",		T_SH},
+	{"SLL",		T_SLL},
+	{"SLLI",	T_SLLI},
+	{"SLT",		T_SLT},
+	{"SLTI",	T_SLTI},
+	{"SLTIU",	T_SLTIU},
+	{"SLTU",	T_SLTU},
+	{"SRA",		T_SRA},
+	{"SRAI",	T_SRAI},
+	{"SRL",		T_SRL},
+	{"SRLI",	T_SRLI},
 	{"SUB",		T_SUB},
-	{"SUBC",	T_SUBC},
-	{"SUBV",	T_SUBV},
-	{"SWAP.B",	T_SWAPB},
-	{"SWAP.W",	T_SWAPW},
-	{"TAS.B",	T_TASB},
-	{"TRAPA",	T_TRAPA},
-	{"TST",		T_TST},
-	{"TSTB",	T_TSTB},
+	{"SW",		T_SW},
 	{"XOR",		T_XOR},
-	{"XOR.B",	T_XORB},
-	{"XTRCT",	T_XTRCT},
+	{"XORI",	T_XORI},
+
 	{0,		0},
 };
 
@@ -624,10 +615,10 @@ yylex(void)
 	}
 
 	/* 	check if it is a token 		*/
-	for (i = 0; token_table[i].token != 0; i++)
+	for (i = 0; riscv_token_table[i].token != 0; i++)
 	{
 			/*	Generic match found:	*/
-			if (!strcmp(tmpdata, token_table[i].token))
+			if (!strcmp(tmpdata, riscv_token_table[i].token))
 			{
 				/* we do not set yylval : token has no "value" */
 				tmphd = yyengine->istream.head;
@@ -642,7 +633,7 @@ yylex(void)
 				/*	This was allocated just for uppercase stuff. Free it	*/
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
-				return token_table[i].token_value;
+				return riscv_token_table[i].token_value;
 			}
 
 			if (!strncmp(tmpdata, "#", 1))

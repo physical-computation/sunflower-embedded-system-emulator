@@ -12,7 +12,7 @@ DEL		= /bin/rm -f
 HEADERS =\
 	batt.h\
 	big-endian-hitachi-sh.h\
-	cache-hitachi-sh.h\
+	memory-hierarchy.h\
 	config.h\
 	decode-hitachi-sh.h\
 	decode-ti-msp430.h\
@@ -24,6 +24,9 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
+	latencies-riscv.h\
+	latencies-hitachi-sh.h\
+	listutils.h\
 	little-endian-hitachi-sh.h\
 	machine-hitachi-sh.h\
 	machine-ti-msp430.h\
@@ -48,7 +51,7 @@ HEADERS =\
 	regs-riscv.h\
 	sf.h\
 	syscalls.h\
-	listutils.h\
+	taint.h\
 
 OBJS	=\
 	randgen.o\
@@ -79,7 +82,9 @@ OBJS	=\
 	regaccess-riscv.o\
 	syscalls.o\
 	tokenhandling.o\
-	sf.o\
+	sf-hitachi-sh.o\
+	sf-riscv.o\
+	taint.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\
@@ -94,13 +99,13 @@ $(TARGET): $(OBJS) commands.tex
 	$(CC) $(DBGFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
 
-arch-$(OSTYPE).o: arch-$(OSTYPE).c Makefile
+arch-$(OSTYPE).o: arch-$(OSTYPE).c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c arch-$(OSTYPE).c
 
 batt-test: batt-test.c batt.c Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) batt-test.c arch-$(OSTYPE).c mmalloc.c batt.c $(LDFLAGS) -o $@
 
-op-hitachi-sh.o: op-hitachi-sh.c cache-hitachi-sh.c regaccess-hitachi-sh.c $(HEADERS) Makefile
+op-hitachi-sh.o: op-hitachi-sh.c memory-hierarchy.c regaccess-hitachi-sh.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-hitachi-sh.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-hitachi-sh.c -o $@
 
@@ -108,15 +113,21 @@ op-ti-msp430.o: op-ti-msp430.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-ti-msp430.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-ti-msp430.c -o $@
 
-op-riscv.o: op-riscv.c cache-hitachi-sh.c regaccess-riscv.c $(HEADERS) Makefile
+op-riscv.o: op-riscv.c memory-hierarchy.c regaccess-riscv.c $(HEADERS) Makefile
 ##	$(LINT) $(CCFLAGS) $(INCLUDEDIRS) op-hitachi-sh.c
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c op-riscv.c -o $@
 
-sf.o: sf.tab.c $(HEADERS) Makefile
-	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf.tab.c -o $@
+sf-hitachi-sh.o: sf-hitachi-sh.tab.c $(HEADERS) Makefile
+	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf-hitachi-sh.tab.c -o $@
 
-sf.tab.c: sf.y lex.c $(HEADERS) Makefile
-	$(GBISON) $(BFLAGS) sf.y
+sf-riscv.o: sf-riscv.tab.c $(HEADERS) Makefile
+	$(CC) $(CCFLAGS) -Wall $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c sf-riscv.tab.c -o $@
+
+sf-hitachi-sh.tab.c: sf-hitachi-sh.y lex-hitachi-sh.c $(HEADERS) Makefile
+	$(GBISON) $(BFLAGS) -p sf_superh_ sf-hitachi-sh.y
+
+sf-riscv.tab.c: sf-riscv.y lex-riscv.c $(HEADERS) Makefile
+	$(GBISON) $(BFLAGS) -p sf_riscv_ sf-riscv.y
 
 mspasm.o: mspasm.tab.c $(HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(WFLAGS) $(INCLUDEDIRS) $(DBGFLAGS) $(OPTFLAGS) -c mspasm.tab.c -o $@
@@ -134,13 +145,20 @@ opstr-hitachi-sh.h: decode-hitachi-sh.h Makefile
 opstr-ti-msp430.h: decode-ti-msp430.h Makefile
 	./mkopstr-ti-msp430 $(GAWK) > opstr-ti-msp430.h
 
-opstr-riscv.h: decode-ti-msp430.h Makefile
+opstr-riscv.h: decode-riscv.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
-help.h: lex.c Makefile
+decode-hitachi-sh.h: latencies-hitachi-sh.h Makefile
+	./mkdecode-hitachi-sh > decode-hitachi-sh.h
+
+decode-riscv.h: latencies-riscv.h Makefile
+	./mkdecode-riscv > decode-riscv.h
+
+#	Either of the lex-* would suffice for generating the LaTeX / help command array.
+help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 
-commands.tex: lex.c Makefile
+commands.tex: lex-hitachi-sh.c Makefile
 	./mkmantex $(GAWK) > commands.tex
 
 
@@ -149,4 +167,4 @@ install: $(TARGET)
 	cp $(TARGET) $(BIN)/
 
 clean:
-	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h parsedriver.i lex.i sf.output gmon.out sunflower.out
+	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h decode-riscv.h decode-hitachi-sh.h parsedriver.i lex.i sf.output gmon.out sunflower.out

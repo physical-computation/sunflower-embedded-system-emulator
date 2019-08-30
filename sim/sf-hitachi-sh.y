@@ -184,6 +184,7 @@
 %token	T_SETFAULTPERIOD
 %token	T_SETFREQ
 %token	T_SETIFCOUI
+%token	T_SETMEMBASE
 %token	T_SETNODE
 %token	T_SETPC
 %token	T_SETPHYSICSPERIOD
@@ -202,6 +203,7 @@
 %token	T_SETFLASHWLATENCY
 %token	T_SHAREBUS
 %token	T_SHOWCLK
+%token	T_SHOWMEMBASE
 %token	T_SHOWPIPE
 %token	T_SHOWTAGS
 %token	T_SIGNALSRC
@@ -240,7 +242,7 @@
 %token	T_DOTLONG
 %token	T_DOTCOMM
 
-/*	Registers	*/
+/*	SuperH Registers	*/
 %token	T_R0
 %token	T_R1
 %token	T_R2
@@ -271,7 +273,7 @@
 /*    	Misc		*/
 %token	T_LABELDEFN
 
-/*	Instructions	*/
+/*	SuperH Instructions	*/
 %token	T_ADD
 %token	T_ADDC
 %token	T_ADDV
@@ -559,6 +561,7 @@ expr		: add_instr
 		| movt_instr
 		| mull_instr
 		| muls_instr
+		| mulsw_instr
 		| mulu_instr
 		| muluw_instr
 		| neg_instr
@@ -1695,6 +1698,14 @@ sf_cmd		: T_QUIT '\n'
 				power_scalevdd(yyengine, yyengine->cp, $2);
 			}
 		}
+		| T_SETMEMBASE uimm
+		{
+			yyengine->cp->MEMBASE = $2;
+		}
+		| T_SHOWMEMBASE
+		{
+			mprint(yyengine, NULL, siminfo, "Memory base address is %d.",yyengine->cp->MEMBASE);
+		}
 		| T_HELP '\n'
 		{
 			if (!yyengine->scanning)
@@ -1713,7 +1724,7 @@ sf_cmd		: T_QUIT '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->pipeflush(yyengine->cp);
+				yyengine->cp->flushpipe(yyengine->cp);
 			}
 		}
 		| T_SHOWPIPE '\n'
@@ -2023,7 +2034,6 @@ dotcomm		: T_DOTCOMM disp ',' T_STRING
 		}
 		;
 
-		
 add_instr	: T_ADD reg ',' reg
 		{
 			if (yyengine->scanning)
@@ -2039,7 +2049,7 @@ add_instr	: T_ADD reg ',' reg
 			{
 				instr_nm tmp;
 
-				if (!yyengine->cp->pipelined)	
+				if (!yyengine->cp->pipelined)
 				{
 					superH_add(yyengine, yyengine->cp, $2, $4);
 				}
@@ -2049,8 +2059,17 @@ add_instr	: T_ADD reg ',' reg
 				tmp.code_lo = B1100;
 				tmp.code_hi = B0011;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within alocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
+
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -2080,8 +2099,16 @@ addi_instr	: T_ADD '#' simm ',' reg
 				tmp.dst = ($5&B1111);
 				tmp.code = B0111;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 				
 			}
@@ -2113,8 +2140,16 @@ addc_instr	: T_ADDC reg ',' reg
 				tmp.code_lo = B1110;
 				tmp.code_hi = B0011;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -2145,8 +2180,16 @@ addv_instr	: T_ADDV reg ',' reg
 				tmp.code_lo = B1111;
 				tmp.code_hi = B0011;
 			
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -2177,8 +2220,16 @@ and_instr	: T_AND reg ',' reg
 				tmp.code_lo = B1001;
 				tmp.code_hi = B0010;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -2207,8 +2258,16 @@ andi_instr	: T_AND '#' simm ',' T_R0
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001001;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -2237,8 +2296,16 @@ andm_instr	: T_ANDB '#' simm ',' '@''(' T_R0 ',' T_GBR ')'
 				tmp.imm = ($3&B11111111);
 				tmp.code = B11001101;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within allocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -3192,8 +3259,18 @@ jmp_instr	: T_JMP '@' reg
 				tmp.code_lo = B00101011;
 				tmp.code_hi = B0100;
 
-				memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
-					&tmp, sizeof(tmp));
+
+				if (yyengine->cp->PC - yyengine->cp->MEMBASE < 0 ||
+					yyengine->cp->PC - yyengine->cp->MEMBASE > yyengine->cp->MEMSIZE - 1)
+				{
+					sfatal(yyengine, yyengine->cp, "Invalid PC address. Must be within alocated memory.");
+				}
+				else
+				{
+					memmove(&yyengine->cp->MEM[yyengine->cp->PC - yyengine->cp->MEMBASE],
+						&tmp, sizeof(tmp));
+				}
+
 				yyengine->cp->PC += 2;
 			}
 		}
@@ -5182,7 +5259,7 @@ muls_instr	: T_MULS reg ',' reg
 		}
 		;
 
-muls_instr	: T_MULSW reg ',' reg
+mulsw_instr	: T_MULSW reg ',' reg
 		{
 			if (yyengine->scanning)
 			{
@@ -8099,7 +8176,7 @@ reg		: T_R0 {$$ = 0;}
 ;
 %%
 
-#include "lex.c"
+#include "lex-hitachi-sh.c"
 
 int
 yyerror(char *err)

@@ -58,7 +58,7 @@ msp430faststep(Engine *E, State *S, int drain_pipe)
 }
 
 void
-msp430pipeflush(State *S)
+msp430flushpipe(State *S)
 {
 	/*								*/
 	/*	Flush pipeline, count # bits we clear in pipe regs	*/
@@ -92,7 +92,7 @@ msp430dumppipe(Engine *E, State *S)
 	if (S->msp430->P.EX.valid)
 	{
 		mprint(E, S, nodeinfo, "EX: [%s],%d\n",
-			opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
+			msp430_opstrs[S->msp430->P.EX.op], S->msp430->P.EX.cycles);
 	}
 	else
 	{
