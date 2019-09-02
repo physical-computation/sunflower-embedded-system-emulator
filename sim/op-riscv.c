@@ -92,6 +92,40 @@ void riscv_nop(Engine *E, State *S)/*	pseudo instruction	*/
 	return;
 }
 
+int get_uncertain_memory_index(Engine *E, State *S, uint32_t vaddr)
+{
+	/*	TODO: programmatically pick a sensible value
+	 *	Note that in the "finished" version uncertain memory will be
+	 *	indexed starting at zero and so this will not be needed.
+	 */
+	const uint32_t INST_END_ADDR = 0x8009fa4;
+	if ((vaddr & 0b11) != 0)
+	{
+		merror(E, "Unaligned uncertain aware floating point load/store at address 0x%08u", vaddr);
+	}
+	int addr = (int)(vaddr - INST_END_ADDR) / 4;
+
+	return addr;
+}
+
+void uncertain_check_part2_pc(Engine *E, State *S)
+{
+	UncertainUpdateInfo *tmp = &S->riscv->uncertain->last_op;
+
+	if (tmp->op_fp_pc != S->riscv->P.EX.fetchedpc - 4)
+	{
+		merror(
+			E,
+			"Found second part of an uncertainty aware instruction that is not immediately proceded\n"
+			"in memory by a first part.\n"
+			"First part at 0x%08X and second part at 0x%08X.",
+			tmp->op_fp_pc,
+			S->riscv->P.EX.fetchedpc
+			);
+
+	}
+}
+
 void riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	reg_set_riscv(E, S, rd, (reg_read_riscv(E, S, rs1) + reg_read_riscv(E, S, rs2)));
@@ -790,13 +824,38 @@ void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0, 12);
 
+	// Perform a normal floating point load.
 	freg_set_riscv(E, S, rd, nan_box(superHreadlong(E, S, addr)));
 
 	if (SF_TAINTANALYSIS)
 	{
 		taintprop(E, S,	taintretreg(E,S,rs1),	taintretmems(E,S,addr,4),
 				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
-		
+	}
+
+	if (S->riscv->uncertain != NULL)
+	{
+		if (S->riscv->uncertain->last_op.valid)
+		{
+			uncertain_check_part2_pc(E, S);
+
+			uint32_t rs1Uncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->rs1;
+			uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
+
+			uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+			int uncertainIndex = get_uncertain_memory_index(E, S, uncertainAddr);
+
+			/*
+			* If the uncertainIndex is negative then we are trying to read a memory location
+			* in the `.text` section of the binary. This is how gnu generated binaries initialise
+			* floats. For now, just load an uncertainty of zero.
+			*/
+			if (uncertainIndex < 0)
+				uncertain_inst_sv(S->riscv->uncertain, rd, 0);
+			else
+				uncertain_inst_lr(S->riscv->uncertain, rd, uncertainIndex);
+			S->riscv->uncertain->last_op.valid = 0;
+		}
 	}
 
 	return;
@@ -806,6 +865,7 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 {
 	uint32_t addr = reg_read_riscv(E, S, rs1) + sign_extend(imm0 + (imm5 << 5), 12);
 
+	// Perform a normal floating point store.
 	superHwritelong(E, S, addr, freg_read_riscv(E, S, rs2));
 
 	if (SF_TAINTANALYSIS)
@@ -814,6 +874,36 @@ void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uin
 		{
 			taintprop(E, S,	taintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
 					(uint64_t)(addr+i),	kSunflowerTaintMemTypeMemory);
+		}
+	}
+
+	if (S->riscv->uncertain != NULL)
+	{
+		if (S->riscv->uncertain->last_op.valid)
+		{
+			uncertain_check_part2_pc(E, S);
+
+			uint32_t rs1Uncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->rs1;
+			uint32_t immUncertain = ((instr_i *)&S->riscv->uncertain->last_op.insn_part1)->imm0;
+
+			uint32_t uncertainAddr = reg_read_riscv(E, S, rs1Uncertain) + sign_extend(immUncertain, 12);
+			int uncertainIndex = get_uncertain_memory_index(E, S, uncertainAddr);
+
+			/*
+			* If software tries to store an uncertain value into the `.text` section
+			* I think it is a bug in that software(?).
+			*
+			* Regardless, the uncertain memory does not exist for negative indexes so
+			* we cannot possibly fulfill this store. Instead, log an error.
+			*/
+			if (uncertainIndex < 0)
+			{
+				merror(E, "Cannot store uncertainty to address %X.\n", uncertainAddr);
+			} else {
+
+				uncertain_inst_sr(S->riscv->uncertain, rs2, uncertainIndex);
+			}
+			S->riscv->uncertain->last_op.valid = 0;
 		}
 	}
 
@@ -952,6 +1042,14 @@ void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, 1, 1);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -978,6 +1076,14 @@ void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
 				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
 
+	}
+
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, 1, -1);
+		S->riscv->uncertain->last_op.valid = 0;
 	}
 
 	return;
@@ -1009,6 +1115,14 @@ void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, src2.float_value, src1.float_value);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -1021,7 +1135,11 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 	src2.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs2));
 
-	result.float_value = src1.float_value / src2.float_value;
+	float divsrc2 = 1 / src2.float_value;
+	float src1div2 = src1.float_value * divsrc2;
+	float minussrc1div2div2 = -src1div2 / src2.float_value;
+
+	result.float_value = src1div2;
 
 	switch (rm) //TODO check rm value for rounding
 	{
@@ -1037,6 +1155,14 @@ void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_up2(S->riscv->uncertain, rd, rs1, rs2, divsrc2, minussrc1div2div2);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -1048,7 +1174,9 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
-	result.float_value = sqrtf(src1.float_value);
+	float root = sqrtf(src1.float_value);
+
+	result.float_value = root;
 
 	switch (rm) //TODO check rm value for rounding
 	{
@@ -1062,6 +1190,14 @@ void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 		taintprop(E, S,	ftaintretreg(E,S,rs1),	0,
 				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
 		
+	}
+
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_up1(S->riscv->uncertain, rd, rs1, 0.5 / root);
+		S->riscv->uncertain->last_op.valid = 0;
 	}
 
 	return;
@@ -1083,6 +1219,14 @@ void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -1102,6 +1246,14 @@ void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -1119,6 +1271,14 @@ void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
 				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
 
+	}
+
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+		S->riscv->uncertain->last_op.valid = 0;
 	}
 
 	return;
@@ -1142,6 +1302,19 @@ void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 	}
 
+	// uint8_t min_reg = (src1.float_value <= src2.float_value) ? rs1 : rs2;
+	// TODO: update for fmin?
+
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		merror(E, "We currently do not support unfmin.s. Sorry!");
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		S->riscv->uncertain->last_op.valid = 0;
+	}
+
 	return;
 }
 
@@ -1161,6 +1334,19 @@ void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 		taintprop(E, S,	ftaintretreg(E,S,rs1),	ftaintretreg(E,S,rs2),
 				(uint64_t)rd,		kSunflowerTaintMemTypefltRegister);
 
+	}
+
+	// uint8_t max_reg = (src1.float_value >= src2.float_value) ? rs1 : rs2;
+	// TODO: update for fmax?
+
+	if (S->riscv->uncertain != NULL && S->riscv->uncertain->last_op.valid)
+	{
+		uncertain_check_part2_pc(E, S);
+
+		merror(E, "We currently do not support unfmax.s. Sorry!");
+
+		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		S->riscv->uncertain->last_op.valid = 0;
 	}
 
 	return;
@@ -2306,3 +2492,70 @@ void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	return;
 }
 
+
+/* RISC-V RV32UN instructions */
+
+void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	uncertain_inst_up1(S->riscv->uncertain, rd, rs1, rs2);
+}
+
+void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
+{
+	rv32f_rep var;
+
+	var.float_value = uncertain_inst_gcov(S->riscv->uncertain, rs1, rs2);
+
+	// printf("Getting var of %g at x%u\n", var.float_value, rs1);
+	freg_set_riscv(E, S, rd, nan_box(var.bit_value));
+	uncertain_inst_sv(S->riscv->uncertain, rd, nan(""));
+
+}
+
+void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
+{
+	rv32f_rep var;
+
+	var.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
+
+	uncertain_inst_sv(S->riscv->uncertain, rd, var.float_value);
+}
+
+void rv32un_unclvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd)
+{
+	uncertain_inst_sv(S->riscv->uncertain, rd, 0.0);
+}
+
+void rv32un_uncpvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd)
+{
+	uncertain_inst_mv(S->riscv->uncertain, rd, rs1);
+}
+
+void rv32un_un_part1(Engine *E, State *S, uint8_t _rs1, uint8_t _rd, uint16_t _imm0)
+{
+	if (S->riscv->uncertain == NULL)
+	{
+		merror(E, "Simulator is not running in unceratin mode but uncertainty aware instruction encountered!");
+	}
+	else
+	{
+		UncertainUpdateInfo *tmp = &S->riscv->uncertain->last_op;
+
+		if (tmp->valid)
+		{
+			merror(
+				E,
+				"Found two first parts of an uncertainty aware instruction\n"
+				"\twithout a second part in between!\n"
+				"\tInstructions fetched from 0x%08X and 0x%08X",
+				tmp->op_fp_pc,
+				S->riscv->P.EX.fetchedpc
+				);
+
+		}
+
+		tmp->op_fp_pc = S->riscv->P.EX.fetchedpc;
+		tmp->insn_part1 = S->riscv->P.EX.instr;
+		tmp->valid = 1;
+	}
+}

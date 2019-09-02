@@ -143,4 +143,13 @@ int riscv_instr_latencies[][5] =\
 	[RV32D_OP_FCVTDW]	{1,	1,	1,	1,	1},
 	[RV32D_OP_FCVTDWU]	{1,	1,	1,	1,	1},
 	/*[RV32D_OP_DMAX]	square brackets are necessary	*/
+
+	[RV32UN_OP_UNUPGS]	{1,	1,	1,	1,	1},
+	[RV32UN_OP_UNGCOVS]	{1,	1,	1,	1,	1},
+	[RV32UN_OP_UNSVARS]	{1,	1,	1,	1,	1},
+	[RV32UN_OP_UNCLVARS]	{1,	1,	1,	1,	1},
+	[RV32UN_OP_UNCPVARS]	{1,	1,	1,	1,	1},
+	[RV32UN_OP_UNPART1]	{1,	1,	1,	1,	1},
+
+	/*[RV32UN_OP_UNMAX]	square brackets are necessary	*/
 };

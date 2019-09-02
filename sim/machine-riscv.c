@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include "sf.h"
 #include "mextern.h"
 
@@ -112,7 +113,8 @@ void
 riscvdumpregs(Engine *E, State *S)
 {
 	int i;
-	char buffer[128];
+	char fp_value[128];
+	char * f_width;
 
 	for (i = 0; i < 32; i++)
 	{
@@ -135,17 +137,30 @@ riscvdumpregs(Engine *E, State *S)
 		{
 			rv32f_rep val;
 			val.bit_value = (uint32_t)float_bits;
-			snprintf(buffer, sizeof(buffer), "%#-16.8g (single)", val.float_value);
+			snprintf(fp_value, sizeof(fp_value), "%#.8g", val.float_value);
+			if (S->riscv->uncertain == NULL || !isnan(S->riscv->uncertain->registers.variances[i]))
+			{
+				size_t start_offset = strlen(fp_value);
+				snprintf(
+					fp_value + start_offset,
+					sizeof(fp_value) - start_offset,
+					" +- %#-.5g", sqrtf(S->riscv->uncertain->registers.variances[i])
+				);
+			}
+			f_width = "single";
 		}
 		else
 		{
 			rv32d_rep val;
 			val.bit64_value = (uint64_t)float_bits;
-			snprintf(buffer, sizeof(buffer), "%-16.8g (double)", val.double_value);
+			snprintf(fp_value, sizeof(fp_value), "%.8g", val.double_value);
+			f_width = "double";
 		}
-		mprint(E, S, nodeinfo, "%-32s", buffer);
-		mprint(E, S, nodeinfo, "  [0x%016llx]\n", S->riscv->fR[i]);
+		mprint(E, S, nodeinfo, "%-23s (%s)          [0x%016llx]\n", fp_value, f_width, S->riscv->fR[i]);
 	}
+
+	// TODO: remove me!
+	// uncertain_print_system(S->riscv->uncertain, stdout);
 
 	return;
 }
@@ -162,16 +177,36 @@ riscvfatalaction(Engine *E, State *S)
 	return;
 }
 
+static UncertainState *
+uncertainnewstate(Engine *E, char *ID)
+{
+	int i;
+	UncertainState *S = (UncertainState *)mcalloc(E, 1, sizeof(UncertainState), ID);
+
+	if (S == NULL)
+	{
+		mexit(E, "Failed to allocate memory uncertain state.", -1);
+	}
+
+	for (i = 0; i < 32; ++i) {
+		uncertain_inst_sv(S, i, nan(""));
+	}
+
+	return S;
+}
+
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-	State   *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
 	if (S->riscv == NULL)
 		{
 			mexit(E, "Failed to allocate memory for S->riscv.", -1);
 		}
+
+	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
 
 	S->dumpregs = riscvdumpregs;
 	S->dumpsysregs = riscvdumpsysregs;
