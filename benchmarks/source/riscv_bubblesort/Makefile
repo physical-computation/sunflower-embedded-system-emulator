@@ -6,7 +6,7 @@ INIT		= init
 
 OPTFLAGS	= -g -O0
 INCLUDES	= -I$(PREFIX)/include
-CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall
+CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall -Xassembler --march=rv32ifdxun
 LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET) -Map $(PROGRAM).map
 LOADADDR	= 0x08004000
 
