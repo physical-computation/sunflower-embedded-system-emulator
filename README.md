@@ -20,7 +20,7 @@ Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Bu
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
 OSTYPE          = darwin
-MACHTYPE        = i386
+MACHTYPE        = x86_64
 ```
 
 On Linux, use the configuration
