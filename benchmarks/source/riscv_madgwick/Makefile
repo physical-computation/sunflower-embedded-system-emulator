@@ -34,10 +34,10 @@ $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 	$(UTILSBIN)/add-uncertain-instructions.py $@
 
 %.o : %.s $(HEADERS) Makefile
-	$(AS) $(ASFLAGS) -g -o $@ -c $<
+	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 $(PROGRAM).out: $(OBJS) Makefile
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgcc -lgloss -lm
+	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgcc -lgloss -lm
 	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out Makefile

@@ -23,7 +23,7 @@ $(INIT).s: $(INIT).S Makefile
 	$(CPP) -o $(INIT).s -c $(INIT).S
 
 $(PROGRAM).out: $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
+	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
 	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out
@@ -34,7 +34,7 @@ $(PROGRAM).s: $(PROGRAM).c Makefile
 	$(UTILSBIN)/add-uncertain-instructions.py $(PROGRAM).s
 
 %.o : %.s $(HEADERS) Makefile
-	$(AS) $(ASFLAGS) -g -o $@ -c $<
+	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 clean:
 	$(RM) *.s *.o *.out *.sr *.map
