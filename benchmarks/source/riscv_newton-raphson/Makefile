@@ -1,32 +1,44 @@
 TREEROOT	= ../../..
 include $(TREEROOT)/conf/setup.conf
 
-PROGRAM		= 1
+PROGRAM		= newton_rapson
 INIT			= init
 
 OPTFLAGS	= -g -O0
-CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall # Do not do since we are linking mOS for libc implementation:	-nostdlib -fno-builtin
-LDFLAGS		= -Ttext $(LOADADDR)
+INCLUDES	= -I$(PREFIX)/include
+CFLAGS		= $(TARGET-ARCH-FLAGS) -Wall
+ASFLAGS		= --march=rv32ifdxun
+LDFLAGS		= -Ttext $(LOADADDR) -L$(TOOLSLIB)/$(TARGET)
 LOADADDR	= 0x08004000
 
 
 OBJS	=\
-	$(PROGRAM).o\
+	$(INIT).o \
+	$(PROGRAM).o \
 
 
-all:	$(PROGRAM) $(PROGRAM).sr Makefile
+all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
-$(INIT).o: $(INIT).s
-	$(CC) -O0 -c -o $(INIT).o $(INIT).s
+$(INIT).s: $(INIT).S Makefile
+	$(CPP) -o $(INIT).s -c $(INIT).S
 
-$(PROGRAM): $(OBJS) $(INIT).o
-	$(LD) $(LDFLAGS) $(INIT).o $(OBJS) -o $@ -lm -lc -lgloss -Map=1.map
+$(PROGRAM).out: $(OBJS)
+	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
+	$(UTILSBIN)/fix-uncertain-binary.py $@
 
-$(PROGRAM).sr:$(PROGRAM)
-	$(OBJCOPY) -O srec $(PROGRAM) $@
+$(PROGRAM).sr: $(PROGRAM).out
+	$(OBJCOPY) -O srec $(PROGRAM).out $@
 
-$(PROGRAM).o: $(PROGRAM).c Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(PROGRAM).c
+$(PROGRAM).s: $(PROGRAM).c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $(PROGRAM).s -c $(PROGRAM).c
+	$(UTILSBIN)/add-uncertain-instructions.py $(PROGRAM).s
+
+%.o : %.s $(HEADERS) Makefile
+	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 clean:
-	$(RM) init.i *.o $(PROGRAM) $(PROGRAM).sr $(PROGRAM).map
+	$(RM) *.s *.o *.out *.sr *.map
+
+# disable direct compilation of .c and .S files
+%.o : %.c
+%.o : %.S
