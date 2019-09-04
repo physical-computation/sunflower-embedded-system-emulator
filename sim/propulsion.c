@@ -48,26 +48,26 @@ propulsionSetPropulsionCoeffs(Engine *  E, State *  S,
 	double zk1, double zk2, double zk3, double zk4, double zk5, double zk6
 		)
 {
-	S->propulsionXvectorCoefficients[1] = xk1;
+	S->propulsionXvectorCoefficients[0] = xk1;
 	S->propulsionXvectorCoefficients[1] = xk2;
-	S->propulsionXvectorCoefficients[1] = xk3;
-	S->propulsionXvectorCoefficients[1] = xk4;
-	S->propulsionXvectorCoefficients[1] = xk5;
-	S->propulsionXvectorCoefficients[1] = xk6;
+	S->propulsionXvectorCoefficients[2] = xk3;
+	S->propulsionXvectorCoefficients[3] = xk4;
+	S->propulsionXvectorCoefficients[4] = xk5;
+	S->propulsionXvectorCoefficients[5] = xk6;
 
-	S->propulsionYvectorCoefficients[1] = yk1;
+	S->propulsionYvectorCoefficients[0] = yk1;
 	S->propulsionYvectorCoefficients[1] = yk2;
-	S->propulsionYvectorCoefficients[1] = yk3;
-	S->propulsionYvectorCoefficients[1] = yk4;
-	S->propulsionYvectorCoefficients[1] = yk5;
-	S->propulsionYvectorCoefficients[1] = yk6;
+	S->propulsionYvectorCoefficients[2] = yk3;
+	S->propulsionYvectorCoefficients[3] = yk4;
+	S->propulsionYvectorCoefficients[4] = yk5;
+	S->propulsionYvectorCoefficients[5] = yk6;
 
-	S->propulsionZvectorCoefficients[1] = zk1;
+	S->propulsionZvectorCoefficients[0] = zk1;
 	S->propulsionZvectorCoefficients[1] = zk2;
-	S->propulsionZvectorCoefficients[1] = zk3;
-	S->propulsionZvectorCoefficients[1] = zk4;
-	S->propulsionZvectorCoefficients[1] = zk5;
-	S->propulsionZvectorCoefficients[1] = zk6;
+	S->propulsionZvectorCoefficients[2] = zk3;
+	S->propulsionZvectorCoefficients[3] = zk4;
+	S->propulsionZvectorCoefficients[4] = zk5;
+	S->propulsionZvectorCoefficients[5] = zk6;
 
 	return;
 }
