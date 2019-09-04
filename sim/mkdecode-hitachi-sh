@@ -9,5 +9,5 @@
 	echo '/*	This is dependent on latencies-hitachi-sh.h	*/'
 	echo 'enum'
 	echo '{'
-	cat latencies-hitachi-sh.h | grep _OP_ | sed "s/\(.\).*\[\(SUPERH_OP_.*[A-Z0-9]\)\].*/\1\2,/" | sed "s/^\(.*MAX,\)/MAX~\1/" | $1 -F'~' '{if($1=="MAX"){print "\n"$2"\n"}else{print $1}}'
+	cat latencies-hitachi-sh.h | grep _OP_ | sed "s/.*\[\(SUPERH_OP_.*[A-Z0-9]\)\].*/\1,/" | sed "s/^\(.*MAX,\)/MAX~\1/" | $1 -F'~' '{if($1=="MAX"){print "\n\t"$2"\n"}else{print "\t"$1}}'
 	echo '};'
