@@ -56,3 +56,4 @@
 #define	SF_FT_TANDEM		0
 #define	SF_BPTS			1
 #define	SF_TRAJECTORIES		1
+#define	SF_TAINTANALYSIS	1

@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 1999-2008, Phillip Stanley-Marbell (author)
+	Copyright (c) 2019, Hein Alexander Mante (author)
 
 	All rights reserved.
 
@@ -35,61 +35,36 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "config.h"
+typedef enum
+{
+	kSunflowerTaintMemTypeMemory,
+	kSunflowerTaintMemTypeRegister,
+	kSunflowerTaintMemTypefltRegister,
+	kSunflowerTaintMemTypeInstruction,
 
-#ifndef LIBSF
-#	include <stdio.h>
-#	include <setjmp.h>
-#	include <pthread.h>
-#	include <sys/stat.h>
-#	include <utime.h>
-#	include <stdint.h>
-#endif
+	/*
+	*	This means that: 0 = memory,
+	*	1 = register, 2 = fregister,
+	*	3 = instruction
+	*/
+} SunflowerTaintMemType;
 
-#ifndef LIB9
-#	include "sf-types.h"
-#endif
-
-/*
-	we are yet to make the switch to using picoseconds for time
-	#define	Picosec	unsigned long long
-*/
-#define	Picosec	double
+typedef struct
+{
+	uint64_t		taintCol;
+	SunflowerTaintMemType	memType; 
+} ShadowMem;
 
 
-#include <setjmp.h>
-#include "merror.h"
-#include "bit.h"
-#include "listutils.h"
-#include "parserlib.h"
-#include "mmalloc.h"
-#include "batt.h"
-#include "physics.h"
-#include "interrupts-hitachi-sh.h"
-#include "dev7708.h"
-#include "devsim7708.h"
-#include "regs-hitachi-sh.h"
-#include "regs-ti-msp430.h"
-#include "regs-riscv.h"
-#include "memory-hierarchy.h"
-#include "decode-hitachi-sh.h"
-#include "decode-ti-msp430.h"
-#include "decode-riscv.h"
-#include "power.h"
-#include "pipeline-hitachi-sh.h"
-#include "pipeline-ti-msp430.h"
-#include "pipeline-riscv.h"
-#include "pau.h"
-#include "fault.h"
-#include "network-hitachi-sh.h"
-#include "pic.h"
-#include "interrupts-ti-msp430.h"
-#include "taint.h"
-#include "inst_uncertain.h"
-#include "machine-hitachi-sh.h"
-#include "machine-riscv.h"
-#include "dev430x1xx.h"
-#include "machine-ti-msp430.h"
-#include "main.h"
-#include "mfns.h"
-#include "randgen.h"
+struct TaintOriginNode
+{
+	uint64_t		taintAddress;
+	uint32_t		taintstartPC;
+	uint32_t		taintendPC;
+	uint64_t		taintCol;
+	SunflowerTaintMemType	memType;
+	struct TaintOriginNode	* next;
+};
+
+typedef struct TaintOriginNode TaintOriginNode;
+

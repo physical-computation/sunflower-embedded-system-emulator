@@ -1,7 +1,5 @@
 include conf/setup.conf
 
-Z		= $(PATH):$(SUNFLOWERROOT)/tools/bin
-
 DIRS =\
 	sim\
 
@@ -14,21 +12,25 @@ sflr:
 		); \
 	done
 
+cross-arm:
+	cd $(TOOLCHAIN)
+	$(MAKE) cross-arm
+
 cross-superH:
-	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=superH TARGET-ARCH=sh-elf ADDITIONAL_ARCH_FLAGS="" all;\
+	cd $(TOOLCHAIN)
+	$(MAKE) cross-superH
 
 cross-riscv:
-	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
+	cd $(TOOLCHAIN)
+	$(MAKE) cross-riscv
+
+# cross-msp430:
+# 	cd $(TOOLCHAIN)
+# 	$(MAKE) cross-riscv
 
 cross-all:
-	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=superH TARGET-ARCH=sh-elf all;\
-	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-	TARGET=riscv TARGET-ARCH=riscv32-elf ADDITIONAL_ARCH_FLAGS="--with-arch=rv32ifd" all;\
-#	cd $(TOOLS); $(MAKE) PATH=$(Z)\
-#	TARGET=msp430 TARGET-ARCH=msp430 all;\
+	cd $(TOOLCHAIN)
+	$(MAKE) cross-all
 
 clean:
 	@set -e; for dir in $(DIRS); do \
@@ -38,5 +40,5 @@ clean:
 	done; \
 
 nuke: clean
-	cd $(TOOLS); $(MAKE) nuke; \
-	for dir in $(SUPPORTED-TARGETS); do ($(DEL) $(SUNFLOWERROOT)/tools/tools-lib/*/*.a); done
+	cd $(TOOLCHAIN)
+	$(MAKE) clean

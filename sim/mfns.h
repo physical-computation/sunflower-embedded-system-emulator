@@ -37,12 +37,22 @@
 
 int	yylex(void);
 int	yyerror(char *);
-int	yyparse(void);
+int	sf_superh_parse(void);
+int	sf_riscv_parse(void);
 
 
 /*											*/
 /*					Network modeling				*/
 /*											*/
+void	m_taintmem(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol, uint64_t taintLength);
+void	m_taintreg(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol);
+void	m_ftaintreg(Engine *E, State *S, uint64_t addr, uint32_t taintstartPC, uint32_t taintendPC, uint64_t taintCol);
+void	m_riscvdumptaintdistr(Engine *E, State *S);
+void	taintprop(Engine *E, State *S, uint64_t immtaint1, uint64_t immtaint2, uint64_t AddrOut, SunflowerTaintMemType memType);
+uint64_t taintretmems(Engine *E, State *S, uint64_t Addr1, int NumBytes);
+uint64_t taintretreg(Engine *E, State *S, uint64_t rs1);
+uint64_t ftaintretreg(Engine *E, State *S, uint64_t rs1);
+void	taintclear(Engine *E, State *S,uint64_t addr, SunflowerTaintMemType memType);
 void	network_netseg2file(Engine *E, int which, char *filename);
 void	network_file2netseg(Engine *E, char *file, int whichseg);
 void	network_netsegpropmodel(Engine *, int whichseg, int whichmodel, double minsnr);
@@ -88,6 +98,7 @@ int	mread(int fd, char* buf, int len);
 int	mwrite(int fd, char* buf, int len);
 char*	mgetpwd(void);
 ulong	sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
+ulong 	riscv_sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
 
 
 /*											*/
@@ -163,6 +174,8 @@ void	load_srec(Engine *, State *S, char *);
 void	loadcmds(Engine *, char *filename);
 void	man(Engine *, char *cmd);
 void	mbitprint(Engine *, State *S, short, ulong);
+void	mbit64print(Engine *E, State *S, short, uvlong);
+void	mfloatprint(Engine *E, State *S, uvlong);
 void	mprint(Engine *, State *S, int out, char *fmt, ...);
 void	mprintout(char *s);
 void	munchinput(Engine *, char *buf);
@@ -383,9 +396,9 @@ void	superHdumpregs(Engine *E, State *S);
 void	superHdumpsysregs(Engine *E, State *S);
 int	superHfaststep(Engine *, State *S, int drain_pipeline);
 void	superHfatalaction(Engine *, State *S);
-void	superHifidflush(State *S);
+void	superHIFIDflush(State *S);
 State*	superHnewstate(Engine *E, double, double, double, char *);
-void	superHpipeflush(State *S);
+void	superHflushpipe(State *S);
 void	superHresetcpu(Engine *, State *S);
 void	superHsetfreq(State *, int);
 void	superHsetvdd(State *, double);
@@ -427,7 +440,6 @@ void	dev7708writebyte(Engine *E, State *S, ulong addr, uchar data);
 //void	dev7708write(State *S, ulong, uchar);
 //uchar	dev7708read(State *S, ulong);
 
-int riscvstep(Engine *E, State *S, int drain_pipe);
 
 int	superHtlb_init(Engine *, State *S, int size, int blocksize, int assoc);
 void	superHvmtranslate(Engine *, State *S, int op, TransAddr *transladdr);
@@ -630,7 +642,7 @@ uchar	msp430readbyte(Engine *,State *S, ushort addr);
 uchar	msp430peripheralreadbyte(Engine *,State *S, ushort addr);
 ushort	msp430readword(Engine *,State *S, ushort addr);
 ushort	msp430peripheralreadword(Engine *,State *S, ushort addr);
-void	msp430pipeflush(State *S);
+void	msp430flushpipe(State *S);
 int	msp430step(Engine *, State *S, int);
 int	msp430faststep(Engine *, State *S, int);
 void	msp430dumppipe(Engine *, State *S);
@@ -703,12 +715,21 @@ void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
 /*									*/
 
 State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
+void	riscvstallaction(Engine *, State *S, ulong addr, int type, int latency);
 void    riscvdumpregs(Engine *E, State *S);
 void	riscvdumppipe(Engine *E, State *S);
+void	riscvflushpipe(State *S);
+void	riscvIFflush(State *S);
+void	riscvIFIDflush(State *S);
+int	riscvstep(Engine *E, State *S, int drain_pipe);
+int	riscvfaststep(Engine *E, State *S, int drain_pipe);
+
+void    riscvdumpdistribution(Engine *E, State *S);
 void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
-void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
+void	reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
 
+void 	riscv_nop(Engine *E, State *S);
 void 	riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void 	riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void 	riscv_slt(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
@@ -725,9 +746,9 @@ void 	riscv_sltiu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
 void 	riscv_andi(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
 void 	riscv_ori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
 void 	riscv_xori(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
-void riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
-void riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
-void riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void	riscv_slli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void	riscv_srli(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
+void	riscv_srai(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint32_t imm0);
 void 	riscv_lui(Engine *E, State *S, uint8_t rd, uint32_t imm0);
 void 	riscv_auipc(Engine *E, State *S, uint8_t rd, uint32_t imm0);
 void 	riscv_jal(Engine *E, State *S, uint8_t rd, uint16_t imm1, uint8_t imm11, uint8_t imm12, uint8_t imm20);
@@ -765,33 +786,33 @@ void 	riscv_csrrci(Engine *E, State *S);
 /*									*/
 
 uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n);
-void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data);
-void rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
-void rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
-void rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
-void rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
-void rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
-void rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
-void rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data);
+void	rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+void	rv32f_fsw(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
+void	rv32f_fmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void	rv32f_fmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void	rv32f_fnmsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void	rv32f_fnmadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
+void	rv32f_fadd_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fsub_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fmul_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fdiv_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fsqrt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fsgnj_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fsgnjn_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fsgnjx_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fmv_x_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_feq_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_flt_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fle_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fclass_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void	rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 
 
 
@@ -824,5 +845,5 @@ void rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
-void rv32f_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 

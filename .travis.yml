@@ -1,0 +1,11 @@
+dist: xenial
+
+language: c
+
+install: sudo apt-get install g++-multilib
+
+script: make
+
+
+
+

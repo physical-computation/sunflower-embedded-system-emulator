@@ -1,9 +1,12 @@
-![Sunflower Simulator Architecture](http://sflr.org/images/arch.png)
+[![Build Status](https://travis-ci.com/physical-computation/sunflower-simulator.svg?branch=master)](https://travis-ci.com/physical-computation/sunflower-simulator)
+- - - -
+
+![Sunflower Simulator Architecture](arch.png)
 
 # Cloning this repository
 The correct way to clone this repository to get the simulator and the submodules it depends on is:
 
-	git clone --recursive https://github.com/phillipstanleymarbell/sunflower-simulator.git
+	git clone --recursive https://github.com/physical-computation/sunflower-simulator.git
 
 To update all submodules:
 

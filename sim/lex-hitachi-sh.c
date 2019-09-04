@@ -55,7 +55,7 @@ typedef struct
 /*	so do not use them. These comments are used to build "help.h"	*/
 /*	and also to generate LaTeX for the manual.			*/
 /*									*/
-TokenTab token_table [] =
+TokenTab superH_token_table [] =
 {
 	/*	Simulator Commands	*/
 	{"RUN",		T_RUN},					/*+	Mark a node as runnable.:none											*/
@@ -70,10 +70,13 @@ TokenTab token_table [] =
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
 	{"DUMPPIPE",	T_DUMPPIPE},				/*+	Show the contents of the pipeline stages.:none									*/
+	{"DUMPDISTR",	T_DUMPDISTRIBUTION},			/*+	Show the number of times each instruction was run.:none								*/
 	{"RESETCPU",	T_RESETCPU},				/*+	Reset entire simulated CPU state.:none										*/ 
 	{"SAVE",	T_SAVE},				/*+	Dump memory region to disk.:<start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	*/
 	{"SETVDD",	T_SETVDD},				/*+	Set operating voltage from frequency.:<Vdd/volts (real)>							*/
 	{"SETFREQ",	T_SETFREQ},				/*+	Set operating frequency from voltage.:<freq/MHz (real)>								*/
+	{"SETMEMBASE",	T_SETMEMBASE},				/*+	Set base address of simulator memorry array.:<address (integer)>						*/
+	{"SHOWMEMBASE",	T_SHOWMEMBASE},				/*+	Show base address of simulator memorry array.:none								*/
 	{"PD",		T_DISABLEPIPELINE},			/*+	Disable simulation of processor's pipeline.:none								*/
 	{"PE",		T_ENABLEPIPELINE},			/*+	Enable simulation of processor's pipeline.:none									*/
 	{"PF",		T_PIPEFLUSH},				/*+	Flush the pipeline.:none											*/
@@ -95,7 +98,7 @@ TokenTab token_table [] =
 	{"HELP",	T_HELP},				/*+	Print list of commands.:none											*/
 	{"MAN",		T_MAN},					/*+	Print synopsis for command usage.:<command name>								*/
 	{"SHOWCLK",	T_SHOWCLK},				/*+	Show the number of clock cycles simulated since processor reset.:none						*/
-	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
+	{"NEWNODE",	T_NEWNODE},				/*+	Create a new node (simulated system).:<type=superH|riscv|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	*/
 	{"SETNODE",	T_SETNODE},				/*+	Set the current simulated node.:<node id (integer)>								*/
 	{"PAUINFO",	T_PAUINFO},				/*+	Show information about all valid PAU entries.:none								*/
 	{"PI",		T_PAUINFO},				/*+	Synonym for PAUINFO.:none											*/
@@ -160,7 +163,6 @@ TokenTab token_table [] =
 	{"THROTTLEWIN",		T_THROTTLEWIN},			/*+	Set the throttling window --- main simulation loop sleeps for throttlensecs x throttlewin nanosecs every throttlewin simulation cycles, for an average of throttlensecs sleep per simulation cycle.:<throttle window period in clock cycles (integer)>		*/
 	{"RESETNODECTRS",	T_RESETNODECTRS},		/*+	Reset simulation rate measurement trip counters for current node only.:none																*/
 	{"RESETALLCTRS",	T_RESETALLCTRS},		/*+	Reset simulation rate measurement trip counters for all nodes.:none																	*/
-
 	{"SIGSRC",		T_SIGNALSRC},			/*+	Create a physical phenomenon signal source.:<type (integer)> <description (string)> <tau (real)> <propagationspeed (real)> <A (real)> <B (real)> <C (real)> <D (real)> <E (real)> <F (real)> <G (real)> <H (real)> <I (real)> <J (real)> <K (real)> <m (real)> <n (real)> <o (real)> <p (real)> <q (real)> <r (real)> <s (real)> <t (real)> <x (real)> <y (real)> <z (real)> <trajectoryfile (string)> <trajectoryrate (real)> <looptrajectory (Boolean)> <samplesfile (string)> <samplerate (integer)> <fixedsampleval (real)> <loopsamples (Boolean)>	*/
 	{"SIGSUBSCRIBE",	T_SIGNALSUBSCRIBE},		/*+	Subscribe sensor X on the current node to a signal source Y.:<X (integer)> <Y (integer)>														*/
 	{"SENSORSDEBUG",	T_SENSORSDEBUG},		/*+	Display various statistics on sensors and signals.:none 																		*/
@@ -170,7 +172,6 @@ TokenTab token_table [] =
 	{"FORCEAVGPWR",		T_FORCEAVGPWR},			/*+	Bypass ILPA analysis and set avg pwr consumption.:<avg pwr in Watts (real)> <sleep pwr in Watts (real)>													*/
 	{"NETSEGPROPMODEL",	T_NETSEGPROPMODEL},		/*+	Associate a network segment with a signal propagation model.:<netseg ID (integer)> <sigsrc ID (integer)> <minimum SNR (real)>										*/
 	{"NUMAREGION",		T_NUMAREGION},			/*+	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.:<name string (string)> <start address (inclusive) (hexadecimal)> <end address (non-inclusive) (hexadecimal)> <local read latency in cycles (integer)> <local write latency in cycles (integer)> <remote read latency in cycles (integer)> <remote write latency in cycles (integer)> <Map ID (integer)> <Map offset (integer)> <private flag (Boolean)> */
-
 	{"NUMASTATS",		T_NUMASTATS},			/*+	Display access statistics for all NUMA regions for current node.:none																	*/
 	{"NUMASTATSALL",	T_NUMASTATSALL},		/*+	Display access statistics for all NUMA regions for all nodes.:none																	*/
 	{"NUMASETMAPID",	T_NUMASETMAPID},		/*+	Change the mapid for nth map table entry on all nodes to i.:<n (integer)> <i (integer)>															*/
@@ -247,7 +248,9 @@ TokenTab token_table [] =
 	{".LONG",		T_DOTLONG},
 	{".COMM",		T_DOTCOMM},
 
-	/*	Registers	*/
+	/*	---SuperH---	*/
+
+	/*	SuperH Registers	*/
 	{"R0",		T_R0},
 	{"R1",		T_R1},
 	{"R2",		T_R2},
@@ -274,7 +277,7 @@ TokenTab token_table [] =
 	{"SR",		T_SR},
 	{"SSR",		T_SSR},
 
-	/*	Instructions	*/
+	/*	SuperH Instructions	*/
 	{"ADD",		T_ADD},
 	{"ADDC",	T_ADDC},
 	{"ADDV",	T_ADDV},
@@ -376,6 +379,7 @@ TokenTab token_table [] =
 	{"XOR",		T_XOR},
 	{"XOR.B",	T_XORB},
 	{"XTRCT",	T_XTRCT},
+
 	{0,		0},
 };
 
@@ -629,10 +633,10 @@ yylex(void)
 	}
 
 	/* 	check if it is a token 		*/
-	for (i = 0; token_table[i].token != 0; i++)
+	for (i = 0; superH_token_table[i].token != 0; i++)
 	{
 			/*	Generic match found:	*/
-			if (!strcmp(tmpdata, token_table[i].token))
+			if (!strcmp(tmpdata, superH_token_table[i].token))
 			{
 				/* we do not set yylval : token has no "value" */
 				tmphd = yyengine->istream.head;
@@ -647,7 +651,7 @@ yylex(void)
 				/*	This was allocated just for uppercase stuff. Free it	*/
 				mfree(yyengine, tmpdata, "tmpdata in lex.c");
 
-				return token_table[i].token_value;
+				return superH_token_table[i].token_value;
 			}
 
 			if (!strncmp(tmpdata, "#", 1))
