@@ -117,4 +117,5 @@ enum
 	RV32UN_OP_UNPART1,
 
 	RV32UN_OP_UNMAX,
+
 };
