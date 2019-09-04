@@ -165,6 +165,11 @@ enum
 
 typedef enum
 {
+	kSunflowerConstantsPropulsionModelCoefficientCount = 6,
+} SunflowerConstants;
+
+typedef enum
+{
 	SchedRoundRobin,
 	SchedRandom,
 } SchedType;
@@ -636,12 +641,12 @@ struct State
 
 
 	/*			Per node stdout/stderr buffers		*/
-        char            stdout_buf[MAX_NODESTDOUT_BUFSZ];
-        int             stdout_h2o;
-        char            stderr_buf[MAX_NODESTDERR_BUFSZ];
-        int             stderr_h2o;
-        char            nodeinfo_buf[MAX_NODEINFO_BUFSZ];
-        int             nodeinfo_h2o;
+	char		stdout_buf[MAX_NODESTDOUT_BUFSZ];
+	int		stdout_h2o;
+	char		stderr_buf[MAX_NODESTDERR_BUFSZ];
+	int		stderr_h2o;
+	char		nodeinfo_buf[MAX_NODEINFO_BUFSZ];
+	int		nodeinfo_h2o;
 
 
 
@@ -656,7 +661,7 @@ struct State
 	uvlong		trip_ustart, trip_startclk;
 	uvlong		num_cycles_waiting;
 
-	/*	    		Topology Information			*/
+	/*			Topology Information			*/
 	double		xloc;
 	double		yloc;
 	double		zloc;
@@ -667,6 +672,16 @@ struct State
 
 	/*			Trajectory/headings input		*/
 	char		*trajfilename;
+
+
+	/*			Mass					*/
+	double		nodeMass;
+
+
+	/*			Propulsion model coefficients		*/
+	double		propulsionXvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
+	double		propulsionYvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
+	double		propulsionZvectorCoefficients[kSunflowerConstantsPropulsionModelCoefficientCount];
 
 
 	/*	Set if acting as a dummy from remote_seg_enqueue()	*/

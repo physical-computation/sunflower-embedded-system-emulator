@@ -207,6 +207,23 @@ double	physics_propagation(Signalsrc *s, double xloc, double yloc, double zloc);
 
 
 
+/*
+ *					Propulsion power modeling
+ */
+void
+propulsionSetPropulsionCoeffs(Engine *  E, State *  S,
+	double xk1, double xk2, double xk3, double xk4, double xk5, double xk6,
+	double yk1, double yk2, double yk3, double yk4, double yk5, double yk6,
+	double zk1, double zk2, double zk3, double zk4, double zk5, double zk6);
+
+
+
+/*
+ *					Mass modeling
+ */
+void	massSetNodeMass(Engine *  E, State *  S, double mass);
+
+
 /*											*/
 /*						PAU					*/
 /*											*/
