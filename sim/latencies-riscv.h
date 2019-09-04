@@ -39,6 +39,7 @@
 /*	decode-riscv.h and opstr-riscv.h are dependent on this file	*/
 int riscv_instr_latencies[][5] =\
 {
+// --->| The tab here is important for easy sed portability
 	[RISCV_OP_LUI]		{1,	1,	1,	1,	1},//WB stage is always 1 cycle
 	[RISCV_OP_AUIPC]	{1,	1,	1,	1,	1},
 	[RISCV_OP_JAL]		{1,	1,	1,	1,	1},

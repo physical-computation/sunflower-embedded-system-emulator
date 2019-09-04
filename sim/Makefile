@@ -155,10 +155,10 @@ opstr-riscv.h: decode-riscv.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 decode-hitachi-sh.h: latencies-hitachi-sh.h Makefile
-	./mkdecode-hitachi-sh $(GNUSED) > decode-hitachi-sh.h
+	./mkdecode-hitachi-sh $(GAWK) > decode-hitachi-sh.h
 
 decode-riscv.h: latencies-riscv.h Makefile
-	./mkdecode-riscv $(GNUSED) > decode-riscv.h
+	./mkdecode-riscv $(GAWK) > decode-riscv.h
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
 help.h: lex-hitachi-sh.c Makefile
