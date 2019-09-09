@@ -10,7 +10,7 @@
 		exit 127
 	fi
 
-	echo "/* This file was created from latencies-riscv.h using $0 */"
+	echo "// This file was created from latencies-riscv.h using $(basename $0)"
 	echo 'enum'
 	echo '{'
 	cat latencies-riscv.h | grep _OP_ | sed "s/.*\[\(R.*_OP_.*[A-Z0-9]\)\].*/\t\1,/" | sed "s/^\(.*MAX,\)/\n\1\n/"
