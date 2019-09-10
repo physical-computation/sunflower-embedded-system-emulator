@@ -13,24 +13,19 @@ sflr:
 	done
 
 cross-arm:
-	cd $(TOOLCHAIN)
-	$(MAKE) cross-arm
+	cd $(TOOLCHAIN); $(MAKE) cross-arm
 
 cross-superH:
-	cd $(TOOLCHAIN)
-	$(MAKE) cross-superH
+	cd $(TOOLCHAIN); $(MAKE) cross-superH
 
 cross-riscv:
-	cd $(TOOLCHAIN)
-	$(MAKE) cross-riscv
+	cd $(TOOLCHAIN); $(MAKE) cross-riscv
 
 # cross-msp430:
-# 	cd $(TOOLCHAIN)
-# 	$(MAKE) cross-riscv
+# 	cd $(TOOLCHAIN); $(MAKE) cross-riscv
 
 cross-all:
-	cd $(TOOLCHAIN)
-	$(MAKE) cross-all
+	cd $(TOOLCHAIN); $(MAKE) cross-all
 
 clean:
 	@set -e; for dir in $(DIRS); do \
@@ -40,5 +35,4 @@ clean:
 	done; \
 
 nuke: clean
-	cd $(TOOLCHAIN)
-	$(MAKE) clean
+	cd $(TOOLCHAIN); $(MAKE) clean

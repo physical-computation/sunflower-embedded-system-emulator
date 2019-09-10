@@ -1,3 +1,4 @@
+#include <printf.h>
 
 int main()
 {
@@ -25,6 +26,8 @@ int main()
             }
         }
     }
+
+    printf_("first element is %d\n", a[0]);
 
     return 0;
 }

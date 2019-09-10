@@ -202,6 +202,12 @@ TokenTab riscv_token_table [] =
 	{"SETFLASHRLATENCY",	T_SETFLASHRLATENCY},		/*+	Set flash read latency.: <latency in clock cycles (integer)>																		*/
 	{"SETFLASHWLATENCY",	T_SETFLASHWLATENCY},		/*+	Set flash write latency.: <latency in clock cycles (integer)>																		*/
 
+
+
+
+	{"SETNODEMASS",		T_SETNODEMASS},			/*+	Set node mass.: <mass in kg>																						*/
+	{"SETPROPULSIONCOEFFS",	T_SETPROPULSIONCOEFFS},		/*+	Set propulsion power model coefficients.: <xk1 xk2 xk3 xk4 xk5 xk6 yk1 yk2 yk3 yk4 yk5 yk6 zk1 zk2 zk3 zk4 zk5 zk6>											*/
+
 	/*										*/
 	/*	We should use these and get rid of NETSEGFAILPROB and NODEFAILPROB	*/
 	/*										*/

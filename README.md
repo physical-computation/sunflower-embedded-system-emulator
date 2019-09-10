@@ -15,12 +15,12 @@ To update all submodules:
 
 
 # Installation instructions
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`) and on the GNU version of `bison`, so install them.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, and the GNU version of sed, so install them.
 
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
 OSTYPE          = darwin
-MACHTYPE        = i386
+MACHTYPE        = x86_64
 ```
 
 On Linux, use the configuration
@@ -36,7 +36,7 @@ TARGET		= riscv
 TARGET-ARCH	= riscv32-elf
 ```
 
-Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
+Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`. Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
 
 # If you use Sunflower in your research, please cite it as:
 Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.

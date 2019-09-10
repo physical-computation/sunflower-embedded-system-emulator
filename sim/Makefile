@@ -43,6 +43,8 @@ HEADERS =\
 	opstr-riscv.h\
 	pau.h\
 	physics.h\
+	mass.h\
+	propulsion.h\
 	pic.h\
 	pipeline-hitachi-sh.h\
 	pipeline-riscv.h\
@@ -77,6 +79,8 @@ OBJS	=\
 	op-riscv.o\
 	pau.o\
 	physics.o\
+	mass.o\
+	propulsion.o\
 	pic.o\
 	pipeline-hitachi-sh.o\
 	pipeline-riscv.o\
@@ -151,10 +155,10 @@ opstr-riscv.h: decode-riscv.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 decode-hitachi-sh.h: latencies-hitachi-sh.h Makefile
-	./mkdecode-hitachi-sh > decode-hitachi-sh.h
+	./mkdecode-hitachi-sh $(GAWK) > decode-hitachi-sh.h
 
 decode-riscv.h: latencies-riscv.h Makefile
-	./mkdecode-riscv > decode-riscv.h
+	./mkdecode-riscv $(GAWK) > decode-riscv.h
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
 help.h: lex-hitachi-sh.c Makefile

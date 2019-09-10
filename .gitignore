@@ -9,6 +9,7 @@ sunflower.out
 *.out
 *.sr
 *.map
+*.dump
 init.i
 
 #
@@ -25,5 +26,6 @@ sim/sf.tab.c
 sim/mversion.h
 sim/commands.tex
 sim/opstr-*.h
+sim/decode-*.h
 sim/sf
 sim/sf.output
