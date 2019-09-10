@@ -9,11 +9,18 @@ print_integer_register_abi(Engine *E, State *S, ulong reg_index)
 	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-
 	const char * special_names[] = {
 		"zero",
-		"ra",
-		"sp",
-		"gp",
-		"tp",
+		"ra", // return address
+		"sp", // stack pointer
+		"gp", // global pointer
+		"tp", // thread pointer
 	};
+	/*
+	 *	The purpose of the following switch statement is to translate the reg_index
+	 *	into one of the ABI mnemonics (link above, going columns 1->2)
+	 *	TODO hence, everything below could be compacted into a dictionary reg_index->ABI_mnemonic_name
+	 *	     just like special_names[] does for the first five entries (i.e., just extend it)
+	 *	     This TODO applies to all the other similar switches, too
+	 */
 	if (reg_index < 5)
 	{
 		mprint(E, S, nodeinfo, "%-4s", special_names[reg_index]);
@@ -48,6 +55,10 @@ static void
 print_fp_register_abi(Engine *E, State *S, ulong reg_index)
 {
 	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#floating-point-register-convention-
+	/*
+	 *	The purpose of the following switch statement is to translate the reg_index
+	 *	into one of the ABI mnemonics (link above, going columns 1->2)
+	 */
 	if (reg_index < 8)
 	{
 		mprint(E, S, nodeinfo, "ft%-2u", reg_index);
@@ -88,6 +99,7 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*	the stall actually occurs when in MA, since we've	*/
 	/*	completed the EX wait before we get executed.		*/
 	/*								*/
+	// TODO check: is superH rather than riscv here intentional?
 	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
 	{
 		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
@@ -180,7 +192,6 @@ riscvfatalaction(Engine *E, State *S)
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
 {
-	int i;
 	UncertainState *S = (UncertainState *)mcalloc(E, 1, sizeof(UncertainState), ID);
 
 	if (S == NULL)
@@ -188,7 +199,7 @@ uncertainnewstate(Engine *E, char *ID)
 		mexit(E, "Failed to allocate memory uncertain state.", -1);
 	}
 
-	for (i = 0; i < 32; ++i) {
+	for (int i = 0; i < 32; ++i) {
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
