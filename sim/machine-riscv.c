@@ -124,29 +124,38 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 void
 riscvdumpregs(Engine *E, State *S)
 {
-	int i;
 	char fp_value[128];
 	char * f_width;
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 	{
-		mprint(E, S, nodeinfo, "x%-2d\t", i);
-		print_integer_register_abi(E, S, i);
+		/*
+		 *	Print out integer registers
+		 */
+		mprint(E, S, nodeinfo, "x%-2d\t", i);	// register numerical name
+		print_integer_register_abi(E, S, i);	// register mnemonic name
 		mprint(E, S, nodeinfo, "\t", i);
-		mbitprint(E, S, 32, S->riscv->R[i]);
-		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
+		mbitprint(E, S, 32, S->riscv->R[i]);	// register content (binary)
+		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);	// repeat in hex
 	}
 
 	mprint(E, S, nodeinfo, "\n");
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 	{
+		/*
+		 * Print out floating point register
+		 * (equivalent to above integer routines)
+		 */
 		mprint(E, S, nodeinfo, "f%-2d\t", i);
 		print_fp_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
 		uint64_t float_bits = S->riscv->fR[i];
-		if((float_bits >> 32) == 0xFFFFFFFF) //NaN boxed
+		if((float_bits >> 32) == 0xFFFFFFFF)
 		{
+			/*
+			 *	Case NaN boxed
+			 */
 			rv32f_rep val;
 			val.bit_value = (uint32_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%#.8g", val.float_value);
@@ -156,13 +165,17 @@ riscvdumpregs(Engine *E, State *S)
 				snprintf(
 					fp_value + start_offset,
 					sizeof(fp_value) - start_offset,
-					" +- %#-.5g", sqrtf(S->riscv->uncertain->registers.variances[i])
+					" +- %#-.5g",
+				 	sqrtf(S->riscv->uncertain->registers.variances[i])
 				);
 			}
 			f_width = "single";
 		}
 		else
 		{
+			/*
+			 *	Case not NaN boxed
+			 */
 			rv32d_rep val;
 			val.bit64_value = (uint64_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%.8g", val.double_value);
@@ -186,12 +199,18 @@ riscvfatalaction(Engine *E, State *S)
 	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
 			S->NODE_ID, riscv_opstrs[S->riscv->P.EX.op]);
 
+	/*
+	 * TODO shouldn't a "fatal action" stop the simulator, rather than being ignored?
+	 */
 	return;
 }
 
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
 {
+	/*
+	 *	Constructor for UncertainState, initialised with NaNs
+	 */
 	UncertainState *S = (UncertainState *)mcalloc(E, 1, sizeof(UncertainState), ID);
 
 	if (S == NULL)
@@ -200,6 +219,7 @@ uncertainnewstate(Engine *E, char *ID)
 	}
 
 	for (int i = 0; i < 32; ++i) {
+		// Initialise with NaNs
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
@@ -209,6 +229,9 @@ uncertainnewstate(Engine *E, char *ID)
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
+	/*
+	 *	Constructor for processor State, using superH as template
+	 */
 	State *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
