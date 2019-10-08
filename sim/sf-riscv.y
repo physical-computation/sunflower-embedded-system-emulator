@@ -387,7 +387,6 @@
 %type	<rval>	rnd_const
 %type	<rval>	rnd_var
 
-/* TODO explain why these are commented out. Not implemented? */
 /*
 %type	<rval>	rnd_bathtub
 %type	<rval>	rnd_beta
