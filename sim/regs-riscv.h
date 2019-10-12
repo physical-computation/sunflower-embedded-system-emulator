@@ -256,3 +256,68 @@ typedef union
 	double double_value;
 } rv32d_rep;
 
+
+
+//if (INCLUDE_HISTOGRAM_IMPLEMENTATION == true){ // TODO conditional compilation via SF_ flag
+
+/*
+ * Histograms (Idea: Alexa's final project thesis, Initial implementation: Jan (jh2109))
+ */
+
+typedef struct
+{
+	// TODO I chose the more familiar term "bins" rather than Alexa's "weights".
+	// The term "weights" does not appear in her report, so I am not sure of the motivation
+	// to use weights instead ('weights' are more common in vector terminology?)
+	unsigned int nbins;
+	int32_t bins[nbins];
+} Histogram_int32;
+
+
+// TODO This is screaming "template me", but I am only familiar with C++ templates (e.g. histogram<uint32_t>)
+Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 hist2, Histogram_int32 histDest){
+	/*
+	 * Add two distributions, considering overflow
+	 */
+
+	// TODO meaning of abbreviations? 
+	// TODO choice of data type explained by? go through entire code.
+	//      Alexa's implementation was based around uint16_t bins
+	uint16_t overflow_wid = 0;
+	uint32_t overflow_hi = 0;
+
+	unsigned int nbins = hist1.nbins; // TODO assert (using sflr error print) that both histograms are of same type
+
+	// Zero-out destination histogram
+	// TODO Alexa wrote "just in case" -- why?
+	//      Presumably this is to say it is our responsibility to initialise
+	for (int k = 0; k < nbins; k++){
+		histDest.bins[k] = 0;
+	}
+
+	// Iterate, adding with overflow
+	for (int j = 0; j < nbins; j++){
+		for (int i = 0; i < nbins; i++){
+			overflow_wid = i+j;
+
+			if (overflow_wid < nbins){
+				overflow_hi = histDest.bins[i+j] + (uint32_t)((uint32_t)hist1.bins[i] * hist2.bins[j]);
+
+				if (overflow_hi < 65536){
+					histDest.bins[i+j] += hist1.bins[i] * hist2.bins[j];
+				}
+				else{
+					// Bin overflow error
+					// TODO implement
+				}
+			}
+			else{
+				// Value overflow error
+				// TODO implement
+			}
+		}
+	}
+
+	return histDest;
+}
+				
