@@ -112,3 +112,49 @@ void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 
 	return;
 }
+
+
+
+Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 hist2, Histogram_int32 histDest){
+	/*
+	 * Add two distributions, considering overflow
+	 */
+
+	// TODO meaning of abbreviations? 
+	// TODO choice of data type explained by? go through entire code.
+	//      Alexa's implementation was based around uint16_t bins
+	uint16_t overflow_wid = 0;
+	uint32_t overflow_hi = 0;
+
+	// Zero-out destination histogram
+	// TODO Alexa wrote "just in case" -- why?
+	//      Presumably this is to say it is our responsibility to initialise
+	for (int k = 0; k < kNBINS; k++){
+		histDest.bins[k] = 0;
+	}
+
+	// Iterate, adding with overflow
+	for (int j = 0; j < kNBINS; j++){
+		for (int i = 0; i < kNBINS; i++){
+			overflow_wid = i+j;
+
+			if (overflow_wid < kNBINS){
+				overflow_hi = histDest.bins[i+j] + (uint32_t)((uint32_t)hist1.bins[i] * hist2.bins[j]);
+
+				if (overflow_hi < 65536){
+					histDest.bins[i+j] += hist1.bins[i] * hist2.bins[j];
+				}
+				else{
+					// Bin overflow error
+					// TODO implement
+				}
+			}
+			else{
+				// Value overflow error
+				// TODO implement
+			}
+		}
+	}
+
+	return histDest;
+}
