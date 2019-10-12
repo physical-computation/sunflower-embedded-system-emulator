@@ -264,17 +264,26 @@ typedef union
  * Histograms (Idea: Alexa's final project thesis, Initial implementation: Jan (jh2109))
  */
 
+
+// TODO move to file containing constant declarations
+// TODO consider whether this should be part of the typedef, i.e. be dynamically allocated
+//      that would be more flexible, but arguably less aligned with how a processor operating
+//      on fixed-precision variables would work
+// TODO C doesn't allow the next line, only accepts defines for variable declarations
+//      Would need to rewrite with e.g. malloc() instead to avoid define (suggestions welcome)
+//const unsigned int kNBINS = 256;
+#define kNBINS 256
+
 typedef struct
 {
 	// TODO I chose the more familiar term "bins" rather than Alexa's "weights".
 	// The term "weights" does not appear in her report, so I am not sure of the motivation
 	// to use weights instead ('weights' are more common in vector terminology?)
-	unsigned int nbins;
-	int32_t bins[nbins];
+	int32_t bins[kNBINS];
 } Histogram_int32;
-
-
 // TODO This is screaming "template me", but I am only familiar with C++ templates (e.g. histogram<uint32_t>)
+
+
 Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 hist2, Histogram_int32 histDest){
 	/*
 	 * Add two distributions, considering overflow
@@ -286,21 +295,19 @@ Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 h
 	uint16_t overflow_wid = 0;
 	uint32_t overflow_hi = 0;
 
-	unsigned int nbins = hist1.nbins; // TODO assert (using sflr error print) that both histograms are of same type
-
 	// Zero-out destination histogram
 	// TODO Alexa wrote "just in case" -- why?
 	//      Presumably this is to say it is our responsibility to initialise
-	for (int k = 0; k < nbins; k++){
+	for (int k = 0; k < kNBINS; k++){
 		histDest.bins[k] = 0;
 	}
 
 	// Iterate, adding with overflow
-	for (int j = 0; j < nbins; j++){
-		for (int i = 0; i < nbins; i++){
+	for (int j = 0; j < kNBINS; j++){
+		for (int i = 0; i < kNBINS; i++){
 			overflow_wid = i+j;
 
-			if (overflow_wid < nbins){
+			if (overflow_wid < kNBINS){
 				overflow_hi = histDest.bins[i+j] + (uint32_t)((uint32_t)hist1.bins[i] * hist2.bins[j]);
 
 				if (overflow_hi < 65536){
