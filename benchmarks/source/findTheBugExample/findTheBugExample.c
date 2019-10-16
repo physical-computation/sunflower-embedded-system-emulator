@@ -10,11 +10,13 @@ volatile int		gFlag = 1;
 int
 main(void)
 {
+	int	i = 0;
+
 	hdlr_install();
 
 	while (gFlag)
 	{
-		printf("Some long string\n");
+		printf("Counting, %d...\n", i++);
 	}
 
 	return 0;
