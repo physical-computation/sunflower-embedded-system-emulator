@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "print.h"
 
 /*	8 GPRs + PR		*/
