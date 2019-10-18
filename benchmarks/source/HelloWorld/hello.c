@@ -1,5 +1,10 @@
 #include <stdio.h>
-#include <printf.h>
+/*
+ *	Uncomment for RISC-V build
+ */
+/*
+	#include <printf.h>
+*/
 
 int
 main(void)
