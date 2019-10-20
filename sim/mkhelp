@@ -1,15 +1,7 @@
 #!/bin/sh
-# Create help strings for the sunflower menu help
-# Output is to stdout, so use as $0 > help.h
-
-# TODO If we agree with help.h being auto-generated from the above command, might as well
-#      include this in the Makefile. If doing so, add a comment warning not to modify help.h by hand
 
 	if [ $# -ne 1 ]; then
 		echo 1>&2 Usage: $0 "<path to Gnu awk>" 
-		# TODO Why does the user need to give the path to gawk by hand? I would suggest doing the following
-		# if [[ ! $(command -v gawk) ]]; then echo 'ERROR: gawk (gnu awk) not found'; exit 127; fi
-		# Is this due to some platforms needing to call a non-standard gawk?
 		exit 127
 	fi
 

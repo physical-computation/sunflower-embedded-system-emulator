@@ -1,19 +1,12 @@
 #!/bin/sh
-# Generate the enum containing all valid RISCV opcodes
-# Output is to stdout, so use as $0 > opstr-riscv.h
 
-# TODO If we agree with opstr-riscv.h being auto-generated from the above command, might as well
-#      include this in the Makefile. If doing so, add a comment warning not to modify opstr-riscv.h by hand
 
 	if [ $# -ne 1 ]; then
-		echo 1>&2 Usage: $0 "<path to Gnu awk>" 
-		# TODO Why does the user need to give the path to gawk by hand? I would suggest doing the following
-		# if [[ ! $(command -v gawk) ]]; then echo 'ERROR: gawk (gnu awk) not found'; exit 127; fi
-		# Is this due to some platforms needing to call a non-standard gawk?
+		echo 1>&2 Usage: $0 "<path to Gnu awk>"
 		exit 127
 	fi
 
-	echo '// This file was created from latencies-riscv.h using mkdecode-riscv'
+
 	echo 'char *riscv_opstrs[] =\'
 	echo '{'
 	cat decode-riscv.h | sed "s/_OP_/~OP~/g" | grep OP | sed "s/.*RISCV~/RISCV~/g" | sed "s/.*RV/RV/g" | $1 -F',|~' '{print "\t["$1"_"$2"_"$3"]\t\t\""$3"\","}'
