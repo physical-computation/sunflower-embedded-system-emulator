@@ -104,6 +104,7 @@
 %token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
 %token	T_DUMPREGS
+%token	T_DUMPHIST
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
 %token	T_DUMPTLB
@@ -1207,6 +1208,14 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
+		| T_DUMPHIST '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumphist(yyengine, yyengine->cp);
+			}
+		}
+
 		| T_DUMPSYSREGS '\n'
 		{
 			if (!yyengine->scanning)

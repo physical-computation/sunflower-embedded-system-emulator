@@ -265,7 +265,6 @@ typedef union
  */
 
 
-// TODO move to file containing constant declarations
 // TODO consider whether this should be part of the typedef, i.e. be dynamically allocated
 //      that would be more flexible, but arguably less aligned with how a processor operating
 //      on fixed-precision variables would work
@@ -275,6 +274,7 @@ typedef union
 #define kNBINS 256
 typedef int32_t HistogramBinDatatype;
 
+// TODO Is this the best place to define this datatype?
 typedef struct
 {
 	// TODO I chose the more familiar term "bins" rather than Alexa's "weights".

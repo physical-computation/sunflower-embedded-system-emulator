@@ -243,6 +243,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
 
 	S->dumpregs = riscvdumpregs;
+	S->dumphist = Histogram_PrintDist;
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
@@ -261,7 +262,8 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
 
 // Print histogram
-void Histogram_PrintDist(Engine *E, State *S, Histogram *histogram){
+void
+Histogram_PrintDist(Engine *E, State *S, Histogram *histogram){
 	mprint(E, S, nodeinfo, "tes-");
 
 	for (int i = 0; i < kNBINS; i++){

@@ -711,6 +711,7 @@ struct State
 	/*		Other misc machine specific actions		*/
 	void 		(*fatalaction)(Engine *, State *S);
 	void 		(*dumpregs)(Engine *, State *S);
+	void 		(*dumphist)(Engine *, State *S);
 	void 		(*dumpsysregs)(Engine *, State *S);
 	void 		(*resetcpu)(Engine *, State *S);
 	void 		(*dumppipe)(Engine *, State *S);
