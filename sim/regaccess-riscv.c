@@ -115,7 +115,7 @@ void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 
 
 
-Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 hist2, Histogram_int32 histDest){
+Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest){
 	/*
 	 * Add two distributions, considering overflow
 	 */
@@ -158,3 +158,5 @@ Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 h
 
 	return histDest;
 }
+
+/*Histogram_LDDist(*/

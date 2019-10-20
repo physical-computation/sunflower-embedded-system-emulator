@@ -273,16 +273,21 @@ typedef union
 //      Would need to rewrite with e.g. malloc() instead to avoid define (suggestions welcome)
 //const unsigned int kNBINS = 256;
 #define kNBINS 256
+typedef HistogramBinDatatype int32_t;
 
 typedef struct
 {
 	// TODO I chose the more familiar term "bins" rather than Alexa's "weights".
 	// The term "weights" does not appear in her report, so I am not sure of the motivation
 	// to use weights instead ('weights' are more common in vector terminology?)
-	int32_t bins[kNBINS];
-} Histogram_int32;
+	HistogramBinDatatype bins[kNBINS];
+} Histogram;
 // TODO This is screaming "template me", but I am only familiar with C++ templates (e.g. histogram<uint32_t>)
+//      For now this is fixed at compile-time via HistogramBinDatatype
 
 
 // Add two distributions, considering overflow
-Histogram_int32 Histogram_int32_AddDist(Histogram_int32 hist1, Histogram_int32 hist2, Histogram_int32 histDest);
+Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest);
+
+// Load distribution
+void Histogram_LDDist(Histogram hist, Histogram hist2, Histogram histDest);
