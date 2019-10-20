@@ -161,6 +161,9 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 }
 
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
+	/*
+	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
+	 */
 	memcpy(histogram->bins, bins, sizeof(*bins));
 }
 
