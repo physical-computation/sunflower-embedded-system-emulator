@@ -273,7 +273,7 @@ typedef union
 //      Would need to rewrite with e.g. malloc() instead to avoid define (suggestions welcome)
 //const unsigned int kNBINS = 256;
 #define kNBINS 256
-typedef HistogramBinDatatype int32_t;
+typedef int32_t HistogramBinDatatype;
 
 typedef struct
 {
@@ -290,4 +290,6 @@ typedef struct
 Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest);
 
 // Load distribution
-void Histogram_LDDist(Histogram hist, Histogram hist2, Histogram histDest);
+void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
+
+

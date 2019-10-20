@@ -36,6 +36,7 @@
 */
 #include "sf.h"
 #include <stdint.h>
+#include <string.h>
 
 tuck
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
@@ -159,4 +160,8 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 	return histDest;
 }
 
-/*Histogram_LDDist(*/
+void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
+	memcpy(histogram->bins, bins, sizeof(*bins));
+}
+
+

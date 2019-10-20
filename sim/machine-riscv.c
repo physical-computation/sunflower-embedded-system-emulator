@@ -258,3 +258,14 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
 	return S;
 }
+
+
+// Print histogram
+void Histogram_PrintDist(Engine *E, State *S, Histogram *histogram){
+	mprint(E, S, nodeinfo, "tes-");
+
+	for (int i = 0; i < kNBINS; i++){
+		mprint(E, S, nodeinfo, "test %-3u", histogram->bins[i]);
+	}
+}
+

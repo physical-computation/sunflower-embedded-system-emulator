@@ -53,3 +53,6 @@ struct RiscvState
 };
 
 typedef struct RiscvState RiscvState;
+
+// Print histogram
+void Histogram_PrintDist(Engine *E, State *S, Histogram *histogram);
