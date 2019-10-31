@@ -8202,7 +8202,7 @@ reg		: T_R0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror(yyengine, "Invalid command!");
+	merror(yyengine, "Invalid command! (for superH)");
 	clearistream(yyengine);
 	
 	return 0;

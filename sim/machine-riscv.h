@@ -50,9 +50,11 @@ struct RiscvState
 	ShadowMem instruction_taintDistribution[RISCV_OP_MAX];
 	ShadowMem taintR[RISCV_XMAX+1];
 	ShadowMem taintfR[RF32FD_fMAX+1];
+
+	/*
+	 * Histograms
+	 */
+	Histogram histogram0;
 };
 
 typedef struct RiscvState RiscvState;
-
-// Print histogram
-void Histogram_PrintDist(Engine *E, State *S, Histogram *histogram);

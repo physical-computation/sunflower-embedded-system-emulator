@@ -199,10 +199,18 @@ riscvfatalaction(Engine *E, State *S)
 	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
 			S->NODE_ID, riscv_opstrs[S->riscv->P.EX.op]);
 
-	/*
-	 * TODO shouldn't a "fatal action" stop the simulator, rather than being ignored?
-	 */
 	return;
+}
+
+// Print histogram
+void
+riscvdumphist(Engine *E, State *S){
+	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
+	mprint(E, S, nodeinfo, "bin value\n");
+
+	for (int i = 0; i < kNBINS; i++){
+		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histogram0.bins[i]);
+	}
 }
 
 static UncertainState *
@@ -243,7 +251,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
 
 	S->dumpregs = riscvdumpregs;
-	S->dumphist = Histogram_PrintDist;
+	S->dumphist = riscvdumphist;
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
@@ -260,14 +268,4 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	return S;
 }
 
-
-// Print histogram
-void
-Histogram_PrintDist(Engine *E, State *S, Histogram *histogram){
-	mprint(E, S, nodeinfo, "tes-");
-
-	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "test %-3u", histogram->bins[i]);
-	}
-}
 

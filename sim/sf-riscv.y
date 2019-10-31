@@ -1208,6 +1208,7 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
+		/*| T_DUMPHIST uimm '\n'*/
 		| T_DUMPHIST '\n'
 		{
 			if (!yyengine->scanning)
@@ -1215,7 +1216,6 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumphist(yyengine, yyengine->cp);
 			}
 		}
-
 		| T_DUMPSYSREGS '\n'
 		{
 			if (!yyengine->scanning)
@@ -4490,7 +4490,7 @@ freg		: T_F0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror(yyengine, "Invalid command!");
+	merror(yyengine, "Invalid command! (for riscv)");
 	clearistream(yyengine);
 	
 	return 0;
