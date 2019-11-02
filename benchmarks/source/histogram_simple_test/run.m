@@ -1,0 +1,3 @@
+newnode riscv
+dumphist
+q
