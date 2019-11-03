@@ -202,6 +202,9 @@ riscvfatalaction(Engine *E, State *S)
 	return;
 }
 
+
+
+
 /*
  * Histograms
  */
@@ -222,17 +225,37 @@ riscvdumphist(Engine *E, State *S, int histogram_id){
 // Print histogram with extra stats and ASCII graphics
 void
 riscvdumphistpretty(Engine *E, State *S, int histogram_id){
+	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
 	Histogram_PrettyPrint(E, S, &S->riscv->histograms[histogram_id]);
 	
 	return;
 }
 
+// Load histogram with bin values randomly filled
 void
 riscvldhistrandom(Engine *E, State *S, int histogram_id){
 	Histogram_LDRandom(&S->riscv->histograms[histogram_id]);
 	
 	return;
 }
+
+// Add two histograms
+void
+riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_AddDist(
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+
+
+
+
 
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
@@ -282,6 +305,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumphist = riscvdumphist;
 	S->dumphistpretty = riscvdumphistpretty;
 	S->ldhistrandom = riscvldhistrandom;
+	S->addhist = riscvaddhist;
 
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;

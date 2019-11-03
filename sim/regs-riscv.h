@@ -290,7 +290,7 @@ typedef struct
 
 
 // Add two distributions, considering overflow
-Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest);
+void Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
@@ -303,3 +303,6 @@ double Histogram_Mean(Histogram *histogram);
 
 // Pretty-print histogram distribution
 void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram);
+
+// Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
+double Histogram_MeanFrequency(Histogram *histogram);

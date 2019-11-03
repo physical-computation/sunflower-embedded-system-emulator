@@ -117,7 +117,8 @@ void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 
 
 
-Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest){
+void
+Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
 	 * Add two distributions, considering overflow
 	 */
@@ -132,33 +133,53 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 	// TODO Alexa wrote "just in case" -- why?
 	//      Presumably this is to say it is our responsibility to initialise
 	for (int k = 0; k < kNBINS; k++){
-		histDest.bins[k] = 0;
+		histDest->bins[k] = 0;
 	}
 
 	// Iterate, adding with overflow
 	for (int j = 0; j < kNBINS; j++){
 		for (int i = 0; i < kNBINS; i++){
 			overflow_wid = i+j;
+			/*printf("overflow_wid = %u\n", overflow_wid);*/
 
 			if (overflow_wid < kNBINS){
-				overflow_hi = histDest.bins[i+j] + (uint32_t)((uint32_t)hist1.bins[i] * hist2.bins[j]);
+				overflow_hi = histDest->bins[i+j] + (uint32_t)((uint32_t)hist1->bins[i] * hist2->bins[j]);
+				/*printf("histdestbinsij = %u\n", histDest->bins[i+j]);*/
+				/*printf("hist1i = %u\n", hist1->bins[i]);*/
+				/*printf("hist2j = %u\n", hist2->bins[j]);*/
+				/*printf("overflow_hi = %u\n", overflow_hi);*/
 
 				if (overflow_hi < 65536){
-					histDest.bins[i+j] += hist1.bins[i] * hist2.bins[j];
+					/*printf("overflow_hi<65536\n");*/
+					histDest->bins[i+j] += hist1->bins[i] * hist2->bins[j];
 				}
 				else{
 					// Bin overflow error
-					// TODO implement (also missing from original implementation)
+					// TODO implement (also missing from original implementation -- how to handle?)
+					printf("UNIMPLEMENTED bin overflow error\n");
 				}
 			}
 			else{
 				// Value overflow error
-				// TODO implement (also missing from original implementation)
+				// TODO implement (also missing from original implementation -- how to handle?)
+					printf("UNIMPLEMENTED value overflow error\n");
 			}
 		}
 	}
 
-	return histDest;
+	// TODO Idea: normalise to same mean frequency?
+	/*double meanFreq = Histogram_MeanFrequency(histDest);*/
+	/*for (int i = 0; i < kNBINS; i++){*/
+		/*histDest->bins[i] /= (meanFreq);*/
+	/*}*/
+
+	// TODO Idea: normalise to same full scale (say, 255?)
+	/*for (int i = 0; i < kNBINS; i++){*/
+		/*histDest->bins[i] /= ;*/
+	/*}*/
+	
+	
+	return;
 }
 
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
@@ -235,7 +256,6 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 		normalised[i] = histogram->bins[i] / FULLSCALE;
 	}
 
-	mprint(E, S, nodeinfo, "Printing information for register __TODO__\n");
 	mprint(E, S, nodeinfo, "Histogram mean frequency (mean bin occupation): %.3f\n", meanFreq);
 	mprint(E, S, nodeinfo, "bin | val | graphical representation (scaled rel. to mean freq)\n");
 	mprint(E, S, nodeinfo, "----+-----+----------------------------------------------------\n");
