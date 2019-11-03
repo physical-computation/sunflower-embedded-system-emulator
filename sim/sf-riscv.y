@@ -1216,11 +1216,11 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumphist(yyengine, yyengine->cp, $2);
 			}
 		}
-		| T_DUMPHISTPRETTY '\n'
+		| T_DUMPHISTPRETTY uimm '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->dumphistpretty(yyengine, yyengine->cp);
+				yyengine->cp->dumphistpretty(yyengine, yyengine->cp, $2);
 			}
 		}
 

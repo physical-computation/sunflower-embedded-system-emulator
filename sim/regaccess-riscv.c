@@ -171,6 +171,7 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 void Histogram_LDGaussian(Histogram *histogram, int mean, int variance){
 	/*
 	 * Load a Gaussian distribution into *histogram
+	 * TODO implement: atm this is a lie, it's just independent random numbers for each bin
 	 */
 
 	// Create array
@@ -215,9 +216,6 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	 * V bin index
 	 *
 	 */
-
-	// TODO How to use sunflower's own random number generators?
-	/*printf("%f\n", m_pfun_gauss(E, 0, 0, 1, 2, 3, 4));*/
 
 	Histogram_LDGaussian(histogram, 0, 1);
 

@@ -208,22 +208,22 @@ riscvfatalaction(Engine *E, State *S)
 // Print histogram
 void
 riscvdumphist(Engine *E, State *S, int histogram_id){
-	mprint(E, S, nodeinfo, "Histogram corresponding to register %u\n", histogram_id);
-	mprint(E, S, nodeinfo, "bin value\n");
-
-	// TODO testing here
-	Histogram_LDGaussian(&S->riscv->histograms[histogram_id], 0, 1);
+	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
+	mprint(E, S, nodeinfo, "bin | val \n");
+	mprint(E, S, nodeinfo, "----+-----\n");
 
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histograms[histogram_id].bins[i]);
-		// TODO histogram id hardcoded
+		mprint(E, S, nodeinfo, "%03u | %-3u\n", i, S->riscv->histograms[histogram_id].bins[i]);
 	}
+
+	return;
 }
 
 void
-riscvdumphistpretty(Engine *E, State *S){
-	// TODO histogram id hardcoded
-	Histogram_PrettyPrint(E, S, &S->riscv->histograms[0]);
+riscvdumphistpretty(Engine *E, State *S, int histogram_id){
+	Histogram_PrettyPrint(E, S, &S->riscv->histograms[histogram_id]);
+	
+	return;
 }
 
 
