@@ -34,6 +34,7 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
+#include <stdlib.h>
 #include "sf.h"
 #include <stdint.h>
 #include <string.h>
@@ -175,16 +176,18 @@ void Histogram_LDGaussian(Histogram *histogram, int mean, int variance){
 	// Create array
 	HistogramBinDatatype array[kNBINS] = {};
 	for (int i = 0; i < kNBINS; i++){
-		array[i] = i;
+		array[i] = (rand()/(double)RAND_MAX) * 255; // TODO pick something reasonable for testing
+		/*array[i] = (rand()/(double)RAND_MAX) * ((HistogramBinDatatype)~(HistogramBinDatatype)0);*/
+		// The final expression finds the maximum value this datatype can take
 	}
 
 	// Load into histogram
 	Histogram_LDDist(histogram, array);
 }
 
-double Histogram_Mean(Histogram *histogram){
+double Histogram_MeanFrequency(Histogram *histogram){
 	/*
-	 * Return the mean of a histogram
+	 * Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
 	 */
 
 	double sum = 0; // TODO could be performance-optimised if histogram max sum is known from kNBINS*sizeof(HistogramBinDatatype). Playing it safe here
@@ -213,19 +216,36 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	 *
 	 */
 
+	// TODO How to use sunflower's own random number generators?
+	/*printf("%f\n", m_pfun_gauss(E, 0, 0, 1, 2, 3, 4));*/
+
+	Histogram_LDGaussian(histogram, 0, 1);
+
 	double normalised[kNBINS] = {};
-	double mean = Histogram_Mean(histogram);
+	double meanFreq = Histogram_MeanFrequency(histogram);
+
+	/*HistogramBinDatatype FULLSCALE = (HistogramBinDatatype)~(HistogramBinDatatype)0;*/
+	// This expression finds the maximum value this datatype can take
+	
+	// Alternatively, auto-scaling could be done by the following:
+	double FULLSCALE = 3 * meanFreq;
+
+	const int FULLSCALE_NUMBER_OF_CHARS = 30;
 
 	for (int i = 0; i < kNBINS; i++){
-		normalised[i] = histogram->bins[i] / mean;
+		normalised[i] = histogram->bins[i] / FULLSCALE;
 	}
 
 	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
-	mprint(E, S, nodeinfo, "bin value\n");
+	mprint(E, S, nodeinfo, "Histogram mean frequency (bin occupation): %.3f\n", meanFreq);
 
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u %-3u\n", i, normalised[i]);
+		mprint(E, S, nodeinfo, "%03u %-3u ", i, histogram->bins[i]);
+		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]));*/
+		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]*FULLSCALE_NUMBER_OF_CHARS));*/
+		for (int j = 0; j < (int)(normalised[i]*FULLSCALE_NUMBER_OF_CHARS); j++){
+			mprint(E, S, nodeinfo, "#");
+		}
+		mprint(E, S, nodeinfo, "\n");
 	}
-
-
 }
