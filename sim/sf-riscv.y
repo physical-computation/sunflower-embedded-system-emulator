@@ -1209,12 +1209,11 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
-		/*| T_DUMPHIST uimm '\n'*/ // TODO add argument
-		| T_DUMPHIST '\n'
+		| T_DUMPHIST uimm '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				yyengine->cp->dumphist(yyengine, yyengine->cp);
+				yyengine->cp->dumphist(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_DUMPHISTPRETTY '\n'

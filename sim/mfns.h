@@ -728,7 +728,7 @@ int	riscvfaststep(Engine *E, State *S, int drain_pipe);
  * Histogram-specific functions
  */
 // Print histogram
-void riscvdumphist(Engine *E, State *S);
+void riscvdumphist(Engine *E, State *S, int histogram_id);
 // Pretty-print histogram distribution
 void riscvdumphistpretty(Engine *E, State *S);
 

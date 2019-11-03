@@ -207,15 +207,15 @@ riscvfatalaction(Engine *E, State *S)
  */
 // Print histogram
 void
-riscvdumphist(Engine *E, State *S){
-	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
+riscvdumphist(Engine *E, State *S, int histogram_id){
+	mprint(E, S, nodeinfo, "Histogram corresponding to register %u\n", histogram_id);
 	mprint(E, S, nodeinfo, "bin value\n");
 
 	// TODO testing here
-	Histogram_LDGaussian(&S->riscv->histograms[0], 0, 1);
+	Histogram_LDGaussian(&S->riscv->histograms[histogram_id], 0, 1);
 
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histograms[0].bins[i]);
+		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histograms[histogram_id].bins[i]);
 		// TODO histogram id hardcoded
 	}
 }

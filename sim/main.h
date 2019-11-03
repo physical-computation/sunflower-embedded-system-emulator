@@ -720,7 +720,7 @@ struct State
 	/*
 	 * Histogram-specific actions
 	 */
-	void 		(*dumphist)(Engine *, State *S);
+	void 		(*dumphist)(Engine *, State *S, int histogram_id);
 	void 		(*dumphistpretty)(Engine *, State *S);
 
 	/*	Memory mapped device register read/write functions	*/

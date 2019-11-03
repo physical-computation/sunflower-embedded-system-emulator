@@ -230,17 +230,19 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	// Alternatively, auto-scaling could be done by the following:
 	double FULLSCALE = 3 * meanFreq;
 
-	const int FULLSCALE_NUMBER_OF_CHARS = 30;
+	const int FULLSCALE_NUMBER_OF_CHARS = 40;
 
 	for (int i = 0; i < kNBINS; i++){
 		normalised[i] = histogram->bins[i] / FULLSCALE;
 	}
 
-	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
-	mprint(E, S, nodeinfo, "Histogram mean frequency (bin occupation): %.3f\n", meanFreq);
+	mprint(E, S, nodeinfo, "Printing information for register __TODO__\n");
+	mprint(E, S, nodeinfo, "Histogram mean frequency (mean bin occupation): %.3f\n", meanFreq);
+	mprint(E, S, nodeinfo, "bin | val | graphical representation (scaled rel. to mean freq)\n");
+	mprint(E, S, nodeinfo, "----+-----+----------------------------------------------------\n");
 
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u %-3u ", i, histogram->bins[i]);
+		mprint(E, S, nodeinfo, "%03u | %-3u | ", i, histogram->bins[i]);
 		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]));*/
 		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]*FULLSCALE_NUMBER_OF_CHARS));*/
 		for (int j = 0; j < (int)(normalised[i]*FULLSCALE_NUMBER_OF_CHARS); j++){

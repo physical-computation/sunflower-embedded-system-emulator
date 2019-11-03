@@ -68,7 +68,7 @@ TokenTab riscv_token_table [] =
 	{"FF",		T_MODEFF},				/*+	Set simulator in fast functional mode.:none									*/
 	{"MMAP",	T_MMAP},				/*+	Map memory of one simulated node into another.:<source (integer)> <destination (integer)>			*/
 	{"DUMPREGS",	T_DUMPREGS},				/*+	Show the contents of the general purpose registers.:none							*/
-	{"DUMPHIST",	T_DUMPHIST},				/*+	Show the contents of a histogram register.:none							*/
+	{"DUMPHIST",	T_DUMPHIST},				/*+	Show the contents of a histogram register.:<histogram register>							*/
 	{"DUMPHISTPRETTY",	T_DUMPHISTPRETTY},				/*+	Show the contents of a histogram register, with ASCII-graph representation.:none							*/
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
