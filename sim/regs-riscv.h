@@ -35,6 +35,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "inst_uncertain.h"
+
 enum
 {
 	RISCV_X0	= 0,
@@ -271,7 +273,8 @@ typedef union
 // TODO C doesn't allow the next line, as it only accepts #defines/hardcoding for array size declarations
 //      Would need to rewrite with e.g. malloc() instead to avoid define (suggestions welcome)
 //const unsigned int kNBINS = 256;
-#define kNBINS 256
+//#define kNBINS 256
+#define kNBINS 8 // TODO changed for debugging
 typedef int32_t HistogramBinDatatype;
 
 // TODO Is this the best place to define this datatype?
@@ -292,4 +295,11 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 
+// Load Gaussian distribution
+void Histogram_LDGaussian(Histogram *histogram, int mean, int variance);
 
+// Return mean of given histogram
+double Histogram_Mean(Histogram *histogram);
+
+// Pretty-print histogram distribution
+void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram);

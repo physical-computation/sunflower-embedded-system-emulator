@@ -202,16 +202,30 @@ riscvfatalaction(Engine *E, State *S)
 	return;
 }
 
+/*
+ * Histograms
+ */
 // Print histogram
 void
 riscvdumphist(Engine *E, State *S){
 	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
 	mprint(E, S, nodeinfo, "bin value\n");
 
+	// TODO testing here
+	Histogram_LDGaussian(&S->riscv->histograms[0], 0, 1);
+
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histogram0.bins[i]);
+		mprint(E, S, nodeinfo, "%03u %-3u\n", i, S->riscv->histograms[0].bins[i]);
+		// TODO histogram id hardcoded
 	}
 }
+
+void
+riscvdumphistpretty(Engine *E, State *S){
+	// TODO histogram id hardcoded
+	Histogram_PrettyPrint(E, S, &S->riscv->histograms[0]);
+}
+
 
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
@@ -251,10 +265,15 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
 
 	S->dumpregs = riscvdumpregs;
-	S->dumphist = riscvdumphist;
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
+	
+	/*
+	 * Histogram-specific menu items
+	 */
+	S->dumphist = riscvdumphist;
+	S->dumphistpretty = riscvdumphistpretty;
 
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;

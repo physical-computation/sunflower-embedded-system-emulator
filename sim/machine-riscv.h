@@ -54,7 +54,8 @@ struct RiscvState
 	/*
 	 * Histograms
 	 */
-	Histogram histogram0;
+	#define kMAX_NUM_HISTOGRAMS 3
+	Histogram histograms[kMAX_NUM_HISTOGRAMS];
 };
 
 typedef struct RiscvState RiscvState;

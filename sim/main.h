@@ -711,13 +711,17 @@ struct State
 	/*		Other misc machine specific actions		*/
 	void 		(*fatalaction)(Engine *, State *S);
 	void 		(*dumpregs)(Engine *, State *S);
-	//void 		(*dumphist)(Engine *, State *S, uint8_t histogramRegister);
-	void 		(*dumphist)(Engine *, State *S);
 	void 		(*dumpsysregs)(Engine *, State *S);
 	void 		(*resetcpu)(Engine *, State *S);
 	void 		(*dumppipe)(Engine *, State *S);
         void 		(*dumpdistribution)(Engine *, State *S);
         void 		(*flushpipe)(State *S);
+
+	/*
+	 * Histogram-specific actions
+	 */
+	void 		(*dumphist)(Engine *, State *S);
+	void 		(*dumphistpretty)(Engine *, State *S);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);

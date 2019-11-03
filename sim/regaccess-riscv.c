@@ -121,7 +121,7 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 	 * Add two distributions, considering overflow
 	 */
 
-	// TODO meaning of abbreviations? 
+	// TODO meaning of abbreviation "wid"? Width?
 	// TODO choice of data type explained by? go through entire code.
 	//      Alexa's implementation was based around uint16_t bins
 	uint16_t overflow_wid = 0;
@@ -147,12 +147,12 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 				}
 				else{
 					// Bin overflow error
-					// TODO implement
+					// TODO implement (also missing from original implementation)
 				}
 			}
 			else{
 				// Value overflow error
-				// TODO implement
+				// TODO implement (also missing from original implementation)
 			}
 		}
 	}
@@ -164,7 +164,68 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	/*
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
 	 */
-	memcpy(histogram->bins, bins, sizeof(*bins));
+	memcpy(histogram->bins, bins, sizeof(HistogramBinDatatype)*kNBINS);
+}
+
+void Histogram_LDGaussian(Histogram *histogram, int mean, int variance){
+	/*
+	 * Load a Gaussian distribution into *histogram
+	 */
+
+	// Create array
+	HistogramBinDatatype array[kNBINS] = {};
+	for (int i = 0; i < kNBINS; i++){
+		array[i] = i;
+	}
+
+	// Load into histogram
+	Histogram_LDDist(histogram, array);
+}
+
+double Histogram_Mean(Histogram *histogram){
+	/*
+	 * Return the mean of a histogram
+	 */
+
+	double sum = 0; // TODO could be performance-optimised if histogram max sum is known from kNBINS*sizeof(HistogramBinDatatype). Playing it safe here
+
+	for (int i = 0; i < kNBINS; i++){
+		sum += histogram->bins[i];
+	}
+
+	return sum / (double)kNBINS;
 }
 
 
+void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
+	/*
+	 * Pretty-print ("ASCII-graph") a normalised histogram representation, like so:
+	 *
+	 * +-> bin value
+	 * |
+	 * | #
+	 * | ##
+	 * | ###
+	 * | ##
+	 * | #
+	 * |
+	 * V bin index
+	 *
+	 */
+
+	double normalised[kNBINS] = {};
+	double mean = Histogram_Mean(histogram);
+
+	for (int i = 0; i < kNBINS; i++){
+		normalised[i] = histogram->bins[i] / mean;
+	}
+
+	mprint(E, S, nodeinfo, "Histogram corresponding to register __TODO__\n");
+	mprint(E, S, nodeinfo, "bin value\n");
+
+	for (int i = 0; i < kNBINS; i++){
+		mprint(E, S, nodeinfo, "%03u %-3u\n", i, normalised[i]);
+	}
+
+
+}
