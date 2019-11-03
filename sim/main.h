@@ -722,6 +722,7 @@ struct State
 	 */
 	void 		(*dumphist)(Engine *, State *S, int histogram_id);
 	void 		(*dumphistpretty)(Engine *, State *S, int histogram_id);
+	void 		(*ldhistrandom)(Engine *, State *S, int histogram_id);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);

@@ -70,6 +70,7 @@ TokenTab riscv_token_table [] =
 	{"DUMPREGS",	T_DUMPREGS},				/*+	Show the contents of the general purpose registers.:none							*/
 	{"DUMPHIST",	T_DUMPHIST},				/*+	Show the contents of a histogram register.:<histogram register>							*/
 	{"DUMPHISTPRETTY",	T_DUMPHISTPRETTY},				/*+	Show the contents of a histogram register, with ASCII-graph representation.:<histogram register>							*/
+	{"LDHISTRND",	T_LDHISTRND},				/*+	Fill a histogram register with random values.:<histogram register>							*/
 	{"DUMPSYSREGS",	T_DUMPSYSREGS},				/*+	Show the contents of the system registers.:none									*/
 	{"DUMPMEM",	T_DUMPMEM},				/*+	Show contents of memory.:<start mem address (hexadecimal)> <end mem address (hexadecimal)>			*/
 	{"DUMPPIPE",	T_DUMPPIPE},				/*+	Show the contents of the pipeline stages.:none									*/

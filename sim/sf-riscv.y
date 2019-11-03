@@ -106,6 +106,7 @@
 %token	T_DUMPREGS
 %token	T_DUMPHIST
 %token	T_DUMPHISTPRETTY
+%token	T_LDHISTRND
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
 %token	T_DUMPTLB
@@ -1223,7 +1224,13 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumphistpretty(yyengine, yyengine->cp, $2);
 			}
 		}
-
+		| T_LDHISTRND uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->ldhistrandom(yyengine, yyengine->cp, $2);
+			}
+		}
 		| T_DUMPSYSREGS '\n'
 		{
 			if (!yyengine->scanning)

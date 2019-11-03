@@ -166,24 +166,27 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
 	 */
 	memcpy(histogram->bins, bins, sizeof(HistogramBinDatatype)*kNBINS);
+
+	return;
 }
 
-void Histogram_LDGaussian(Histogram *histogram, int mean, int variance){
+void Histogram_LDRandom(Histogram *histogram){
 	/*
-	 * Load a Gaussian distribution into *histogram
-	 * TODO implement: atm this is a lie, it's just independent random numbers for each bin
+	 * Initialise *histogram with random values in each bin
 	 */
 
 	// Create array
 	HistogramBinDatatype array[kNBINS] = {};
 	for (int i = 0; i < kNBINS; i++){
-		array[i] = (rand()/(double)RAND_MAX) * 255; // TODO pick something reasonable for testing
+		array[i] = (rand()/(double)RAND_MAX) * 255; // TODO picked some reasonable max value allowing by-eye debugging, increase to data type maximum later:
 		/*array[i] = (rand()/(double)RAND_MAX) * ((HistogramBinDatatype)~(HistogramBinDatatype)0);*/
 		// The final expression finds the maximum value this datatype can take
 	}
 
 	// Load into histogram
 	Histogram_LDDist(histogram, array);
+
+	return;
 }
 
 double Histogram_MeanFrequency(Histogram *histogram){
@@ -217,8 +220,6 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	 *
 	 */
 
-	Histogram_LDGaussian(histogram, 0, 1);
-
 	double normalised[kNBINS] = {};
 	double meanFreq = Histogram_MeanFrequency(histogram);
 
@@ -248,4 +249,6 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 		}
 		mprint(E, S, nodeinfo, "\n");
 	}
+
+	return;
 }

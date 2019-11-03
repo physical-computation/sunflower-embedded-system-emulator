@@ -219,6 +219,7 @@ riscvdumphist(Engine *E, State *S, int histogram_id){
 	return;
 }
 
+// Print histogram with extra stats and ASCII graphics
 void
 riscvdumphistpretty(Engine *E, State *S, int histogram_id){
 	Histogram_PrettyPrint(E, S, &S->riscv->histograms[histogram_id]);
@@ -226,6 +227,12 @@ riscvdumphistpretty(Engine *E, State *S, int histogram_id){
 	return;
 }
 
+void
+riscvldhistrandom(Engine *E, State *S, int histogram_id){
+	Histogram_LDRandom(&S->riscv->histograms[histogram_id]);
+	
+	return;
+}
 
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
@@ -274,6 +281,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	 */
 	S->dumphist = riscvdumphist;
 	S->dumphistpretty = riscvdumphistpretty;
+	S->ldhistrandom = riscvldhistrandom;
 
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;

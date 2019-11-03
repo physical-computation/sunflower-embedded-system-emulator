@@ -295,8 +295,8 @@ Histogram Histogram_AddDist(Histogram hist1, Histogram hist2, Histogram histDest
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 
-// Load Gaussian distribution
-void Histogram_LDGaussian(Histogram *histogram, int mean, int variance);
+// Load random histogram
+void Histogram_LDRandom(Histogram *histogram);
 
 // Return mean of given histogram
 double Histogram_Mean(Histogram *histogram);
