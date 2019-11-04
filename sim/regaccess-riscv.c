@@ -229,7 +229,7 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	/*
 	 * Pretty-print ("ASCII-graph") a normalised histogram representation, like so:
 	 *
-	 * +-> bin value
+	 * +-----> bin value
 	 * |
 	 * | #
 	 * | ##
@@ -257,11 +257,11 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	}
 
 	mprint(E, S, nodeinfo, "Histogram mean frequency (mean bin occupation): %.3f\n", meanFreq);
-	mprint(E, S, nodeinfo, "bin | val | graphical representation (scaled rel. to mean freq)\n");
-	mprint(E, S, nodeinfo, "----+-----+----------------------------------------------------\n");
+	mprint(E, S, nodeinfo, "bin | value | graphical representation (scaled rel. to mean freq)\n");
+	mprint(E, S, nodeinfo, "----+-------+----------------------------------------------------\n");
 
 	for (int i = 0; i < kNBINS; i++){
-		mprint(E, S, nodeinfo, "%03u | %-3u | ", i, histogram->bins[i]);
+		mprint(E, S, nodeinfo, "%03u | %-5u | ", i, histogram->bins[i]);
 		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]));*/
 		/*mprint(E, S, nodeinfo, "%f\n", (normalised[i]*FULLSCALE_NUMBER_OF_CHARS));*/
 		for (int j = 0; j < (int)(normalised[i]*FULLSCALE_NUMBER_OF_CHARS); j++){
