@@ -242,6 +242,21 @@ int Histogram_LowerBound(Histogram *hist){
 	return -1;
 }
 
+int Histogram_UpperBound(Histogram *hist){
+	/*
+	 * Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
+	 *
+	 * Returns -1 if all bins are empty.
+	 */
+	
+	for (int k = kNBINS-1; k >= 0; k--){
+		if (hist->bins[k] != 0){
+			return k;
+		}
+	}
+
+	return -1;
+}
 
 
 

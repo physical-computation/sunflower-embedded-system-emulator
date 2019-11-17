@@ -305,6 +305,10 @@ void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest)
 // Returns -1 if all bins are empty.
 int Histogram_LowerBound(Histogram *hist);
 
+// Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
+// Returns -1 if all bins are empty.
+int Histogram_UpperBound(Histogram *hist);
+
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 
