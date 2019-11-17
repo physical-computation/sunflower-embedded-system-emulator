@@ -292,6 +292,12 @@ typedef struct
 // Add two distributions, considering overflow
 void Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
+// Multiply each bin with a scalar
+void Histogram_ScalarMultiply(Histogram *hist, HistogramBinDatatype scalar);
+
+// Subtract two distributions, considering overflow
+void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
+
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 

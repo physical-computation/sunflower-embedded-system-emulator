@@ -156,13 +156,13 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 				else{
 					// Bin overflow error
 					// TODO implement (also missing from original implementation -- how to handle?)
-					printf("UNIMPLEMENTED bin overflow error\n");
+					/*printf("UNIMPLEMENTED bin overflow error\n");*/
 				}
 			}
 			else{
 				// Value overflow error
 				// TODO implement (also missing from original implementation -- how to handle?)
-					printf("UNIMPLEMENTED value overflow error\n");
+					/*printf("UNIMPLEMENTED value overflow error\n");*/
 			}
 		}
 	}
@@ -182,6 +182,37 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	return;
 }
 
+void Histogram_ScalarMultiply(Histogram *hist, HistogramBinDatatype scalar){
+	/*
+	 * Multiply each bin with a scalar
+	 */
+	
+	for (int k = 0; k < kNBINS; k++){
+		hist->bins[k] = scalar * hist->bins[k];
+	}
+
+	return;
+}
+
+void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
+	/*
+	 * Subtract two distributions, considering overflow
+	 */
+
+	// We want to reuse the code for AddDist. To do this, we transform in-place as follows
+	
+	// Negate one of the histograms (pick hist2)
+	Histogram_ScalarMultiply(hist2, -1);
+
+	// Add together to give the result
+	Histogram_AddDist(hist1, hist2, histDest);
+
+	// Undo the change to hist2
+	Histogram_ScalarMultiply(hist2, -1);
+
+	return;
+}
+
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	/*
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
@@ -190,6 +221,7 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 
 	return;
 }
+
 
 void Histogram_LDRandom(Histogram *histogram){
 	/*

@@ -54,7 +54,8 @@ struct RiscvState
 	/*
 	 * Histograms
 	 */
-	#define kMAX_NUM_HISTOGRAMS 3
+	#define kMAX_NUM_HISTOGRAMS 10
+	// TODO this could be the number of registers, or perhaps we want only a subset of them to be histogram-enable registers
 	Histogram histograms[kMAX_NUM_HISTOGRAMS];
 };
 
