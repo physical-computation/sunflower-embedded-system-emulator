@@ -150,6 +150,8 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 				else{
 					// Bin overflow error
 					mprint("WARN: encountered bin overflow in histogram operation\n");
+					// TODO should this be an merror() instead? How would the user silence these warnings
+					// if they take already take care of overflows at a later stage?
 				}
 			}
 			else{
