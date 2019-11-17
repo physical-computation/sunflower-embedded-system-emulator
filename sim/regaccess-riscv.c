@@ -213,6 +213,25 @@ void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	return;
 }
 
+void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
+	/*
+	 * Add two distograms in the simple fashion of adding corresponding bins together
+	 */
+	
+	for (int k = 0; k < kNBINS; k++){
+		histDest->bins[k] = hist1->bins[k] * hist2->bins[k];
+	}
+
+	return;
+}
+
+
+
+
+
+
+
+
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	/*
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
