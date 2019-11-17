@@ -1,4 +1,4 @@
-// This file was created from latencies-riscv.h using mkdecode-riscv
+/*	This is dependent on latencies-riscv.h	*/
 enum
 {
 	RISCV_OP_LUI,

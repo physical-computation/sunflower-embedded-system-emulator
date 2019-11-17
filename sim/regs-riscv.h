@@ -260,34 +260,19 @@ typedef union
 
 
 
-//if (INCLUDE_HISTOGRAM_IMPLEMENTATION == true){ // TODO conditional compilation via SF_ flag
 
 /*
  * Histograms (Idea: Alexa's final project thesis, Initial implementation: Jan (jh2109))
  */
 
 
-// TODO consider whether this should be part of the typedef, i.e. be dynamically allocated
-//      that would be more flexible, but arguably less aligned with how a processor operating
-//      on fixed-precision variables would work
-// TODO C doesn't allow the next line, as it only accepts #defines/hardcoding for array size declarations
-//      Would need to rewrite with e.g. malloc() instead to avoid define (suggestions welcome)
-//const unsigned int kNBINS = 256;
-//#define kNBINS 256
-#define kNBINS 8 // TODO changed for debugging
+#define kNBINS 8
 typedef uint16_t HistogramBinDatatype;
 
-// TODO Is this the best place to define this datatype?
 typedef struct
 {
-	// TODO I chose the more familiar term "bins" rather than Alexa's "weights".
-	// The term "weights" does not appear in her report, so I am not sure of the motivation
-	// to use weights instead ('weights' are more common in vector terminology?)
 	HistogramBinDatatype bins[kNBINS];
 } Histogram;
-// TODO This is screaming "template me", but I am only familiar with C++ templates (e.g. histogram<uint32_t>)
-//      For now this is fixed at compile-time via HistogramBinDatatype
-
 
 // Add two distributions, considering overflow
 void Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);

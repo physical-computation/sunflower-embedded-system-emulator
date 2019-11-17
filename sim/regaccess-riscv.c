@@ -112,18 +112,13 @@ void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 void
 Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
-	 * Add two distributions, considering overflow
+	 *	Add two distributions, considering overflow
 	 */
 
-	// TODO meaning of abbreviation "wid"? Width?
-	// TODO choice of data type explained by? go through entire code.
-	//      Alexa's implementation was based around uint16_t bins
 	uint16_t overflow_wid = 0;
 	uint32_t overflow_hi = 0;
 
 	// Zero-out destination histogram
-	// TODO Alexa wrote "just in case" -- why?
-	//      Presumably this is to say it is our responsibility to initialise
 	for (int k = 0; k < kNBINS; k++){
 		histDest->bins[k] = 0;
 	}
@@ -142,8 +137,6 @@ Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histo
 				else{
 					// Bin overflow error
 					mprint(E, S, nodeinfo, "WARN: encountered bin overflow in histogram operation\n");
-					// TODO should this be an merror() instead? How would the user silence these warnings
-					// if they take already take care of overflows at a later stage?
 				}
 			}
 			else{
@@ -152,25 +145,13 @@ Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histo
 			}
 		}
 	}
-
-	// TODO Idea: normalise to same mean frequency?
-	/*double meanFreq = Histogram_MeanFrequency(histDest);*/
-	/*for (int i = 0; i < kNBINS; i++){*/
-		/*histDest->bins[i] /= (meanFreq);*/
-	/*}*/
-
-	// TODO Idea: normalise to same full scale (say, 255?)
-	/*for (int i = 0; i < kNBINS; i++){*/
-		/*histDest->bins[i] /= ;*/
-	/*}*/
-	
 	
 	return;
 }
 
 void Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBinDatatype scalar){
 	/*
-	 * Multiply each bin with a scalar
+	 *	Multiply each bin with a scalar
 	 */
 	
 	for (int k = 0; k < kNBINS; k++){
@@ -182,7 +163,7 @@ void Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBin
 
 void Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
-	 * Subtract two distributions, considering overflow
+	 *	Subtract two distributions, considering overflow
 	 */
 
 	// We want to reuse the code for AddDist. To do this, we transform in-place as follows
@@ -242,7 +223,7 @@ void Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, 
 
 void Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
-	 * Add two distograms in the simple fashion of adding corresponding bins together
+	 *	Add two distograms in the simple fashion of adding corresponding bins together
 	 */
 	
 	for (int k = 0; k < kNBINS; k++){
@@ -254,9 +235,9 @@ void Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2,
 
 int Histogram_LowerBound(Engine *E, State *S, Histogram *hist){
 	/*
-	 * Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
-	 *
-	 * Returns -1 if all bins are empty.
+	 *	Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
+	 *	
+	 *	Returns -1 if all bins are empty.
 	 */
 	
 	for (int k = 0; k < kNBINS; k++){
@@ -270,9 +251,9 @@ int Histogram_LowerBound(Engine *E, State *S, Histogram *hist){
 
 int Histogram_UpperBound(Engine *E, State *S, Histogram *hist){
 	/*
-	 * Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
-	 *
-	 * Returns -1 if all bins are empty.
+	 *	Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
+	 *	
+	 *	Returns -1 if all bins are empty.
 	 */
 	
 	for (int k = kNBINS-1; k >= 0; k--){
@@ -286,8 +267,8 @@ int Histogram_UpperBound(Engine *E, State *S, Histogram *hist){
 
 void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 	/*
-	 * DistLShift shifts the heights of the bins left by rs2, effectively subtracting rs2 from each bin.
-	 * This reduces the mean of the distribution by rs2.
+	 *	DistLShift shifts the heights of the bins left by rs2, effectively subtracting rs2 from each bin.
+	 *	This reduces the mean of the distribution by rs2.
 	 */
     int k = 0;
     int i = 0;
@@ -307,8 +288,8 @@ void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Hi
 
 void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 	/*
-	 * DistRShift shifts the heights of the bins right by rs2, effectively adding rs2 to each bin.
-	 * This increases the mean of the distribution by rs2.
+	 *	DistRShift shifts the heights of the bins right by rs2, effectively adding rs2 to each bin.
+	 *	This increases the mean of the distribution by rs2.
 	 */
     int k = 0;
     int i = 0;
@@ -331,8 +312,8 @@ void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Hi
 
 uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist){
 	/*
-	 * Exp returns the expected value of the histogram. This provides an estimate of the 
-	 * variable and allows the histogram to be converted into a point value.
+	 *	Exp returns the expected value of the histogram. This provides an estimate of the 
+	 *	variable and allows the histogram to be converted into a point value.
 	 */
 	int sum = 0;
 	int n = 0;
@@ -355,11 +336,11 @@ uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist){
 uint32_t
 Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 	/*
-	 * DistLess returns the probability Pr(X < Rs2). 
-	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
-	 * The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
-	 * It is expected that this instruction will often be followed by one of the branch instructions 
-	 * in the base instruction set.
+	 *	DistLess returns the probability Pr(X < Rs2). 
+	 *	X is a discrete random variable distributed according to the relative frequencies of hist1. 
+	 *	The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
+	 *	It is expected that this instruction will often be followed by one of the branch instructions 
+	 *	in the base instruction set.
 	 */
 	int i = 0;
 	int num = 0;
@@ -387,11 +368,11 @@ Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 
 uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 	/*
-	 * DistLess returns the probability Pr(X >= Rs2). 
-	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
-	 * The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
-	 * It is expected that this instruction will often be followed by one of the branch instructions 
-	 * in the base instruction set.
+	 *	DistLess returns the probability Pr(X >= Rs2). 
+	 *	X is a discrete random variable distributed according to the relative frequencies of hist1. 
+	 *	The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
+	 *	It is expected that this instruction will often be followed by one of the branch instructions 
+	 *	in the base instruction set.
 	 */
 	int i = 0;
 	int num = 0;
@@ -418,7 +399,7 @@ uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 
 void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype *bins){
 	/*
-	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
+	 *	Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
 	 */
 	memcpy(histogram->bins, bins, sizeof(HistogramBinDatatype)*kNBINS);
 
@@ -427,15 +408,18 @@ void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDat
 
 void Histogram_LDRandom(Engine *E, State *S, Histogram *histogram){
 	/*
-	 * Initialise *histogram with random values in each bin
+	 *	Initialise *histogram with random values in each bin
 	 */
 
 	// Create array
 	HistogramBinDatatype array[kNBINS] = {};
 	for (int i = 0; i < kNBINS; i++){
-		array[i] = (rand()/(double)RAND_MAX) * 255; // TODO picked some reasonable max value allowing by-eye debugging, increase to data type maximum later:
-		/*array[i] = (rand()/(double)RAND_MAX) * ((HistogramBinDatatype)~(HistogramBinDatatype)0);*/
-		// The final expression finds the maximum value this datatype can take
+		array[i] = (rand()/(double)RAND_MAX) * 255;
+		/*
+		 *  Picked some reasonable max value allowing by-eye debugging, increase to data type maximum later:
+		 *	array[i] = (rand()/(double)RAND_MAX) * ((HistogramBinDatatype)~(HistogramBinDatatype)0);
+		 *	The final expression finds the maximum value this datatype can take
+		 */
 	}
 
 	// Load into histogram
@@ -446,10 +430,10 @@ void Histogram_LDRandom(Engine *E, State *S, Histogram *histogram){
 
 double Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram){
 	/*
-	 * Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
+	 *	Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
 	 */
 
-	double sum = 0; // TODO could be performance-optimised if histogram max sum is known from kNBINS*sizeof(HistogramBinDatatype). Playing it safe here
+	double sum = 0;
 
 	for (int i = 0; i < kNBINS; i++){
 		sum += histogram->bins[i];
@@ -461,18 +445,18 @@ double Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram){
 
 void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	/*
-	 * Pretty-print ("ASCII-graph") a normalised histogram representation, like so:
-	 *
-	 * +-----> bin value
-	 * |
-	 * | #
-	 * | ##
-	 * | ###
-	 * | ##
-	 * | #
-	 * |
-	 * V bin index
-	 *
+	 *	Pretty-print ("ASCII-graph") a normalised histogram representation, like so:
+	 *	
+	 *	+-----> bin value
+	 *	|
+	 *	| #
+	 *	| ##
+	 *	| ###
+	 *	| ##
+	 *	| #
+	 *	|
+	 *	V bin index
+	 *	
 	 */
 
 	double normalised[kNBINS] = {};

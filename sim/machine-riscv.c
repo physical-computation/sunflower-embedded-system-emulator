@@ -214,17 +214,6 @@ riscvldhistrandom(Engine *E, State *S, int histogram_id){
 	return;
 }
 
-// Load histogram from memory
-/*
- * void
- * riscvlddist(Engine *E, State *S, int histogram_id){
- * 	// TODO this is meaningless from within the processor -- it loads a histogram from some
- * 	//  emulator-accessible memory. In the future, this should be able to load a histogram from some
- *  //  processor-accessible memory, for which a data structure has to be defined to allow load/store
- *  //  of histograms
- * }
- */
-
 // Add two histograms
 void
 riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
