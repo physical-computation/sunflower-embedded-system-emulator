@@ -318,6 +318,12 @@ void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest);
 //Works out the mean
 uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd);
 
+// DistLess returns the probability Pr(X < Rs2)
+uint32_t Histogram_DistLess(Histogram *hist, uint32_t Rs2, uint32_t Rd);
+
+// DistGrt returns the probability Pr(X >= Rs2)
+uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd);
+
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 

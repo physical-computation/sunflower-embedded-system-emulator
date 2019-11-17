@@ -366,6 +366,70 @@ uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd){
 }
 
 
+uint32_t Histogram_DistLess(Histogram *hist, uint32_t Rs2, uint32_t Rd){
+	/*
+	 * DistLess returns the probability Pr(X < Rs2). 
+	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
+	 * The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
+	 * It is expected that this instruction will often be followed by one of the branch instructions 
+	 * in the base instruction set.
+	 */
+	int i = 0;
+	int num = 0;
+	int denom = 0;
+	uint32_t outcome = 0;
+
+
+	for(i = 0; i < 256; i++){
+			if(i < Rs2){
+					num = num + hist->bins[i]; //If it is less then
+			}
+			denom = denom + hist->bins[i];
+	}
+
+	if(denom!=0){
+			outcome = (num * 100) / denom; //Note this is integer division. Note that the times by 100 is to make it a percent rather than decimal which cannot be stored easily
+			Rd = outcome;
+			return Rd;
+	}else{
+			Rd = -1;
+			return Rd;
+	}
+}
+
+uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd){
+	/*
+	 * DistLess returns the probability Pr(X >= Rs2). 
+	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
+	 * The probability is returned as an unsigned integer between 0 and 100 representing a percentage. 
+	 * It is expected that this instruction will often be followed by one of the branch instructions 
+	 * in the base instruction set.
+	 */
+	int i = 0;
+	int num = 0;
+	int denom = 0;
+	uint32_t outcome = 0;
+
+
+	for(i = 0; i < 256; i++){
+			if(i >= Rs2){
+					num = num + hist->bins[i]; //If it is less then
+			}
+			denom = denom + hist->bins[i];
+	}
+
+	if(denom!=0){
+			outcome = (num * 100) / denom; //Note this is integer division. Note that the times by 100 is to make it a percent rather than decimal which cannot be stored easily
+			Rd = outcome;
+			return Rd;
+	}else{
+			Rd = -1;
+			return Rd;
+	}
+}
+
+
+
 
 
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
