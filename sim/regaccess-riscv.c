@@ -211,6 +211,47 @@ void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	Histogram_ScalarMultiply(hist2, -1);
 
 	return;
+
+	/* Caveat: Is the above equivalent to the following code in all cases?
+	 *
+	 UInt uncertain_SubDist(UInt Urs1, UInt Urs2, UInt Ud){ //Subtracts distributions
+
+		uint32_t overflow_hi = 0;
+
+
+		int k = 0;
+		int j = 0;
+		int i = 0;
+
+		// Empty Ud (just in case)
+		for(k = 0; k < 256; k++){
+			Ud.weights[i] = 0;
+		}
+
+
+		for (j = 0; j < 256; j++){
+			for(i=0; i<256; i++){
+				if(i >= j){
+
+					overflow_hi = Ud.weights[i - j] + (uint32_t)((uint32_t)Urs1.weights[i] * Urs2.weights[j]); //Nasty casting here
+
+					if(overflow_hi < 65536){
+						Ud.weights[i - j] += Urs1.weights[i] * Urs2.weights[j];
+
+					}else{
+						//Bin overflow error
+					}
+				}else{
+					//Value underflow error
+				}
+			}
+		}
+
+			return Ud;
+		}
+	*/
+
+
 }
 
 void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){

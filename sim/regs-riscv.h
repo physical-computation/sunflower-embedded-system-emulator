@@ -275,7 +275,7 @@ typedef union
 //const unsigned int kNBINS = 256;
 //#define kNBINS 256
 #define kNBINS 8 // TODO changed for debugging
-typedef int32_t HistogramBinDatatype;
+typedef uint16_t HistogramBinDatatype;
 
 // TODO Is this the best place to define this datatype?
 typedef struct
