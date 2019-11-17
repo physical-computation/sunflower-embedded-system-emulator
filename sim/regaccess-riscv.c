@@ -118,7 +118,7 @@ void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 
 
 void
-Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
+Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
 	 * Add two distributions, considering overflow
 	 */
@@ -149,14 +149,14 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 				}
 				else{
 					// Bin overflow error
-					mprint("WARN: encountered bin overflow in histogram operation\n");
+					mprint(E, S, nodeinfo, "WARN: encountered bin overflow in histogram operation\n");
 					// TODO should this be an merror() instead? How would the user silence these warnings
 					// if they take already take care of overflows at a later stage?
 				}
 			}
 			else{
 				// Value overflow error
-				mprint("WARN: encountered value overflow in histogram operation\n");
+				mprint(E, S, nodeinfo, "WARN: encountered value overflow in histogram operation\n");
 			}
 		}
 	}
@@ -176,7 +176,7 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	return;
 }
 
-void Histogram_ScalarMultiply(Histogram *hist, HistogramBinDatatype scalar){
+void Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBinDatatype scalar){
 	/*
 	 * Multiply each bin with a scalar
 	 */
@@ -188,7 +188,7 @@ void Histogram_ScalarMultiply(Histogram *hist, HistogramBinDatatype scalar){
 	return;
 }
 
-void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
+void Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
 	 * Subtract two distributions, considering overflow
 	 */
@@ -196,13 +196,13 @@ void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	// We want to reuse the code for AddDist. To do this, we transform in-place as follows
 	
 	// Negate one of the histograms (pick hist2)
-	Histogram_ScalarMultiply(hist2, -1);
+	Histogram_ScalarMultiply(E, S, hist2, -1);
 
 	// Add together to give the result
-	Histogram_AddDist(hist1, hist2, histDest);
+	Histogram_AddDist(E, S, hist1, hist2, histDest);
 
 	// Undo the change to hist2
-	Histogram_ScalarMultiply(hist2, -1);
+	Histogram_ScalarMultiply(E, S, hist2, -1);
 
 	return;
 
@@ -248,7 +248,7 @@ void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 
 }
 
-void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
+void Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	/*
 	 * Add two distograms in the simple fashion of adding corresponding bins together
 	 */
@@ -260,8 +260,7 @@ void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest)
 	return;
 }
 
-
-int Histogram_LowerBound(Histogram *hist){
+int Histogram_LowerBound(Engine *E, State *S, Histogram *hist){
 	/*
 	 * Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
 	 *
@@ -277,7 +276,7 @@ int Histogram_LowerBound(Histogram *hist){
 	return -1;
 }
 
-int Histogram_UpperBound(Histogram *hist){
+int Histogram_UpperBound(Engine *E, State *S, Histogram *hist){
 	/*
 	 * Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
 	 *
@@ -293,7 +292,7 @@ int Histogram_UpperBound(Histogram *hist){
 	return -1;
 }
 
-void Histogram_DistLShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
+void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 	/*
 	 * DistLShift shifts the heights of the bins left by rs2, effectively subtracting rs2 from each bin.
 	 * This reduces the mean of the distribution by rs2.
@@ -314,7 +313,7 @@ void Histogram_DistLShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 	return;
 }
 
-void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
+void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 	/*
 	 * DistRShift shifts the heights of the bins right by rs2, effectively adding rs2 to each bin.
 	 * This increases the mean of the distribution by rs2.
@@ -338,7 +337,7 @@ void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
 }
 
 
-uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd){
+uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd){
 	/*
 	 * Exp returns the expected value of the histogram. This provides an estimate of the 
 	 * variable and allows the histogram to be converted into a point value.
@@ -360,7 +359,7 @@ uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd){
 }
 
 
-uint32_t Histogram_DistLess(Histogram *hist, uint32_t Rs2, uint32_t Rd){
+uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd){
 	/*
 	 * DistLess returns the probability Pr(X < Rs2). 
 	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
@@ -391,7 +390,7 @@ uint32_t Histogram_DistLess(Histogram *hist, uint32_t Rs2, uint32_t Rd){
 	}
 }
 
-uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd){
+uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd){
 	/*
 	 * DistLess returns the probability Pr(X >= Rs2). 
 	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
@@ -422,7 +421,7 @@ uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd){
 	}
 }
 
-void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
+void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype *bins){
 	/*
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
 	 */
@@ -431,7 +430,7 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	return;
 }
 
-void Histogram_LDRandom(Histogram *histogram){
+void Histogram_LDRandom(Engine *E, State *S, Histogram *histogram){
 	/*
 	 * Initialise *histogram with random values in each bin
 	 */
@@ -445,12 +444,12 @@ void Histogram_LDRandom(Histogram *histogram){
 	}
 
 	// Load into histogram
-	Histogram_LDDist(histogram, array);
+	Histogram_LDDist(E, S, histogram, array);
 
 	return;
 }
 
-double Histogram_MeanFrequency(Histogram *histogram){
+double Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram){
 	/*
 	 * Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
 	 */
@@ -482,7 +481,7 @@ void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram){
 	 */
 
 	double normalised[kNBINS] = {};
-	double meanFreq = Histogram_MeanFrequency(histogram);
+	double meanFreq = Histogram_MeanFrequency(E, S, histogram);
 
 	/*HistogramBinDatatype FULLSCALE = (HistogramBinDatatype)~(HistogramBinDatatype)0;*/
 	// This expression finds the maximum value this datatype can take

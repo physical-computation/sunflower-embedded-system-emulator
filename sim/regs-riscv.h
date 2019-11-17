@@ -290,51 +290,51 @@ typedef struct
 
 
 // Add two distributions, considering overflow
-void Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
+void Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
 // Multiply each bin with a scalar
-void Histogram_ScalarMultiply(Histogram *hist, HistogramBinDatatype scalar);
+void Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBinDatatype scalar);
 
 // Subtract two distributions, considering overflow
-void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
+void Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
 // Add two distograms in the simple fashion of adding corresponding bins together
-void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
+void Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
 // Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
 // Returns -1 if all bins are empty.
-int Histogram_LowerBound(Histogram *hist);
+int Histogram_LowerBound(Engine *E, State *S, Histogram *hist);
 
 // Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
 // Returns -1 if all bins are empty.
-int Histogram_UpperBound(Histogram *hist);
+int Histogram_UpperBound(Engine *E, State *S, Histogram *hist);
 
-// Subtracts Rs2 from all (shifting left)
-void Histogram_DistLShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+// Subtracts Rs2 from all (Engine *E, State *S, shifting left)
+void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
 
-// Adds Rs2 from all (shifting right)
-void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+// Adds Rs2 from all (Engine *E, State *S, shifting right)
+void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
 
 //Works out the mean
-uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd);
+uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd);
 
-// DistLess returns the probability Pr(X < Rs2)
-uint32_t Histogram_DistLess(Histogram *hist, uint32_t Rs2, uint32_t Rd);
+// DistLess returns the probability Pr(Engine *E, State *S, X < Rs2)
+uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd);
 
-// DistGrt returns the probability Pr(X >= Rs2)
-uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd);
+// DistGrt returns the probability Pr(Engine *E, State *S, X >= Rs2)
+uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd);
 
 // Load distribution
-void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
+void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 
 // Load random histogram
-void Histogram_LDRandom(Histogram *histogram);
+void Histogram_LDRandom(Engine *E, State *S, Histogram *histogram);
 
 // Return mean of given histogram
-double Histogram_Mean(Histogram *histogram);
+double Histogram_Mean(Engine *E, State *S, Histogram *histogram);
 
 // Pretty-print histogram distribution
 void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram);
 
-// Return the mean frequency of a histogram, i.e. the average bin value (not weighted by index)
-double Histogram_MeanFrequency(Histogram *histogram);
+// Return the mean frequency of a histogram, i.e. the average bin value (Engine *E, State *S, not weighted by index)
+double Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram);

@@ -234,7 +234,7 @@ riscvdumphistpretty(Engine *E, State *S, int histogram_id){
 // Load histogram with bin values randomly filled
 void
 riscvldhistrandom(Engine *E, State *S, int histogram_id){
-	Histogram_LDRandom(&S->riscv->histograms[histogram_id]);
+	Histogram_LDRandom(E, S, &S->riscv->histograms[histogram_id]);
 	
 	return;
 }
@@ -243,6 +243,8 @@ riscvldhistrandom(Engine *E, State *S, int histogram_id){
 void
 riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
 	Histogram_AddDist(
+			E,
+			S,
 			&S->riscv->histograms[histogram_id0],
 			&S->riscv->histograms[histogram_id1],
 			&S->riscv->histograms[histogram_id_dest]
@@ -251,8 +253,18 @@ riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int hist
 	return;
 }
 
+// Scalar multiply a histogram
+void
+riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar){
+	Histogram_ScalarMultiply(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			scalar
+			);
 
-
+	return;
+}
 
 
 
