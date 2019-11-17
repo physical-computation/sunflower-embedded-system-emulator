@@ -316,13 +316,13 @@ void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Hi
 void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
 
 //Works out the mean
-uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd);
+uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist);
 
 // DistLess returns the probability Pr(Engine *E, State *S, X < Rs2)
-uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd);
+uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
 
 // DistGrt returns the probability Pr(Engine *E, State *S, X >= Rs2)
-uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd);
+uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
 
 // Load distribution
 void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype bins[kNBINS]);

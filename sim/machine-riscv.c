@@ -239,6 +239,17 @@ riscvldhistrandom(Engine *E, State *S, int histogram_id){
 	return;
 }
 
+// Load histogram from memory
+/*
+ * void
+ * riscvlddist(Engine *E, State *S, int histogram_id){
+ * 	// TODO this is meaningless from within the processor -- it loads a histogram from some
+ * 	//  emulator-accessible memory. In the future, this should be able to load a histogram from some
+ *  //  processor-accessible memory, for which a data structure has to be defined to allow load/store
+ *  //  of histograms
+ * }
+ */
+
 // Add two histograms
 void
 riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
@@ -265,6 +276,157 @@ riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar){
 
 	return;
 }
+
+// Subtract two histograms
+void
+riscvsubhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_SubDist(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Combine (bin-wise add) histograms
+void
+riscvcombhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_CombDist(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+// Lower bound of histogram
+void
+riscvlowerboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_LowerBound(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// Upper bound of histogram
+void
+riscvupperboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_UpperBound(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// Left shift
+void
+riscvdistlshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+	Histogram_DistLShift(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2,
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Right shift
+void
+riscvdistrshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+	Histogram_DistRShift(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2,
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Expected value
+void
+riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_ExpectedValue(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// DistLess returns the probability Pr(X < Rs2)
+void
+riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+	int result = Histogram_DistLess(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+
+// DistGrt returns the probability Pr(X >= Rs2)
+void
+riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+	int result = Histogram_DistGrt(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

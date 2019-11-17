@@ -337,7 +337,7 @@ void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Hi
 }
 
 
-uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd){
+uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist){
 	/*
 	 * Exp returns the expected value of the histogram. This provides an estimate of the 
 	 * variable and allows the histogram to be converted into a point value.
@@ -346,6 +346,7 @@ uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd
 	int n = 0;
 	int mean = 0;
 	int i = 0;
+	uint8_t Rd = 0;
 
 	for(i = 0; i<256; i++){
 			sum += ((int)hist->bins[i] * i);
@@ -359,7 +360,8 @@ uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist, uint8_t Rd
 }
 
 
-uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd){
+uint32_t
+Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 	/*
 	 * DistLess returns the probability Pr(X < Rs2). 
 	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
@@ -371,6 +373,7 @@ uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, 
 	int num = 0;
 	int denom = 0;
 	uint32_t outcome = 0;
+	uint32_t Rd = 0;
 
 
 	for(i = 0; i < 256; i++){
@@ -390,7 +393,7 @@ uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2, 
 	}
 }
 
-uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2, uint32_t Rd){
+uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2){
 	/*
 	 * DistLess returns the probability Pr(X >= Rs2). 
 	 * X is a discrete random variable distributed according to the relative frequencies of hist1. 
@@ -402,7 +405,7 @@ uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2, u
 	int num = 0;
 	int denom = 0;
 	uint32_t outcome = 0;
-
+	uint32_t Rd = 0;
 
 	for(i = 0; i < 256; i++){
 			if(i >= Rs2){
