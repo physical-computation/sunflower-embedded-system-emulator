@@ -140,29 +140,21 @@ Histogram_AddDist(Histogram *hist1, Histogram *hist2, Histogram *histDest){
 	for (int j = 0; j < kNBINS; j++){
 		for (int i = 0; i < kNBINS; i++){
 			overflow_wid = i+j;
-			/*printf("overflow_wid = %u\n", overflow_wid);*/
 
 			if (overflow_wid < kNBINS){
 				overflow_hi = histDest->bins[i+j] + (uint32_t)((uint32_t)hist1->bins[i] * hist2->bins[j]);
-				/*printf("histdestbinsij = %u\n", histDest->bins[i+j]);*/
-				/*printf("hist1i = %u\n", hist1->bins[i]);*/
-				/*printf("hist2j = %u\n", hist2->bins[j]);*/
-				/*printf("overflow_hi = %u\n", overflow_hi);*/
 
 				if (overflow_hi < 65536){
-					/*printf("overflow_hi<65536\n");*/
 					histDest->bins[i+j] += hist1->bins[i] * hist2->bins[j];
 				}
 				else{
 					// Bin overflow error
-					// TODO implement (also missing from original implementation -- how to handle?)
-					/*printf("UNIMPLEMENTED bin overflow error\n");*/
+					mprint("WARN: encountered bin overflow in histogram operation\n");
 				}
 			}
 			else{
 				// Value overflow error
-				// TODO implement (also missing from original implementation -- how to handle?)
-					/*printf("UNIMPLEMENTED value overflow error\n");*/
+				mprint("WARN: encountered value overflow in histogram operation\n");
 			}
 		}
 	}
@@ -428,10 +420,6 @@ uint32_t Histogram_DistGrt(Histogram *hist, uint32_t Rs2, uint32_t Rd){
 	}
 }
 
-
-
-
-
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 	/*
 	 * Load a kNBINS-sized array of HistogramBinDatatype into the Histogram class
@@ -440,7 +428,6 @@ void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype *bins){
 
 	return;
 }
-
 
 void Histogram_LDRandom(Histogram *histogram){
 	/*
