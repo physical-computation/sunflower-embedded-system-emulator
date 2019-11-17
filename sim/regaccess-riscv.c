@@ -44,13 +44,12 @@ uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
 {
 	uint32_t data;
 
-	/*
-	 *	TODO The following looks like an assert(register_accessed < total_number_of_registers) to me?
-	 */
 	if (n <= RISCV_GPR)
 	{
 		data = S->riscv->R[n];
 	}
+
+
 
 	switch(n) //For CSR access?
 	{
@@ -65,11 +64,6 @@ uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
 tuck
 void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
 {
-	/*
-	 *	TODO The following looks like an assert(register_accessed < total_number_of_registers) to me,
-	 *	with an additional check for X0. X0 is a special register, not general purpose:
-	 *	'Register x0 is hardwired to the constant 0.' ISA spec p9
-	 */
 	if (n <= RISCV_GPR && n != RISCV_X0)
 	{
 		S->riscv->R[n] = data;
@@ -94,7 +88,6 @@ uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
 {
 	uint64_t data;
 
-	// TODO: probably an assert, see above
 	if (n < RF32FD_fMAX)
 	{
 		data = S->riscv->fR[n];
@@ -106,7 +99,6 @@ uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
 tuck
 void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 {
-	// TODO: probably an assert, see above
 	if (n < RF32FD_fMAX)
 	{
 		S->riscv->fR[n] = data;

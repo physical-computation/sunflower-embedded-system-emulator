@@ -9,18 +9,11 @@ print_integer_register_abi(Engine *E, State *S, ulong reg_index)
 	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-
 	const char * special_names[] = {
 		"zero",
-		"ra", // return address
-		"sp", // stack pointer
-		"gp", // global pointer
-		"tp", // thread pointer
+		"ra",
+		"sp",
+		"gp",
+		"tp",
 	};
-	/*
-	 *	The purpose of the following switch statement is to translate the reg_index
-	 *	into one of the ABI mnemonics (link above, going columns 1->2)
-	 *	TODO hence, everything below could be compacted into a dictionary reg_index->ABI_mnemonic_name
-	 *	     just like special_names[] does for the first five entries (i.e., just extend it)
-	 *	     This TODO applies to all the other similar switches, too
-	 */
 	if (reg_index < 5)
 	{
 		mprint(E, S, nodeinfo, "%-4s", special_names[reg_index]);
@@ -55,10 +48,6 @@ static void
 print_fp_register_abi(Engine *E, State *S, ulong reg_index)
 {
 	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#floating-point-register-convention-
-	/*
-	 *	The purpose of the following switch statement is to translate the reg_index
-	 *	into one of the ABI mnemonics (link above, going columns 1->2)
-	 */
 	if (reg_index < 8)
 	{
 		mprint(E, S, nodeinfo, "ft%-2u", reg_index);
@@ -99,7 +88,6 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*	the stall actually occurs when in MA, since we've	*/
 	/*	completed the EX wait before we get executed.		*/
 	/*								*/
-	// TODO check: is superH rather than riscv here intentional?
 	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
 	{
 		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
@@ -124,38 +112,29 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 void
 riscvdumpregs(Engine *E, State *S)
 {
+	int i;
 	char fp_value[128];
 	char * f_width;
 
-	for (int i = 0; i < 32; i++)
+	for (i = 0; i < 32; i++)
 	{
-		/*
-		 *	Print out integer registers
-		 */
-		mprint(E, S, nodeinfo, "x%-2d\t", i);	// register numerical name
-		print_integer_register_abi(E, S, i);	// register mnemonic name
+		mprint(E, S, nodeinfo, "x%-2d\t", i);
+		print_integer_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
-		mbitprint(E, S, 32, S->riscv->R[i]);	// register content (binary)
-		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);	// repeat in hex
+		mbitprint(E, S, 32, S->riscv->R[i]);
+		mprint(E, S, nodeinfo, "  [0x%08lx]\n", S->riscv->R[i]);
 	}
 
 	mprint(E, S, nodeinfo, "\n");
 
-	for (int i = 0; i < 32; i++)
+	for (i = 0; i < 32; i++)
 	{
-		/*
-		 * Print out floating point register
-		 * (equivalent to above integer routines)
-		 */
 		mprint(E, S, nodeinfo, "f%-2d\t", i);
 		print_fp_register_abi(E, S, i);
 		mprint(E, S, nodeinfo, "\t", i);
 		uint64_t float_bits = S->riscv->fR[i];
-		if((float_bits >> 32) == 0xFFFFFFFF)
+		if((float_bits >> 32) == 0xFFFFFFFF) //NaN boxed
 		{
-			/*
-			 *	Case NaN boxed
-			 */
 			rv32f_rep val;
 			val.bit_value = (uint32_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%#.8g", val.float_value);
@@ -165,17 +144,13 @@ riscvdumpregs(Engine *E, State *S)
 				snprintf(
 					fp_value + start_offset,
 					sizeof(fp_value) - start_offset,
-					" +- %#-.5g",
-				 	sqrtf(S->riscv->uncertain->registers.variances[i])
+					" +- %#-.5g", sqrtf(S->riscv->uncertain->registers.variances[i])
 				);
 			}
 			f_width = "single";
 		}
 		else
 		{
-			/*
-			 *	Case not NaN boxed
-			 */
 			rv32d_rep val;
 			val.bit64_value = (uint64_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%.8g", val.double_value);
@@ -434,9 +409,7 @@ riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
 {
-	/*
-	 *	Constructor for UncertainState, initialised with NaNs
-	 */
+	int i;
 	UncertainState *S = (UncertainState *)mcalloc(E, 1, sizeof(UncertainState), ID);
 
 	if (S == NULL)
@@ -444,8 +417,7 @@ uncertainnewstate(Engine *E, char *ID)
 		mexit(E, "Failed to allocate memory uncertain state.", -1);
 	}
 
-	for (int i = 0; i < 32; ++i) {
-		// Initialise with NaNs
+	for (i = 0; i < 32; ++i) {
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
@@ -455,9 +427,6 @@ uncertainnewstate(Engine *E, char *ID)
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-	/*
-	 *	Constructor for processor State, using superH as template
-	 */
 	State *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
