@@ -299,7 +299,71 @@ int Histogram_UpperBound(Histogram *hist){
 	return -1;
 }
 
+void Histogram_DistLShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
+	/*
+	 * DistLShift shifts the heights of the bins left by rs2, effectively subtracting rs2 from each bin.
+	 * This reduces the mean of the distribution by rs2.
+	 */
+    int k = 0;
+    int i = 0;
 
+    for(k = 0; k < 256; k++){
+		histDest->bins[k] = 0;
+	}
+
+	for(i = 0; i < 256; i++){
+        if(i >= Rs2){
+            histDest->bins[i-Rs2] = hist1->bins[i];
+        }
+	}
+
+	return;
+}
+
+void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest){
+	/*
+	 * DistRShift shifts the heights of the bins right by rs2, effectively adding rs2 to each bin.
+	 * This increases the mean of the distribution by rs2.
+	 */
+    int k = 0;
+    int i = 0;
+    uint16_t overflow_wid = 0;
+
+    for(k = 0; k < 256; k++){
+		histDest->bins[k] = 0;
+	}
+
+	for(i = 0; i < 256; i++){
+        overflow_wid = (int16_t) (i + Rs2);
+        if(overflow_wid < 256){
+            histDest->bins[i+Rs2] = hist1->bins[i];
+        }
+	}
+
+	return;
+}
+
+
+uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd){
+	/*
+	 * Exp returns the expected value of the histogram. This provides an estimate of the 
+	 * variable and allows the histogram to be converted into a point value.
+	 */
+	int sum = 0;
+	int n = 0;
+	int mean = 0;
+	int i = 0;
+
+	for(i = 0; i<256; i++){
+			sum += ((int)hist->bins[i] * i);
+			n += (int)hist->bins[i];
+	}
+
+	mean = sum / n;
+	Rd = (uint8_t) mean;
+
+	return Rd;
+}
 
 
 

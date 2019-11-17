@@ -309,6 +309,15 @@ int Histogram_LowerBound(Histogram *hist);
 // Returns -1 if all bins are empty.
 int Histogram_UpperBound(Histogram *hist);
 
+// Subtracts Rs2 from all (shifting left)
+void Histogram_DistLShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+
+// Adds Rs2 from all (shifting right)
+void Histogram_DistRShift(Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+
+//Works out the mean
+uint8_t Histogram_ExpectedValue(Histogram *hist, uint8_t Rd);
+
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 
