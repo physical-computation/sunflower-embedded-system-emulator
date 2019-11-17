@@ -301,6 +301,10 @@ void Histogram_SubDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
 // Add two distograms in the simple fashion of adding corresponding bins together
 void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest);
 
+// Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
+// Returns -1 if all bins are empty.
+int Histogram_LowerBound(Histogram *hist);
+
 // Load distribution
 void Histogram_LDDist(Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
 

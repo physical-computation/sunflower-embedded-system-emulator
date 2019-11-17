@@ -226,6 +226,22 @@ void Histogram_CombDist(Histogram *hist1, Histogram *hist2, Histogram *histDest)
 }
 
 
+int Histogram_LowerBound(Histogram *hist){
+	/*
+	 * Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
+	 *
+	 * Returns -1 if all bins are empty.
+	 */
+	
+	for (int k = 0; k < kNBINS; k++){
+		if (hist->bins[k] != 0){
+			return k;
+		}
+	}
+
+	return -1;
+}
+
 
 
 
