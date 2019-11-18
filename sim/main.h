@@ -717,6 +717,14 @@ struct State
         void 		(*dumpdistribution)(Engine *, State *S);
         void 		(*flushpipe)(State *S);
 
+	/*
+	 * Histogram-specific actions
+	 */
+	void 		(*dumphist)(Engine *, State *S, int histogram_id);
+	void 		(*dumphistpretty)(Engine *, State *S, int histogram_id);
+	void 		(*ldhistrandom)(Engine *, State *S, int histogram_id);
+	void 		(*addhist)(Engine *, State *S, int histogram_id0, int histogram_id1, int histogram_id2);
+
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);
 	ushort		(*devreadword)(Engine *, State *S, ulong addr);

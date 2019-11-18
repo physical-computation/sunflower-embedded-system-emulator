@@ -177,6 +177,224 @@ riscvfatalaction(Engine *E, State *S)
 	return;
 }
 
+
+
+
+/*
+ * Histograms
+ */
+// Print histogram
+void
+riscvdumphist(Engine *E, State *S, int histogram_id){
+	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
+	mprint(E, S, nodeinfo, "bin | val \n");
+	mprint(E, S, nodeinfo, "----+-----\n");
+
+	for (int i = 0; i < kNBINS; i++){
+		mprint(E, S, nodeinfo, "%03u | %-3u\n", i, S->riscv->histograms[histogram_id].bins[i]);
+	}
+
+	return;
+}
+
+// Print histogram with extra stats and ASCII graphics
+void
+riscvdumphistpretty(Engine *E, State *S, int histogram_id){
+	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
+	Histogram_PrettyPrint(E, S, &S->riscv->histograms[histogram_id]);
+	
+	return;
+}
+
+// Load histogram with bin values randomly filled
+void
+riscvldhistrandom(Engine *E, State *S, int histogram_id){
+	Histogram_LDRandom(E, S, &S->riscv->histograms[histogram_id]);
+	
+	return;
+}
+
+// Add two histograms
+void
+riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_AddDist(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+// Scalar multiply a histogram
+void
+riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar){
+	Histogram_ScalarMultiply(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			scalar
+			);
+
+	return;
+}
+
+// Subtract two histograms
+void
+riscvsubhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_SubDist(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Combine (bin-wise add) histograms
+void
+riscvcombhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+	Histogram_CombDist(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			&S->riscv->histograms[histogram_id1],
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+// Lower bound of histogram
+void
+riscvlowerboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_LowerBound(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// Upper bound of histogram
+void
+riscvupperboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_UpperBound(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// Left shift
+void
+riscvdistlshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+	Histogram_DistLShift(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2,
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Right shift
+void
+riscvdistrshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+	Histogram_DistRShift(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2,
+			&S->riscv->histograms[histogram_id_dest]
+			);
+
+	return;
+}
+
+
+// Expected value
+void
+riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg){
+	int result = Histogram_ExpectedValue(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0]
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+// DistLess returns the probability Pr(X < Rs2)
+void
+riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+	int result = Histogram_DistLess(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+
+// DistGrt returns the probability Pr(X >= Rs2)
+void
+riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+	int result = Histogram_DistGrt(
+			E,
+			S,
+			&S->riscv->histograms[histogram_id0],
+			Rs2
+			);
+
+	S->riscv->R[output_reg] = result;
+
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
 {
@@ -212,6 +430,14 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
+	
+	/*
+	 * Histogram-specific menu items
+	 */
+	S->dumphist = riscvdumphist;
+	S->dumphistpretty = riscvdumphistpretty;
+	S->ldhistrandom = riscvldhistrandom;
+	S->addhist = riscvaddhist;
 
 	S->fatalaction = riscvfatalaction;
 	S->endian = Little;
@@ -224,3 +450,5 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
 	return S;
 }
+
+

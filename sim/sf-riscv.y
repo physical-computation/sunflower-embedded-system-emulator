@@ -104,6 +104,10 @@
 %token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
 %token	T_DUMPREGS
+%token	T_DUMPHIST
+%token	T_DUMPHISTPRETTY
+%token	T_LDHISTRND
+%token	T_ADDHIST
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
 %token	T_DUMPTLB
@@ -1204,6 +1208,34 @@ sf_cmd		: T_QUIT '\n'
 			if (!yyengine->scanning)
 			{
 				yyengine->cp->dumpregs(yyengine, yyengine->cp);
+			}
+		}
+		| T_DUMPHIST uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumphist(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_DUMPHISTPRETTY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumphistpretty(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_LDHISTRND uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->ldhistrandom(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_ADDHIST uimm uimm uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->addhist(yyengine, yyengine->cp, $2, $3, $4);
 			}
 		}
 		| T_DUMPSYSREGS '\n'
@@ -4480,7 +4512,7 @@ freg		: T_F0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror(yyengine, "Invalid command!");
+	merror(yyengine, "Invalid command! (for riscv)");
 	clearistream(yyengine);
 	
 	return 0;

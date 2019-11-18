@@ -50,6 +50,13 @@ struct RiscvState
 	ShadowMem instruction_taintDistribution[RISCV_OP_MAX];
 	ShadowMem taintR[RISCV_XMAX+1];
 	ShadowMem taintfR[RF32FD_fMAX+1];
+
+	/*
+	 * Histograms
+	 */
+	#define kMAX_NUM_HISTOGRAMS 10
+	// This defines the subset of histogram-enabled registers. Set to RISCV_XMAX for having all (integer) registers having histograms associated with them
+	Histogram histograms[kMAX_NUM_HISTOGRAMS];
 };
 
 typedef struct RiscvState RiscvState;
