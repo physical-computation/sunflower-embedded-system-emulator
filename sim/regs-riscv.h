@@ -35,6 +35,8 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "inst_uncertain.h"
+
 enum
 {
 	RISCV_X0	= 0,
@@ -256,3 +258,68 @@ typedef union
 	double double_value;
 } rv32d_rep;
 
+
+
+
+/*
+ * Histograms (Idea: Alexa's final project thesis, Initial implementation: Jan (jh2109))
+ */
+
+
+#define kNBINS 8
+typedef uint16_t HistogramBinDatatype;
+
+typedef struct
+{
+	HistogramBinDatatype bins[kNBINS];
+} Histogram;
+
+// Add two distributions, considering overflow
+void Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+
+// Multiply each bin with a scalar
+void Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBinDatatype scalar);
+
+// Subtract two distributions, considering overflow
+void Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+
+// Add two distograms in the simple fashion of adding corresponding bins together
+void Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+
+// Returns the lower bound of the distribution, i.e. the bin index of the lowermost non-zero bin.
+// Returns -1 if all bins are empty.
+int Histogram_LowerBound(Engine *E, State *S, Histogram *hist);
+
+// Returns the upper bound of the distribution, i.e. the bin index of the uppermost non-zero bin.
+// Returns -1 if all bins are empty.
+int Histogram_UpperBound(Engine *E, State *S, Histogram *hist);
+
+// Subtracts Rs2 from all (Engine *E, State *S, shifting left)
+void Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+
+// Adds Rs2 from all (Engine *E, State *S, shifting right)
+void Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+
+//Works out the mean
+uint8_t Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist);
+
+// DistLess returns the probability Pr(Engine *E, State *S, X < Rs2)
+uint32_t Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
+
+// DistGrt returns the probability Pr(Engine *E, State *S, X >= Rs2)
+uint32_t Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
+
+// Load distribution
+void Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype bins[kNBINS]);
+
+// Load random histogram
+void Histogram_LDRandom(Engine *E, State *S, Histogram *histogram);
+
+// Return mean of given histogram
+double Histogram_Mean(Engine *E, State *S, Histogram *histogram);
+
+// Pretty-print histogram distribution
+void Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram);
+
+// Return the mean frequency of a histogram, i.e. the average bin value (Engine *E, State *S, not weighted by index)
+double Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram);

@@ -24,6 +24,7 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
+	inst_uncertain.h\
 	latencies-riscv.h\
 	latencies-hitachi-sh.h\
 	listutils.h\
@@ -42,6 +43,8 @@ HEADERS =\
 	opstr-riscv.h\
 	pau.h\
 	physics.h\
+	mass.h\
+	propulsion.h\
 	pic.h\
 	pipeline-hitachi-sh.h\
 	pipeline-riscv.h\
@@ -66,6 +69,7 @@ OBJS	=\
 	fdr.o\
 	machine-hitachi-sh.o\
 	machine-riscv.o\
+	inst_uncertain.o\
 	main.o\
 	merror.o\
 	mmalloc.o\
@@ -75,6 +79,8 @@ OBJS	=\
 	op-riscv.o\
 	pau.o\
 	physics.o\
+	mass.o\
+	propulsion.o\
 	pic.o\
 	pipeline-hitachi-sh.o\
 	pipeline-riscv.o\
@@ -149,12 +155,14 @@ opstr-riscv.h: decode-riscv.h Makefile
 	./mkopstr-riscv $(GAWK) > opstr-riscv.h
 
 decode-hitachi-sh.h: latencies-hitachi-sh.h Makefile
-	./mkdecode-hitachi-sh > decode-hitachi-sh.h
+	./mkdecode-hitachi-sh $(GAWK) > decode-hitachi-sh.h
 
 decode-riscv.h: latencies-riscv.h Makefile
-	./mkdecode-riscv > decode-riscv.h
+	./mkdecode-riscv $(GAWK) > decode-riscv.h
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
+#	TODO Changed to riscv for now. This should be properly implemented as a union of lex-*, considering which
+#	     parts of riscv/superh(/...) are duplicates
 help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 
@@ -167,4 +175,4 @@ install: $(TARGET)
 	cp $(TARGET) $(BIN)/
 
 clean:
-	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h decode-riscv.h decode-hitachi-sh.h parsedriver.i lex.i sf.output gmon.out sunflower.out
+	$(DEL) $(TARGET) *.o *.core core *.tab.c mversion.h help.h commands.tex opstr-*.h decode-riscv.h decode-hitachi-sh.h parsedriver.i lex.i *.output gmon.out sunflower.out
