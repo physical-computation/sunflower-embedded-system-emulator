@@ -6,7 +6,7 @@
 	fi
 
 
-	echo '/*	This is dependent on latencies-hitachi-sh.h	*/'
+	echo '/*	DO NOTE EDIT! This file is auto-generated from latencies-hitachi-sh.h	*/'
 	echo 'enum'
 	echo '{'
 	cat latencies-hitachi-sh.h | grep _OP_ | sed "s/.*\[\(SUPERH_OP_.*[A-Z0-9]\)\].*/\1,/" | sed "s/^\(.*MAX,\)/MAX~\1/" | $1 -F'~' '{if($1=="MAX"){print "\n\t"$2"\n"}else{print "\t"$1}}'

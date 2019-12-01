@@ -38,16 +38,16 @@
 enum
 {
 	/*   	Max num of chars in a deassembled instruction.		*/
-	INSTRBUFSIZE = 128,
+	INSTRBUFSIZE			= 128,
 		
 	SUPERH_MEMBASE			= 0x08000000,
 	SUPERH_FLASHBASE		= 0x00000000,
 	SUPERH_BYTES_PER_POINTER 	= 4,
 	SUPERH_MEMADDRBITS		= 32,
 
-	/*   	Max num of chars in an opcode name eg ADD = 3		*/
-	MAX_OPCHARS = 16,
-	DEFAULT_MISS_PENALTY = 100,
+	/*	Max num of chars in an opcode name eg ADD = 3		*/
+	MAX_OPCHARS			= 16,
+	DEFAULT_MISS_PENALTY		= 100,
 };
 
 /*							*/
@@ -103,7 +103,7 @@ struct SuperHState
 	SuperHBuses	*B;
 
 
-	/*			Exception queue			*/
+	/*			Exception queue				*/
 	InterruptQ	*excpQ;
 
 	/*								*/
@@ -171,7 +171,7 @@ struct SuperHState
 	int		mem_access_type;
 
 
-	/*	    Exception and trap mmap regs	*/
+	/*		Exception and trap mmap regs	*/
 	ulong		TRA;
 	ulong		EXPEVT;
 	ulong		INTEVT;

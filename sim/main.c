@@ -183,7 +183,6 @@ main(int nargs, char *args[])
 {
 	Engine		*E;
 	char 		*buf = NULL;
-//	State		*S;
 	int		argn;
 
 
@@ -199,15 +198,14 @@ main(int nargs, char *args[])
 	marchinit();
 	m_version(E);
 	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);	/*	default processor	*/
-//	S = E->sp[0];
 
 
-        buf = (char *) mmalloc(E, sizeof(char)*(MAX_BUFLEN+1),
+	buf = (char *) mmalloc(E, sizeof(char)*(MAX_BUFLEN+1),
 			"(char *)buf for command interface in main.c");
-        if (buf == NULL)
-        {
+	if (buf == NULL)
+	{
 		mexit(E, "Malloc failed in main.c for \"buf\"", -1);
-        }
+	}
 
 	argn = 1;
 	while (argn < nargs)
@@ -217,13 +215,13 @@ main(int nargs, char *args[])
 
 	/*	In the non-LIBSF version, we use fprintf to write to console	*/
 	fprintf(stderr, "\n");
-  	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
+	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 		E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 		E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
 
 	while (1)
 	{
-  		fgets(buf, MAX_BUFLEN, stdin);
+		fgets(buf, MAX_BUFLEN, stdin);
 		if (strlen(buf) > 0)
 		{
 			mstatelock();
@@ -237,14 +235,14 @@ main(int nargs, char *args[])
 			{
 				sf_riscv_parse();
 			}
-  			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
+			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 				E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 				E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
 			mstateunlock();
 
 			buf[0] = '\0';
 		}
-  	}
+	}
 
 	return 0;
 }
@@ -263,8 +261,8 @@ sched_step(Engine *E)
 
 
 	/*
-		TODO: make the locking finer grained, possibly also splitting out into reader and writer locks
-	*/
+	 *	TODO: make the locking finer grained, possibly also splitting out into reader and writer locks
+	 */
 	mstatelock();
 	S = E->sp[E->cn];
 	min_secsleft = PICOSEC_MAX;
@@ -448,7 +446,7 @@ sched_step(Engine *E)
 	/*									*/
 	E->globaltimepsec = max(E->globaltimepsec, max_cputime) + E->mincycpsec;
 
-	/*	    Throttling is only approximate if doing autoquantum:	*/
+	/*	Throttling is only approximate if doing autoquantum:	*/
 	if (E->throttlensec > 0)
 	{
 		throttle_tripctr += E->quantum;
@@ -481,12 +479,14 @@ updaterandsched(Engine *E)
 		}
 	}
 
-fprintf(stderr, "sched:\t");
-for (i = 0; i < E->nnodes; i++)
-{
-	fprintf(stderr, "%d ", E->randsched[i]);
-}
-fprintf(stderr, "\n");
+	/*
+	fprintf(stderr, "sched:\t");
+	for (i = 0; i < E->nnodes; i++)
+	{
+		fprintf(stderr, "%d ", E->randsched[i]);
+	}
+	fprintf(stderr, "\n");
+	*/
 }
 
 void
@@ -771,9 +771,11 @@ loadcmds(Engine *E, char *filename)
 		munchinput(E, buf);
 	}
 
-	//streamchk();
-        /*      NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before  */
+	/*
+	 *	NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before
+	 */
 	yyengine = E;
+	//streamchk();
 	scan_labels_and_globalvars(E);
 	//streamchk();
 	if (yyengine->cp->machinetype == MACHINE_SUPERH)
@@ -795,24 +797,24 @@ savemem(Engine *E, State *S, ulong start_addr, ulong end_addr, char *filename)
 {
 	int i, outfd;
 
-      	if ((start_addr < S->MEMBASE) || (end_addr >= S->MEMEND))
+	if ((start_addr < S->MEMBASE) || (end_addr >= S->MEMEND))
 	{
 		mprint(E, S, nodeinfo, "Memory address out of range in SAVE command");
 	}
 
 	if ((outfd = mcreate(filename,  M_OWRITE|M_OTRUNCATE)) < 0)
-        {
+	{
 		mprint(E, S, nodeinfo,
 			"Could not open output file for writing in SAVE command");
 
 		return;
-        }
+	}
 
 	for (i = start_addr; i <= end_addr; i++)
 	{
 		mwrite(outfd, (char *)&S->MEM[i-S->MEMBASE], 1);
 	}
-        mclose(outfd);
+	mclose(outfd);
 
 	return;
 }
@@ -992,33 +994,38 @@ man(Engine *E, char *cmd)
 char *
 mstrsep(char **stringptr, const char *delim)
 {
-        char		*s;
-        const char	*spanp;
-        int		c, sc;
-        char		*tok;
+	char		*s;
+	const char	*spanp;
+	int		c, sc;
+	char		*tok;
 
-        if ((s = *stringptr) == NULL)
+	if ((s = *stringptr) == NULL)
 	{
-                return NULL;
+		return NULL;
 	}
 
-        for (tok = s;;)
+	for (tok = s;;)
 	{
-                c = *s++;
-                spanp = delim;
-                do
+		c = *s++;
+		spanp = delim;
+		do
 		{
-                        if ((sc = *spanp++) == c)
+			if ((sc = *spanp++) == c)
 			{
-                                if (c == 0)
-                                        s = NULL;
-                                else
-                                        s[-1] = 0;
-                                *stringptr = s;
-                                return (tok);
-                        }
-                } while (sc != 0);
-        }
+				if (c == 0)
+				{
+					s = NULL;
+				}
+				else
+				{
+					s[-1] = 0;
+				}
+				*stringptr = s;
+
+				return (tok);
+			}
+		} while (sc != 0);
+	}
 
 	return NULL;
 }
@@ -1273,7 +1280,7 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory, i
 					}
 
 				}
-           		}
+			}
 			S->path.nlocations++;
 
 		}
@@ -2736,13 +2743,13 @@ m_dumpall(Engine *E, char *filename, int mode, char *tag, char *pre)
 		mlog(E, S, "%s\tBATT%d\t\tMaximum Sampled Current Load (mA)\t=\t%E\n",
 				pre, E->batts[i].ID,
 				E->batts[i].maxIload*1000);
-                mlog(E, S, "%s\tBATT%d\t\tavgIload             %E\n",
+		mlog(E, S, "%s\tBATT%d\t\tavgIload             %E\n",
 				pre, E->batts[i].ID,
-                                E->batts[i].avgIload);
-                mlog(E, S, "%s\tBATT%d\t\tnsamplesIload        %E\n",
+				E->batts[i].avgIload);
+		mlog(E, S, "%s\tBATT%d\t\tnsamplesIload        %E\n",
 				pre, E->batts[i].ID,
-                                E->batts[i].nsamplesIload);
-                mlog(E, S, "%s\tE->battperiodpsec="UVLONGFMT"\n", pre, E->battperiodpsec);
+				E->batts[i].nsamplesIload);
+		mlog(E, S, "%s\tE->battperiodpsec="UVLONGFMT"\n", pre, E->battperiodpsec);
 		mlog(E, S, "%s\n", pre);
 	}
 	mlog(E, S, "%s} Tag %s.\n", pre, tag);

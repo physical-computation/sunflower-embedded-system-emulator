@@ -1,3 +1,39 @@
+/*
+	Copyright (c)	2017-2018, Zhengyang Gu (author)
+			2018-2019, Harry Sarson (author)
+	All rights reserved.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+
+	*	Redistributions of source code must retain the above
+		copyright notice, this list of conditions and the following
+		disclaimer.
+
+	*	Redistributions in binary form must reproduce the above
+		copyright notice, this list of conditions and the following
+		disclaimer in the documentation and/or other materials
+		provided with the distribution.
+
+	*	Neither the name of the author nor the names of its
+		contributors may be used to endorse or promote products
+		derived from this software without specific prior written
+		permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+	LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+	POSSIBILITY OF SUCH DAMAGE.
+*/
 #include <string.h>
 #include <math.h>
 #include "sf.h"
@@ -6,7 +42,9 @@
 static void
 print_integer_register_abi(Engine *E, State *S, ulong reg_index)
 {
-	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-
+	/*
+	 *	See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#integer-register-convention-
+	 */
 	const char * special_names[] = {
 		"zero",
 		"ra",
@@ -47,7 +85,9 @@ print_integer_register_abi(Engine *E, State *S, ulong reg_index)
 static void
 print_fp_register_abi(Engine *E, State *S, ulong reg_index)
 {
-	// See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#floating-point-register-convention-
+	/*
+	 *	See https://github.com/riscv/riscv-elf-psabi-doc/blob/master/riscv-elf.md#floating-point-register-convention-
+	 */
 	if (reg_index < 8)
 	{
 		mprint(E, S, nodeinfo, "ft%-2u", reg_index);
@@ -112,9 +152,9 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 void
 riscvdumpregs(Engine *E, State *S)
 {
-	int i;
-	char fp_value[128];
-	char * f_width;
+	int	i;
+	char	fp_value[128];
+	char *	f_width;
 
 	for (i = 0; i < 32; i++)
 	{
@@ -159,18 +199,20 @@ riscvdumpregs(Engine *E, State *S)
 		mprint(E, S, nodeinfo, "%-23s (%s)          [0x%016llx]\n", fp_value, f_width, S->riscv->fR[i]);
 	}
 
-	// TODO: remove me!
-	// uncertain_print_system(S->riscv->uncertain, stdout);
-
 	return;
 }
-void/*	riscv does not have system registers	*/
-riscvdumpsysregs(){}
+
+void
+riscvdumpsysregs()
+{
+	/*
+	 *	RISC-V does not have system registers
+	 */
+}
 
 void
 riscvfatalaction(Engine *E, State *S)
 {
-	//superHdumptlb(E, S); Blindly copied over from superH version.
 	mprint(E, S, nodeinfo, "FATAL (node %d): P.EX=[%s]\n",\
 			S->NODE_ID, riscv_opstrs[S->riscv->P.EX.op]);
 
@@ -181,42 +223,56 @@ riscvfatalaction(Engine *E, State *S)
 
 
 /*
- * Histograms
+ *						Histograms
  */
-// Print histogram
+
+/*
+ *	Print histogram
+ */
 void
-riscvdumphist(Engine *E, State *S, int histogram_id){
+riscvdumphist(Engine *E, State *S, int histogram_id)
+{
 	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
 	mprint(E, S, nodeinfo, "bin | val \n");
 	mprint(E, S, nodeinfo, "----+-----\n");
 
-	for (int i = 0; i < kNBINS; i++){
+	for (int i = 0; i < kUncertainAluHistogramBins; i++)
+	{
 		mprint(E, S, nodeinfo, "%03u | %-3u\n", i, S->riscv->histograms[histogram_id].bins[i]);
 	}
 
 	return;
 }
 
-// Print histogram with extra stats and ASCII graphics
+/*
+ *	Print histogram with extra stats and ASCII graphics
+ */
 void
-riscvdumphistpretty(Engine *E, State *S, int histogram_id){
+riscvdumphistpretty(Engine *E, State *S, int histogram_id)
+{
 	mprint(E, S, nodeinfo, "Printing information for register %u\n", histogram_id);
 	Histogram_PrettyPrint(E, S, &S->riscv->histograms[histogram_id]);
-	
+
 	return;
 }
 
-// Load histogram with bin values randomly filled
+/*
+ *	Load histogram with bin values randomly filled
+ */
 void
-riscvldhistrandom(Engine *E, State *S, int histogram_id){
+riscvldhistrandom(Engine *E, State *S, int histogram_id)
+{
 	Histogram_LDRandom(E, S, &S->riscv->histograms[histogram_id]);
-	
+
 	return;
 }
 
-// Add two histograms
+/*
+ *	Add two histograms
+ */
 void
-riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest)
+{
 	Histogram_AddDist(
 			E,
 			S,
@@ -228,9 +284,12 @@ riscvaddhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int hist
 	return;
 }
 
-// Scalar multiply a histogram
+/*
+ *	Scalar multiply a histogram
+ */
 void
-riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar){
+riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar)
+{
 	Histogram_ScalarMultiply(
 			E,
 			S,
@@ -241,7 +300,9 @@ riscvscalarmultiply(Engine *E, State *S, int histogram_id0, int scalar){
 	return;
 }
 
-// Subtract two histograms
+/*
+ *	Subtract two histograms
+ */
 void
 riscvsubhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
 	Histogram_SubDist(
@@ -256,9 +317,12 @@ riscvsubhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int hist
 }
 
 
-// Combine (bin-wise add) histograms
+/*
+ *	Combine (bin-wise add) histograms
+ */
 void
-riscvcombhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest){
+riscvcombhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int histogram_id_dest)
+{
 	Histogram_CombDist(
 			E,
 			S,
@@ -270,9 +334,12 @@ riscvcombhist(Engine *E, State *S, int histogram_id0, int histogram_id1, int his
 	return;
 }
 
-// Lower bound of histogram
+/*
+ *	Lower bound of histogram
+ */
 void
-riscvlowerboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+riscvlowerboundhist(Engine *E, State *S, int histogram_id0, int output_reg)
+{
 	int result = Histogram_LowerBound(
 			E,
 			S,
@@ -284,9 +351,12 @@ riscvlowerboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
 	return;
 }
 
-// Upper bound of histogram
+/*
+ *	Upper bound of histogram
+ */
 void
-riscvupperboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
+riscvupperboundhist(Engine *E, State *S, int histogram_id0, int output_reg)
+{
 	int result = Histogram_UpperBound(
 			E,
 			S,
@@ -298,9 +368,12 @@ riscvupperboundhist(Engine *E, State *S, int histogram_id0, int output_reg){
 	return;
 }
 
-// Left shift
+/*
+ *	Left shift
+ */
 void
-riscvdistlshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+riscvdistlshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest)
+{
 	Histogram_DistLShift(
 			E,
 			S,
@@ -313,9 +386,12 @@ riscvdistlshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogr
 }
 
 
-// Right shift
+/*
+ *	Right shift
+ */
 void
-riscvdistrshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest){
+riscvdistrshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogram_id_dest)
+{
 	Histogram_DistRShift(
 			E,
 			S,
@@ -327,10 +403,12 @@ riscvdistrshifthist(Engine *E, State *S, int histogram_id0, int Rs2, int histogr
 	return;
 }
 
-
-// Expected value
+/*
+ *	Expected value
+ */
 void
-riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg){
+riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg)
+{
 	int result = Histogram_ExpectedValue(
 			E,
 			S,
@@ -342,7 +420,9 @@ riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg){
 	return;
 }
 
-// DistLess returns the probability Pr(X < Rs2)
+/*
+ *	DistLess returns the probability Pr(X < Rs2)
+ */
 void
 riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
 	int result = Histogram_DistLess(
@@ -358,7 +438,9 @@ riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_re
 }
 
 
-// DistGrt returns the probability Pr(X >= Rs2)
+/*
+ *	DistGrt returns the probability Pr(X >= Rs2)
+ */
 void
 riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
 	int result = Histogram_DistGrt(
@@ -372,28 +454,6 @@ riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg
 
 	return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 static UncertainState *
 uncertainnewstate(Engine *E, char *ID)
@@ -416,7 +476,7 @@ uncertainnewstate(Engine *E, char *ID)
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-	State *S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State *	S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
 	if (S->riscv == NULL)
@@ -432,7 +492,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->flushpipe = riscvflushpipe;
 	
 	/*
-	 * Histogram-specific menu items
+	 *	Histogram-specific menu items
 	 */
 	S->dumphist = riscvdumphist;
 	S->dumphistpretty = riscvdumphistpretty;
@@ -450,5 +510,3 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
 	return S;
 }
-
-

@@ -42,13 +42,13 @@
 void
 munchinput(Engine *E, char *buf)
 {	
-	int 	eaten = 0;
+	int	eaten = 0;
 
 
 	if (strlen(buf) > 0)
 	{
-              	while (eaten < strlen(buf))
-               	{
+		while (eaten < strlen(buf))
+		{
 			char *tptr;
 			Datum *t1;
 
@@ -75,7 +75,7 @@ munchinput(Engine *E, char *buf)
 			}
 			tptr = t1->data;
 
-			/* 	Throw away all chars till we see a non-sepchar 	*/
+			/*	Throw away all chars till we see a non-sepchar	*/
 			while (isasmsep(buf[eaten]) && (eaten < strlen(buf)))
 			{
 				eaten++;
@@ -84,8 +84,8 @@ munchinput(Engine *E, char *buf)
 			/*							*/
 			/*   I refer to tokens such as '(' etc. as "sticky":	*/
 			/*   they may be "stuck" onto another token, and are	*/
-			/*   NOT separators : we have to allocate a list entry 	*/
-			/*   for them. 	So, get one sticky char:		*/
+			/*   NOT separators : we have to allocate a list entry	*/
+			/*   for them. So, get one sticky char:			*/
 			/*							*/
 			if (issticky(buf[eaten]))
 			{
@@ -138,7 +138,7 @@ munchinput(Engine *E, char *buf)
 					E->istream.tail = E->istream.head = E->istream.masthead = t1;
 
 					/*							*/
-					/*    NOTE tail and head now point to the lone datum 	*/
+					/*    NOTE tail and head now point to the lone datum	*/
 					/*    and they _both_ have null pre- and next-.		*/
 					/*							*/
 					E->istream.masthead->prev = NULL;
@@ -153,7 +153,7 @@ munchinput(Engine *E, char *buf)
 				else
 				{
 					/*							*/
-					/*  Add new datum to _tail_ of list. MUST keep it FIFO 	*/
+					/*  Add new datum to _tail_ of list. MUST keep it FIFO	*/
 					/*  for the asm to be parsed correctly.			*/
 					/*							*/
 					t1->next = E->istream.tail;
@@ -207,7 +207,7 @@ scan_labels_and_globalvars(Engine *E)
 
 	while (tmpistream != NULL)
 	{
-		/* 	If it is new a label, add it to labellist 		*/
+		/*	If it is new a label, add it to labellist		*/
 		if (tmpistream->data[strlen(tmpistream->data)-1] == ':')
 		{
 			Datum*	tmplabel = (Datum *) mmalloc(E, sizeof(Datum), 
@@ -252,7 +252,7 @@ scan_labels_and_globalvars(Engine *E)
 			{
 				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
-				/*  		Add new datum to _tail_ of list.	*/
+				/*		Add new datum to _tail_ of list.	*/
 				/*							*/
 				tmplabel->next = E->labellist.tail;
 				E->labellist.tail->prev = tmplabel;
@@ -319,7 +319,7 @@ scan_labels_and_globalvars(Engine *E)
 			{
 				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
-				/*  		Add new datum to _tail_ of list.	*/
+				/*		Add new datum to _tail_ of list.	*/
 				/*							*/
 				tmplabel->next = E->labellist.tail;
 				E->labellist.tail->prev = tmplabel;

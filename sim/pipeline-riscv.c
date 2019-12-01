@@ -1,5 +1,6 @@
 /*
-	Copyright (c) 2017-2018, Zhengyang Gu (author)
+	Copyright (c)	2017-2018, Zhengyang Gu (author)
+			2019, Samuel Wong (author)
  
 	All rights reserved.
 
@@ -837,7 +838,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 				S->superH->mem_access_type = MEM_ACCESS_NIL;
 			}
 
-			/*   Count # bits flipping in IF		*/
+			/*	Count # bits flipping in IF		*/
 			if (SF_BITFLIP_ANALYSIS)
 			{
 				S->Cycletrans += bit_flips_32(S->riscv->P.IF.instr, instrlong);

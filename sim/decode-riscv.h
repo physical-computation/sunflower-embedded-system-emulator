@@ -1,4 +1,4 @@
-/*	This is dependent on latencies-riscv.h	*/
+/*	DO NOTE EDIT! This file is auto-generated from latencies-riscv.h.	*/
 enum
 {
 	RISCV_OP_LUI,

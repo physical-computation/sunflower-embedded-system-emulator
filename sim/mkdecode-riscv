@@ -6,7 +6,7 @@
 	fi
 
 
-	echo '/*	This is dependent on latencies-riscv.h	*/'
+	echo '/*	DO NOTE EDIT! This file is auto-generated from latencies-riscv.h.	*/'
 	echo 'enum'
 	echo '{'
 	cat latencies-riscv.h | grep _OP_ | sed "s/.*\[\(R.*_OP_.*[A-Z0-9]\)\].*/\1,/" | sed "s/^\(.*MAX,\)/MAX~\1/" | $1 -F'~' '{if($1=="MAX"){print "\n\t"$2"\n"}else{print "\t"$1}}'
