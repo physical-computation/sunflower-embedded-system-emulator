@@ -1,7 +1,12 @@
 [![Build Status](https://travis-ci.com/physical-computation/sunflower-simulator.svg?branch=master)](https://travis-ci.com/physical-computation/sunflower-simulator)
-- - - -
 
+
+# About
+Sunflower is a full-system emulator for embedded sensing, computation, communication, fault modeling, power dissipation, batteries, and more. It is designed for use in research where you would normally need to have several embedded hardware systems networked over wired or wireless interfaces. Sunflower allows you to take compiled binaries and emulate them instruction by instruction, while emulating the effect of that computation on power dissipation, emulating the effect of the power dissipation on power regulators, modeling the effect of current drawn on electrochemical battery state of charge, and doing all of this for multiple complete embedded systems (tens or even hundreds) networked over wired or wireless networks or integrated into a single chip and communicating over shared memory.
+- - - -
 ![Sunflower Simulator Architecture](arch.png)
+- - - -
+**Figure 1. An example of a system configuration that can be emulated in Sunflower.**
 
 # Cloning this repository
 The correct way to clone this repository to get the simulator and the submodules it depends on is:
