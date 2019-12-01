@@ -1353,12 +1353,12 @@ netsegdump(Engine *E, char *dumpname, Segbuf *segbuf)
 
 
 	bufsz = MAX_SEGBUF_TEXT;
-        buf = (char *) mmalloc(E, bufsz,
+	buf = (char *) mmalloc(E, bufsz,
 			"(char *)buf segbuf text in network-hitachi-sh.c");
-        if (buf == NULL)
-        {
+	if (buf == NULL)
+	{
 		mexit(E, "Malloc failed in network-hitachi-sh.c for \"buf\"...", -1);
-        }
+	}
 
 	/*	Create if not there, append if there:	*/
 	fd = mcreate(dumpname, M_OWRITE);
