@@ -46,6 +46,12 @@
 #include "endian-hitachi-sh.h"
 #include "sf.h"
 #include "mextern.h"
+
+/*
+ *	Prevent generated parser from allocating memory on stack, useful
+ *	for when running Sunflower on embedded targets.
+ */
+#define	YYSTACK_USE_ALLOCA	0
 %}
 
 

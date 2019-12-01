@@ -780,7 +780,6 @@ superHresetcpu(Engine *E, State *S)
 	S->VDD = SUPERH_ORIG_VDD;
 	S->SVDD = 0.0;
 	S->LOWVDD = S->VDD/2.0;
-	
 
 /*
 	TODO:	set these using the power_scale routines. power_scale* should update these
@@ -900,72 +899,73 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 		mexit(E, "Failed to allocate memory for S->MEM.", -1);
 	}
 
-	/*
-	*	Initialise array of ShadowMem objects:
-	*/
-
-	S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, S->TAINTMEMSIZE, "(ShadowMem *)S->TAINTMEM"); 
-
-	if (S->TAINTMEM == NULL)
+	if (SF_TAINTANALYSIS)
 	{
-		mexit(E, "Failed to allocate memory for S->TAINTMEM.", -1);
+		S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, S->TAINTMEMSIZE, "(ShadowMem *)S->TAINTMEM"); 
+		if (S->TAINTMEM == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->TAINTMEM.", -1);
+		}
 	}
 
-
-	S->superH->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->superH->B");
-	if (S->superH->B == NULL)
+	if (SF_NUMA)
 	{
-		mexit(E, "Failed to allocate memory for S->superH->B.", -1);
+		S->superH->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->superH->B");
+		if (S->superH->B == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->superH->B.", -1);
+		}
+
+
+		S->N = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->N");
+		if (S->N == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->N.", -1);
+		}
+		S->N->count = 0;
+
+		/*	Actual entries are allocated when a region is installed		*/
+		S->N->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
+			sizeof(Numaregion*), "(Numaregion **)S->N->regions");
+		if (S->N->regions == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->N->regions.", -1);
+		}
+
+
+		S->Nstack = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->Nstack");
+		if (S->Nstack == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->Nstack.", -1);
+		}
+		S->Nstack->count = 0;
+
+		/*	Actual entries are allocated when a region is installed		*/
+		S->Nstack->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
+			sizeof(Numaregion*), "(Numaregion **)S->Nstack->regions");
+		if (S->Nstack->regions == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->Nstack->regions.", -1);
+		}
 	}
 
-
-	S->N = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->N");
-	if (S->N == NULL)
+	if (SF_VALUETRACE_ANALYSIS)
 	{
-		mexit(E, "Failed to allocate memory for S->N.", -1);
+		S->RT = (Regtraces *)mcalloc(E, 1, sizeof(Regtraces), "(Regtraces *)S->RT");
+		if (S->RT == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->RT.", -1);
+		}
+		S->RT->count = 0;
+
+		/*	Actual entries are allocated when a region is installed		*/
+		S->RT->regvts = (Regvt **)mcalloc(E, MAX_REG_TRACERS,
+			sizeof(Regvt*), "(Regvt **)S->RT->regvts");
+		if (S->RT->regvts == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->RT->regvts.", -1);
+		}
 	}
-	S->N->count = 0;
-
-	/*	Actual entries are allocated when a region is installed		*/
-	S->N->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
-		sizeof(Numaregion*), "(Numaregion **)S->N->regions");
-	if (S->N->regions == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->N->regions.", -1);
-	}
-
-
-	S->Nstack = (Numa *)mcalloc(E, 1, sizeof(Numa), "(Numa *)S->Nstack");
-	if (S->Nstack == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->Nstack.", -1);
-	}
-	S->Nstack->count = 0;
-
-	/*	Actual entries are allocated when a region is installed		*/
-	S->Nstack->regions = (Numaregion **)mcalloc(E, MAX_NUMA_REGIONS,
-		sizeof(Numaregion*), "(Numaregion **)S->Nstack->regions");
-	if (S->Nstack->regions == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->Nstack->regions.", -1);
-	}
-
-
-	S->RT = (Regtraces *)mcalloc(E, 1, sizeof(Regtraces), "(Regtraces *)S->RT");
-	if (S->RT == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->RT.", -1);
-	}
-	S->RT->count = 0;
-
-	/*	Actual entries are allocated when a region is installed		*/
-	S->RT->regvts = (Regvt **)mcalloc(E, MAX_REG_TRACERS,
-		sizeof(Regvt*), "(Regvt **)S->RT->regvts");
-	if (S->RT->regvts == NULL)
-	{
-		mexit(E, "Failed to allocate memory for S->RT->regvts.", -1);
-	}
-
 
 	if (SF_SIMLOG)
 	{	
@@ -973,8 +973,8 @@ superHnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilen
 			"logfilename in machine-hitachi-sh.c"); 
 		if (logfilename == NULL)
 		{
-                	mexit(E, "Failed to allocate memory for logfilename.", -1);
-        	}
+			mexit(E, "Failed to allocate memory for logfilename.", -1);
+		}
 
 		msnprint(logfilename, MAX_NAMELEN, "simlog.node%d", E->nnodes);
 

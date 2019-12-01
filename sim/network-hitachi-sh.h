@@ -41,7 +41,7 @@ enum
 	MAX_SEG2FILES		= MAX_NETSEGMENTS,
 	MAX_SEGNODES		= 256,
 	MAX_FRAMEBYTES		= 200000,
-	MAX_SEGBUF_TEXT 	= 3*MAX_FRAMEBYTES + 1024,
+	MAX_SEGBUF_TEXT		= 3*MAX_FRAMEBYTES + 1024,
 	MAX_NETIO_NBUFS		= 32,
 };
 
@@ -159,7 +159,7 @@ typedef struct
 	uint		tx_alg_retries;
 	double		fifo_nextretry_time;
 
-	/*	    	  Memory Mapped registers		*/
+	/*		Memory Mapped registers		*/
 	ulong		IFC_FSZ;
 	ulong		IFC_RDR;
 	ulong		IFC_NSR;
@@ -190,7 +190,7 @@ typedef struct
 	ulong		IFC_STATE;
 
 	/*	Pointer to function for failure prob dist	*/
-	uvlong 		(*pfun)(void *, void *, char *, uvlong);
+	uvlong		(*pfun)(void *, void *, char *, uvlong);
 
 	/*	Pointer to function for retry algorithm.	*/
 	void		(*tx_fifo_retry_fxn)(void *, void *, int);
@@ -226,8 +226,8 @@ struct Segbuf
 	/*	What was the source's IFC @ TX time	*/
 	int	src_ifc;
 
-	/*      On what network segment are we linked   */
-	int     parent_netsegid;
+	/*	On what network segment are we linked   */
+	int	parent_netsegid;
 
 	/*						*/
 	/*	Whether this frame was forwarded from	*/
@@ -302,7 +302,7 @@ typedef struct
 
 
 	/*	Pointer to function for failure prob dist	*/
-	uvlong 		(*pfun)(void *, void *, char *, uvlong);
+	uvlong		(*pfun)(void *, void *, char *, uvlong);
 } Netsegment;
 
 

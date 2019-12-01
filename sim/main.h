@@ -41,7 +41,7 @@
 #	define	M_E		2.7182818284590452354
 #endif
 #ifndef MAXFLOAT
-#	define MAXFLOAT        	((float)3.40282346638528860e+38)
+#	define MAXFLOAT		((float)3.40282346638528860e+38)
 #endif
 #ifndef DBL_MIN
 #	define DBL_MIN		((double)2.2250738585072014E-308)
@@ -131,7 +131,7 @@ enum
 
 enum
 {
-	MAX_SIMNODES			= 64,
+	MAX_SIMNODES			= 32,
 	MAX_NODE_DIGITS			= 8,
 	MAX_RUN_ARGS			= 64,
 	MAX_SREC_LINELEN		= 1024,
@@ -444,7 +444,7 @@ struct SEEstruct
 
 	/*					*/
 	/*	To enable treating different	*/
-	/*	portions of a hw structure 	*/
+	/*	portions of a hw structure	*/
 	/*	differently.			*/
 	/*					*/
 	int		bit_offset;
@@ -525,9 +525,9 @@ struct State
 	*	Shadow Memory structure allocation
 	*/
 	ShadowMem	*TAINTMEM;
-	int 		TAINTMEMSIZE;
-	int 		TAINTMEMBASE;
-	int 		TAINTMEMEND;
+	int		TAINTMEMSIZE;
+	int		TAINTMEMBASE;
+	int		TAINTMEMEND;
 
 
 	//	TODO:
@@ -536,13 +536,13 @@ struct State
 
 	/*								*/
 	/*	Each State * CPU structure maintains a coroutine	*/
-	/*	'continuation'.  This is used to interrupt the 		*/
+	/*	'continuation'.  This is used to interrupt the		*/
 	/*	simulation of CPU at points where we need to stop	*/
 	/*	doing the current cycle's duties and go simulate	*/
 	/*	other processors. E.g., if in the middle of simulating	*/
 	/*	an instruction (say, TAS), we must take a cache miss	*/
 	/*	before finishing the rest of the instruction, we	*/
-	/*	park the coroutine in the rack and return to that 	*/
+	/*	park the coroutine in the rack and return to that	*/
 	/*	position when approapriate.				*/
 	/*								*/
 	jmp_buf		rack;
@@ -557,9 +557,9 @@ struct State
 	EnergyInfo	energyinfo;
 	double		scaledcurrents[SUPERH_OP_MAX];/*	Currently, power data is only for superH	*/
 
-	/*		The operating voltage. 		*/
+	/*		The operating voltage.		*/
 	double		VDD;
-	/*	The default low operating voltage. 	*/
+	/*	The default low operating voltage.	*/
 
 	double		LOWVDD;
 	/*		Saved VDD. see pau.c		*/
@@ -580,7 +580,7 @@ struct State
 
 
 	/*						*/
-	/*	Override average power, and allow 	*/
+	/*	Override average power, and allow	*/
 	/*	independing vdd/freq			*/
 	/*						*/
 	double		force_avgpwr;
@@ -607,7 +607,7 @@ struct State
 
 	InterruptQ	*intrQ;
 
-	uint32_t 		PC;
+	uint32_t		PC;
 	ulong		STARTPC;
 	ulong		PCSTACK[MAX_PCSTACK_HEIGHT];
 	int		pcstackheight;
@@ -636,7 +636,7 @@ struct State
 
 
 	/*				Logging				*/
-	int 		logfd;
+	int		logfd;
 	int		trace;
 
 
@@ -688,42 +688,42 @@ struct State
 	int		from_remote;
 
 
-	/*	   		Buffer for rabbit hole			*/
+	/*			Buffer for rabbit hole			*/
 	char		cmdbuf[MAX_CMD_LEN];
 	int		cmdbuf_nbytes;
 
 
 	/*	Pointer to function to relevant step() routine		*/
-	int 		(*step)(Engine *, State *, int);
-	int 		(*cyclestep)(Engine *, State *, int);
-	int 		(*faststep)(Engine *, State *, int);
+	int		(*step)(Engine *, State *, int);
+	int		(*cyclestep)(Engine *, State *, int);
+	int		(*faststep)(Engine *, State *, int);
 
 	/*	Pointer to function for failure prob dist		*/
-	uvlong 		(*pfun)(void *, void *, char *, uvlong);
+	uvlong		(*pfun)(void *, void *, char *, uvlong);
 
 	/*	The routines to handle the different interrupts		*/
-	int 		(*take_timer_intr)(Engine *, State *S);
-	int 		(*take_nic_intr)(Engine *, State *S);
-	int 		(*take_batt_intr)(Engine *, State *S);
-	int 		(*check_nic_intr)(Engine *, State *S);
-	int 		(*check_batt_intr)(Engine *, State *S);
+	int		(*take_timer_intr)(Engine *, State *S);
+	int		(*take_nic_intr)(Engine *, State *S);
+	int		(*take_batt_intr)(Engine *, State *S);
+	int		(*check_nic_intr)(Engine *, State *S);
+	int		(*check_batt_intr)(Engine *, State *S);
 
 	/*		Other misc machine specific actions		*/
-	void 		(*fatalaction)(Engine *, State *S);
-	void 		(*dumpregs)(Engine *, State *S);
-	void 		(*dumpsysregs)(Engine *, State *S);
-	void 		(*resetcpu)(Engine *, State *S);
-	void 		(*dumppipe)(Engine *, State *S);
-        void 		(*dumpdistribution)(Engine *, State *S);
-        void 		(*flushpipe)(State *S);
+	void		(*fatalaction)(Engine *, State *S);
+	void		(*dumpregs)(Engine *, State *S);
+	void		(*dumpsysregs)(Engine *, State *S);
+	void		(*resetcpu)(Engine *, State *S);
+	void		(*dumppipe)(Engine *, State *S);
+	void		(*dumpdistribution)(Engine *, State *S);
+	void		(*flushpipe)(State *S);
 
 	/*
-	 * Histogram-specific actions
+	 *	Histogram-specific actions
 	 */
-	void 		(*dumphist)(Engine *, State *S, int histogram_id);
-	void 		(*dumphistpretty)(Engine *, State *S, int histogram_id);
-	void 		(*ldhistrandom)(Engine *, State *S, int histogram_id);
-	void 		(*addhist)(Engine *, State *S, int histogram_id0, int histogram_id1, int histogram_id2);
+	void		(*dumphist)(Engine *, State *S, int histogram_id);
+	void		(*dumphistpretty)(Engine *, State *S, int histogram_id);
+	void		(*ldhistrandom)(Engine *, State *S, int histogram_id);
+	void		(*addhist)(Engine *, State *S, int histogram_id0, int histogram_id1, int histogram_id2);
 
 	/*	Memory mapped device register read/write functions	*/
 	uchar		(*devreadbyte)(Engine *, State *S, ulong addr);
@@ -740,16 +740,16 @@ struct State
 	void		(*vmtranslate)(Engine *, State *S, int op, TransAddr *transladdr);
 
 	/*	This is the function called on a cache miss		*/
-	void 		(*stallaction)(Engine *, State *S, ulong addr, int type, int latency);
+	void		(*stallaction)(Engine *, State *S, ulong addr, int type, int latency);
 
-	void 		(*settimerintrdelay)(Engine *, State *S, int delay);
+	void		(*settimerintrdelay)(Engine *, State *S, int delay);
 
 	int		(*cache_init)(Engine *, State *S, int size, int blocksize, int assoc);
-	void 		(*cache_deactivate)(Engine *, State *S);
-	void 		(*cache_printstats)(Engine *, State *S);
-	void 		(*dumptlb)(Engine *, State *S);
+	void		(*cache_deactivate)(Engine *, State *S);
+	void		(*cache_printstats)(Engine *, State *S);
+	void		(*dumptlb)(Engine *, State *S);
 
-	void 		(*writebyte)(Engine *, State *S, ulong addr, ulong data);
+	void		(*writebyte)(Engine *, State *S, ulong addr, ulong data);
 };
 
 typedef struct
@@ -789,7 +789,7 @@ struct Engine
 
 
 	/*			Parsed input stream			*/
-	Input 		istream;
+	Input		istream;
 	Labels		labellist;
 
 	/*				Decode caches			*/
@@ -821,8 +821,8 @@ struct Engine
 
 	/*	The collection of modeled processors/systems		*/
 	int		baseid;			/*	base id for numbering	*/
-	State		*sp[MAX_SIMNODES];	/* 	array of node ptrs	*/
-	State 		*cp;			/*	pointer to current	*/
+	State		*sp[MAX_SIMNODES];	/*	array of node ptrs	*/
+	State		*cp;			/*	pointer to current	*/
 	int		cn;			/*	current node id		*/
 
 	/*		Miscellaneous whole-simulation state		*/
@@ -831,8 +831,8 @@ struct Engine
 	int		nnodes;
 	int		on;
 	jmp_buf		jmpbuf;			/*	for managing main loop	*/
-	char            infobuf[MAX_SIM_INFO_BUFSZ];
-	int             infoh2o;
+	char		infobuf[MAX_SIM_INFO_BUFSZ];
+	int		infoh2o;
 	Picosec		globaltimepsec;
 	Picosec		mincycpsec;
 	Picosec		maxcycpsec;
@@ -853,11 +853,11 @@ struct Engine
 	int		activensegs[MAX_NETSEGMENTS];
 	int		nactivensegs;
 	uvlong		nicsimbytes;
-	char          	netiobuf[MAX_NETIO_NBUFS][MAX_SEGBUF_TEXT];
-	int           	netioh2o;
+	char		netiobuf[MAX_NETIO_NBUFS][MAX_SEGBUF_TEXT];
+	int		netioh2o;
 
 	/*								*/
-	/*	At 8 Mb/s, each byte is transferred in 1 us, thus 	*/
+	/*	At 8 Mb/s, each byte is transferred in 1 us, thus	*/
 	/*	period of < 1us is OK for simulating network speeds	*/
 	/*	which are < 8 Mb/s. The period is set automatically	*/
 	/*	in network.c, based on the min netseg speed (that's	*/
