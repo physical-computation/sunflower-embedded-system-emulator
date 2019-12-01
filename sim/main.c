@@ -182,8 +182,7 @@ int
 main(int nargs, char *args[])
 {
 	Engine		*E;
-	char 		*buf = NULL;
-//	State		*S;
+	char		*buf = NULL;
 	int		argn;
 
 
@@ -199,15 +198,14 @@ main(int nargs, char *args[])
 	marchinit();
 	m_version(E);
 	m_newnode(E, "superH", 0, 0, 0, nil, 0, 0.0);	/*	default processor	*/
-//	S = E->sp[0];
 
 
-        buf = (char *) mmalloc(E, sizeof(char)*(MAX_BUFLEN+1),
+	buf = (char *) mmalloc(E, sizeof(char)*(MAX_BUFLEN+1),
 			"(char *)buf for command interface in main.c");
-        if (buf == NULL)
-        {
+	if (buf == NULL)
+	{
 		mexit(E, "Malloc failed in main.c for \"buf\"", -1);
-        }
+	}
 
 	argn = 1;
 	while (argn < nargs)
@@ -217,13 +215,13 @@ main(int nargs, char *args[])
 
 	/*	In the non-LIBSF version, we use fprintf to write to console	*/
 	fprintf(stderr, "\n");
-  	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
+	fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 		E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 		E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
 
 	while (1)
 	{
-  		fgets(buf, MAX_BUFLEN, stdin);
+		fgets(buf, MAX_BUFLEN, stdin);
 		if (strlen(buf) > 0)
 		{
 			mstatelock();
@@ -237,14 +235,20 @@ main(int nargs, char *args[])
 			{
 				sf_riscv_parse();
 			}
-  			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
+			fprintf(stderr, "[ID=%d of %d][PC=0x" UHLONGFMT "][%.1EV, %.1EMHz] ",
 				E->cp->NODE_ID, E->nnodes, (unsigned long)E->cp->PC,
 				E->cp->VDD, (1/E->cp->CYCLETIME)/1E6);
+
+			/*
+			 *	Needed on some host embedded platforms, doesn't hurt in general.
+			 */
+			fflush(stderr);
+
 			mstateunlock();
 
 			buf[0] = '\0';
 		}
-  	}
+	}
 
 	return 0;
 }
@@ -328,7 +332,7 @@ sched_step(Engine *E)
 
 
 	/*							*/
-	/*	Battery and DC-DC converter. Must sample often 	*/
+	/*	Battery and DC-DC converter. Must sample often	*/
 	/*	enough to catch short bursts of current draw.	*/
 	/*							*/
 	/*	We are using the current from the previous	*/
@@ -361,13 +365,13 @@ sched_step(Engine *E)
 	/*									*/
 	/*	Auto quantum is not a perfect solution: E.g., in a case		*/
 	/*	where two nodes attempt to transmit on the same link in		*/
-	/*	a given auto quantum window, say 400 cycles. If, in the 	*/
+	/*	a given auto quantum window, say 400 cycles. If, in the		*/
 	/*	cycle-by-cycle simulation, first node trnsmits on link in	*/
 	/*	cycle 0 (i.e., seg_enqueue() at cycle 0), and second node	*/
 	/*	attempts to transmit at cycle 200, then the later node will	*/
 	/*	incur a collision and will retry at 200+frame delay. In the	*/
 	/*	case of auto quantum, the later node will incur the collision	*/
-	/*	at cycle 0 (rather than 200), and its retry will happen at 	*/
+	/*	at cycle 0 (rather than 200), and its retry will happen at	*/
 	/*	time 0 + frame delay. This error is not trivial, and may	*/
 	/*	be amplified significantly by, e.g., use of non-deterministic	*/
 	/*	collision avoidance simulation configurations.			*/
@@ -448,7 +452,7 @@ sched_step(Engine *E)
 	/*									*/
 	E->globaltimepsec = max(E->globaltimepsec, max_cputime) + E->mincycpsec;
 
-	/*	    Throttling is only approximate if doing autoquantum:	*/
+	/*	Throttling is only approximate if doing autoquantum:	*/
 	if (E->throttlensec > 0)
 	{
 		throttle_tripctr += E->quantum;
@@ -492,7 +496,9 @@ fprintf(stderr, "\n");
 void
 scheduler(Engine *E)
 {
+#ifndef SF_EMBEDDED
 	int	jmpval;
+#endif
 
 	/*								*/
 	/*	Scheduler is spawned as a new proc; This does any	*/
@@ -501,6 +507,7 @@ scheduler(Engine *E)
 	/*								*/
 	marchinit();
 
+#ifndef SF_EMBEDDED
 	if (!(jmpval = setjmp(E->jmpbuf)))
 	{
 		/*	Returning from initial call	*/
@@ -510,6 +517,7 @@ scheduler(Engine *E)
 		/*	Returning from longjmp()	*/
 		/*	jmpval == node that barfed.	*/
 	}
+#endif
 
 	while (E->on)
 	{
@@ -523,7 +531,7 @@ void
 load_srec(Engine *E, State *S, char *filename)
 {
 	char	*filebuf, buf[MAX_SREC_LINELEN];
-	int 	filesize, fpos, fd, i, n, nrecs = 0, batonpos = 0;
+	int	filesize, fpos, fd, i, n, nrecs = 0, batonpos = 0;
 	ulong	rec_addr;
 	int	pcset, rec_type, rec_length;
 	char	*line;
@@ -609,7 +617,7 @@ load_srec(Engine *E, State *S, char *filename)
 			}
 
 			/*								*/
-			/*	TODO:    We do not verify checksum on SREC records	*/
+			/*	TODO:	We do not verify checksum on SREC records	*/
 			/*								*/
 			case 3:
 			{
@@ -683,7 +691,7 @@ load_srec(Engine *E, State *S, char *filename)
 
 			case 6:
 			{
-				/*		Unused 			*/
+				/*		Unused			*/
 				break;
 			}
 
@@ -772,7 +780,7 @@ loadcmds(Engine *E, char *filename)
 	}
 
 	//streamchk();
-        /*      NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before  */
+	/*	NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before	*/
 	yyengine = E;
 	scan_labels_and_globalvars(E);
 	//streamchk();
@@ -795,24 +803,24 @@ savemem(Engine *E, State *S, ulong start_addr, ulong end_addr, char *filename)
 {
 	int i, outfd;
 
-      	if ((start_addr < S->MEMBASE) || (end_addr >= S->MEMEND))
+	if ((start_addr < S->MEMBASE) || (end_addr >= S->MEMEND))
 	{
 		mprint(E, S, nodeinfo, "Memory address out of range in SAVE command");
 	}
 
 	if ((outfd = mcreate(filename,  M_OWRITE|M_OTRUNCATE)) < 0)
-        {
+	{
 		mprint(E, S, nodeinfo,
 			"Could not open output file for writing in SAVE command");
 
 		return;
-        }
+	}
 
 	for (i = start_addr; i <= end_addr; i++)
 	{
 		mwrite(outfd, (char *)&S->MEM[i-S->MEMBASE], 1);
 	}
-        mclose(outfd);
+	mclose(outfd);
 
 	return;
 }
@@ -820,7 +828,9 @@ savemem(Engine *E, State *S, ulong start_addr, ulong end_addr, char *filename)
 void
 sfatal(Engine *E, State *S, char *msg)
 {
+#ifndef SF_EMBEDDED
 	int	do_jmp = E->on;
+#endif
 
 
 	E->verbose = 1;
@@ -835,8 +845,6 @@ sfatal(Engine *E, State *S, char *msg)
 	mprint(E, NULL, siminfo, "Stopping execution on node %d and pausing simulation...\n\n",
 		S->NODE_ID);
 
-	//mexit(E, "Exiting on stop...", 0);
-
 	if (!E->ignoredeaths)
 	{
 		mstateunlock();
@@ -847,10 +855,14 @@ sfatal(Engine *E, State *S, char *msg)
 	/*	Don't longjmp when, e.g., loading a file into mem, in	*/
 	/*	which case we'd have entered sfatal w/ E->on false.	*/
 	/*								*/
+#ifndef SF_EMBEDDED
 	if (do_jmp)
 	{
 		longjmp(E->jmpbuf, S->NODE_ID);
 	}
+#else
+	mexit(E, "Exiting simulation on node failure (host platform does not support setjmp/longjmp)...", 0);
+#endif
 }
 
 void
@@ -1078,7 +1090,7 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
 		/*		Prime the decode caches		*/		
-		for (int i = 0; i < (1 << 16); i++)
+		for (int i = 0; i < (sizeof(E->superHDC)/sizeof(SuperHDCEntry)); i++)
 		{
 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);
 		}
@@ -1194,7 +1206,7 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory, i
 		else
 		{
 			int	i = 0;
-			char 	*p;
+			char	*p;
 
 
 			for ((p = strtok(buf, " \n\t")); p; (p = strtok(NULL, " \n\t")), i++)
@@ -1273,7 +1285,7 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory, i
 					}
 
 				}
-           		}
+			}
 			S->path.nlocations++;
 
 		}
@@ -1990,7 +2002,7 @@ typedef struct
 	/*								*/
 	/*	Example line format:					*/
 	/*								*/
-    	/*	8c094362:	81 46       	mov.w	r0,@(12,r4)	*/
+	/*	8c094362:	81 46		mov.w	r0,@(12,r4)	*/
 	/*								*/
 /*
 	while ()
@@ -2094,11 +2106,11 @@ m_run(Engine *E, State *S, char *args)
 	/*							*/
 	/*	We tokenize the args directly into the mem	*/
 	/*	space of the simulated machine. The entire	*/
-	/*	arg string ($2) is first placed into the 	*/
+	/*	arg string ($2) is first placed into the	*/
 	/*	simulated machine's mem at location:		*/
 	/*		ARGVOFFSET + strlen($2)			*/
 	/*	below top of memory, so it does not get nuked	*/
-	/*	before a main() is called, assuming 64K is 	*/
+	/*	before a main() is called, assuming 64K is	*/
 	/*	enough stack space during init, which I think	*/
 	/*	more than suffices. The argv goes below it.	*/
 	/*							*/
@@ -2140,8 +2152,8 @@ m_run(Engine *E, State *S, char *args)
 	/*							*/
 	/*	Break args[] into argv[], and count argc.	*/
 	/*	argc goes into R4, the arg strings go on	*/
-	/*	stack (top of mem, as per mem.h), and a 	*/
-	/*	pointer to this vector goes in R5. This 	*/
+	/*	stack (top of mem, as per mem.h), and a		*/
+	/*	pointer to this vector goes in R5. This		*/
 	/*	is all as per the GCC Hitachi SH ABI.		*/
 	/*	We model SH as big-E, so do any necessary	*/
 	/*	byte reordering.				*/
@@ -2160,7 +2172,7 @@ m_run(Engine *E, State *S, char *args)
 		tmp_123 = (ulong)argv[argc] - (ulong)&S->MEM[0] +
 				S->MEMBASE;
 
-		/*		Reverse byte order 	*/
+		/*		Reverse byte order	*/
 		tmp_321 =
 			(((tmp_123 & 0xFF000000) >> 24) |
 			((tmp_123 & 0x00FF0000) >> 8) |
@@ -2736,13 +2748,13 @@ m_dumpall(Engine *E, char *filename, int mode, char *tag, char *pre)
 		mlog(E, S, "%s\tBATT%d\t\tMaximum Sampled Current Load (mA)\t=\t%E\n",
 				pre, E->batts[i].ID,
 				E->batts[i].maxIload*1000);
-                mlog(E, S, "%s\tBATT%d\t\tavgIload             %E\n",
+		mlog(E, S, "%s\tBATT%d\t\tavgIload             %E\n",
 				pre, E->batts[i].ID,
-                                E->batts[i].avgIload);
-                mlog(E, S, "%s\tBATT%d\t\tnsamplesIload        %E\n",
+				E->batts[i].avgIload);
+		mlog(E, S, "%s\tBATT%d\t\tnsamplesIload        %E\n",
 				pre, E->batts[i].ID,
-                                E->batts[i].nsamplesIload);
-                mlog(E, S, "%s\tE->battperiodpsec="UVLONGFMT"\n", pre, E->battperiodpsec);
+				E->batts[i].nsamplesIload);
+		mlog(E, S, "%s\tE->battperiodpsec="UVLONGFMT"\n", pre, E->battperiodpsec);
 		mlog(E, S, "%s\n", pre);
 	}
 	mlog(E, S, "%s} Tag %s.\n", pre, tag);
@@ -2771,10 +2783,10 @@ int
 m_decodehwstructname(char *name)
 {
 	/*									*/
-	/*	We just need a canonical ordering of all hardware structure 	*/
+	/*	We just need a canonical ordering of all hardware structure	*/
 	/*	names, OK if we mix all architectures in here.  This function	*/
 	/*	is used in SEE modeling.  The simulator variables representing	*/
-	/*	HW structures may also be in the rvar modeling, and the 	*/
+	/*	HW structures may also be in the rvar modeling, and the		*/
 	/*	ordering of sim vars is decoded by m_decodesimrvarname()	*/
 	/*									*/
 	return -1;
@@ -2784,7 +2796,7 @@ int
 m_decodesimrvarname(char *name)
 {
 	/*									*/
-	/*	A canonical ordering of all simulator variables that may 	*/
+	/*	A canonical ordering of all simulator variables that may	*/
 	/*	be treated as random variables.					*/
 	/*									*/
 	return -1;
