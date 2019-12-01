@@ -13,6 +13,9 @@ To update all submodules:
 	git pull --recurse-submodules
 	git submodule update --remote --recursive
 
+Checkout master branch and take each submodule out of the "Detached HEAD" state:
+
+	git submodule foreach git checkout master
 
 # Installation instructions
 Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, and the GNU version of sed, so install them.
