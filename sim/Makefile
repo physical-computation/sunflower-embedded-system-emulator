@@ -91,6 +91,7 @@ OBJS	=\
 	sf-hitachi-sh.o\
 	sf-riscv.o\
 	taint.o\
+	uncertain-histogram.o\
 #	decode-ti-msp430.o\
 #	dev430x1xx.o\
 #	machine-ti-msp430.o\
@@ -162,7 +163,7 @@ decode-riscv.h: latencies-riscv.h Makefile
 
 #	Either of the lex-* would suffice for generating the LaTeX / help command array.
 #	TODO Changed to riscv for now. This should be properly implemented as a union of lex-*, considering which
-#	     parts of riscv/superh(/...) are duplicates
+#	     parts of riscv/superh(/...) are duplicates. See issue #127.
 help.h: lex-hitachi-sh.c Makefile
 	./mkhelp $(GAWK) > help.h
 

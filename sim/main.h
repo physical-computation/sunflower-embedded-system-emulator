@@ -98,6 +98,11 @@
 #endif
 
 
+/*
+ *	NOTE: The code base currently violates our coding convention
+ *	but this will be fixed soon. Some new constants (e.g., kUncertainAluHistogramBins)
+ *	are defined according to the convention.
+ */
 enum
 {
 	DEFAULT_MEMREAD_LATENCY		= 0,
@@ -152,8 +157,6 @@ enum
 	MAX_RVARENTRIES			= 128,
 	MAX_NUM_ENGINES			= 4,
 	MAX_BREAKPOINTS			= 32,
-
-
 
 	/*	Keep sorted in order, so last entry is max	*/
 	MAX_NODESTDOUT_BUFSZ		= 8192,

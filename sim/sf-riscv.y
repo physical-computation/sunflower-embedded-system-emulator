@@ -4520,6 +4520,6 @@ yyerror(char *err)
 {
 	merror(yyengine, "Invalid command! (for riscv)");
 	clearistream(yyengine);
-	
+
 	return 0;
 }

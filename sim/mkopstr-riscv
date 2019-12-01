@@ -9,5 +9,5 @@
 
 	echo 'char *riscv_opstrs[] =\'
 	echo '{'
-	cat decode-riscv.h | sed "s/_OP_/~OP~/g" | grep OP | sed "s/.*RISCV~/RISCV~/g" | sed "s/.*RV/RV/g" | $1 -F',|~' '{print "\t["$1"_"$2"_"$3"]\t\t\""$3"\","}'
+	cat decode-riscv.h | grep '_OP_'  | sed "s/_OP_/~OP~/g" | grep OP | sed "s/.*RISCV~/RISCV~/g" | sed "s/.*RV/RV/g" | $1 -F',|~' '{print "\t["$1"_"$2"_"$3"]\t\t\""$3"\","}'
 	echo '};'

@@ -35,28 +35,24 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct RiscvState
+typedef struct
 {
-	uint32_t R[RISCV_XMAX];
-	uint64_t fR[RF32FD_fMAX];
-	uint32_t fCSR;
-	RiscvPipe P;
-	UncertainState *uncertain;
-	uint32_t instruction_distribution[RISCV_OP_MAX];
+	uint32_t		R[RISCV_XMAX];
+	uint64_t		fR[RF32FD_fMAX];
+	uint32_t		fCSR;
+	RiscvPipe		P;
+	UncertainState *	uncertain;
+	uint32_t		instruction_distribution[RISCV_OP_MAX];
 
 	/*
 	 *	Taint analysis for registers (need last entry for PC's taint entry 32)
 	 */
-	ShadowMem instruction_taintDistribution[RISCV_OP_MAX];
-	ShadowMem taintR[RISCV_XMAX+1];
-	ShadowMem taintfR[RF32FD_fMAX+1];
+	ShadowMem		instruction_taintDistribution[RISCV_OP_MAX];
+	ShadowMem		taintR[RISCV_XMAX+1];
+	ShadowMem		taintfR[RF32FD_fMAX+1];
 
 	/*
-	 * Histograms
+	 *	Histograms
 	 */
-	#define kMAX_NUM_HISTOGRAMS 10
-	// This defines the subset of histogram-enabled registers. Set to RISCV_XMAX for having all (integer) registers having histograms associated with them
-	Histogram histograms[kMAX_NUM_HISTOGRAMS];
-};
-
-typedef struct RiscvState RiscvState;
+	Histogram		histograms[RISCV_XMAX];
+} RiscvState;

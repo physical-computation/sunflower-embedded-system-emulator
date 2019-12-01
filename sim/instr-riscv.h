@@ -35,7 +35,9 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*From Figure 2.3 in https://riscv.org/specifications/ v2.2            */
+/*
+ *	From Figure 2.3 in https://riscv.org/specifications/ v2.2
+ */
 
 enum
 {

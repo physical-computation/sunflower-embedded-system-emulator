@@ -1,5 +1,6 @@
 /*
-	Copyright (c) 2017-2018, Zhengyang Gu (author)
+	Copyright (c)	2019, Jan Heck (author), based on work from
+	M.Eng. project of Alexa Belsham.
 
 	All rights reserved.
 
@@ -35,64 +36,16 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include "sf.h"
 
-tuck uint32_t
-reg_read_riscv(Engine *E, State *S, uint8_t n)
+typedef uint16_t	HistogramBinDatatype;
+
+enum
 {
-	/*
-	 *	BUG/TODO: Non-existing registers (e.g., CSRs) read as zero. See issue #31.
-	 */
-	uint32_t	data = 0;
 
-	if (n <= RISCV_GPR)
-	{
-		data = S->riscv->R[n];
-	}
+	kUncertainAluHistogramBins	= 8,
+};
 
-	return data;
-}
-
-tuck void
-reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
+typedef struct
 {
-	if (n <= RISCV_GPR && n != RISCV_X0)
-	{
-		S->riscv->R[n] = data;
-	}
-
-	return;
-}
-
-/*
- *	RV32F floating point register access
- */
-tuck uint64_t
-freg_read_riscv(Engine *E, State *S, uint8_t n)
-{
-	/*
-	 *	BUG/TODO: Non-existing registers (e.g., CSRs) read as zero. See issue #31.
-	 */
-	uint32_t	data = 0;
-
-	if (n < RF32FD_fMAX)
-	{
-		data = S->riscv->fR[n];
-	}
-
-	return data;
-}
-
-tuck void
-freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
-{
-	if (n < RF32FD_fMAX)
-	{
-		S->riscv->fR[n] = data;
-	}
-
-	return;
-}
+	HistogramBinDatatype	bins[kUncertainAluHistogramBins];
+} Histogram;

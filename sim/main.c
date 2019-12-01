@@ -182,7 +182,7 @@ int
 main(int nargs, char *args[])
 {
 	Engine		*E;
-	char		*buf = NULL;
+	char 		*buf = NULL;
 	int		argn;
 
 
@@ -267,8 +267,8 @@ sched_step(Engine *E)
 
 
 	/*
-		TODO: make the locking finer grained, possibly also splitting out into reader and writer locks
-	*/
+	 *	TODO: make the locking finer grained, possibly also splitting out into reader and writer locks
+	 */
 	mstatelock();
 	S = E->sp[E->cn];
 	min_secsleft = PICOSEC_MAX;
@@ -485,12 +485,14 @@ updaterandsched(Engine *E)
 		}
 	}
 
-fprintf(stderr, "sched:\t");
-for (i = 0; i < E->nnodes; i++)
-{
-	fprintf(stderr, "%d ", E->randsched[i]);
-}
-fprintf(stderr, "\n");
+	/*
+	fprintf(stderr, "sched:\t");
+	for (i = 0; i < E->nnodes; i++)
+	{
+		fprintf(stderr, "%d ", E->randsched[i]);
+	}
+	fprintf(stderr, "\n");
+	*/
 }
 
 void
@@ -779,11 +781,13 @@ loadcmds(Engine *E, char *filename)
 		munchinput(E, buf);
 	}
 
-	//streamchk();
-	/*	NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before	*/
+	/*
+	 *	NOTE: scan_labels_and_globalvars does a sf_superh_parse(), so need yyengine set before
+	 */
 	yyengine = E;
+	//streamchk(E);
 	scan_labels_and_globalvars(E);
-	//streamchk();
+	//streamchk(E);
 	if (yyengine->cp->machinetype == MACHINE_SUPERH)
 	{
 		sf_superh_parse();
@@ -1004,33 +1008,38 @@ man(Engine *E, char *cmd)
 char *
 mstrsep(char **stringptr, const char *delim)
 {
-        char		*s;
-        const char	*spanp;
-        int		c, sc;
-        char		*tok;
+	char		*s;
+	const char	*spanp;
+	int		c, sc;
+	char		*tok;
 
-        if ((s = *stringptr) == NULL)
+	if ((s = *stringptr) == NULL)
 	{
-                return NULL;
+		return NULL;
 	}
 
-        for (tok = s;;)
+	for (tok = s;;)
 	{
-                c = *s++;
-                spanp = delim;
-                do
+		c = *s++;
+		spanp = delim;
+		do
 		{
-                        if ((sc = *spanp++) == c)
+			if ((sc = *spanp++) == c)
 			{
-                                if (c == 0)
-                                        s = NULL;
-                                else
-                                        s[-1] = 0;
-                                *stringptr = s;
-                                return (tok);
-                        }
-                } while (sc != 0);
-        }
+				if (c == 0)
+				{
+					s = NULL;
+				}
+				else
+				{
+					s[-1] = 0;
+				}
+				*stringptr = s;
+
+				return (tok);
+			}
+		} while (sc != 0);
+	}
 
 	return NULL;
 }
