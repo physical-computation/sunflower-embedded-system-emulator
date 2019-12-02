@@ -1,5 +1,11 @@
-**These conventions are not yet adhered to by the Sunflower implementation, portions of which date from 1999. Please however do adhere to it for all new code.**
+# Coding Convensions
+### NOTE
+These conventions are not yet adhered to by the Sunflower implementation, portions of which date from 1999. Please however do adhere to it for all new code.
 
+### Example
+To see a recent pull request that applies some of these rules to cleaning up code, see the pull request for [issue #132](https://github.com/physical-computation/sunflower-simulator/pull/141/files).
+
+## Conventions
 1.	Code indented with tabs, not spaces. If you use `vim`, set your `.vimrc` as follows so you can see where you have stray spaces:
 ````
 set list
