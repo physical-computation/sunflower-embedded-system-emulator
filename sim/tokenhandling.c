@@ -233,13 +233,11 @@ scan_labels_and_globalvars(Engine *E)
 			}
 			tmplabel->value = E->cp->PC;
 
-			
 			strncpy(tmplabel->data, tmpistream->data, strlen(tmpistream->data) - 1);
 			tmplabel->data[strlen(tmpistream->data)-1] = '\0';
 
 			if ((E->labellist.head == NULL)  || (E->labellist.tail == NULL))
 			{
-				//mprint(E, NULL, siminfo, "New label list\n");
 				E->labellist.tail = E->labellist.head = tmplabel;
 
 				E->labellist.head->prev = NULL;
@@ -250,7 +248,6 @@ scan_labels_and_globalvars(Engine *E)
 			}
 			else
 			{
-				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
 				/*		Add new datum to _tail_ of list.	*/
 				/*							*/
@@ -281,9 +278,6 @@ scan_labels_and_globalvars(Engine *E)
 				mexit(E, "See above messages.", -1);
 			}
 
-			//mprint(E, NULL, siminfo, "Found a global var definition, var name = [%s]\n",
-			//	tmpistream->data);
-
 			tmplabel->next = NULL;
 			tmplabel->prev = NULL;
 			tmplabel->data = (char*)mmalloc(E, strlen(tmpistream->data)*sizeof(char),
@@ -306,7 +300,6 @@ scan_labels_and_globalvars(Engine *E)
 
 			if ((E->labellist.head == NULL)  || (E->labellist.tail == NULL))
 			{
-				//mprint(E, NULL, siminfo, "New label list\n");
 				E->labellist.tail = E->labellist.head = tmplabel;
 
 				E->labellist.head->prev = NULL;
@@ -317,7 +310,6 @@ scan_labels_and_globalvars(Engine *E)
 			}
 			else
 			{
-				//mprint(E, NULL, siminfo, "Adding new item to label list");
 				/*							*/
 				/*		Add new datum to _tail_ of list.	*/
 				/*							*/
@@ -328,9 +320,6 @@ scan_labels_and_globalvars(Engine *E)
 		}
 		tmpistream = tmpistream->next;
 	}
-
-	//mprint(E, NULL, siminfo, "Done scan_labels_and_globalvars()...\n");
-	//mprint(E, NULL, siminfo, "Calling yyparse(), with SCANNING flag set\n\n\n");
 
 	E->scanning = 1;
 	tmp_pc = E->cp->PC;
@@ -344,8 +333,7 @@ scan_labels_and_globalvars(Engine *E)
 	}
 	E->cp->PC = tmp_pc;
 	E->scanning = 0;
-	//mprint(E, NULL, siminfo, "Done assigning true disp's to labels.\n\n");
-	
+
 	/*	We screwed up istream.head, so reset it :	*/
 	E->istream.head = E->istream.masthead;
 

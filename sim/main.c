@@ -1561,7 +1561,11 @@ m_regtracer(Engine *E, State *S, char *name, ulong pcstart, int regnum, int size
 	tmp->regnum = regnum;
 	tmp->size = size;
 	tmp->ispointer = ispointer;
-	strncpy(tmp->name, name, MAX_REGTRACER_NAMELEN);
+
+	/*
+	 *	Copy only MAX_REGTRACER_NAMELEN-1 bytes to ensure that name is always NULL-terminated.
+	 */
+	strncpy(tmp->name, name, MAX_REGTRACER_NAMELEN-1);
 
 	S->RT->regvts[S->RT->count] = tmp;
 	S->RT->count++;

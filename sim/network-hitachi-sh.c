@@ -40,11 +40,11 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
+#include "sf.h"
+#include "mextern.h"
 
 enum
 {
-	OK = 1,
-
 	Ecoll,
 	Eaddrerr,
 	Ecsense,
@@ -54,8 +54,6 @@ enum
 	Etxunderrun,
 };
 
-#include "sf.h"
-#include "mextern.h"
 
 static int		lookup_id(Engine *, uchar*);
 static int		seg_enqueue(Engine *E, State *S, int whichifc);
@@ -150,7 +148,7 @@ fifo_enqueue(Engine *E, State *S, Fifo which_fifo, int whichifc)
 	}
 
 
-	return	OK;
+	return	0;
 }
 
 /*									*/
@@ -429,7 +427,7 @@ seg_enqueue(Engine *E, State *S, int whichifc)
 	E->nicsimbytes += S->superH->NIC_IFCS[whichifc].frame_bits/8;
 
 
-	return OK;
+	return 0;
 }
 
 void
@@ -605,7 +603,7 @@ tx_retryalg_binexp(void *e, void *x, int whichifc)
 	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
 	/*	The seg_enqueue() failed, so calc. a new retry time	*/
-	if (seg_enqueue(E, S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != 0)
 	{
 		timeslot = (double)ifcptr->frame_bits/
 					(double)E->netsegs[ifcptr->segno].bitrate;
@@ -668,7 +666,7 @@ tx_retryalg_random(void *e, void *x, int whichifc)
 	/*								*/
 	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
-	if (seg_enqueue(E, S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != 0)
 	{
 		timeslot = (double)ifcptr->frame_bits/
 					(double)E->netsegs[ifcptr->segno].bitrate;
@@ -740,7 +738,7 @@ tx_retryalg_asap(void *e, void *x, int whichifc)
 	/*								*/
 	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
-	if (seg_enqueue(E, S, whichifc) != OK)
+	if (seg_enqueue(E, S, whichifc) != 0)
 	{
 		timeslot = (double)ifcptr->frame_bits/
 					(double)E->netsegs[ifcptr->segno].bitrate;
@@ -797,7 +795,7 @@ tx_retryalg_none(void *e, void *x, int whichifc)
 	/*								*/
 	S->energyinfo.current_draw += S->superH->NIC_IFCS[whichifc].tx_pwr / S->VDD;
 
-	if (seg_enqueue(E, S, whichifc) == OK)
+	if (seg_enqueue(E, S, whichifc) == 0)
 	{
 		/*							*/
 		/*	Interrupt is raised when an entry was sent 	*/
@@ -996,8 +994,16 @@ network_clock(Engine *E)
 							continue;
 						}
 
-						// BUG: why k ?! we should be looping over all the IFCs (with index k)
-						dptr->superH->NIC_IFCS[k].IFC_STATE &= ~NIC_STATE_RX;
+						/*
+						 *	BUG/TODO: The innermost dptr->superH->NIC_IFCS[k].IFC_STATE &= ~NIC_STATE_RX; used to be outside this loop
+						 */
+						for (k = 0; k < dptr->superH->NIC_NUM_IFCS; k++)
+						{
+							if (dptr->superH->NIC_IFCS[k].segno == E->activensegs[i])
+							{
+								dptr->superH->NIC_IFCS[k].IFC_STATE &= ~NIC_STATE_RX;
+							}
+						}
 					}
 
 					seg_dequeue(curseg, whichbuf);
