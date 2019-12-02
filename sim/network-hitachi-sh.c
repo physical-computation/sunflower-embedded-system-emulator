@@ -40,14 +40,6 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include "sf.h"
-#include "mextern.h"
-
-static int		lookup_id(Engine *, uchar*);
-static int		seg_enqueue(Engine *E, State *S, int whichifc);
-static uchar *		fifo_dequeue(Engine *, State *S, Fifo fifo_name, int whichifc);
-static void		netsegcircbuf(Engine *, Segbuf *segbuf);
-static void		seg_dequeue(Netsegment *curseg, int whichbuf);
 
 enum
 {
@@ -61,6 +53,16 @@ enum
 	Eframeerr,
 	Etxunderrun,
 };
+
+#include "sf.h"
+#include "mextern.h"
+
+static int		lookup_id(Engine *, uchar*);
+static int		seg_enqueue(Engine *E, State *S, int whichifc);
+static uchar *		fifo_dequeue(Engine *, State *S, Fifo fifo_name, int whichifc);
+static void		netsegcircbuf(Engine *, Segbuf *segbuf);
+static void		seg_dequeue(Netsegment *curseg, int whichbuf);
+
 
 /*									*/
 /*	The fifo_enqueue() and fifo_dequeue() functions just update	*/

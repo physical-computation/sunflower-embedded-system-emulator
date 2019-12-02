@@ -38,7 +38,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/times.h>
+#ifndef SF_EMBEDDED
+#	include <sys/times.h>
+#endif
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -65,16 +67,21 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 	{
 		case SYS_exit:
 		{
+#ifndef SF_EMBEDDED
 			struct tms 	t;
-
-		//TODO: should just call m_off and get rid of most of this crud
+#endif
+			/*
+			 *	TODO: should just call m_off and get rid of most of this crud
+			 */
 			E->verbose = 1;
 			if (SF_DEBUG)
 			{
 				mprint(E, S, nodeinfo, "SYSCALL: SYS_exit\n");
 			}
 
+#ifndef SF_EMBEDDED
 			times(&t);
+#endif
 			S->ufinish = musercputimeusecs();
 			S->finishclk = S->ICLK;
 			mprint(E, S, nodeinfo, "\n\nNODE %d exiting...\n", S->NODE_ID);
@@ -115,7 +122,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 		case SYS_fork:
 		{
 			/*	Not Implemented		*/
-			//if (SF_DEBUG)
+			if (SF_DEBUG)
 			{
 				mprint(E, S, nodeinfo, "SYSCALL: SYS_fork: NOT IMPLEMENTED!!!\n");
 			}
@@ -559,14 +566,22 @@ ulong
 sys_chmod(State *S, const char *path, short mode)
 {
 	/*	For now, just pass it on	*/
+#ifndef SF_EMBEDDED
 	return chmod((char *)&S->MEM[(ulong)path - S->MEMBASE], mode);
+#else
+	return 0;
+#endif
 }
 
 ulong
 sys_chown(State *S, const char *path, short owner, short group)
 {
 	/*	For now, just pass it on	*/
+#ifndef SF_EMBEDDED
 	return chown((char *)&S->MEM[(ulong)path - S->MEMBASE], owner, group);
+#else
+	return 0;
+#endif
 }
 
 ulong
@@ -599,6 +614,10 @@ ulong
 sys_utime(State *S, const char *path, const struct utimbuf *times)
 {
 	/*	For now, just pass it on	*/
+#ifndef SF_EMBEDDED
 	return utime((char *)&S->MEM[(ulong)path - S->MEMBASE],\
 		(const struct utimbuf *)&S->MEM[(ulong)times - S->MEMBASE]);
+#else
+	return 0;
+#endif
 }
