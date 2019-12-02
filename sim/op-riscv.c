@@ -1337,7 +1337,7 @@ rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 		merror(E, "We currently do not support unfmin.s. Sorry!");
 
-		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		//uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
 		S->riscv->uncertain->last_op.valid = 0;
 	}
 
@@ -1372,7 +1372,7 @@ rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 		merror(E, "We currently do not support unfmax.s. Sorry!");
 
-		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		//uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
 		S->riscv->uncertain->last_op.valid = 0;
 	}
 
@@ -1390,9 +1390,9 @@ rv32f_fcvt_w_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	src1.bit_value = is_nan_boxed(freg_read_riscv(E, S, rs1));
 
 	/*
-	*Rounding modes - Reference
-	*https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
-	*/
+	 *	Rounding modes - Reference
+	 *	https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
+	 */
 	switch (rm) //TODO check rm value for rounding
 	{
 		case 0b000: //Round to nearest (ties to Even)
@@ -1478,9 +1478,9 @@ rv32f_fcvt_wu_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 	uint8_t		rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 
 	/*
-	*Rounding modes - Reference
-	*https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
-	*/
+	 *	Rounding modes - Reference
+	 *	https://www.gnu.org/software/libc/manual/html_node/Rounding-Functions.html
+	 */
 	switch (rm) //TODO check rm value for rounding
 	{
 		case 0b000: //Round to nearest (ties to Even)
@@ -1994,7 +1994,7 @@ rv32d_fdiv_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 void
 rv32d_fsqrt_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	//rs2 is unused
+	//TODO: rs2 is unused
 
 	uint8_t		rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3;
 	rv32d_rep	src1, result;
@@ -2118,7 +2118,7 @@ rv32d_fcvt_s_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 
-	//rs2 unused
+	//TODO: rs2 unused
 
 	rv32f_rep	result;
 	rv32d_rep	src1;
@@ -2142,7 +2142,7 @@ rv32d_fcvt_d_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
 
-	//rs2 unused
+	//TODO: rs2 unused
 
 	rv32d_rep	result;
 	rv32f_rep	src1;
@@ -2272,7 +2272,7 @@ rv32d_fclass_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 void
 rv32d_fcvt_w_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
-	//rs2 unused
+	//TODO: rs2 unused
 
 	rv32d_rep	src1;
 
@@ -2445,7 +2445,7 @@ void
 rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 {
 	//uint8_t rm = ((instr_r *)&S->riscv->P.EX.instr)->funct3; //TODO check why there is a rm field?
-	//rs2 unused
+	//TODO: rs2 unused
 
 	rv32d_rep	result;
 	int32_t		src1 = (int32_t)reg_read_riscv(E, S, rs1);
