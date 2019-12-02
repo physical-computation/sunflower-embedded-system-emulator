@@ -38,15 +38,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if (SF_EMBEDDED == 0)
-#	include <sys/times.h>
-#endif
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "sf.h"
 #include "syscalls.h"
 #include "mextern.h"
+
+/*
+ *	This actually does need to be after include of sf.h, since we get the
+ *	SF_EMBEDDED define from there (via conf.h).
+ */
+#if (SF_EMBEDDED == 0)
+#	include <sys/times.h>
+#endif
+
+
 
 static ulong	sys_write(Engine *E, State *, int, char *, int);
 static ulong	sys_read(State *, int, void *, int);

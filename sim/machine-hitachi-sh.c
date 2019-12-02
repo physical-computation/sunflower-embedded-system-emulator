@@ -1167,7 +1167,7 @@ superHsplit(Engine *E, State *S, ulong startpc, ulong stackptr, ulong argaddr, c
 	N->superH->R[4] = argaddr;
 
 	/*								*/
-	/*	    Inherit the machine status (e.g., priv) too		*/
+	/*	Inherit the machine status (e.g., priv) too		*/
 	/*	TODO: could memcpy the whole State *, but I haven't	*/
 	/*	yet finalized how much heterogeneity in spawned 	*/
 	/*	processors will exist					*/
@@ -1176,7 +1176,10 @@ superHsplit(Engine *E, State *S, ulong startpc, ulong stackptr, ulong argaddr, c
 	N->superH->ENABLE_CLK_INTR = S->superH->ENABLE_CLK_INTR;
 	N->superH->TIMER_INTR_DELAY = S->superH->TIMER_INTR_DELAY;
 
-	strncpy(N->idstr, idstr, MAX_NAMELEN);
+	/*
+	 *	Copy at most MAX_NAMELEN-1 to ensure destination gets NULL-terminated
+	 */
+	strncpy(N->idstr, idstr, MAX_NAMELEN-1);
 	N->PC = startpc;
 	N->runnable = 1;
 	E->cp = N;
