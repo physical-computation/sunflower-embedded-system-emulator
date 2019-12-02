@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 #	include <sys/times.h>
 #endif
 #include <time.h>
@@ -67,7 +67,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 	{
 		case SYS_exit:
 		{
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 			struct tms 	t;
 #endif
 			/*
@@ -79,7 +79,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 				mprint(E, S, nodeinfo, "SYSCALL: SYS_exit\n");
 			}
 
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 			times(&t);
 #endif
 			S->ufinish = musercputimeusecs();
@@ -566,7 +566,7 @@ ulong
 sys_chmod(State *S, const char *path, short mode)
 {
 	/*	For now, just pass it on	*/
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	return chmod((char *)&S->MEM[(ulong)path - S->MEMBASE], mode);
 #else
 	return 0;
@@ -577,7 +577,7 @@ ulong
 sys_chown(State *S, const char *path, short owner, short group)
 {
 	/*	For now, just pass it on	*/
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	return chown((char *)&S->MEM[(ulong)path - S->MEMBASE], owner, group);
 #else
 	return 0;
@@ -614,7 +614,7 @@ ulong
 sys_utime(State *S, const char *path, const struct utimbuf *times)
 {
 	/*	For now, just pass it on	*/
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	return utime((char *)&S->MEM[(ulong)path - S->MEMBASE],\
 		(const struct utimbuf *)&S->MEM[(ulong)times - S->MEMBASE]);
 #else
