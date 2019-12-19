@@ -104,7 +104,7 @@ ulong 	riscv_sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
 /*											*/
 /*				Miscellaneous helper routines				*/
 /*											*/
-void	mexit(Engine *, char *, int);
+void	mexit(Engine *, char *, int)  __attribute__((noreturn));
 void	marchinit();
 void	mlog(Engine *, State *S, char *fmt, ...);
 void	merror(Engine *, char *fmt, ...);

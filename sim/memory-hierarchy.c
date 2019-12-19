@@ -36,7 +36,6 @@
 */
 
 
-//Read from memory 2 bytes
 void
 big_endian_read_2(uchar * source, ushort * target)
 {
@@ -66,7 +65,6 @@ read_2(State * S, uchar * source, ushort * target)
 	}
 }
 
-//Read from memory 4 bytes
 void
 big_endian_read_4(uchar * source, ulong * target)
 {
@@ -97,7 +95,6 @@ read_4(State * S, uchar * source, ulong * target)
 }
 
 
-//Write to memory 2 bytes
 void
 big_endian_write_2(ushort source, uchar * target)
 {
@@ -130,7 +127,6 @@ write_2(State *S, ushort source, uchar * target)
 }
 
 
-//Write to memory 4 bytes
 void
 big_endian_write_4(ulong source, uchar * target)
 {
@@ -237,7 +233,7 @@ superHwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
 	int		inram, latency = 0;
 	int		i, j, id;
-	ulong		offset, destbase, destoffset;
+	ulong		offset, destoffset;
 	TransAddr	trans;
 	ulong		paddr;
 	uchar		data = xdata & 0xFF;
@@ -295,7 +291,6 @@ superHwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 
 	if (i != -1)
 	{
-		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
@@ -351,7 +346,6 @@ superHwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
@@ -523,7 +517,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
-	ulong		offset, destoffset = 0, destbase;
+	ulong		offset, destoffset = 0;
 	TransAddr	trans;
 	ulong		paddr;
 	ushort		data = xdata & 0xFFFF;
@@ -581,7 +575,6 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 
 	if (i != -1)
 	{
-		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
@@ -647,7 +640,6 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 			}
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
@@ -833,7 +825,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
-	ulong		offset, destoffset = 0, destbase;
+	ulong		offset, destoffset = 0;
 	TransAddr	trans;
 	ulong		paddr;
 	State		*D;
@@ -890,7 +882,6 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 
 	if (i != -1)
 	{
-		//fprintf(stderr, "!");
 		X->regions[i]->nwrites++;
 
 		id = X->regions[i]->map_id;
@@ -956,7 +947,6 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 			}
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
@@ -1152,7 +1142,7 @@ superHreadbyte(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
-	ulong		offset, destoffset = 0, destbase;
+	ulong		offset, destoffset = 0;
 	TransAddr	trans;
 	ulong		paddr;
 	uchar		data = 0;
@@ -1231,7 +1221,6 @@ superHreadbyte(Engine *E, State *S, ulong vaddr)
 			}
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
@@ -1423,7 +1412,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
-	ulong		offset, destoffset = 0, destbase;
+	ulong		offset, destoffset = 0;
 	TransAddr	trans;
 	ulong		paddr;
 	ushort		data = 0;
@@ -1502,7 +1491,6 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 			}
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 
@@ -1716,7 +1704,7 @@ superHreadlong(Engine *E, State *S, ulong vaddr)
 {
 	int		inram, latency = 0;
 	int		i, id, j;
-	ulong		offset, destoffset = 0, destbase;
+	ulong		offset, destoffset = 0;
 	TransAddr	trans;
 	ulong		paddr;
 	ulong		data = 0;
@@ -1796,7 +1784,6 @@ mprint(E,NULL,siminfo,"map_offset: " UHLONGFMT "\n",X->regions[i]->map_offset);
 			}
 
 			D		= E->sp[id];
-			destbase	= D->MEMBASE;
 			offset		= vaddr - S->MEMBASE;
 			destoffset	= offset + X->regions[i]->map_offset;
 

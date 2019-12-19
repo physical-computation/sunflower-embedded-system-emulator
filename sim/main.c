@@ -498,7 +498,7 @@ updaterandsched(Engine *E)
 void
 scheduler(Engine *E)
 {
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	int	jmpval;
 #endif
 
@@ -509,7 +509,7 @@ scheduler(Engine *E)
 	/*								*/
 	marchinit();
 
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	if (!(jmpval = setjmp(E->jmpbuf)))
 	{
 		/*	Returning from initial call	*/
@@ -832,7 +832,7 @@ savemem(Engine *E, State *S, ulong start_addr, ulong end_addr, char *filename)
 void
 sfatal(Engine *E, State *S, char *msg)
 {
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	int	do_jmp = E->on;
 #endif
 
@@ -859,7 +859,7 @@ sfatal(Engine *E, State *S, char *msg)
 	/*	Don't longjmp when, e.g., loading a file into mem, in	*/
 	/*	which case we'd have entered sfatal w/ E->on false.	*/
 	/*								*/
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 	if (do_jmp)
 	{
 		longjmp(E->jmpbuf, S->NODE_ID);
@@ -1561,7 +1561,11 @@ m_regtracer(Engine *E, State *S, char *name, ulong pcstart, int regnum, int size
 	tmp->regnum = regnum;
 	tmp->size = size;
 	tmp->ispointer = ispointer;
-	strncpy(tmp->name, name, MAX_REGTRACER_NAMELEN);
+
+	/*
+	 *	Copy only MAX_REGTRACER_NAMELEN-1 bytes to ensure that name is always NULL-terminated.
+	 */
+	strncpy(tmp->name, name, MAX_REGTRACER_NAMELEN-1);
 
 	S->RT->regvts[S->RT->count] = tmp;
 	S->RT->count++;

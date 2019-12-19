@@ -585,7 +585,7 @@ m_readstabs(Engine *E, State *S, char *filename)
 		/*						*/
 		if ((strlen(line) > 0) && (line[strlen(line)-1] != '\n'))
 		{
-#ifndef SF_EMBEDDED
+#if (SF_EMBEDDED == 0)
 			fscanf(fp, "%*s\n");
 #endif
 		}

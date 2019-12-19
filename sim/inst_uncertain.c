@@ -54,7 +54,7 @@ enum
 	PRINT_DIGIT_BUFFER_SIZE			= (PRINT_DIGITS * 4 + 1),
 };
 
-#define EPSILON		(1e-5f)
+#define EPSILON					(1e-5f)
 
 
 
@@ -585,11 +585,11 @@ print_register_row(UncertainState *uncertain_state, FILE *stream, int row)
 	char	buffer[PRINT_DIGIT_BUFFER_SIZE] = {'\0'};
 
 	result = snprintf(buffer, PRINT_DIGITS + 1, " u%-*d", PRINT_DIGITS, row);
-
 	if (result < 0)
 	{
 		return result;
 	}
+
 	result = fprintf(stream, "%s│", buffer);
 	if (result < 0)
 	{
