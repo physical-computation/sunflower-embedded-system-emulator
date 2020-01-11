@@ -46,6 +46,8 @@ TARGET-ARCH	= riscv32-elf
 
 Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`. Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
 
+**If you have trouble building on macOS, you might be running into [https://github.com/physical-computation/sunflower-simulator/issues/123](this) issue.**
+
 ## The role of `setup.conf`
 The configuration file `conf/setup.conf` primarily determines the compilation of the simulator for a given target platform and the default cross-compilers that get built when you run `make cross`. It does not determine the default emulated processor in Sunflower. Setting, e.g., `TARGET = riscv` sets the default cross-compiler to build for RISC-V and only influences the default target of `make cross`.
 
