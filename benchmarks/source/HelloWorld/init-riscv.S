@@ -14,4 +14,4 @@ init:
 __errno:
 	.long	0
 .fp_5:
-  .word 1084227584
+  .word 32768
