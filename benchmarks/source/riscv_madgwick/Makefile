@@ -26,14 +26,14 @@ all:		$(PROGRAM).sr $(PROGRAM).dump Makefile
 $(PROGRAM).native.out: $(PROGRAM).c $(MADGWICK).c $(HEADERS) Makefile
 	$(TOOLCC) -Wall $(OPTFLAGS) $(PROGRAM).c $(MADGWICK).c -o $(PROGRAM).native.out -lm -DNATIVE
 
-%.s : %.S Makefile
-	$(CPP) -o $@ -c $<
+init.o: init.S Makefile
+	$(CPP) -o init.i init.S; $(UNCERTAIN_AS) init.i -o $@
 
-%.s : %.c $(HEADERS) Makefile
+%.s: %.c $(HEADERS) Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $@ -c $<
 	$(UTILSBIN)/add-uncertain-instructions.py $@
 
-%.o : %.s $(HEADERS) Makefile
+%.o: %.s $(HEADERS) Makefile
 	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 $(PROGRAM).out: $(OBJS) Makefile
@@ -41,13 +41,13 @@ $(PROGRAM).out: $(OBJS) Makefile
 	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out Makefile
-	$(OBJCOPY) -O srec $< $@
+	$(UNCERTAIN_OBJCOPY) -O srec $< $@
 
 $(PROGRAM).dump: $(PROGRAM).out Makefile
-	$(OBJDUMP) -dS $< > $@
+	$(UNCERTAIN_OBJDUMP) -dS $< > $@
 
 clean:
-	$(RM) *.o *.sr *.out *.map *.s *.dump simlog.*
+	$(RM) *.o *.sr *.out *.map *.dump simlog.*
 
 # disable direct compilation of .c and .S files
 %.o : %.c

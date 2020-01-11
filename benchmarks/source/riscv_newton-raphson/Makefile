@@ -2,7 +2,7 @@ TREEROOT	= ../../..
 include $(TREEROOT)/conf/setup.conf
 
 PROGRAM		= newton_rapson
-INIT			= init
+INIT		= init
 
 OPTFLAGS	= -g -O0
 INCLUDES	= -I$(PREFIX)/include
@@ -19,15 +19,15 @@ OBJS	=\
 
 all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
-$(INIT).s: $(INIT).S Makefile
-	$(CPP) -o $(INIT).s -c $(INIT).S
+$(INIT).o: $(INIT).S Makefile
+	$(CPP) -o $(INIT).i $(INIT).S; $(UNCERTAIN_AS) init.i -o $@
 
 $(PROGRAM).out: $(OBJS)
 	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
 	$(UTILSBIN)/fix-uncertain-binary.py $@
 
 $(PROGRAM).sr: $(PROGRAM).out
-	$(OBJCOPY) -O srec $(PROGRAM).out $@
+	$(UNCERTAIN_OBJCOPY) -O srec $(PROGRAM).out $@
 
 $(PROGRAM).s: $(PROGRAM).c Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -S -fverbose-asm -o $(PROGRAM).s -c $(PROGRAM).c
@@ -37,7 +37,7 @@ $(PROGRAM).s: $(PROGRAM).c Makefile
 	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 clean:
-	$(RM) *.s *.o *.out *.sr *.map
+	$(RM) *.o *.out *.sr *.map
 
 # disable direct compilation of .c and .S files
 %.o : %.c

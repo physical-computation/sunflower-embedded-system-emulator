@@ -1,6 +1,4 @@
-sizemem			131072
-settimerdelay		40000
-clockintr		1
+sizemem			65536
 cacheoff
 srecl			main.sr
 run
