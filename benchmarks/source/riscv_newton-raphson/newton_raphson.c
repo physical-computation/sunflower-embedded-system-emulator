@@ -27,7 +27,7 @@ float percentage_error(float x, float y) {
 	return diff / min * 100;
 }
 
-void newton_rapson() {
+void newton_raphson() {
 	float x = 0;
 	float x_new = x - f(x)/df(x);
 	float diff = x_new - x;
@@ -60,22 +60,22 @@ int main()
 
 				// corr[b, c] = -1
 				c = 6 + stddev_ratio * (2 - b);
-				newton_rapson();
+				newton_raphson();
 
 				// corr[b, c] = 1
 				c = 6 + stddev_ratio * (b - 2);
-				newton_rapson();
+				newton_raphson();
 			}
 			if (var_c > var_b) {
 				four = unf_create(4, var_c - var_b);
 
 				// covar[b, c] = var[b]
 				c = four + b;
-				newton_rapson();
+				newton_raphson();
 			}
 			// corr[b, c] = 0
 			c = unf_create(6, var_c);
-			newton_rapson();
+			newton_raphson();
 		}
 	}
 

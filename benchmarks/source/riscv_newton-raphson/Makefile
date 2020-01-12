@@ -1,7 +1,7 @@
 TREEROOT	= ../../..
 include $(TREEROOT)/conf/setup.conf
 
-PROGRAM		= newton_rapson
+PROGRAM		= newton_raphson
 INIT		= init
 
 OPTFLAGS	= -g -O0
@@ -37,7 +37,7 @@ $(PROGRAM).s: $(PROGRAM).c Makefile
 	$(UNCERTAIN_AS) $(ASFLAGS) -g -o $@ -c $<
 
 clean:
-	$(RM) *.o *.out *.sr *.map
+	$(RM) *.o *.out *.sr *.map init.i
 
 # disable direct compilation of .c and .S files
 %.o : %.c

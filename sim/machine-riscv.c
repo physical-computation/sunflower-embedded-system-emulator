@@ -199,15 +199,19 @@ riscvdumpregs(Engine *E, State *S)
 		mprint(E, S, nodeinfo, "%-23s (%s)          [0x%016llx]\n", fp_value, f_width, S->riscv->fR[i]);
 	}
 
+
 	return;
 }
 
 void
-riscvdumpsysregs()
+riscvdumpsysregs(Engine *E, State *S)
 {
 	/*
-	 *	RISC-V does not have system registers
+	 *	RISC-V does not have system registers. We dump the uncertain regs.
+	 *	Could also dump some CSR information.
 	 */
+	uncertain_print_system(S->riscv->uncertain, stdout);
+
 }
 
 void
