@@ -100,7 +100,7 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 				mprint(E, S, nodeinfo, "Simulated CPU Time elapsed = %.6E seconds.\n",\
 					S->TIME);
 				mprint(E, S, nodeinfo, "Simulated Clock Cycles = " UVLONGFMT "\n", S->finishclk - S->startclk);
-				mprint(E, NULL, siminfo, "Cycles Spent Waiting = " UVLONGFMT " (%.2f%)\n",
+				mprint(E, NULL, siminfo, "Cycles Spent Waiting = " UVLONGFMT " (%.2f%%)\n",
 					S->num_cycles_waiting, 100*((float)(S->num_cycles_waiting))/(float)(S->finishclk - S->startclk));
 
 			}
