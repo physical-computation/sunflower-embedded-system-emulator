@@ -24,7 +24,7 @@ $(INIT).o: $(INIT).S Makefile
 
 $(PROGRAM).out: $(OBJS)
 	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -luncertain -lprintf -lc -lgloss -lgcc -lm
-	$(UTILSBIN)/fix-uncertain-binary.py $@
+	$(UTILSBIN)/fix-uncertain-binary.py $@ $(UNCERTAIN_READELF)
 
 $(PROGRAM).sr: $(PROGRAM).out
 	$(UNCERTAIN_OBJCOPY) -O srec $(PROGRAM).out $@
