@@ -1096,7 +1096,7 @@ m_newnode(Engine *E, char *type, double x, double y, double z, char *trajfilenam
 	/*  newnode xloc yloc zloc orbit velocity  */
 	if ((strlen(type) == 0) || !strncmp(type, "superH", strlen("superH")))
 	{
-		/*		Prime the decode caches		*/		
+		/*		Prime the decode caches		*/
 		for (int i = 0; i < (sizeof(E->superHDC)/sizeof(SuperHDCEntry)); i++)
 		{
 			superHdecode(E, (ushort)(i&0xFFFF), &E->superHDC[i].dc_p);
