@@ -507,7 +507,7 @@ uncertain_inst_gcov(UncertainState *uncertain_state, int us1, int us2)
 }
 
 void
-uncertain_sizemen(Engine *E, State *S, int size)
+uncertain_sizemem(Engine *E, State *S, int size)
 {
 	void *	tmp;
 

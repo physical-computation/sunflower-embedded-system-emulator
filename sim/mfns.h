@@ -879,7 +879,7 @@ double		Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram);
  *	Uncertainty propagation equation arithmetic
  */
 int		uncertain_print_system(UncertainState * state, FILE *stream);
-void		uncertain_sizemen(Engine *E, State *S, int size);
+void		uncertain_sizemem(Engine *E, State *S, int size);
 void		uncertain_inst_lr(UncertainState * state, int ud, int location);
 void		uncertain_inst_sr(UncertainState * state, int us1, int location);
 void		uncertain_inst_mv(UncertainState * state, int ud, int us1);

@@ -2076,7 +2076,7 @@ m_sizemem(Engine *E, State *S, int size)
 
 	if (S->riscv != NULL && S->riscv->uncertain != NULL)
 	{
-		uncertain_sizemen(E, S, size);
+		uncertain_sizemem(E, S, size);
 	}
 
 	/*
