@@ -85,7 +85,7 @@
 #include "pic.h"
 #include "interrupts-ti-msp430.h"
 #include "taint.h"
-#include "inst_uncertain.h"
+#include "uncertain_upe.h"
 #include "uncertain-histogram.h"
 #include "machine-hitachi-sh.h"
 #include "machine-riscv.h"
