@@ -1,7 +1,12 @@
 [![Build Status](https://travis-ci.com/physical-computation/sunflower-simulator.svg?branch=master)](https://travis-ci.com/physical-computation/sunflower-simulator)
-- - - -
 
+
+# About
+Sunflower is a full-system emulator for embedded sensing, computation, communication, fault modeling, power dissipation, batteries, and more. It is designed for use in research where you would normally need to have several embedded hardware systems networked over wired or wireless interfaces. Sunflower allows you to take compiled binaries and emulate them instruction by instruction, while emulating the effect of that computation on power dissipation, emulating the effect of the power dissipation on power regulators, modeling the effect of current drawn on electrochemical battery state of charge, and doing all of this for multiple complete embedded systems (tens or even hundreds) networked over wired or wireless networks or integrated into a single chip and communicating over shared memory.
+- - - -
 ![Sunflower Simulator Architecture](arch.png)
+- - - -
+**Figure 1. An example of a system configuration that can be emulated in Sunflower.**
 
 # Cloning this repository
 The correct way to clone this repository to get the simulator and the submodules it depends on is:
@@ -13,6 +18,9 @@ To update all submodules:
 	git pull --recurse-submodules
 	git submodule update --remote --recursive
 
+Checkout master branch and take each submodule out of the "Detached HEAD" state:
+
+	git submodule foreach git checkout master
 
 # Installation instructions
 Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, and the GNU version of sed, so install them.
@@ -38,6 +46,13 @@ TARGET-ARCH	= riscv32-elf
 
 Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`. Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
 
+**If you have trouble building on macOS, you might be running into [this](https://github.com/physical-computation/sunflower-simulator/issues/123) issue.**
+
+## The role of `setup.conf`
+The configuration file `conf/setup.conf` primarily determines the compilation of the simulator for a given target platform and the default cross-compilers that get built when you run `make cross`. It does not determine the default emulated processor in Sunflower. Setting, e.g., `TARGET = riscv` sets the default cross-compiler to build for RISC-V and only influences the default target of `make cross`.
+
+The default processor instances when you launch `sim` are SuperH. You can create RISC-V instances using the sunflower command `newnode riscv`. You can explicitly request SuperH instances using the command `newnode superh`. You can have a mix of SuperH and RISC-V processors in the same simulation (i.e., in the same launch of `sim`). From the simulator’s perspective, both architectures are always supported and it is not possible to purposefully configure the `sim` for one or the other.
+ 
 # If you use Sunflower in your research, please cite it as:
 Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
 

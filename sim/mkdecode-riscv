@@ -1,16 +1,12 @@
 #!/bin/sh
-# Creates an enum containing RISCV opcodes, found by grepping the file latencies-riscv.h
-# Output is to stdout, so use as $0 > decode-riscv.h
-
-# TODO If we agree with decode-riscv.h being auto-generated from the above command, might as well
-#      include this in the Makefile. If doing so, add a comment warning not to modify decode-riscv.h by hand
 
 	if [ $# -ne 1 ]; then
 		echo 1>&2 Usage: $0 '<path to a Gnu awk>'
 		exit 127
 	fi
 
-	echo "// This file was created from latencies-riscv.h using $(basename $0)"
+
+	echo '/*	DO NOTE EDIT! This file is auto-generated from latencies-riscv.h.	*/'
 	echo 'enum'
 	echo '{'
 	cat latencies-riscv.h | grep _OP_ | sed "s/.*\[\(R.*_OP_.*[A-Z0-9]\)\].*/\1,/" | sed "s/^\(.*MAX,\)/MAX~\1/" | $1 -F'~' '{if($1=="MAX"){print "\n\t"$2"\n"}else{print "\t"$1}}'

@@ -1,5 +1,5 @@
 newnode riscv
-sizemem		96000000
+sizemem		65536
 srecl		hello.sr
 run
 on

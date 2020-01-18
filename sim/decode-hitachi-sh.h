@@ -1,4 +1,4 @@
-/*	This is dependent on latencies-hitachi-sh.h	*/
+/*	DO NOTE EDIT! This file is auto-generated from latencies-hitachi-sh.h	*/
 enum
 {
 	SUPERH_OP_ADD,

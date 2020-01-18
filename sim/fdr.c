@@ -546,6 +546,11 @@ m_readstabs(Engine *E, State *S, char *filename)
 
 
 
+	if (SF_EMBEDDED)
+	{
+		sfatal(E, S, "Ingesting STABS not supported when compiled with SF_EMBEDDED");
+	}
+
 	stab.name = (char *)mmalloc(E, MAX_STAB_VARNAMELEN, "(char *)stab.name in m_readstabs()");
 	if (stab.name == NULL)
 	{
@@ -579,8 +584,10 @@ m_readstabs(Engine *E, State *S, char *filename)
 		/*	munch till end.				*/
 		/*						*/
 		if ((strlen(line) > 0) && (line[strlen(line)-1] != '\n'))
-		{		
+		{
+#if (SF_EMBEDDED == 0)
 			fscanf(fp, "%*s\n");
+#endif
 		}
 
 		sscanf(line, "%d %s %d %d %llx %d%1024[^\n]",	/* 1024 = MAX_STABSTR_LEN */

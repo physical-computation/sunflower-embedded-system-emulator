@@ -1,22 +1,16 @@
 #!/bin/sh
-# Create help strings for the sunflower menu help
-# Output is to stdout, so use as $0 > help.h
-
-# TODO If we agree with help.h being auto-generated from the above command, might as well
-#      include this in the Makefile. If doing so, add a comment warning not to modify help.h by hand
 
 	if [ $# -ne 1 ]; then
 		echo 1>&2 Usage: $0 "<path to Gnu awk>" 
-		# TODO Why does the user need to give the path to gawk by hand? I would suggest doing the following
-		# if [[ ! $(command -v gawk) ]]; then echo 'ERROR: gawk (gnu awk) not found'; exit 127; fi
-		# Is this due to some platforms needing to call a non-standard gawk?
 		exit 127
 	fi
 
 
+	# TODO Changed from lex-riscv.c -> lex-riscv.c
+	#      see Makefile target help.h
 	echo 'Help Helpstrs[] =\'
 	echo '{\'
-	cat lex-hitachi-sh.c | grep '/\*+' | sort | $1 -F'*|_|}|{|+|,|:' '{print "\t{\n\t\t\t" $2 ",\n\t\t\t\"\tDescription:" $8 "\",\n\t\t\t\"\tArguments:\t" $9 "\",\n\t},"}'
+	cat lex-riscv.c | grep '/\*+' | sort | $1 -F'*|_|}|{|+|,|:' '{print "\t{\n\t\t\t" $2 ",\n\t\t\t\"\tDescription:" $8 "\",\n\t\t\t\"\tArguments:\t" $9 "\",\n\t},"}'
 	echo '};'
-	echo 'int	nHelpstrs ='`cat lex-hitachi-sh.c | grep '/\*+' | wc -l`';'
-	echo 'int	uniqHelpstrs ='`cat lex-hitachi-sh.c | grep '/\*+' | sort -t '"' -k 2 | $1 '{print $2}' | sort | uniq | wc -l`';'
+	echo 'int	nHelpstrs ='`cat lex-riscv.c | grep '/\*+' | wc -l`';'
+	echo 'int	uniqHelpstrs ='`cat lex-riscv.c | grep '/\*+' | sort -t '"' -k 2 | $1 '{print $2}' | sort | uniq | wc -l`';'

@@ -104,7 +104,7 @@ ulong 	riscv_sim_syscall(Engine *, State *, ulong, ulong, ulong, ulong);
 /*											*/
 /*				Miscellaneous helper routines				*/
 /*											*/
-void	mexit(Engine *, char *, int);
+void	mexit(Engine *, char *, int)  __attribute__((noreturn));
 void	marchinit();
 void	mlog(Engine *, State *S, char *fmt, ...);
 void	merror(Engine *, char *fmt, ...);
@@ -711,9 +711,8 @@ void	msp430_jl(Engine *E, State *S, short offset, MSP430Pipestage *p);
 void	msp430_jmp(Engine *E, State *S, short offset, MSP430Pipestage *p);
 
 /*									*/
-/*			RISC-V instruction functions			*/
+/*	Microarchitecture and misc RISC-V  functions			*/
 /*									*/
-
 State*	riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename);
 void	riscvstallaction(Engine *, State *S, ulong addr, int type, int latency);
 void    riscvdumpregs(Engine *E, State *S);
@@ -723,12 +722,16 @@ void	riscvIFflush(State *S);
 void	riscvIFIDflush(State *S);
 int	riscvstep(Engine *E, State *S, int drain_pipe);
 int	riscvfaststep(Engine *E, State *S, int drain_pipe);
-
-void    riscvdumpdistribution(Engine *E, State *S);
-void 	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
+void	riscvdumphist(Engine *E, State *S, int histogram_id);
+void	riscvdumphistpretty(Engine *E, State *S, int histogram_id);
+void	riscvdumpdistribution(Engine *E, State *S);
+void	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
 void	reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
 
+/*									*/
+/*			RISC-V instruction functions			*/
+/*									*/
 void 	riscv_nop(Engine *E, State *S);
 void 	riscv_add(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void 	riscv_sub(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
@@ -779,12 +782,9 @@ void 	riscv_csrrwi(Engine *E, State *S);
 void 	riscv_csrrsi(Engine *E, State *S);
 void 	riscv_csrrci(Engine *E, State *S);
 
-
-
 /*									*/
-/*			RISC-V RV32F additional functions			*/
+/*			RISC-V RV32F additional functions		*/
 /*									*/
-
 uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n);
 void	freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data);
 void	rv32f_flw(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
@@ -814,12 +814,9 @@ void	rv32f_fcvt_s_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void	rv32f_fcvt_s_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void	rv32f_fmv_w_x(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 
-
-
 /*									*/
-/*			RISC-V RV32D additional functions			*/
+/*			RISC-V RV32D additional functions		*/
 /*									*/
-
 void rv32d_fld(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
 void rv32d_fsd(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint16_t imm0, uint16_t imm5);
 void rv32d_fmadd_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rs3, uint8_t rm, uint8_t rd);
@@ -847,15 +844,47 @@ void rv32d_fcvt_wu_d(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_w(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32d_fcvt_d_wu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 
-
-
-/*														*/
+/*									*/
 /*			RISC-V uncertain additional functions		*/
-/*														*/
+/*									*/
 void rv32un_unupg_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32un_ungcov_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
 void rv32un_unsvar_s(Engine *E, State *S, uint8_t rs1, uint8_t _rs2, uint8_t rd);
 void rv32un_unclvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
 void rv32un_uncpvar_s(Engine *E, State *S, uint8_t _rs1, uint8_t _rs2, uint8_t rd);
-
 void rv32un_un_part1(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0);
+
+
+/*
+ *		Histogram arithmetic.
+ */
+void		Histogram_AddDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+void		Histogram_ScalarMultiply(Engine *E, State *S, Histogram *hist, HistogramBinDatatype scalar);
+void		Histogram_SubDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+void		Histogram_CombDist(Engine *E, State *S, Histogram *hist1, Histogram *hist2, Histogram *histDest);
+int		Histogram_LowerBound(Engine *E, State *S, Histogram *hist);
+int		Histogram_UpperBound(Engine *E, State *S, Histogram *hist);
+void		Histogram_DistLShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+void		Histogram_DistRShift(Engine *E, State *S, Histogram *hist1, uint8_t Rs2, Histogram *histDest);
+uint8_t		Histogram_ExpectedValue(Engine *E, State *S, Histogram *hist);
+uint32_t	Histogram_DistLess(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
+uint32_t	Histogram_DistGrt(Engine *E, State *S, Histogram *hist, uint32_t Rs2);
+void		Histogram_LDDist(Engine *E, State *S, Histogram *histogram, HistogramBinDatatype bins[kUncertainAluHistogramBins]);
+void 		Histogram_LDRandom(Engine *E, State *S, Histogram *histogram);
+double		Histogram_Mean(Engine *E, State *S, Histogram *histogram);
+void		Histogram_PrettyPrint(Engine *E, State *S, Histogram *histogram);
+double		Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram);
+
+/*
+ *	Uncertainty propagation equation arithmetic
+ */
+int		uncertain_print_system(UncertainState * state, FILE *stream);
+void		uncertain_sizemen(Engine *E, State *S, int size);
+void		uncertain_inst_lr(UncertainState * state, int ud, int location);
+void		uncertain_inst_sr(UncertainState * state, int us1, int location);
+void		uncertain_inst_mv(UncertainState * state, int ud, int us1);
+void		uncertain_inst_up1(UncertainState * state, int ud, int us1, float g1);
+void		uncertain_inst_up2(UncertainState * state, int ud, int us1, int us2, float g1, float g2);
+float		uncertain_inst_gv(UncertainState * state, int us1);
+float		uncertain_inst_gcov(UncertainState * state, int us1, int us2);
+void		uncertain_inst_sv(UncertainState * state, int ud, float variance);

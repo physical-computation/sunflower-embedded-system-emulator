@@ -35,31 +35,24 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+ *	From Figure 2.3 in https://riscv.org/specifications/ v2.2
+ */
+
 enum
 {
-	/*
-	 *	RISCV Instruction formats (types)
-	 *	These determine the meaning of the individual bits of the 32b instructions
-	 *	-> Fig. 2.3, pg. 12 in https://content.riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf
-	 *	-> or https://en.wikipedia.org/wiki/RISC-V#ISA_base_and_extensions for a nicer figure
-	 */
-	INSTR_R, // Register-register
-	INSTR_I, // register-Immediate
-	INSTR_S, // Store
-	INSTR_B, // Branch
-	INSTR_U, // Upper-immediate
-	INSTR_J, // Jump
+	INSTR_R,
+	INSTR_I,
+	INSTR_S,
+	INSTR_B,
+	INSTR_U,
+	INSTR_J,
 
-	/*
-	 *	Additional R4 type introduced in RV32F extension
-	 *	These are fused-* (e.g. fused multiply add) instruction formats
-	 */
+	/* Additional R4 type introduced in RV32F */
 	INSTR_R4,
 
-	/*
-	 *	We introduce this new type to accommodate for any invalid instruction,
-	 *	including 0. These instructions will be executed as nop
-	 */
+	/*	We introduce this new type to accomodate for any invalid instruction,
+		including 0. These instructions will be executed as nop				*/
 	INSTR_N
 };
 
@@ -67,21 +60,10 @@ enum
 	They are not used in sf-riscv.y with the RISC-V inline assembler
 	implementation as we chose to stop using bit fields.			*/
 
-/*
- *	Variable naming convention:
- *
- *	 bitfield_name:length
- *
- *	where bitfield_name is one of
- *
- *	 rs{1,2} and rd: source, destination registers
- *
- *	 funct{3,7} and opcode: instruction specifiers
- *
- *	 immN: immediate value, with N being the starting bit
- *	 	(NB this means our naming convention differs from the spec, we give start:length
- *	 	    rather than start:end as in the spec)
- */
+/*	In the following structs, the number following imm corresponds to the
+	starting position of this section in the immediate number	
+	e.g. imm5:7 corresponds to bits [5:11] in the immediate number		*/
+
 typedef struct
 {
 	unsigned	opcode:7;
@@ -151,6 +133,9 @@ typedef struct
 	unsigned	funct7:7;
    
 } instr_riscv_decode;
+
+
+/* R4 type for RV32F */
 
 typedef struct
 {

@@ -46,6 +46,12 @@
 #include "endian-hitachi-sh.h"
 #include "sf.h"
 #include "mextern.h"
+
+/*
+ *	Prevent generated parser from allocating memory on stack, useful
+ *	for when running Sunflower on embedded targets.
+ */
+#define	YYSTACK_USE_ALLOCA	0
 %}
 
 
@@ -104,6 +110,10 @@
 %token	T_DUMPDISTRIBUTION
 %token	T_DUMPPWR
 %token	T_DUMPREGS
+%token	T_DUMPHIST
+%token	T_DUMPHISTPRETTY
+%token	T_LDHISTRND
+%token	T_ADDHIST
 %token	T_DUMPSYSREGS
 %token	T_DUMPTIME
 %token	T_DUMPTLB
@@ -387,7 +397,6 @@
 %type	<rval>	rnd_const
 %type	<rval>	rnd_var
 
-/* TODO explain why these are commented out. Not implemented? */
 /*
 %type	<rval>	rnd_bathtub
 %type	<rval>	rnd_beta
@@ -1207,12 +1216,39 @@ sf_cmd		: T_QUIT '\n'
 				yyengine->cp->dumpregs(yyengine, yyengine->cp);
 			}
 		}
+		| T_DUMPHIST uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumphist(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_DUMPHISTPRETTY uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->dumphistpretty(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_LDHISTRND uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->ldhistrandom(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_ADDHIST uimm uimm uimm '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				yyengine->cp->addhist(yyengine, yyengine->cp, $2, $3, $4);
+			}
+		}
 		| T_DUMPSYSREGS '\n'
 		{
 			if (!yyengine->scanning)
 			{
-				mprint(yyengine, NULL, siminfo,
-					"RISC-V does not have system registers.");
+				yyengine->cp->dumpsysregs(yyengine, yyengine->cp);
 			}
 		}
 		| T_DUMPPIPE '\n'
@@ -4481,8 +4517,8 @@ freg		: T_F0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror(yyengine, "Invalid command!");
+	merror(yyengine, "Invalid command! (for riscv)");
 	clearistream(yyengine);
-	
+
 	return 0;
 }

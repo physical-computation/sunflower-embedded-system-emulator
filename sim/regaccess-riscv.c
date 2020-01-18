@@ -34,65 +34,50 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 	POSSIBILITY OF SUCH DAMAGE.
 */
-#include "sf.h"
+
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include "sf.h"
 
-tuck
-uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n)
+tuck uint32_t
+reg_read_riscv(Engine *E, State *S, uint8_t n)
 {
-	uint32_t data;
-
 	/*
-	 *	TODO The following looks like an assert(register_accessed < total_number_of_registers) to me?
+	 *	BUG/TODO: Non-existing registers (e.g., CSRs) read as zero. See issue #31.
 	 */
+	uint32_t	data = 0;
+
 	if (n <= RISCV_GPR)
 	{
 		data = S->riscv->R[n];
 	}
 
-	switch(n) //For CSR access?
-	{
-		default:
-		{
-		}
-	}
-
 	return data;
 }
 
-tuck
-void reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
+tuck void
+reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
 {
-	/*
-	 *	TODO The following looks like an assert(register_accessed < total_number_of_registers) to me,
-	 *	with an additional check for X0. X0 is a special register, not general purpose:
-	 *	'Register x0 is hardwired to the constant 0.' ISA spec p9
-	 */
 	if (n <= RISCV_GPR && n != RISCV_X0)
 	{
 		S->riscv->R[n] = data;
 	}
 
-	switch(n) //For CSR access?
-	{
-		case RISCV_X0:
-		{
-		}
-		default:
-		{
-		}
-	}
-
 	return;
 }
 
-/* RV32F floating point register access */
-tuck
-uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
+/*
+ *	RV32F floating point register access
+ */
+tuck uint64_t
+freg_read_riscv(Engine *E, State *S, uint8_t n)
 {
-	uint64_t data;
+	/*
+	 *	BUG/TODO: Non-existing registers (e.g., CSRs) read as zero. See issue #31.
+	 */
+	uint64_t	data = 0;
 
-	// TODO: probably an assert, see above
 	if (n < RF32FD_fMAX)
 	{
 		data = S->riscv->fR[n];
@@ -101,10 +86,9 @@ uint64_t freg_read_riscv(Engine *E, State *S, uint8_t n)
 	return data;
 }
 
-tuck
-void freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
+tuck void
+freg_set_riscv(Engine *E, State *S, uint8_t n, uint64_t data)
 {
-	// TODO: probably an assert, see above
 	if (n < RF32FD_fMAX)
 	{
 		S->riscv->fR[n] = data;

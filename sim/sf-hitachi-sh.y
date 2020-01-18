@@ -45,6 +45,12 @@
 #include "endian-hitachi-sh.h"
 #include "sf.h"
 #include "mextern.h"
+
+/*
+ *	Prevent generated parser from allocating memory on stack, useful
+ *	for when running Sunflower on embedded targets.
+ */
+#define	YYSTACK_USE_ALLOCA	0
 %}
 
 
@@ -8202,7 +8208,7 @@ reg		: T_R0 {$$ = 0;}
 int
 yyerror(char *err)
 {
-	merror(yyengine, "Invalid command!");
+	merror(yyengine, "Invalid command! (for superH)");
 	clearistream(yyengine);
 	
 	return 0;

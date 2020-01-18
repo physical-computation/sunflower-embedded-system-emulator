@@ -1,5 +1,6 @@
 /*
-	Copyright (c) 2017-2018, Zhengyang Gu (author)
+	Copyright (c)	2019, Jan Heck (author), based on work from
+	M.Eng. project of Alexa Belsham.
 
 	All rights reserved.
 
@@ -35,24 +36,16 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+typedef uint16_t	HistogramBinDatatype;
+
+enum
+{
+
+	kUncertainAluHistogramBins	= 8,
+};
+
 typedef struct
 {
-	uint32_t		R[RISCV_XMAX];
-	uint64_t		fR[RF32FD_fMAX];
-	uint32_t		fCSR;
-	RiscvPipe		P;
-	UncertainState *	uncertain;
-	uint32_t		instruction_distribution[RISCV_OP_MAX];
-
-	/*
-	 *	Taint analysis for registers (need last entry for PC's taint entry 32)
-	 */
-	ShadowMem		instruction_taintDistribution[RISCV_OP_MAX];
-	ShadowMem		taintR[RISCV_XMAX+1];
-	ShadowMem		taintfR[RF32FD_fMAX+1];
-
-	/*
-	 *	Histograms
-	 */
-	Histogram		histograms[RISCV_XMAX];
-} RiscvState;
+	HistogramBinDatatype	bins[kUncertainAluHistogramBins];
+} Histogram;
