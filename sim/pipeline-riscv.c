@@ -638,13 +638,15 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 					break;
 				}
-
 				case INSTR_R4:
 				{
-					instr_r4 *tmp;
-
-					tmp = (instr_r4 *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm, tmp->rd);
+					uint32_t tmp = S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits20to24) >> 20,
+								(tmp&maskExtractBits27to31) >> 27,
+								(tmp&maskExtractBits12to14) >> 12,
+								(tmp&maskExtractBits7to11) >> 7);
 					break;
 				}
 
@@ -750,7 +752,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBit20) >> 20,
 							(tmp&maskExtractBits12to19) >> 12,
 							(tmp&maskExtractBit31) >> 31);
-				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
 				else
 				{
@@ -762,8 +763,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBits25to30) >> 25,
 							(tmp&maskExtractBit7) >> 7,
 							(tmp&maskExtractBit31) >> 31);
-				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
+				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				S->dyncnt++;
 				riscvIFflush(S);
 			}
