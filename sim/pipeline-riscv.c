@@ -95,7 +95,7 @@ Hazards:
 	1 stall:
 		LOAD instrs that write to a reg-required-by-next-instr after reading from mem:
 			...EX of next instr needs reg data from MA of LOAD instrs.
-		BRANCH instrs test for (in)equality in ID, dependent on previous instr:
+		BRANCH instrs test for (in)equality in ID which is dependent on previous instr:
 			...ID of BRANCH instr needs reg data from EX of previous instr.
 	2 stalls:
 		LOAD instr followed by dependent BRANCH instr:
@@ -634,8 +634,11 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBit20) >> 20,
 								(tmp&maskExtractBits12to19) >> 12,
 								(tmp&maskExtractBit31) >> 31);
-					S->dyncnt++;				*/
+					S->dyncnt++;
+					
 					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+					*/
+
 					break;
 				}
 					
