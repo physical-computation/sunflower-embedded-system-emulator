@@ -638,6 +638,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 					break;
 				}
+					
 				case INSTR_R4:
 				{
 					uint32_t tmp = S->riscv->P.EX.instr;
