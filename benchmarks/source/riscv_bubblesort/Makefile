@@ -19,13 +19,13 @@ OBJS	=\
 all:	$(PROGRAM).out $(PROGRAM).sr Makefile
 
 $(INIT).o: $(INIT).S
-	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(INIT).S
+	$(UNCERTAIN_AS) $(INIT).S -o $@
 
 $(PROGRAM).out: $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgcc -lgloss
+	$(UNCERTAIN_LD) $(LDFLAGS) $(OBJS) -o $@ -lprintf -lc -lgcc -lgloss
 
 $(PROGRAM).sr: $(PROGRAM).out
-	$(OBJCOPY) -O srec $(PROGRAM).out $@
+	$(UNCERTAIN_OBJCOPY) -O srec $(PROGRAM).out $@
 
 $(PROGRAM).o: $(PROGRAM).c Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PROGRAM).c

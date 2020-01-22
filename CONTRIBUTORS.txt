@@ -1,1 +1,12 @@
+Authored, 1999-2018, Phillip Stanley-Marbell.
 
+Additional Contributors:
+========================
+Zhengyang Gu			RISC-V RV32I implementation
+Ryan Vu				RISC-V RV32MFD implementation
+Harry Sarson			Uncertainty propagation of low-order moments 
+Alexa Belsham			Uncertainty propagation of histograms
+Sam Wong			RISC-V pipelining
+Hein Mante			Taint propagation
+Jan Heck
+Vasileios Tsoutsouras

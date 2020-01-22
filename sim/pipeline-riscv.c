@@ -537,16 +537,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 
 			switch (S->riscv->P.EX.format)
 			{
-				case INSTR_N:
-				{
-					(*(S->riscv->P.EX.fptr))(E, S);	/*	riscv_nop??	*/
-					S->dyncnt++;
-
-					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
-
-					break;
-				}
-
 				case INSTR_R:
 				{
 					uint32_t tmp = (uint32_t) S->riscv->P.EX.instr;
@@ -646,6 +636,25 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBit31) >> 31);
 					S->dyncnt++;				*/
 					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+					break;
+				}
+
+				case INSTR_R4:
+				{
+					instr_r4 *tmp;
+
+					tmp = (instr_r4 *)&S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm, tmp->rd);
+					break;
+				}
+
+				case INSTR_N:
+				{
+					(*(S->riscv->P.EX.fptr))(E, S);	/*	riscv_nop??	*/
+					S->dyncnt++;
+
+					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+
 					break;
 				}
 

@@ -76,7 +76,7 @@ freg_read_riscv(Engine *E, State *S, uint8_t n)
 	/*
 	 *	BUG/TODO: Non-existing registers (e.g., CSRs) read as zero. See issue #31.
 	 */
-	uint32_t	data = 0;
+	uint64_t	data = 0;
 
 	if (n < RF32FD_fMAX)
 	{

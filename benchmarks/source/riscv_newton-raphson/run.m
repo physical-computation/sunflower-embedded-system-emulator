@@ -1,8 +1,6 @@
 newnode			riscv
-sizemem			131072
-settimerdelay		40000
-clockintr		1
+sizemem			65536
 cacheoff
-srecl			newton_rapson.sr
+srecl			newton_raphson.sr
 run
 on

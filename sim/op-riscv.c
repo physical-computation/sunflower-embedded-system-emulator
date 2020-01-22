@@ -1337,7 +1337,7 @@ rv32f_fmin_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 		merror(E, "We currently do not support unfmin.s. Sorry!");
 
-		//uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
 		S->riscv->uncertain->last_op.valid = 0;
 	}
 
@@ -1372,7 +1372,7 @@ rv32f_fmax_s(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd)
 
 		merror(E, "We currently do not support unfmax.s. Sorry!");
 
-		//uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
+		uncertain_inst_mv(S->riscv->uncertain, rd, nan(""));
 		S->riscv->uncertain->last_op.valid = 0;
 	}
 

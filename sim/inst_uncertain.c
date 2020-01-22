@@ -528,10 +528,12 @@ uncertain_sizemen(Engine *E, State *S, int size)
 	 */
 	size /= 4;
 
+/*
 	if (size > (1<< 16))
 	{
 		mexit(E, "Cannot compute required number of covariances without overflow\n", 1);
 	}
+*/
 
 	size_t variance_bytes = size * sizeof(float);
 	size_t covariance_bytes = covariances_in_mem(size) * sizeof(float);
