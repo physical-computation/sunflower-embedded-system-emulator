@@ -477,7 +477,12 @@ State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
 	State *	S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	/* Override S->writebyte = to point to riscVwritebyte 
+	 * Temporary fix until superHnewstate is removed 
+	 */
 
+	S->writebyte = riscVwritebyte;
+	
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
 	if (S->riscv == NULL)
 		{
