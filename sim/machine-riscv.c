@@ -481,7 +481,8 @@ State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
 	State *	S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
-	/* Override S->writebyte = to point to riscVwritebyte 
+	/* 
+	 * Override S->writebyte = to point to riscVwritebyte 
 	 * Temporary fix until superHnewstate is removed 
 	 */
 
