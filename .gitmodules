@@ -1,3 +1,0 @@
-[submodule "sunflower-toolchain"]
-	path = sunflower-toolchain
-	url = https://github.com/physical-computation/Sunflower-toolchain.git
