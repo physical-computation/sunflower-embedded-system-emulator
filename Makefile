@@ -21,6 +21,9 @@ cross-superH:
 cross-riscv:
 	cd $(TOOLCHAIN); $(MAKE) cross-riscv
 
+cross-uncertain-riscv:
+	cd $(TOOLCHAIN); $(MAKE) cross-uncertain-riscv
+
 # cross-msp430:
 # 	cd $(TOOLCHAIN); $(MAKE) cross-riscv
 
