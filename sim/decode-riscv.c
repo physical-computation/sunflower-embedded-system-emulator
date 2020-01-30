@@ -720,6 +720,62 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 		{
 			switch(tmp->funct7)
 			{
+				case 0b0011100: //UNUPG.S
+				{
+					stage->fptr = (void *) rv32un_unupg_s;
+								stage->format = INSTR_R;
+								stage->op = RV32UN_OP_UNUPGS;
+
+					break;
+				}
+
+				case 0b0111100: //UNGCOV.S
+				{
+					stage->fptr = (void *) rv32un_ungcov_s;
+								stage->format = INSTR_R;
+								stage->op = RV32UN_OP_UNGCOVS;
+
+					break;
+				}
+
+				case 0b1011100:
+				{
+					instr_r4 * r4_tmp = (instr_r4*)tmp;
+					switch(r4_tmp->rs2)
+					{
+						case 0b00000: //UNSVARS.S
+						{
+							stage->fptr = (void *) rv32un_unsvar_s;
+									stage->format = INSTR_R;
+									stage->op = RV32UN_OP_UNSVARS;
+
+							break;
+						}
+						case 0b00001: //UNCPVAR.S
+						{
+							stage->fptr = (void *) rv32un_uncpvar_s;
+										stage->format = INSTR_R;
+										stage->op = RV32UN_OP_UNCPVARS;
+
+							break;
+						}
+						case 0b00010: //UNCLVAR.S
+						{
+							stage->fptr = (void *) rv32un_unclvar_s;
+										stage->format = INSTR_R;
+										stage->op = RV32UN_OP_UNCLVARS;
+
+							break;
+						}
+						default:
+						{
+							break;
+						}
+					}
+
+					break;
+				}
+				
 				case 0b0000000: //FADD.S
 				{
 					stage->fptr = (void *) rv32f_fadd_s;
@@ -1221,8 +1277,33 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 			break;
 		}
 
+		/* 64 bit long instructions. Decode *just* these 32 bits and pass  */
+		/* responsibilty for handling downstream  */
+		case 0b0111111:
+		{
+			switch(tmp->misc_lo)
+				{
+					case 0b00001: // First half of uncertainty instructions
+					{
+						stage->fptr = (void *) rv32un_un_part1;
+						stage->format = INSTR_I;
+						stage->op = RV32UN_OP_UNPART1;
+
+						break;
+					}
+
+					default:
+					{
+						break;
+					}
+			}
+
+			break;
+		}
+
 		default:
 		{
+			fprintf(stderr, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
 			break;
 		}
 	}
