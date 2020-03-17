@@ -1,6 +1,7 @@
 #include "instr-riscv.h"
 #include "sf.h"
 extern int	riscv_instr_latencies[][5];
+extern char *riscv_opstrs[];
 
 void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 {
@@ -1303,8 +1304,18 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
 		default:
 		{
-			fprintf(stderr, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
+			//	fprintf(stderr, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
 			break;
 		}
 	}
+
+	/* Use when all decoded instructions need to be printed */
+	// if (stage->op <= RV32UN_OP_UNMAX)
+	// {
+	// 	fprintf(stderr, "fetchedpc 0x%X: Decoded instruction: %s\n", stage->fetchedpc, riscv_opstrs[stage->op]);
+	// }
+	// else
+	// {
+	// 	fprintf(stderr, "fetchedpc 0x%X: Unknown stage->op: 0x%X\n", stage->fetchedpc, stage->op);
+	// }
 }

@@ -66,6 +66,7 @@ static ulong	sys_lseek(State *S, int, int, int);
 static ulong	sys_stat(State *S, const char *, struct stat *);
 static ulong	sys_pipe(State *S, int *);
 static ulong	sys_utime(State *S, const char *, const struct utimbuf *);
+static ulong	sys_fstat(State *S, int fd, struct stat *st);
 
 ulong
 sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
@@ -308,8 +309,13 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 
 		case SYS_fstat:
 		{
-			/*	Handled in newlib's syscalls.c		*/
-			mprint(E, S, nodeinfo, "SYSCALL: SYS_fstat\n");
+			if (SF_DEBUG)
+			{
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_fstat\n");
+			}
+
+			return sys_fstat(S, (int) arg1, (struct stat *) arg2);
+
 			break;
 		}
 
@@ -382,6 +388,30 @@ sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong arg3)
 			{
 				mprint(E, S, nodeinfo, "SYSCALL: SYS_wait\n");
 			}
+			break;
+		}
+
+		case SYS_brk:
+		{
+			ulong returnValue;
+
+			/*	Not Implemented		*/
+			if (SF_DEBUG)
+			{
+				mprint(E, S, nodeinfo, "SYSCALL: SYS_brk: arg1: 0x%X, arg2: 0x%X, arg3: 0x%X, MemSize: 0x%X End: 0x%X Return: 0x%X\n", arg1, arg2, arg3, S->MEMSIZE, S->MEM_DATA_SEGMENT_END, returnValue);
+			}
+
+			if (arg1 == 0x0)
+			{
+				returnValue = S->MEM_DATA_SEGMENT_END;
+			}
+			else
+			{
+				returnValue = arg1;
+			}
+
+			return returnValue;
+
 			break;
 		}
 
@@ -482,6 +512,11 @@ riscv_sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong
 			superH_type = SYS_execve;
 			break;
 		}
+		case RISCV_SYS_brk:
+		{
+			superH_type = SYS_brk;
+			break;
+		}
 		default:
 		{
 			superH_type = -1;
@@ -489,12 +524,16 @@ riscv_sim_syscall(Engine *E, State *S, ulong type, ulong arg1, ulong arg2, ulong
 		}
 	}
 
-	if (superH_type == -1) {
+	if (superH_type == -1) 
+	{
 		mprint(E, S, nodeinfo, "Node [%d] : Unknown SYSCALL [%ld]!!!\n",\
 				S->NODE_ID, type);
-	} else {
+	} 
+	else 
+	{
 		return sim_syscall(E, S, superH_type, arg1, arg2, arg3);
 	}
+
 	return -1;
 }
 
@@ -553,13 +592,22 @@ sys_open(State *S, const char *path, int flags)
 ulong
 sys_close(State *S, int fd)
 {
-	/*	For now, just pass it on	*/
+	/*	For now, just pass it on						*/
 	/*	For sys_read, sys_write, sys_close, sys_lseek,	*/
 	/*	we should maintain a table of fd's we've opened	*/
 	/*	and return -1 if sim app is trying to access an	*/
-	/*	fd we haven't opened.				*/
+	/*	fd we haven't opened.							*/
+	
+	/*	Avoid closing fds 0,1,2 which are needed by sf	*/
 
-	return close(fd);
+	if (fd <= 2)
+	{
+		return 0;
+	}
+	else
+	{
+		return close(fd);
+	}
 }
 
 ulong
@@ -608,6 +656,14 @@ sys_stat(State *S, const char *path, struct stat *st)
 {
 	/*	For now, just pass it on	*/
 	return stat((char *)&S->MEM[(ulong)path - S->MEMBASE], (struct stat *)&S->MEM[(ulong)st - S->MEMBASE]);
+}
+
+ulong
+sys_fstat(State *S, int fd, struct stat *st)
+{
+	/*	For now, just pass it on	*/
+	/*	fd should be correct because sf opened it	*/
+	return fstat(fd, (struct stat *)&S->MEM[(ulong)st - S->MEMBASE]);
 }
 
 ulong

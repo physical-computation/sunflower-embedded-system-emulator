@@ -523,6 +523,7 @@ struct State
 	int		MEMSIZE;
 	int		MEMBASE;
 	int		MEMEND;
+	int		MEM_DATA_SEGMENT_END;
 
 	/*
 	*	Shadow Memory structure allocation
