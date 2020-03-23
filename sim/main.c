@@ -736,6 +736,62 @@ done:
 }
 
 void
+load_mapfile(Engine *E, State *S, char *filename)
+{
+	FILE	*fp;
+	char	line[MAX_SREC_LINELEN], *p;
+	int		nlines = 0;
+	//unsigned long dataSegmentEnd=0x0;
+	char 	dataSegmentStr[9];
+
+
+	if ((fp = fopen(filename, "r")) == NULL)
+	{
+		mprint(E, S, nodeinfo,
+			"Open of \"%s\" failed...\n\n", filename);
+		return;
+	}
+	else
+	{
+		mprint(E, S, nodeinfo,
+			"Loading \"%s\" map file...\n\n", filename);
+	}
+	
+	/*														*/
+	/*		Skip all lines until the DATA_SEGMENT_END		*/
+	/*														*/
+	for (; strstr(line, "DATA_SEGMENT_END") == NULL ; nlines++)
+	{
+		fgets(line, sizeof(line), fp);
+	}
+
+	p = strtok(line, " \t");
+
+	/*	18 is for 64bit addresses and 10 for 32bit addresses	*/
+	if (strlen(p) == 18)
+	{
+		strcpy(dataSegmentStr, &p[10]);
+	}
+	else if (strlen(p) == 10)
+	{
+		strcpy(dataSegmentStr, &p[2]);
+	}
+	else
+	{
+		printf("Unknown memory length %d in mmap file.\n", strlen(p));
+		return;
+	}
+	
+	S->MEM_DATA_SEGMENT_END = strtol(dataSegmentStr, NULL, 16);
+
+	mprint(E, S, nodeinfo, "DATA_SEGMENT_END: 0x%X\n", S->MEM_DATA_SEGMENT_END);
+
+	//printf("Data segment str: %s. Data segment end: 0x%X\n", dataSegmentStr, dataSegmentEnd);
+
+	fclose(fp);
+}
+
+void
 m_setnode(Engine *E, int which)
 {
 	if (which >= E->nnodes)

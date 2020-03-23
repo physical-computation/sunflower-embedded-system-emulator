@@ -93,6 +93,7 @@ TokenTab superH_token_table [] =
 	{"N",		T_STEP},				/*+	Step through simulation for a number (default 1) of cycles.:[# cycles] (integer)				*/
 	{"LOAD",	T_LOAD},				/*+	Load a script file.:<filename (string)>										*/
 	{"SRECL",	T_SRECL},				/*+	Load a binary program in Motorola S-Record format.:none								*/
+	{"LOADMAPFILE",	T_LOADMAPFILE},		/*+	Load map file.:none								*/
 	{"SETPC",	T_SETPC},				/*+	Set the value of the program counter.:<PC value (integer)>							*/
 	{"CONT",	T_CONT},				/*+	Continue execution while PC is not equal to specified PC.:<until PC (hexadecimal)>				*/
 	{"HELP",	T_HELP},				/*+	Print list of commands.:none											*/
