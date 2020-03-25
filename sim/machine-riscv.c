@@ -494,7 +494,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumpsysregs = riscvdumpsysregs;
 	S->dumppipe = riscvdumppipe;
 	S->flushpipe = riscvflushpipe;
-	
+
 	/*
 	 *	Histogram-specific menu items
 	 */
