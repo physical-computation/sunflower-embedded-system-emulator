@@ -128,7 +128,7 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*	the stall actually occurs when in MA, since we've	*/
 	/*	completed the EX wait before we get executed.		*/
 	/*								*/
-	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
+	if (S->riscv->mem_access_type == MEM_ACCESS_IFETCH)
 	{
 		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
 		/*	IF.cycles (he doesn't remember either) but I'll leave it as it is...	*/
@@ -502,14 +502,17 @@ riscVresetcpu(Engine *E, State *S)
 	S->TAINTMEMEND = S->TAINTMEMBASE + S->TAINTMEMSIZE;
 
 
-	// memset(&S->superH->P, 0, sizeof(SuperHPipe));
+	memset(&S->riscv->P, 0, sizeof(SuperHPipe));
 	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
 	// memset(&S->superH->R, 0, sizeof(ulong)*16);
 	// memset(&S->superH->R_BANK, 0, sizeof(ulong)*8);
 	// memset(&S->superH->SR, 0, sizeof(SuperHSREG));
 	// memset(&S->superH->SSR, 0, sizeof(SuperHSREG));
 	memset(S->MEM, 0, S->MEMSIZE);
-	// memset(S->superH->B, 0, sizeof(SuperHBuses));
+	if (SF_NUMA)
+        {
+		memset(S->riscv->B, 0, sizeof(SuperHBuses));
+	}
 
 	/*								*/
 	/*	The only the ratio of size:blocksize and assoc are	*/
@@ -529,8 +532,8 @@ riscVresetcpu(Engine *E, State *S)
 
 
 	S->TIME = E->globaltimepsec;
-	// S->superH->TIMER_LASTACTIVATE = 0.0;
-	// S->superH->TIMER_INTR_DELAY = 1E-3;
+	S->riscv->TIMER_LASTACTIVATE = 0.0;
+	S->riscv->TIMER_INTR_DELAY = 1E-3;
 	S->dyncnt = 0;
 	S->nfetched = 0;
 	S->CLK = 0;
@@ -548,7 +551,7 @@ riscVresetcpu(Engine *E, State *S)
 	S->voltscale_Vt = 0.0;
 
 	S->Cycletrans = 0;
-	// S->superH->mem_access_type = 0;
+	S->riscv->mem_access_type = 0;
 
 	// S->superH->PTEL = 0;
 	// S->superH->PTEH = 0;
@@ -571,19 +574,19 @@ riscVresetcpu(Engine *E, State *S)
 	S->startclk = 0;
 	S->finishclk = 0;
 	
-	//S->step = superHstep;
+	S->step = riscvstep;
 	S->pipelined = 1;
 	S->pipeshow = 0;
 
 	fault_setnodepfun(E, S, "urnd");
 
-	// if (SF_PAU_DEFINED)
-	// {
-	// 	pau_init(E, S, S->superH->npau);
-	// 	mprint(E, S, nodeinfo,
-	// 		"Done with pauinit, for %d PAU entries...\n",
-	// 		S->superH->npau);
-	// }
+	if (SF_PAU_DEFINED)
+	{
+	 	pau_init(E, S, S->riscv->npau);
+	 	mprint(E, S, nodeinfo,
+	 		"Done with pauinit, for %d PAU entries...\n",
+	 		S->riscv->npau);
+	}
 
 	// for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
 	// {
@@ -613,10 +616,6 @@ riscVresetcpu(Engine *E, State *S)
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-	/* State *	S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
-	 * Override S->writebyte = to point to riscVwritebyte 
-	 * Temporary fix until superHnewstate is removed 
-	 */
 	State 	*S;
 
 	S = (State *)mcalloc(E, 1, sizeof(State), "(State *)S");
@@ -631,7 +630,9 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		mexit(E, "Failed to allocate memory for S->riscv.", -1);
 	}
 
+#if (SF_UNCERTAIN_UPE == 1)
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
+#endif
 
 	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
 	if (S->MEM == NULL)
@@ -648,6 +649,15 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		}
 	}
 
+	if (SF_NUMA)
+	{
+		S->riscv->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->riscv->B");
+		if (S->riscv->B == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->riscv->B.", -1);
+		}
+	}
+
 	E->cp = S;
 	E->sp[E->nnodes] = S;
 	mprint(E, NULL, siminfo, "New node created with node ID %d\n", E->nnodes);
@@ -661,7 +671,14 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
 	}
 
+	S->machinetype = MACHINE_RISCV;
+
 	/* FIXME superH related functions need to be cleaned up. */
+	S->endian = Little;
+	S->dumpregs = riscvdumpregs;
+        S->dumpsysregs = riscvdumpsysregs;
+	S->fatalaction = riscvfatalaction;
+        S->stallaction = riscvstallaction;
 	S->settimerintrdelay = superHsettimerintrdelay;
 
 	S->take_nic_intr = superHtake_nic_intr;
@@ -672,7 +689,11 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 
 	S->cache_init = superHcache_init;
 	S->resetcpu = riscVresetcpu;
-	S->cyclestep = superHstep;
+	S->step = riscvstep;
+	S->cyclestep = riscvstep;
+        S->faststep = riscvfaststep;
+	S->dumppipe = riscvdumppipe;
+        S->flushpipe = riscvflushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev7708readbyte;
@@ -684,8 +705,10 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->split = superHsplit;
 	S->vmtranslate = superHvmtranslate;
 	S->dumptlb = superHdumptlb;
-	S->cache_deactivate = superHcache_deactivate;
+	S->cache_deactivate = riscVcache_deactivate;
 	S->cache_printstats = superHcache_printstats;
+
+	S->writebyte = riscVwritebyte;
 
 	S->xloc = xloc;
 	S->yloc = yloc;
@@ -702,13 +725,6 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	E->nnodes++;
 	S->resetcpu(E, S);
 
-	S->writebyte = riscVwritebyte;
-
-	S->dumpregs = riscvdumpregs;
-	S->dumpsysregs = riscvdumpsysregs;
-	S->dumppipe = riscvdumppipe;
-	S->flushpipe = riscvflushpipe;
-	
 	/*
 	 *	Histogram-specific menu items
 	 */
@@ -716,15 +732,6 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumphistpretty = riscvdumphistpretty;
 	S->ldhistrandom = riscvldhistrandom;
 	S->addhist = riscvaddhist;
-
-	S->fatalaction = riscvfatalaction;
-	S->endian = Little;
-	S->machinetype = MACHINE_RISCV;
-	S->dumpdistribution = riscvdumpdistribution;
-	S->stallaction = riscvstallaction;
-
-	S->step = riscvstep;
-	S->faststep = riscvfaststep;
 
 	return S;
 }

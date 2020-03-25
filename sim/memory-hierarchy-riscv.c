@@ -36,6 +36,20 @@
 */
 #include "sf.h"
 
+int
+riscVcache_init(Engine *E, State *S, int size, int blocksize, int assoc)
+{
+	mprint(E, S, nodeinfo, "Cache not currently supported in RiscV simulation\n");
+	return 0;
+}
+
+void
+riscVcache_deactivate(Engine *E, State *S)
+{
+	mprint(E, S, nodeinfo, "Cache deactivated\n");
+	S->riscv->cache_activated = 0;
+}
+
 tuck void
 riscVwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
@@ -46,6 +60,10 @@ riscVwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 	
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*	If MMU is disabled, virtual addr is used directly	*/
+	/*	as phy addr by ignoring top 3 bits of virtual addr	*/
+	trans.cacheable = 1;
 
 	if ((paddr >= S->MEMBASE) && (paddr < S->MEMEND))
 	{
@@ -71,10 +89,10 @@ riscVwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 		S->MEM[paddr - S->MEMBASE] = data;
 	}
 	
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
+	}
 
 	return;
 }
@@ -89,6 +107,10 @@ riscVwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 	
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*      If MMU is disabled, virtual addr is used directly       */
+        /*      as phy addr by ignoring top 3 bits of virtual addr      */
+        trans.cacheable = 1;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -129,10 +151,10 @@ riscVwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 		S->MEM[paddr+1 - S->MEMBASE] = (uchar)data&0xFF;*/
 	}
 	
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
+	}
 
 	return;
 }
@@ -146,6 +168,10 @@ riscVwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*      If MMU is disabled, virtual addr is used directly       */
+        /*      as phy addr by ignoring top 3 bits of virtual addr      */
+        trans.cacheable = 1;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -186,10 +212,10 @@ riscVwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 		S->MEM[paddr+3 - S->MEMBASE] = (uchar)data&0xFF;*/
 	}
 	
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_WRITE_STALL, latency);
+	}
 
 	return;
 }
@@ -205,6 +231,10 @@ riscVreadbyte(Engine *E, State *S, ulong vaddr)
 	
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*      If MMU is disabled, virtual addr is used directly       */
+        /*      as phy addr by ignoring top 3 bits of virtual addr      */
+        trans.cacheable = 1;
 
 	if ((paddr >= S->MEMBASE) && (paddr < S->MEMEND))
 	{
@@ -224,10 +254,10 @@ riscVreadbyte(Engine *E, State *S, ulong vaddr)
 		return devportreadbyte(E, S, vaddr);
 	}
 
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
+	}
 
 	return data;
 }
@@ -242,6 +272,10 @@ riscVreadword(Engine *E, State *S, ulong vaddr)
 	
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*      If MMU is disabled, virtual addr is used directly       */
+        /*      as phy addr by ignoring top 3 bits of virtual addr      */
+        trans.cacheable = 1;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -272,10 +306,10 @@ riscVreadword(Engine *E, State *S, ulong vaddr)
 		return devportreadword(E, S, vaddr);
 	}
 
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
+	}
 
 	return data;
 }
@@ -290,6 +324,10 @@ riscVreadlong(Engine *E, State *S, ulong vaddr)
 
 	paddr	= vaddr;
 	inram	= 0;
+
+	/*      If MMU is disabled, virtual addr is used directly       */
+        /*      as phy addr by ignoring top 3 bits of virtual addr      */
+        trans.cacheable = 1;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -323,10 +361,10 @@ riscVreadlong(Engine *E, State *S, ulong vaddr)
 		return devportreadlong(E, S, vaddr);
 	}
 
-	// if (!S->superH->cache_activated || !trans.cacheable)
-	// {
-	// 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
-	// }
+	if (!S->riscv->cache_activated || !trans.cacheable)
+	{
+	 	S->stallaction(E, S, paddr, MEM_READ_STALL, latency);
+	}
 
 	return data;
 }

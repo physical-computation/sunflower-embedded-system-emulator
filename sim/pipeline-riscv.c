@@ -841,10 +841,10 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 			else
 			{
-				//S->superH->mem_access_type = MEM_ACCESS_IFETCH;
+				S->riscv->mem_access_type = MEM_ACCESS_IFETCH;
 				instrlong = riscVreadlong(E, S, S->PC);
 				S->nfetched++;
-				//S->superH->mem_access_type = MEM_ACCESS_NIL;
+				S->riscv->mem_access_type = MEM_ACCESS_NIL;
 			}
 
 			/*	Count # bits flipping in IF		*/

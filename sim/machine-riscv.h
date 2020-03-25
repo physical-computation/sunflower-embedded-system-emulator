@@ -55,4 +55,27 @@ typedef struct
 	 *	Histograms
 	 */
 	Histogram		histograms[RISCV_XMAX];
+
+	/*
+	 *	Features borrowed from superH
+	 */
+	int		cache_activated;
+	
+	SuperHBuses	*B;
+
+	/*	Time of last generated timer intr	*/
+	Picosec		TIMER_LASTACTIVATE;
+
+	/*		Delay b/n timer interrupts	*/
+	Picosec		TIMER_INTR_DELAY;
+
+	/*	Whether mem access is in IF or EX	*/
+	int		mem_access_type;
+
+	/*		Power Adaptation Unit		*/
+	PAUentry	*PAUs;
+	int		npau;
+	int		influenced;
+	int		controlling_pau;
+	ulong		pauaddrmask;
 } RiscvState;
