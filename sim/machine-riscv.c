@@ -553,11 +553,11 @@ riscVresetcpu(Engine *E, State *S)
 	S->Cycletrans = 0;
 	S->riscv->mem_access_type = 0;
 
-	// S->superH->PTEL = 0;
-	// S->superH->PTEH = 0;
-	// S->superH->TTB = 0;
-	// S->superH->TEA = 0;
-	// S->superH->MMUCR = 0;
+	S->riscv->PTEL = 0;
+	S->riscv->PTEH = 0;
+	S->riscv->TTB = 0;
+	S->riscv->TEA = 0;
+	S->riscv->MMUCR = 0;
 
 	// S->superH->TRA = 0;
 	// S->superH->EXPEVT = 0;
@@ -703,7 +703,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->devwriteword = dev7708writeword;
 	S->devwritelong = dev7708writelong;
 	S->split = superHsplit;
-	S->vmtranslate = superHvmtranslate;
+	S->vmtranslate = riscVvmtranslate;
 	S->dumptlb = superHdumptlb;
 	S->cache_deactivate = riscVcache_deactivate;
 	S->cache_printstats = superHcache_printstats;

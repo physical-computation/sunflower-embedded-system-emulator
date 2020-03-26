@@ -35,6 +35,7 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 #include "sf.h"
+#include "mmu-hitachi-sh.h"
 
 int
 riscVcache_init(Engine *E, State *S, int size, int blocksize, int assoc)
@@ -50,6 +51,43 @@ riscVcache_deactivate(Engine *E, State *S)
 	S->riscv->cache_activated = 0;
 }
 
+void
+riscVvmtranslate(Engine *E, State *S, int op, TransAddr *tr)
+{
+	ulong		vaddr = tr->vaddr;
+
+	/*									*/
+	/*	First, for MMU_AREA_P4 (priv, ctrl space), no translation	*/
+	/*									*/
+	if ((vaddr >= MMU_AREA_P4_START) && (vaddr <= MMU_AREA_P4_END))
+	{
+		tr->error = 0;
+		tr->paddr = vaddr;
+		tr->cacheable = 0;
+		//fprintf(stderr, "MMU_AREA_P4. Address [0x" UHLONGFMT "] translated to [0x" UHLONGFMT "]...\n", tr->vaddr, tr->paddr);
+
+		return;
+	}
+
+	/*								*/
+	/*	If MMU is disabled, virtual addr is used directly	*/
+	/*	as phy addr by ignoring top 3 bits of virtual addr	*/
+	/*	See rej09b0146_sh7706.pdf, page 55, para 4.		*/
+	/*								*/
+	if (mmucr_field_at(S->riscv->MMUCR) == 0)
+	{
+		tr->error = 0;
+		tr->paddr = vaddr & ~(B0111 << 29);
+		tr->cacheable = 1;
+
+		return;
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "MMU seems to be enabled in RiscV simulation. However it is not currently supported.\n");
+	}
+}
+
 tuck void
 riscVwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 {
@@ -58,12 +96,21 @@ riscVwritebyte(Engine *E, State *S, ulong vaddr, ulong xdata)
 	ulong		paddr;
 	uchar		data = xdata & 0xFF;
 	
-	paddr	= vaddr;
-	inram	= 0;
+	/*								*/
+	/*	Translate address. If error occured, we do nothing:	*/
+	/*	faulting instruction will get re-executed after the	*/
+	/*	exception is handled.					*/
+	/*								*/
+	trans.vaddr = vaddr;
+	trans.error = 0;
+	S->vmtranslate(E, S, MEM_WRITE_BYTE, &trans);
+	if (trans.error)
+	{
+		return;
+	}
 
-	/*	If MMU is disabled, virtual addr is used directly	*/
-	/*	as phy addr by ignoring top 3 bits of virtual addr	*/
-	trans.cacheable = 1;
+	paddr	= trans.paddr;
+	inram	= 0;
 
 	if ((paddr >= S->MEMBASE) && (paddr < S->MEMEND))
 	{
@@ -104,13 +151,22 @@ riscVwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 	TransAddr	trans;
 	ulong		paddr;
 	ushort		data = xdata & 0xFFFF;
-	
-	paddr	= vaddr;
-	inram	= 0;
 
-	/*      If MMU is disabled, virtual addr is used directly       */
-        /*      as phy addr by ignoring top 3 bits of virtual addr      */
-        trans.cacheable = 1;
+	/*                                                              */
+        /*      Translate address. If error occured, we do nothing:     */
+        /*      faulting instruction will get re-executed after the     */
+        /*      exception is handled.                                   */
+        /*                                                              */
+        trans.vaddr = vaddr;
+        trans.error = 0;
+        S->vmtranslate(E, S, MEM_WRITE_WORD, &trans);
+        if (trans.error)
+        {
+                return;
+        }
+
+        paddr   = trans.paddr;
+	inram	= 0;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -165,13 +221,22 @@ riscVwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 	int		inram, latency = 0;
 	TransAddr	trans;
 	ulong		paddr;
-	
-	paddr	= vaddr;
-	inram	= 0;
 
-	/*      If MMU is disabled, virtual addr is used directly       */
-        /*      as phy addr by ignoring top 3 bits of virtual addr      */
-        trans.cacheable = 1;
+	/*                                                              */
+        /*      Translate address. If error occured, we do nothing:     */
+        /*      faulting instruction will get re-executed after the     */
+        /*      exception is handled.                                   */
+        /*                                                              */
+        trans.vaddr = vaddr;
+        trans.error = 0;
+        S->vmtranslate(E, S, MEM_WRITE_LONG, &trans);
+        if (trans.error)
+        {
+                return;
+        }
+
+        paddr   = trans.paddr;
+	inram	= 0;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -228,13 +293,22 @@ riscVreadbyte(Engine *E, State *S, ulong vaddr)
 	TransAddr	trans;
 	ulong		paddr;
 	uchar		data = 0;
-	
-	paddr	= vaddr;
-	inram	= 0;
 
-	/*      If MMU is disabled, virtual addr is used directly       */
-        /*      as phy addr by ignoring top 3 bits of virtual addr      */
-        trans.cacheable = 1;
+	/*                                                              */
+        /*      Translate address. If error occured, we do nothing:     */
+        /*      faulting instruction will get re-executed after the     */
+        /*      exception is handled.                                   */
+        /*                                                              */
+        trans.vaddr = vaddr;
+        trans.error = 0;
+        S->vmtranslate(E, S, MEM_READ_BYTE, &trans);
+        if (trans.error)
+        {
+                return;
+        }
+
+        paddr   = trans.paddr;
+	inram	= 0;
 
 	if ((paddr >= S->MEMBASE) && (paddr < S->MEMEND))
 	{
@@ -269,13 +343,22 @@ riscVreadword(Engine *E, State *S, ulong vaddr)
 	TransAddr	trans;
 	ulong		paddr;
 	ushort		data = 0;
-	
-	paddr	= vaddr;
-	inram	= 0;
 
-	/*      If MMU is disabled, virtual addr is used directly       */
-        /*      as phy addr by ignoring top 3 bits of virtual addr      */
-        trans.cacheable = 1;
+	/*                                                              */
+        /*      Translate address. If error occured, we do nothing:     */
+        /*      faulting instruction will get re-executed after the     */
+        /*      exception is handled.                                   */
+        /*                                                              */
+        trans.vaddr = vaddr;
+        trans.error = 0;
+        S->vmtranslate(E, S, MEM_READ_WORD, &trans);
+        if (trans.error)
+        {
+                return;
+        }
+
+        paddr   = trans.paddr;	
+	inram	= 0;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/
@@ -322,12 +405,21 @@ riscVreadlong(Engine *E, State *S, ulong vaddr)
 	ulong		paddr;
 	ulong		data = 0;
 
-	paddr	= vaddr;
-	inram	= 0;
+	/*                                                              */
+        /*      Translate address. If error occured, we do nothing:     */
+        /*      faulting instruction will get re-executed after the     */
+        /*      exception is handled.                                   */
+        /*                                                              */
+        trans.vaddr = vaddr;
+        trans.error = 0;
+        S->vmtranslate(E, S, MEM_READ_LONG, &trans);
+        if (trans.error)
+        {
+                return;
+        }
 
-	/*      If MMU is disabled, virtual addr is used directly       */
-        /*      as phy addr by ignoring top 3 bits of virtual addr      */
-        trans.cacheable = 1;
+        paddr   = trans.paddr;
+	inram	= 0;
 
 	/*								*/
 	/*	An address error if word data is written to an 		*/

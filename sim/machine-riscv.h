@@ -69,13 +69,26 @@ typedef struct
 	/*		Delay b/n timer interrupts	*/
 	Picosec		TIMER_INTR_DELAY;
 
-	/*	Whether mem access is in IF or EX	*/
-	int		mem_access_type;
-
 	/*		Power Adaptation Unit		*/
 	PAUentry	*PAUs;
 	int		npau;
 	int		influenced;
 	int		controlling_pau;
 	ulong		pauaddrmask;
+
+	Cache		*TLB;
+
+	int		*PAUvalids;
+	int		numpauvalids;
+
+	/*      Whether mem access is in IF or EX       */
+        int             mem_access_type;
+
+	/*		MMU stuff			*/
+	ulong		PTEH;
+	ulong		PTEL;
+	ulong		TTB;
+	ulong		TEA;
+	ulong		MMUCR;
+
 } RiscvState;
