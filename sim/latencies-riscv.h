@@ -86,6 +86,14 @@ int riscv_instr_latencies[][5] =\
 	[RISCV_OP_CSRRWI]	{1,	1,	1,	1,	1},
 	[RISCV_OP_CSRRSI]	{1,	1,	1,	1,	1},
 	[RISCV_OP_CSRRCI]	{1,	1,	1,	1,	1},
+	[RISCV_OP_MUL]		{1,	1,	1,	1,	1},
+	[RISCV_OP_MULH]		{1,	1,	1,	1,	1},
+	[RISCV_OP_MULHSU]	{1,	1,	1,	1,	1},
+	[RISCV_OP_MULHU]	{1,	1,	1,	1,	1},
+	[RISCV_OP_DIV]		{1,	1,	1,	1,	1},
+	[RISCV_OP_DIVU]		{1,	1,	1,	1,	1},
+	[RISCV_OP_REM]		{1,	1,	1,	1,	1},
+	[RISCV_OP_REMU]		{1,	1,	1,	1,	1},
 	/*[RISCV_OP_MAX]	square brackets are necessary	*/
 	/* RV32F */
 	[RV32F_OP_FLW]		{1,	1,	1,	1,	1},
