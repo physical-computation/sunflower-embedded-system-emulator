@@ -70,6 +70,8 @@ enum
 
 	SYS_utime	= 201,
 	SYS_wait	= 202,
+
+	SYS_brk		= 214, /* Not sure this is correct for Hitachi */
 };
 
 /*
@@ -98,4 +100,6 @@ enum
 
 	RISCV_SYS_pipe	= 42,
 	RISCV_SYS_execve	= 59,
+
+	RISCV_SYS_brk	= 214,
 };

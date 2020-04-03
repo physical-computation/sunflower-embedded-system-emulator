@@ -714,7 +714,7 @@ void
 riscv_lbu(Engine *E, State *S, uint8_t rs1, uint8_t rd, uint16_t imm0)
 {
 	uint32_t	addr = reg_read_riscv(E,S, rs1) + sign_extend(imm0, 12);
-	uint8_t		data_b = riscVreadword(E, S, addr) & 0xff;
+	uint8_t		data_b = riscVreadbyte(E, S, addr);
 
 	reg_set_riscv(E, S, rd, (uint32_t) data_b);
 
@@ -839,15 +839,19 @@ riscv_csrrci(Engine *E, State *S)
 void
 riscv_ecall(Engine *E, State *S)
 {
+	unsigned long returnValue;
+
 	/*
 	 *	http://man7.org/linux/man-pages/man2/syscall.2.html
 	 */
 	uint32_t	syscall_num = reg_read_riscv(E, S, RISCV_A7);
 
-	riscv_sim_syscall(E, S, syscall_num,
+	returnValue = riscv_sim_syscall(E, S, syscall_num,
 				reg_read_riscv(E, S, RISCV_A0),
 				reg_read_riscv(E, S, RISCV_A1),
 				reg_read_riscv(E, S, RISCV_A2));
+	
+	reg_set_riscv(E, S, RISCV_A0, returnValue);
 	/*
 	 *	No taint propagation implemented in this function
 	 */
