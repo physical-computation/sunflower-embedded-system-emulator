@@ -225,6 +225,7 @@
 %token	T_SIZEPAU
 %token	T_SPLIT
 %token	T_SRECL
+%token	T_LOADMAPFILE
 %token	T_STEP
 %token	T_STOP
 %token	T_SFATAL
@@ -1723,6 +1724,13 @@ sf_cmd		: T_QUIT '\n'
 			if (!yyengine->scanning)
 			{
 				load_srec(yyengine, yyengine->cp, $2);
+			}
+		}
+		| T_LOADMAPFILE T_STRING '\n'
+		{
+			if (!yyengine->scanning)
+			{
+				load_mapfile(yyengine, yyengine->cp, $2);
 			}
 		}
 		| T_CONT uimm '\n'

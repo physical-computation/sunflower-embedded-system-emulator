@@ -839,15 +839,19 @@ riscv_csrrci(Engine *E, State *S)
 void
 riscv_ecall(Engine *E, State *S)
 {
+	unsigned long returnValue;
+
 	/*
 	 *	http://man7.org/linux/man-pages/man2/syscall.2.html
 	 */
 	uint32_t	syscall_num = reg_read_riscv(E, S, RISCV_A7);
 
-	riscv_sim_syscall(E, S, syscall_num,
+	returnValue = riscv_sim_syscall(E, S, syscall_num,
 				reg_read_riscv(E, S, RISCV_A0),
 				reg_read_riscv(E, S, RISCV_A1),
 				reg_read_riscv(E, S, RISCV_A2));
+	
+	reg_set_riscv(E, S, RISCV_A0, returnValue);
 	/*
 	 *	No taint propagation implemented in this function
 	 */

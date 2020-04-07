@@ -61,7 +61,7 @@ enum
 	implementation as we chose to stop using bit fields.			*/
 
 /*	In the following structs, the number following imm corresponds to the
-	starting position of this section in the immediate number	
+	starting position of this section in the immediate number
 	e.g. imm5:7 corresponds to bits [5:11] in the immediate number		*/
 
 typedef struct
@@ -131,7 +131,7 @@ typedef struct
 	unsigned	b20:1;
 	unsigned	misc_hi:4;
 	unsigned	funct7:7;
-   
+
 } instr_riscv_decode;
 
 

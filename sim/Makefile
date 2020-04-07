@@ -24,7 +24,7 @@ HEADERS =\
 	help.h\
 	instr-hitachi-sh.h\
 	instr-riscv.h\
-	inst_uncertain.h\
+	uncertain_upe.h\
 	latencies-riscv.h\
 	latencies-hitachi-sh.h\
 	listutils.h\
@@ -69,7 +69,7 @@ OBJS	=\
 	fdr.o\
 	machine-hitachi-sh.o\
 	machine-riscv.o\
-	inst_uncertain.o\
+	uncertain_upe.o\
 	main.o\
 	merror.o\
 	memory-hierarchy-riscv.o\

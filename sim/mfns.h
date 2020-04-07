@@ -171,6 +171,7 @@ void	m_dumpmem(Engine *, State *S, long, long);
 void	error(char *);
 void	help(Engine *);
 void	load_srec(Engine *, State *S, char *);
+void	load_mapfile(Engine *E, State *S, char *filename);
 void	loadcmds(Engine *, char *filename);
 void	man(Engine *, char *cmd);
 void	mbitprint(Engine *, State *S, short, ulong);
@@ -889,7 +890,7 @@ double		Histogram_MeanFrequency(Engine *E, State *S, Histogram *histogram);
  *	Uncertainty propagation equation arithmetic
  */
 int		uncertain_print_system(UncertainState * state, FILE *stream);
-void		uncertain_sizemen(Engine *E, State *S, int size);
+void		uncertain_sizemem(Engine *E, State *S, int size);
 void		uncertain_inst_lr(UncertainState * state, int ud, int location);
 void		uncertain_inst_sr(UncertainState * state, int us1, int location);
 void		uncertain_inst_mv(UncertainState * state, int ud, int us1);
