@@ -425,6 +425,16 @@ void 	superHwritelong(Engine *, State *S, ulong addr, ulong data);
 void 	superHwriteword(Engine *, State *S, ulong addr, ulong data);
 void	superHwritebyte(Engine *, State *S, ulong addr, ulong data);
 
+uchar 	riscVreadbyte(Engine *, State *S, ulong addr);
+ulong 	riscVreadlong(Engine *, State *S, ulong addr);
+ushort 	riscVreadword(Engine *, State *S, ulong addr);
+void 	riscVwritelong(Engine *, State *S, ulong addr, ulong data);
+void 	riscVwriteword(Engine *, State *S, ulong addr, ulong data);
+void	riscVwritebyte(Engine *, State *S, ulong addr, ulong data);
+void    riscVcache_deactivate(Engine *, State *S);
+int     riscVcache_init(Engine *, State *S, int size, int blocksize, int assoc);
+void	riscVvmtranslate(Engine *E, State *S, int op, TransAddr *tr);
+
 ulong	devportreadlong(Engine *E, State *S, ulong addr);
 ushort	devportreadword(Engine *E, State *S, ulong addr);
 uchar	devportreadbyte(Engine *E, State *S, ulong addr);

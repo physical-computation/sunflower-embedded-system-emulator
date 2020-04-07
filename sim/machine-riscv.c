@@ -128,7 +128,7 @@ riscvstallaction(Engine *E, State *S, ulong addr, int type, int latency)
 	/*	the stall actually occurs when in MA, since we've	*/
 	/*	completed the EX wait before we get executed.		*/
 	/*								*/
-	if (S->superH->mem_access_type == MEM_ACCESS_IFETCH)
+	if (S->riscv->mem_access_type == MEM_ACCESS_IFETCH)
 	{
 		/*	I don't know why Philip used fetch_stall_cycles, and not		*/
 		/*	IF.cycles (he doesn't remember either) but I'll leave it as it is...	*/
@@ -428,7 +428,8 @@ riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg)
  *	DistLess returns the probability Pr(X < Rs2)
  */
 void
-riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg)
+{
 	int result = Histogram_DistLess(
 			E,
 			S,
@@ -446,7 +447,8 @@ riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_re
  *	DistGrt returns the probability Pr(X >= Rs2)
  */
 void
-riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg)
+{
 	int result = Histogram_DistGrt(
 			E,
 			S,
@@ -470,30 +472,243 @@ uncertainnewstate(Engine *E, char *ID)
 		mexit(E, "Failed to allocate memory uncertain state.", -1);
 	}
 
-	for (i = 0; i < 32; ++i) {
+	for (i = 0; i < 32; ++i)
+  {
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
 	return S;
 }
 
+void
+riscVresetcpu(Engine *E, State *S)
+{
+	int	i;
+
+
+	riscvflushpipe(S);
+
+
+	S->MEMSIZE = DEFLT_MEMSIZE;
+	S->MEMBASE = SUPERH_MEMBASE;
+	S->MEMEND = S->MEMBASE + S->MEMSIZE;
+	
+	S->mem_r_latency = DEFAULT_MEMREAD_LATENCY;
+	S->mem_w_latency = DEFAULT_MEMWRITE_LATENCY;
+
+	/*
+	*	Initialisation of shadow memory:
+	*/
+
+	S->TAINTMEMSIZE = DEFLT_MEMSIZE*sizeof(ShadowMem);
+	S->TAINTMEMBASE = SUPERH_MEMBASE;
+	S->TAINTMEMEND = S->TAINTMEMBASE + S->TAINTMEMSIZE;
+
+
+	memset(&S->riscv->P, 0, sizeof(SuperHPipe));
+	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
+	// memset(&S->superH->R, 0, sizeof(ulong)*16);
+	// memset(&S->superH->R_BANK, 0, sizeof(ulong)*8);
+	// memset(&S->superH->SR, 0, sizeof(SuperHSREG));
+	// memset(&S->superH->SSR, 0, sizeof(SuperHSREG));
+	memset(S->MEM, 0, S->MEMSIZE);
+	if (SF_NUMA)
+  {
+      memset(S->riscv->B, 0, sizeof(SuperHBuses));
+	}
+
+	/*								*/
+	/*	The only the ratio of size:blocksize and assoc are	*/
+	/*	significant when Cache struct is used for modeling TLB	*/
+	/*								*/
+	// superHtlb_init(E, S, 128, 1, 4);
+
+	S->PC = SUPERH_MEMBASE;
+	S->pcstackheight = 0;
+	S->fpstackheight = 0;
+
+
+	S->TIME = E->globaltimepsec;
+	S->riscv->TIMER_LASTACTIVATE = 0.0;
+	S->riscv->TIMER_INTR_DELAY = 1E-3;
+	S->dyncnt = 0;
+	S->nfetched = 0;
+	S->CLK = 0;
+	S->ICLK = 0;
+	S->cmdbuf_nbytes = 0;
+
+	S->CYCLETIME = SUPERH_ORIG_CYCLE;
+	S->VDD = SUPERH_ORIG_VDD;
+	S->SVDD = 0.0;
+	S->LOWVDD = S->VDD/2.0;
+
+	S->voltscale_alpha = 2.0;
+	//BUG?
+	S->voltscale_K = SUPERH_ORIG_VDD * SUPERH_ORIG_CYCLE;
+	S->voltscale_Vt = 0.0;
+
+	S->Cycletrans = 0;
+	S->riscv->mem_access_type = 0;
+
+	S->riscv->PTEL = 0;
+	S->riscv->PTEH = 0;
+	S->riscv->TTB = 0;
+	S->riscv->TEA = 0;
+	S->riscv->MMUCR = 0;
+
+	// S->superH->TRA = 0;
+	// S->superH->EXPEVT = 0;
+	// S->superH->INTEVT = 0;
+
+	// S->superH->ICR = 0;
+	// S->superH->ICRA = 0;
+	// S->superH->ICRB = 0;
+
+	S->runnable = 0;
+	S->sleep = 0;
+	S->ustart = 0;
+	S->ufinish = 0;
+	S->startclk = 0;
+	S->finishclk = 0;
+	
+	S->step = riscvstep;
+	S->pipelined = 1;
+	S->pipeshow = 0;
+
+	fault_setnodepfun(E, S, "urnd");
+
+	if (SF_PAU_DEFINED)
+	{
+	 	pau_init(E, S, S->riscv->npau);
+	 	mprint(E, S, nodeinfo,
+	 		"Done with pauinit, for %d PAU entries...\n",
+	 		S->riscv->npau);
+	}
+
+	/*	Since we've reset VDD, need to update this	*/
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (i = 0; i < E->nnodes; i++)
+	{
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
+	}
+
+	return;
+}
+
 State *
 riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilename)
 {
-	State *	S = superHnewstate(E, xloc, yloc, zloc, trajfilename);
+	State 	*S;
+
+	S = (State *)mcalloc(E, 1, sizeof(State), "(State *)S");
+	if (S == NULL)
+	{
+		mexit(E, "Failed to allocate memory for State *S.", -1);
+	}
 
 	S->riscv = (RiscvState *) mcalloc(E, 1, sizeof(RiscvState), "S->riscv");
 	if (S->riscv == NULL)
-		{
-			mexit(E, "Failed to allocate memory for S->riscv.", -1);
-		}
+	{
+		mexit(E, "Failed to allocate memory for S->riscv.", -1);
+	}
 
+#if (SF_UNCERTAIN_UPE == 1)
 	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
+#endif
 
+	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
+	if (S->MEM == NULL)
+	{
+		mexit(E, "Failed to allocate memory for S->MEM.", -1);
+	}
+
+	if (SF_TAINTANALYSIS)
+	{
+		S->TAINTMEM = (ShadowMem *)mcalloc(E, 1, S->TAINTMEMSIZE, "(ShadowMem *)S->TAINTMEM"); 
+		if (S->TAINTMEM == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->TAINTMEM.", -1);
+		}
+	}
+
+	if (SF_NUMA)
+	{
+		S->riscv->B = (SuperHBuses *)mcalloc(E, 1, sizeof(SuperHBuses), "(SuperHBuses *)S->riscv->B");
+		if (S->riscv->B == NULL)
+		{
+			mexit(E, "Failed to allocate memory for S->riscv->B.", -1);
+		}
+	}
+
+	E->cp = S;
+	E->sp[E->nnodes] = S;
+	mprint(E, NULL, siminfo, "New node created with node ID %d\n", E->nnodes);
+
+	/*	Update the min cycle time	*/
+	E->mincycpsec = PICOSEC_MAX;
+	E->maxcycpsec = 0;
+	for (int i = 0; i < E->nnodes; i++)
+	{
+		E->mincycpsec = min(E->mincycpsec, E->sp[i]->CYCLETIME);
+		E->maxcycpsec = max(E->maxcycpsec, E->sp[i]->CYCLETIME);
+	}
+
+	S->machinetype = MACHINE_RISCV;
+
+	/* FIXME superH related functions need to be cleaned up. */
+	S->endian = Little;
 	S->dumpregs = riscvdumpregs;
-	S->dumpsysregs = riscvdumpsysregs;
+  S->dumpsysregs = riscvdumpsysregs;
+	S->fatalaction = riscvfatalaction;
+  S->stallaction = riscvstallaction;
+	S->settimerintrdelay = superHsettimerintrdelay;
+
+	S->take_nic_intr = superHtake_nic_intr;
+	S->take_timer_intr = superHtake_timer_intr;
+	S->take_batt_intr = superHtake_batt_intr;
+	S->check_batt_intr = superHcheck_batt_intr;
+	S->check_nic_intr = superHcheck_nic_intr;
+
+	S->cache_init = superHcache_init;
+	S->resetcpu = riscVresetcpu;
+	S->step = riscvstep;
+	S->cyclestep = riscvstep;
+  S->faststep = riscvfaststep;
 	S->dumppipe = riscvdumppipe;
-	S->flushpipe = riscvflushpipe;
+  S->flushpipe = riscvflushpipe;
+
+	/*	Most of the device registers are SH7708 specific	*/
+	S->devreadbyte = dev7708readbyte;
+	S->devreadword = dev7708readword;
+	S->devreadlong = dev7708readlong;
+	S->devwritebyte = dev7708writebyte;
+	S->devwriteword = dev7708writeword;
+	S->devwritelong = dev7708writelong;
+	S->split = superHsplit;
+	S->vmtranslate = riscVvmtranslate;
+	S->dumptlb = superHdumptlb;
+	S->cache_deactivate = riscVcache_deactivate;
+	S->cache_printstats = superHcache_printstats;
+
+	S->writebyte = riscVwritebyte;
+
+	S->xloc = xloc;
+	S->yloc = yloc;
+	S->zloc = zloc;
+
+	if (trajfilename != NULL)
+	{
+		mexit(E, "S->trajfilename is not supported in SF Risc-V", -1);
+	}
+
+	S->NODE_ID = E->baseid + E->nnodes;
+
+	/*	Must know correct number of nodes in resetcpu()		*/
+	E->nnodes++;
+	S->resetcpu(E, S);
+
 
 	/*
 	 *	Histogram-specific menu items
@@ -502,15 +717,6 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumphistpretty = riscvdumphistpretty;
 	S->ldhistrandom = riscvldhistrandom;
 	S->addhist = riscvaddhist;
-
-	S->fatalaction = riscvfatalaction;
-	S->endian = Little;
-	S->machinetype = MACHINE_RISCV;
-	S->dumpdistribution = riscvdumpdistribution;
-	S->stallaction = riscvstallaction;
-
-	S->step = riscvstep;
-	S->faststep = riscvfaststep;
 
 	return S;
 }

@@ -312,7 +312,7 @@ riscvfaststep(Engine *E, State *S, int drain_pipeline)
 		/*	need to check for exceptions/interrupts here	*/
 
 		tmpPC = S->PC;
-		tmpinstr = superHreadlong(E, S, S->PC);
+		tmpinstr = riscVreadlong(E, S, S->PC);
 
 		riscvdecode(E, tmpinstr, &(S->riscv->P.EX));
 
@@ -423,7 +423,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 	int		i, exec_energy_updated = 0, stall_energy_updated = 0;
 	ulong		tmpPC;
 	Picosec		saved_globaltime;
-	S->superH->SR.MD = 1;
+	//S->superH->SR.MD = 1;
 
 	saved_globaltime = E->globaltimepsec;
 	for (i = 0; (i < E->quantum) && E->on && S->runnable; i++)
@@ -841,10 +841,10 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			}
 			else
 			{
-				S->superH->mem_access_type = MEM_ACCESS_IFETCH;
-				instrlong = superHreadlong(E, S, S->PC);
+				S->riscv->mem_access_type = MEM_ACCESS_IFETCH;
+				instrlong = riscVreadlong(E, S, S->PC);
 				S->nfetched++;
-				S->superH->mem_access_type = MEM_ACCESS_NIL;
+				S->riscv->mem_access_type = MEM_ACCESS_NIL;
 			}
 
 			/*	Count # bits flipping in IF		*/
