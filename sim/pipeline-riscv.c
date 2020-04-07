@@ -95,7 +95,7 @@ Hazards:
 	1 stall:
 		LOAD instrs that write to a reg-required-by-next-instr after reading from mem:
 			...EX of next instr needs reg data from MA of LOAD instrs.
-		BRANCH instrs test for (in)equality in ID, dependent on previous instr:
+		BRANCH instrs test for (in)equality in ID which is dependent on previous instr:
 			...ID of BRANCH instr needs reg data from EX of previous instr.
 	2 stalls:
 		LOAD instr followed by dependent BRANCH instr:
@@ -634,17 +634,23 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 								(tmp&maskExtractBit20) >> 20,
 								(tmp&maskExtractBits12to19) >> 12,
 								(tmp&maskExtractBit31) >> 31);
-					S->dyncnt++;				*/
+					S->dyncnt++;
+					
 					S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
+					*/
+
 					break;
 				}
 
 				case INSTR_R4:
 				{
-					instr_r4 *tmp;
-
-					tmp = (instr_r4 *)&S->riscv->P.EX.instr;
-					(*(S->riscv->P.EX.fptr))(E, S, tmp->rs1, tmp->rs2, tmp->rs3, tmp->rm, tmp->rd);
+					uint32_t tmp = S->riscv->P.EX.instr;
+					(*(S->riscv->P.EX.fptr))(E, S,
+								(tmp&maskExtractBits15to19) >> 15,
+								(tmp&maskExtractBits20to24) >> 20,
+								(tmp&maskExtractBits27to31) >> 27,
+								(tmp&maskExtractBits12to14) >> 12,
+								(tmp&maskExtractBits7to11) >> 7);
 					break;
 				}
 
@@ -750,7 +756,6 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBit20) >> 20,
 							(tmp&maskExtractBits12to19) >> 12,
 							(tmp&maskExtractBit31) >> 31);
-				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
 				else
 				{
@@ -762,8 +767,8 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 							(tmp&maskExtractBits25to30) >> 25,
 							(tmp&maskExtractBit7) >> 7,
 							(tmp&maskExtractBit31) >> 31);
-				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				}
+				S->riscv->instruction_distribution[S->riscv->P.ID.op]++;
 				S->dyncnt++;
 				riscvIFflush(S);
 			}
