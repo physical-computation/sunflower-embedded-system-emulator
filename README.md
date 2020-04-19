@@ -44,12 +44,17 @@ TARGET		= riscv
 TARGET-ARCH	= riscv32-elf
 ```
 
-Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`. Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
+Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`.
+
+Once you have edited `conf/setup.conf`, follow the instructions below to build the cross-compiler:
+1. Change directory to `tools/source` from the root of the Sunflower tree.
+2. Run `./downloads.sh` in the directory `tools/source` relative to the root of the Sunflower tree. This will download the source for various tools needed for building the cross-compilers.
+3. From the root of the Sunflower tree, run `make cross-superh` to build the Hitachi SH cross compiler or `make cross-riscv` to build the RISC-V cross compiler.
 
 **If you have trouble building on macOS, you might be running into [this](https://github.com/physical-computation/sunflower-simulator/issues/123) issue.**
 
 ## The role of `setup.conf`
-The configuration file `conf/setup.conf` primarily determines the compilation of the simulator for a given target platform and the default cross-compilers that get built when you run `make cross`. It does not determine the default emulated processor in Sunflower. Setting, e.g., `TARGET = riscv` sets the default cross-compiler to build for RISC-V and only influences the default target of `make cross`.
+The configuration file `conf/setup.conf` sets global configuration parameters needed by other tools, such as specifying what your workstation architecture is.
 
 The default processor instances when you launch `sim` are SuperH. You can create RISC-V instances using the sunflower command `newnode riscv`. You can explicitly request SuperH instances using the command `newnode superh`. You can have a mix of SuperH and RISC-V processors in the same simulation (i.e., in the same launch of `sim`). From the simulator’s perspective, both architectures are always supported and it is not possible to purposefully configure the `sim` for one or the other.
 
