@@ -1,0 +1,13 @@
+CC			= gcc
+GAWK			= gawk
+LINT			= echo 
+LD			= ld
+GBISON			= bison
+ENDIAN			= SF_L_ENDIAN
+PLATFORM_CFLAGS 	= -D$(ENDIAN)
+PLATFORM_LFLAGS 	= -lpthread 
+PLATFORM_OPTFLAGS	=
+OPTFLAGS		= -m32 -O0 ##-O3 -funroll-loops -finline-functions
+DBGFLAGS		= -g
+CCFLAGS			= $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
+LDFLAGS 		= -m32 -lm $(PLATFORM_LFLAGS)
