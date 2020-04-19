@@ -11,7 +11,7 @@ S3ROOT		= ../..
 include $(S3ROOT)/Makefile.defines
 
 
-TREEROOT	= ../../../../..
+TREEROOT	= ../../../../../..
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib/superH
 LOADADDR	= 0x08004000
 

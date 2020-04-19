@@ -1,4 +1,4 @@
-TREEROOT        = ../../..
+TREEROOT        = ../../../..
 include $(TREEROOT)/conf/setup.conf
 
 PROGRAM		= bsort

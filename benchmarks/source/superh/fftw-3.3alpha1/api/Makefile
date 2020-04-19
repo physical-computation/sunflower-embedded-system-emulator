@@ -1,7 +1,7 @@
 #
 #	Makefile for fftw-3.3alpha1/api on Sunflowersim
 #
-TREEROOT	= ../../../..
+TREEROOT	= ../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 

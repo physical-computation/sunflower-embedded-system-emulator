@@ -1,4 +1,4 @@
-TREEROOT	= ../../..
+TREEROOT	= ../../../..
 SIMROOT		= $(TREEROOT)/sim
 
 include $(TREEROOT)/conf/setup.conf

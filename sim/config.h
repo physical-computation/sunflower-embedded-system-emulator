@@ -45,7 +45,7 @@
 #define	SF_MOBILITY		1
 #define	SF_SIMLOG		1
 #define	SF_PAU_DEFINED		0
-#define	SF_BITFLIP_ANALYSIS	1
+#define	SF_BITFLIP_ANALYSIS	0
 #define	SF_POWER_ANALYSIS	1
 #define	SF_MEMTRACE		1
 #define	SF_BATT			1
@@ -56,8 +56,8 @@
 #define	SF_FT_TANDEM		0
 #define	SF_BPTS			1
 #define	SF_TRAJECTORIES		1
-#define	SF_TAINTANALYSIS	1
-#define	SF_UNCERTAIN_UPE	1
-#define	SF_UNCERTAIN_HISTOGRAM	1
+#define	SF_TAINTANALYSIS	0
+#define	SF_UNCERTAIN_UPE	0
+#define	SF_UNCERTAIN_HISTOGRAM	0
 #define	SF_NUMA			1
 #define	SF_EMBEDDED		0

@@ -1,9 +1,10 @@
 #include "instr-riscv.h"
 #include "sf.h"
 extern int	riscv_instr_latencies[][5];
-extern char *riscv_opstrs[];
+extern char *	riscv_opstrs[];
 
-void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
+void
+riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 {
 	volatile instr_riscv_decode *tmp;
 
@@ -1304,18 +1305,23 @@ void riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage)
 
 		default:
 		{
-			//	fprintf(stderr, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
+			mprint(E, S, nodeinfo, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
+			//sfatal(E, S, "Illegal instruction seen during decode...");
+
 			break;
 		}
 	}
 
 	/* Use when all decoded instructions need to be printed */
-	// if (stage->op <= RV32UN_OP_UNMAX)
-	// {
-	// 	fprintf(stderr, "fetchedpc 0x%X: Decoded instruction: %s\n", stage->fetchedpc, riscv_opstrs[stage->op]);
-	// }
-	// else
-	// {
-	// 	fprintf(stderr, "fetchedpc 0x%X: Unknown stage->op: 0x%X\n", stage->fetchedpc, stage->op);
-	// }
+	if (stage->op <= RV32UN_OP_UNMAX)
+	{
+		if (SF_DEBUG)
+		{
+			mprint(E, S, nodeinfo, "fetchedpc 0x%X: Decoded instruction: %s\n", stage->fetchedpc, riscv_opstrs[stage->op]);
+		}
+	}
+	else
+	{
+		mprint(E, S, nodeinfo, "fetchedpc 0x%X: Unknown stage->op: 0x%X\n", stage->fetchedpc, stage->op);
+	}
 }

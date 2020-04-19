@@ -1,4 +1,4 @@
-TREEROOT        = ../../../../..
+TREEROOT        = ../../../../../..
 include $(TREEROOT)/conf/setup.conf
 
 PROGRAM1	= search_small

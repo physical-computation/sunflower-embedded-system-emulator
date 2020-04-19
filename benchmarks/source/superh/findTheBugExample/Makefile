@@ -1,9 +1,9 @@
-TREEROOT	= ../../..
+TREEROOT	= ../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
 PROGRAM		= findTheBugExample
-LIBOS		= mOS
+LIBOS		= eOS
 
 PORT		= ../port
 SIMDIR		= $(TREEROOT)/sim

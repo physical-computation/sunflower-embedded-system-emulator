@@ -304,7 +304,7 @@ riscVreadbyte(Engine *E, State *S, ulong vaddr)
         S->vmtranslate(E, S, MEM_READ_BYTE, &trans);
         if (trans.error)
         {
-                return;
+                return 0;
         }
 
         paddr   = trans.paddr;
@@ -354,7 +354,7 @@ riscVreadword(Engine *E, State *S, ulong vaddr)
         S->vmtranslate(E, S, MEM_READ_WORD, &trans);
         if (trans.error)
         {
-                return;
+                return 0;
         }
 
         paddr   = trans.paddr;	
@@ -415,7 +415,7 @@ riscVreadlong(Engine *E, State *S, ulong vaddr)
         S->vmtranslate(E, S, MEM_READ_LONG, &trans);
         if (trans.error)
         {
-                return;
+                return 0;
         }
 
         paddr   = trans.paddr;

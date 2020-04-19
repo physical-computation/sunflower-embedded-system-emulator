@@ -8,7 +8,7 @@
 #   3.  Check to make sure there were not any confilcts in cvs.  These usually
 #       look like lines with ">>>>>".
 
-TREEROOT	= ../../../..
+TREEROOT	= ../../../../..
 include $(TREEROOT)/conf/setup.conf
 
 PORT		= ../../port

@@ -177,7 +177,7 @@ CONFIG=
 #CC=gcc -static
 #CC=gcc
 
-TREEROOT	= ../../../../../..
+TREEROOT	= ../../../../../../..
 include $(TREEROOT)/conf/setup.conf
 LIBOS		= mOS
 SIMDIR		= $(TREEROOT)/sim

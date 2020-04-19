@@ -16,7 +16,7 @@ TARGET = libio.a
 
 OBJS =	bio.o
 
-TREEROOT	= ../../../../..
+TREEROOT	= ../../../../../..
 CC		= $(TREEROOT)/tools/bin/sh-elf-gcc
 AR		= $(TREEROOT)/tools/bin/sh-elf-ar
 RANLIB		= $(TREEROOT)/tools/bin/sh-elf-ranlib

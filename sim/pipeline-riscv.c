@@ -314,7 +314,7 @@ riscvfaststep(Engine *E, State *S, int drain_pipeline)
 		tmpPC = S->PC;
 		tmpinstr = riscVreadlong(E, S, S->PC);
 
-		riscvdecode(E, tmpinstr, &(S->riscv->P.EX));
+		riscvdecode(E, S, tmpinstr, &(S->riscv->P.EX));
 
 		S->riscv->instruction_distribution[S->riscv->P.EX.op]++;
 
@@ -861,7 +861,7 @@ riscvstep(Engine *E, State *S, int drain_pipeline)
 			S->riscv->P.IF.instr = instrlong;
 			S->riscv->P.IF.valid = 1;
 
-			riscvdecode(E, S->riscv->P.IF.instr, &S->riscv->P.IF);
+			riscvdecode(E, S, S->riscv->P.IF.instr, &S->riscv->P.IF);
 			S->riscv->P.IF.cycles = S->riscv->P.IF.instr_latencies[IF];
 
 			if (!drain_pipeline)

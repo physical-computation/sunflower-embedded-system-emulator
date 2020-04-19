@@ -29,7 +29,7 @@
 #
 # Additions for compilation on Sunflower simulator by Phillip Stanley-Marbell
 # 
-TREEROOT        = ../../..
+TREEROOT        = ../../../..
 include $(TREEROOT)/conf/setup.conf
 
 PROGRAM		= mpeg2encode

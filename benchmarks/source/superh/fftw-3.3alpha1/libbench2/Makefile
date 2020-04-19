@@ -1,7 +1,7 @@
 #
 #	Makefile for fftw-3.3alpha1/libbench2 on Sunflowersim
 #
-TREEROOT	= ../../../..
+TREEROOT	= ../../../../..
 
 LIB		= ../libfftwbench2
 

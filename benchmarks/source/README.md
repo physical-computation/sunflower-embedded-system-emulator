@@ -1,3 +1,2 @@
-Uncompress (un-bunzip) the files in
-	sphynx3/src/libfbs/vocab
-	ALPBench/Sphinx3/model/hmm/hub4_cd_continuous_8gau_1s_c_d_dd
+# Source for a few Benchmarks
+Though the benchmarks should be portable across architectures, the ones in `superh/` were historically developed and tested on the original SuperH version of Sunflower.

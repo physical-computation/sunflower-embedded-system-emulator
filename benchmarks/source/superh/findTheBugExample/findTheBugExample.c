@@ -16,7 +16,7 @@ main(void)
 
 	while (gFlag)
 	{
-		printf("Counting, %d...\n", i++);
+		print("Counting, %d...\n", i++);
 	}
 
 	return 0;

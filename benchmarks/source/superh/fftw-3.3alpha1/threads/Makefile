@@ -1,7 +1,7 @@
 #
 #	Makefile for fftw-3.3alpha1/threads on Sunflowersim
 #
-TREEROOT	= ../../../..
+TREEROOT	= ../../../../..
 
 LIB		= ../libfftw_threads
 include $(TREEROOT)/conf/setup.conf

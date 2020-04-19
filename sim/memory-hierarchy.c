@@ -597,7 +597,7 @@ superHwriteword(Engine *E, State *S, ulong vaddr, ulong xdata)
 			/*	For value tracing, if access is bigger than the		*/
 			/*	underlying data, mask off excess.			*/
 			/*								*/
-			ulong	mask = ~0UL;
+			ulong	mask = ~0U;
 			ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 			if (size < 4)
 			{
@@ -904,7 +904,7 @@ superHwritelong(Engine *E, State *S, ulong vaddr, ulong data)
 			/*	For value tracing, if access is bigger than the		*/
 			/*	underlying data, mask off excess.			*/
 			/*								*/
-			ulong	mask = ~0UL;
+			ulong	mask = ~0U;
 			ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 			if (size < 4)
 			{
@@ -1522,7 +1522,7 @@ superHreadword(Engine *E, State *S, ulong vaddr)
 				/*	For value tracing, if access is bigger than the		*/
 				/*	underlying data, mask off excess.			*/
 				/*								*/
-				ulong	mask = ~0UL;
+				ulong	mask = ~0U;
 				ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 				if (size < 4)
 				{
@@ -1818,7 +1818,7 @@ mprint(E,NULL,siminfo,"map_offset: " UHLONGFMT "\n",X->regions[i]->map_offset);
 				/*	For value tracing, if access is bigger than the		*/
 				/*	underlying data, mask off excess.			*/
 				/*								*/
-				ulong	mask = ~0UL;
+				ulong	mask = ~0U;
 				ulong	size = X->regions[i]->endaddr - X->regions[i]->startaddr;
 				if (size < 4)
 				{

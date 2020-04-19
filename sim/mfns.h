@@ -384,6 +384,10 @@ void	cont(Engine *, State *S, ulong);
 void	pic_intr_clear(Engine *, State *S, InterruptQ *q, int type, int clear_all);
 void	pic_intr_enqueue(Engine *, State *dptr, InterruptQ *q, int type, int value, int misc);
 void* 	pic_intr_dequeue(Engine *, State *S, InterruptQ *q);
+void	read_2(State * S, uchar * source, ushort * target);
+void	read_4(State * S, uchar * source, ulong * target);
+void	write_2(State *S, ushort source, uchar * target);
+void	write_4(State * S, ulong source, uchar * target);
 
 
 
@@ -425,15 +429,6 @@ void 	superHwritelong(Engine *, State *S, ulong addr, ulong data);
 void 	superHwriteword(Engine *, State *S, ulong addr, ulong data);
 void	superHwritebyte(Engine *, State *S, ulong addr, ulong data);
 
-uchar 	riscVreadbyte(Engine *, State *S, ulong addr);
-ulong 	riscVreadlong(Engine *, State *S, ulong addr);
-ushort 	riscVreadword(Engine *, State *S, ulong addr);
-void 	riscVwritelong(Engine *, State *S, ulong addr, ulong data);
-void 	riscVwriteword(Engine *, State *S, ulong addr, ulong data);
-void	riscVwritebyte(Engine *, State *S, ulong addr, ulong data);
-void    riscVcache_deactivate(Engine *, State *S);
-int     riscVcache_init(Engine *, State *S, int size, int blocksize, int assoc);
-void	riscVvmtranslate(Engine *E, State *S, int op, TransAddr *tr);
 
 ulong	devportreadlong(Engine *E, State *S, ulong addr);
 ushort	devportreadword(Engine *E, State *S, ulong addr);
@@ -736,9 +731,19 @@ int	riscvfaststep(Engine *E, State *S, int drain_pipe);
 void	riscvdumphist(Engine *E, State *S, int histogram_id);
 void	riscvdumphistpretty(Engine *E, State *S, int histogram_id);
 void	riscvdumpdistribution(Engine *E, State *S);
-void	riscvdecode(Engine *E, uint32_t instr, RiscvPipestage *stage);
+void	riscvdecode(Engine *E, State *S, uint32_t instr, RiscvPipestage *stage);
 uint32_t reg_read_riscv(Engine *E, State *S, uint8_t n);
 void	reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data);
+
+uchar 	riscVreadbyte(Engine *, State *S, ulong addr);
+ulong 	riscVreadlong(Engine *, State *S, ulong addr);
+ushort 	riscVreadword(Engine *, State *S, ulong addr);
+void 	riscVwritelong(Engine *, State *S, ulong addr, ulong data);
+void 	riscVwriteword(Engine *, State *S, ulong addr, ulong data);
+void	riscVwritebyte(Engine *, State *S, ulong addr, ulong data);
+void    riscVcache_deactivate(Engine *, State *S);
+int     riscVcache_init(Engine *, State *S, int size, int blocksize, int assoc);
+void	riscVvmtranslate(Engine *E, State *S, int op, TransAddr *tr);
 
 /*									*/
 /*			RISC-V instruction functions			*/

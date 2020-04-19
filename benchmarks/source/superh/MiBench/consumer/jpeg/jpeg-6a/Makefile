@@ -19,7 +19,7 @@ manprefix =
 manext = 1
 mandir = $(prefix)/man/man$(manext)
 
-TREEROOT	= ../../../../../..
+TREEROOT	= ../../../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 

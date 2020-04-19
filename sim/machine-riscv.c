@@ -210,8 +210,10 @@ riscvdumpsysregs(Engine *E, State *S)
 	 *	RISC-V does not have system registers. We dump the uncertain regs.
 	 *	Could also dump some CSR information.
 	 */
-	uncertain_print_system(S->riscv->uncertain, stdout);
-
+	if (SF_UNCERTAIN_UPE)
+	{
+		uncertain_print_system(S->riscv->uncertain, stdout);
+	}
 }
 
 void
@@ -473,7 +475,7 @@ uncertainnewstate(Engine *E, char *ID)
 	}
 
 	for (i = 0; i < 32; ++i)
-  {
+	{
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
@@ -508,25 +510,19 @@ riscVresetcpu(Engine *E, State *S)
 	memset(&S->riscv->P, 0, sizeof(SuperHPipe));
 	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
 	// memset(&S->superH->R, 0, sizeof(ulong)*16);
-	// memset(&S->superH->R_BANK, 0, sizeof(ulong)*8);
-	// memset(&S->superH->SR, 0, sizeof(SuperHSREG));
-	// memset(&S->superH->SSR, 0, sizeof(SuperHSREG));
 	memset(S->MEM, 0, S->MEMSIZE);
 	if (SF_NUMA)
-  {
-      memset(S->riscv->B, 0, sizeof(SuperHBuses));
+	{
+		memset(S->riscv->B, 0, sizeof(SuperHBuses));
 	}
 
 	/*								*/
 	/*	The only the ratio of size:blocksize and assoc are	*/
 	/*	significant when Cache struct is used for modeling TLB	*/
 	/*								*/
-	// superHtlb_init(E, S, 128, 1, 4);
-
 	S->PC = SUPERH_MEMBASE;
 	S->pcstackheight = 0;
 	S->fpstackheight = 0;
-
 
 	S->TIME = E->globaltimepsec;
 	S->riscv->TIMER_LASTACTIVATE = 0.0;
@@ -614,9 +610,10 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		mexit(E, "Failed to allocate memory for S->riscv.", -1);
 	}
 
-#if (SF_UNCERTAIN_UPE == 1)
-	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
-#endif
+	if (SF_UNCERTAIN_UPE)
+	{
+		S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
+	}
 
 	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
 	if (S->MEM == NULL)
