@@ -781,7 +781,18 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			}
 	
 			memmove(&S->superH->P.ID, &S->superH->P.IF, sizeof(SuperHPipestage));
-			S->superH->P.ID.cycles = S->superH->P.ID.instr_latencies[ID];
+			
+			/*
+			 *	The instr in ID might be a wrong-path fetched word and might thus
+			 *	not be an instruction. If this is the case, decode() would not
+			 *	have stuffed the the pipe stage's .fptr (copied from ID) and
+			 *	and we can't index S->superH->P.ID.instr_latencies[ID]
+			 */
+			if (S->superH->P.ID.fptr != NULL)
+			{
+				S->superH->P.ID.cycles = S->superH->P.ID.instr_latencies[ID];
+			}
+
 			S->superH->P.IF.valid = 0;
 			S->superH->P.ID.valid = 1;
 		}
@@ -836,7 +847,18 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			S->superH->P.IF.fptr		= E->superHDC[(int)(instrword)].dc_p.fptr;
 			S->superH->P.IF.format		= E->superHDC[(int)(instrword)].dc_p.format;
 			S->superH->P.IF.instr_latencies	= E->superHDC[(int)(instrword)].dc_p.instr_latencies;
-			S->superH->P.IF.cycles          = E->superHDC[(int)(instrword)].dc_p.instr_latencies[IF];
+
+			/*
+			 *	The instrword might be a wrong-path fetched word and might thus
+			 *	not be an instruction. If this is the case, decode() would not
+			 *	have stuffed the E->superHDC[(int)(instrword)].dc_p.fptr and
+			 *	thus the .instr_latencies field would be NULL (and we can't index
+			 *	.instr_latencies[IF]).
+			 */
+			if (E->superHDC[(int)(instrword)].dc_p.fptr != NULL)
+			{
+				S->superH->P.IF.cycles = E->superHDC[(int)(instrword)].dc_p.instr_latencies[IF];
+			}
 
 			if (!drain_pipeline)
 			{
