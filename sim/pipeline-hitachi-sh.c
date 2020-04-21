@@ -835,8 +835,8 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			S->superH->P.IF.op		= E->superHDC[(int)(instrword)].dc_p.op;
 			S->superH->P.IF.fptr		= E->superHDC[(int)(instrword)].dc_p.fptr;
 			S->superH->P.IF.format		= E->superHDC[(int)(instrword)].dc_p.format;
-			S->superH->P.IF.instr_latencies		= E->superHDC[(int)(instrword)].dc_p.instr_latencies;
-			S->superH->P.IF.cycles		= S->superH->P.IF.instr_latencies[IF];
+			S->superH->P.IF.instr_latencies	= E->superHDC[(int)(instrword)].dc_p.instr_latencies;
+			S->superH->P.IF.cycles          = E->superHDC[(int)(instrword)].dc_p.instr_latencies[IF];
 
 			if (!drain_pipeline)
 			{
