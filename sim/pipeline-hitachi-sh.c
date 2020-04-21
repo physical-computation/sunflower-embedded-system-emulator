@@ -759,7 +759,18 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 				so that all relevant information is available by IF		*/
 
 			memmove(&S->superH->P.EX, &S->superH->P.ID, sizeof(SuperHPipestage));
-			S->superH->P.EX.cycles = S->superH->P.EX.instr_latencies[EX];
+
+			/*
+			 *	The instr in EX might be a wrong-path fetched word and might thus
+			 *	not be an instruction. If this is the case, decode() would not
+			 *	have stuffed the the pipe stage's instr_latencies (copied from ID)
+			 *	and we can't index S->superH->P.ID.instr_latencies[ID]. Note that
+			 *	the fptr field is always set by decode().
+			 */
+			if (S->superH->P.EX.instr_latencies != NULL)
+			{
+				S->superH->P.EX.cycles = S->superH->P.EX.instr_latencies[EX];
+			}
 	
 			S->superH->P.ID.valid = 0;
 			S->superH->P.EX.valid = 1;
@@ -785,10 +796,11 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*
 			 *	The instr in ID might be a wrong-path fetched word and might thus
 			 *	not be an instruction. If this is the case, decode() would not
-			 *	have stuffed the the pipe stage's .fptr (copied from ID) and
-			 *	and we can't index S->superH->P.ID.instr_latencies[ID]
+			 *	have stuffed the the pipe stage's instr_latencies (copied from ID)
+			 *	and we can't index S->superH->P.ID.instr_latencies[ID]. Note that
+			 *	the fptr field is always set by decode().
 			 */
-			if (S->superH->P.ID.fptr != NULL)
+			if (S->superH->P.ID.instr_latencies != NULL)
 			{
 				S->superH->P.ID.cycles = S->superH->P.ID.instr_latencies[ID];
 			}
@@ -851,11 +863,11 @@ superHstep(Engine *E, State *S, int drain_pipeline)
 			/*
 			 *	The instrword might be a wrong-path fetched word and might thus
 			 *	not be an instruction. If this is the case, decode() would not
-			 *	have stuffed the E->superHDC[(int)(instrword)].dc_p.fptr and
-			 *	thus the .instr_latencies field would be NULL (and we can't index
-			 *	.instr_latencies[IF]).
+			 *	have stuffed the E->superHDC[(int)(instrword)].dc_p.instr_latencies
+			 *	and thus the .instr_latencies field would be NULL (and we can't index
+			 *	.instr_latencies[IF]). Note that the fptr field is always set by decode().
 			 */
-			if (E->superHDC[(int)(instrword)].dc_p.fptr != NULL)
+			if (E->superHDC[(int)(instrword)].dc_p.instr_latencies != NULL)
 			{
 				S->superH->P.IF.cycles = E->superHDC[(int)(instrword)].dc_p.instr_latencies[IF];
 			}
