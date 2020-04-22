@@ -2,6 +2,9 @@ TREEROOT	= ../../../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
 TOOLSLIB      	= $(ROOT)/tools/tools-lib

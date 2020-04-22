@@ -5,6 +5,9 @@ TREEROOT	= ../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM		= fftw-bench
 INCLUDEDIR      = $(TREEROOT)/sys/include
 INCLUDES        = -I$(INCLUDEDIR) -I. -I../ -I../api -I../dft -I../rdft -I../libbench2 -I../kernel -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim

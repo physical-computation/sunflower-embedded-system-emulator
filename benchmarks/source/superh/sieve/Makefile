@@ -2,6 +2,9 @@ TREEROOT	= ../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM		= sieve
 LIBOS		= eOS
 PORT		= ../port

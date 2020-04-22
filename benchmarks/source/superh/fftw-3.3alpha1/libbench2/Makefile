@@ -6,6 +6,10 @@ TREEROOT	= ../../../../..
 LIB		= ../libfftwbench2
 
 include $(TREEROOT)/conf/setup.conf
+
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 INCLUDEDIR      = $(TREEROOT)/sys/include
 INCLUDES        = -I$(INCLUDEDIR) -I../ -I../dft/ -I../kernel -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall

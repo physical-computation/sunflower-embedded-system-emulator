@@ -2,6 +2,9 @@ TREEROOT	= ../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM		= damv2
 LIBOS		= eOS
 

@@ -2,6 +2,9 @@ TREEROOT	= ../../../../..
 
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM		= swradiosink
 LIBOS1		= mOS
 LIBOS2		= eOS

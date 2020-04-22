@@ -1,6 +1,9 @@
 TREEROOT        = ../../../../../..
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM1	= dijkstra_small
 PROGRAM2	= dijkstra_large
 

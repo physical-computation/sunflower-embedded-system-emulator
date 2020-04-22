@@ -1,6 +1,9 @@
 TREEROOT	= ../../../../..
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PORT            = ../../port
 LIBOS		= mOS
 SIMDIR		= /Users/pip/inferno20031205/libmyrmigki

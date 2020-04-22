@@ -1,6 +1,9 @@
 TREEROOT	= ../../../../../..
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 PROGRAM1	= basicmath_small
 PROGRAM2	= basicmath_large
 

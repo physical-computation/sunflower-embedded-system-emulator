@@ -6,6 +6,9 @@ TREEROOT	= ../../../../..
 LIB		= ../libfftw_threads
 include $(TREEROOT)/conf/setup.conf
 
+TARGET		= superH
+TARGET-ARCH	= sh-elf
+
 INCLUDEDIR      = $(TREEROOT)/sys/include
 INCLUDES        = -I$(INCLUDEDIR) -I../../libsfpthread -I../ -I../dft -I../rdft -I../kernel -I../api -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim
 CFLAGS       	= -DSUPERH -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall # -DSUPERH is needed by sfpthread for arch-dependent work
