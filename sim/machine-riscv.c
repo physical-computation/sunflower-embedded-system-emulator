@@ -657,9 +657,9 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	/* FIXME superH related functions need to be cleaned up. */
 	S->endian = Little;
 	S->dumpregs = riscvdumpregs;
-  S->dumpsysregs = riscvdumpsysregs;
+	S->dumpsysregs = riscvdumpsysregs;
 	S->fatalaction = riscvfatalaction;
-  S->stallaction = riscvstallaction;
+	S->stallaction = riscvstallaction;
 	S->settimerintrdelay = superHsettimerintrdelay;
 
 	S->take_nic_intr = superHtake_nic_intr;
@@ -672,9 +672,9 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->resetcpu = riscVresetcpu;
 	S->step = riscvstep;
 	S->cyclestep = riscvstep;
-  S->faststep = riscvfaststep;
+	S->faststep = riscvfaststep;
 	S->dumppipe = riscvdumppipe;
-  S->flushpipe = riscvflushpipe;
+	S->flushpipe = riscvflushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev7708readbyte;
@@ -688,6 +688,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumptlb = superHdumptlb;
 	S->cache_deactivate = riscVcache_deactivate;
 	S->cache_printstats = superHcache_printstats;
+	S->dumpdistribution = riscvdumpdistribution;
 
 	S->writebyte = riscVwritebyte;
 
