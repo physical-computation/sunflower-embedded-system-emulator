@@ -23,7 +23,7 @@ Checkout master branch and take each submodule out of the "Detached HEAD" state:
 	git submodule foreach git checkout master
 
 # Installation instructions
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, and the GNU version of sed, so install them.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, the GNU version of `sed`, and `libc6-dev-i386`, so install them.
 
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
