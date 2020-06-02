@@ -46,12 +46,12 @@
 #define	SF_SIMLOG		1
 #define	SF_PAU_DEFINED		0
 #define	SF_BITFLIP_ANALYSIS	0
-#define	SF_POWER_ANALYSIS	1
+#define	SF_POWER_ANALYSIS	0
 #define	SF_MEMTRACE		1
 #define	SF_BATT			1
 #define	SF_BATTLOG		1
 #define	SF_FAULT		1
-#define	SF_DUMPPWR		1
+#define	SF_DUMPPWR		0
 #define	SF_VALUETRACE_ANALYSIS	1
 #define	SF_FT_TANDEM		0
 #define	SF_BPTS			1
