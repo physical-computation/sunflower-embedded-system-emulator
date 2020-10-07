@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "sf-types.h"
 #include "sh7708.h"
 

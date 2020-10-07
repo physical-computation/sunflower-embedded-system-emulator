@@ -34,7 +34,6 @@
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 	POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdint.h>
 #define nil	((void*)0)
 #define USED(x)
 #define uchar	uint8_t
