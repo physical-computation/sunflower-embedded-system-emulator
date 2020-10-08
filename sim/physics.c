@@ -77,10 +77,11 @@ physics_feed(Engine *E)
 			idx_low = floor(idx_real);
 			idx_high = ceil(idx_real);
 
-			lskew = (idx_high - idx_real) / (idx_high - idx_low);
-			hskew = (idx_real - idx_low) / (idx_high - idx_low);
+		//	lskew = (idx_high - idx_real) / (idx_high - idx_low);
+		//	hskew = (idx_real - idx_low) / (idx_high - idx_low);
 
-			s->sample = lskew*s->samples[(int)idx_low] + hskew*s->samples[(int)idx_high];
+		//	s->sample = lskew*s->samples[(int)idx_low] + hskew*s->samples[(int)idx_high];
+			s->sample = s->samples[(int)idx_high];
 		}
 		else
 		{
