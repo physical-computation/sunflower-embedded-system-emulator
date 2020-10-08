@@ -168,6 +168,7 @@ struct Signalsrc
 	int		nsamples;
 	int		sample_rate;
 	int		loopsamples;
+	int 		interpolation;
 };
 
 struct Sensor

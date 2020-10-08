@@ -199,7 +199,7 @@ void	physics_newsigsrc(Engine *, int type, char* descr, double tau, double props
 		double o, double p, double q, double r, double s, double t,
 		char * trajectoryfile, int trajectoryrate, double fixedx,
 		double fixedy, double fixedz, int looptrajectory, char *samplesfile,
-		int samplerate, double fixedsampleval, int loopsamples);
+		int samplerate, double fixedsampleval, int loopsamples, int interpolation);
 void	physics_sensorsdbg(Engine *);
 void	physics_sigsubscr(Engine *, State *S, int whichsensor, int whichsignal);
 void	physics_feed(Engine *);
