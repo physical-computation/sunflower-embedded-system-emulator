@@ -91,6 +91,7 @@ physics_feed(Engine *E)
 		else
 		{
 			s->sample = s->samples[(int)ceil(idx_real)];
+	
 		}
 		
 		idx_real = E->globaltimepsec * s->trajectory_rate;
@@ -131,14 +132,10 @@ physics_feed(Engine *E)
 			
 			reading = physics_propagation(s, dstnode->xloc, dstnode->yloc, dstnode->zloc);
 
-			if (i == 0)
-			{
-				s->subscribed_sensors[j]->reading = reading;
-			}
-			else
-			{
-				s->subscribed_sensors[j]->reading += reading;
-			}
+			
+			s->subscribed_sensors[j]->reading = reading;
+			
+		
 		}
 	}
 }

@@ -53,10 +53,10 @@ main(void)
 	float humidityKurtosis; 
 	uint32_t uniformRandomSample=0;
 
-	for(uint32_t i = 0; i < 100; i++)
+	for(uint32_t i = 0; i < samplesPerDistribution; i++)
 	{
 		temperatureDistribution[i] = devsignal_read(0);
-		humidityDistribution[i] = devsignal_read(i);	
+		humidityDistribution[i] = devsignal_read(1);	
 		printf("Sensor Value = %f Timestamp = %ld", temperatureDistribution[i], devrtc_getusecs());
 		printf("\n");
 		printf("Sensor Value = %f Timestamp = %ld", humidityDistribution[i], devrtc_getusecs());
