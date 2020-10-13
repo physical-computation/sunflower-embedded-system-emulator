@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "sf-types.h"
 #include "tag.h"
 #include "devsim7708.h"
