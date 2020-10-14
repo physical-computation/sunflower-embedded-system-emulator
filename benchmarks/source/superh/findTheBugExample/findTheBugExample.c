@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "print.h"
 
 /*	8 GPRs + PR		*/
 unsigned char	REGSAVESTACK[36];
@@ -16,7 +15,7 @@ main(void)
 
 	while (gFlag)
 	{
-		print("Counting, %d...\n", i++);
+		printf("Counting, %d...\n", i++);
 	}
 
 	return 0;
