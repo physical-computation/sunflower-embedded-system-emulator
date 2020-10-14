@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "print.h"
 
 /*	8 GPRs + PR		*/
 unsigned char	REGSAVESTACK[36];
