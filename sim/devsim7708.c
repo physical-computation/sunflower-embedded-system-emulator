@@ -117,30 +117,32 @@ devportreadlong(Engine *E, State *S, ulong addr)
 			sfatal(E, S, "Attempt to access sensor register outside number of sensors");
 			return 0;
 		}
+		//fprintf(stderr, "sensor being read has value %f which = %d\n", S->sensors[which].reading, which);
 
-//fprintf(stderr, "sensor being read has value %f\n", S->sensors[which].reading);
 
-/*
-	BUG: this currently works fine for host=macos, clientcpu=superH,
-		but will not work when there is andiannes mismatch.
-		what we should really do, is 
-		(1) autodetect endiannes during compile and get rid
-		of the SF_X_endian stuff or clean it up at least
 
-		(2) maintain a var in sim of what host endian is,
-			in the gloabl M structure
+//	BUG: this currently works fine for host=macos, clientcpu=superH,
+//		but will not work when there is andiannes mismatch.
+//		what we should really do, is 
+//		(1) autodetect endiannes during compile and get rid
+//		of the SF_X_endian stuff or clean it up at least
 
-		(3) when endian diff, marshall the data into
-		tmp sinstead of the simple memmove, along lines of
+//		(2) maintain a var in sim of what host endian is,
+//			in the gloabl M structure
 
-	       	((uchar *)&tmp)[3] = ((uchar *)&reading)[0];
-        	((uchar *)&tmp)[2] = ((uchar *)&reading)[1];
-        	((uchar *)&tmp)[1] = ((uchar *)&reading)[2];
-        	((uchar *)&tmp)[0] = ((uchar *)&reading)[3];
+//		(3) when endian diff, marshall the data into
+//		tmp sinstead of the simple memmove, along lines of
+//
+			
+//	       	((uchar *)&tmp)[3] = ((uchar *)&S->sensors[which].reading)[3];
+//        	((uchar *)&tmp)[2] = ((uchar *)&S->sensors[which].reading)[2];
+//        	((uchar *)&tmp)[1] = ((uchar *)&S->sensors[which].reading)[1];
+//        	((uchar *)&tmp)[0] = ((uchar *)&S->sensors[which].reading)[0];
+		
+//		etc
 
-		etc
-*/
 		memmove(&tmp, &S->sensors[which].reading, sizeof(ulong));
+		
 		return tmp;
 	}
 
