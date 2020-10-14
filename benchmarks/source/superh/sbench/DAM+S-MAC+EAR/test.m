@@ -31,14 +31,14 @@ setquantum		1
 --	With 400 samples in locdata, total distance of 40in, and trajectoryrate of 100,
 --	trajectory speed is 0.254 m/s (0.5681 mph = 0.8333 ft/s)
 --
-sigsrc 			0 "Gaussian lightsource 1"	0.0 0.0 	0.0 0.0 0.0 0.0 0.997356 -0.5 0.0 0.0 0.0 2.71828		0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0		"dam.locdata.1"	100 0.0 0.0 0.0 1	" " 0 1000.0 1
+sigsrc 			0 "Gaussian lightsource 1"	0.0 0.0 	0.0 0.0 0.0 0.0 0.997356 -0.5 0.0 0.0 0.0 2.71828		0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0		"dam.locdata.1"	100 0.0 0.0 0.0 1	" " 0 1000.0 1 1
 
-sigsrc 			0 "Gaussian lightsource 2"	0.0 0.0 	0.0 0.0 0.0 0.0 0.997356 -0.5 0.0 0.0 0.0 2.71828		0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0		"dam.locdata.2"	100 0.0 0.0 0.0 1	" " 0 1000.0 1
+sigsrc 			0 "Gaussian lightsource 2"	0.0 0.0 	0.0 0.0 0.0 0.0 0.997356 -0.5 0.0 0.0 0.0 2.71828		0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0		"dam.locdata.2"	100 0.0 0.0 0.0 1	" " 0 1000.0 1 1
 
 --
 --	Signal source 2. Ambient light at 0.1 Lux
 --
-sigsrc 			0 "Ambient light"		0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.1 1
+sigsrc 			0 "Ambient light"		0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.1 1 1
 
 
 
@@ -51,12 +51,12 @@ sigsrc 			0 "Ambient light"		0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		0
 --	we use a Ricean model for the RF propagation, w/ received Pr = K/d^n, n = 2
 --	We set ambient RF noise at 1/100 of the Peak radio power.
 --
-sigsrc 			1 "Radio propagation model"	0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		-2.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.0 1
+sigsrc 			1 "Radio propagation model"	0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		-2.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.0 1 1
 
 --	Signal source 4
 --	We set ambient RF sig strength to equal 1/10 strength of 89.1mW
 --	radio at sqrt(10^2+10^2)=14.14 units, and set minsnr to 9 (9 < 10)
-sigsrc 			1 "Ambient RF noise"		0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.00004455 1
+sigsrc 			1 "Ambient RF noise"		0.0 0.0 	1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0		" "		0 0.0 0.0 0.0 1	" " 0 0.00004455 1 1  
 
 
 --
