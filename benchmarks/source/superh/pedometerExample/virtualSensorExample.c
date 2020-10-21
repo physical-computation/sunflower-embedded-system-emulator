@@ -1,4 +1,4 @@
-// Aya Helmy wrote this example for her 4B25 coursework and James Meech adapted it to run over sunflower and take input from the sigsrc command
+// Aya Helmy wrote this example for her 4B25 coursework. James Meech adapted it to run over sunflower and take input from the sigsrc command
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
