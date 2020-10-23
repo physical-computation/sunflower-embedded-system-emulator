@@ -20,7 +20,7 @@
 #include "misc.h"
 #include "print.h"
 
-#define BUFFER_SIZE 400
+enum samples {BUFFER_SIZE = 400};
 struct 
 accel_axis
 {
