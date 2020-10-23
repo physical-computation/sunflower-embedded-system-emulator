@@ -22,11 +22,11 @@ struct
 accel_axis
 {
   	// Hold data and info about single acceleration axis:
-	float data[BUFFER_SIZE];  //array to store filtered data
-	float max;    //maximum data entry
-  	float min;    //minimum data entry
-  	float p2p;    //peak to peak value
-  	float thresh; //current value of dynamic threshold 
+	float 	data[BUFFER_SIZE];  //array to store filtered data
+	float	max;    //maximum data entry
+  	float 	min;    //minimum data entry
+  	float 	p2p;    //peak to peak value
+  	float 	thresh; //current value of dynamic threshold 
 };
 
 void 
@@ -34,10 +34,10 @@ findAxisProperties(struct accel_axis *axis)
 {
   	// Find peak-to-peak value and threshold for single-axis data
 
-        float max = axis->data[0];
-        float min = axis->data[0];
-        float p2p;
-        float thresh;
+        float 	max = axis->data[0];
+        float	min = axis->data[0];
+        float	p2p;
+        float	thresh;
 
         for (int i=0; i<BUFFER_SIZE; i++)
 	{
@@ -66,9 +66,9 @@ chooseAxis(struct accel_axis *x, struct accel_axis *y, struct accel_axis *z, flo
 {
         // Perform maximum activity axis selection
 
-        float p2p[3];
-        float max_p2p = 0;
-        int max_index;
+        float	p2p[3];
+        float	max_p2p = 0;
+        int	max_index;
 
         findAxisProperties(x);
         findAxisProperties(y);
@@ -107,8 +107,8 @@ detectSteps(struct accel_axis *chosen)
 {
 	// Finds where threshold is crossed in negative slope direction
 
-    	float steps = 0;
-    	float current, next;
+    	float	steps = 0;
+    	float	current, next;
     	for(int i=0; i<BUFFER_SIZE-1;i++)
 	{
         	current = chosen->data[i];
@@ -149,7 +149,7 @@ MovingAvgFilter(float input[], struct accel_axis *output)
 	// Implement moving average low pass filtering
       	// by using unweighted average of frames of 4 samples
 
-        float sum = 0, mean;
+        float	sum = 0, mean;
 
         // calculate mean of input array
         for (int i=0; i<BUFFER_SIZE; i++) 
@@ -176,22 +176,22 @@ MovingAvgFilter(float input[], struct accel_axis *output)
 int
 main(void)
 {
-	int chosen_axis;
-	float steps;
-	float steps_total = 0;
-	float calib_max;            // used in calibration stage
-	bool use_butterworth;          // if true use Butterworth filter, else use Moving Average filter    
+	int	chosen_axis;
+	float	steps;
+	float	steps_total = 0;
+	float	calib_max;            // used in calibration stage
+	bool	use_butterworth;          // if true use Butterworth filter, else use Moving Average filter    
 	
 	// Declare buffers to hold raw unfiltered acceleration data
-    	float t_buffer[BUFFER_SIZE];
-    	float x_buffer[BUFFER_SIZE];
-    	float y_buffer[BUFFER_SIZE];
-    	float z_buffer[BUFFER_SIZE];
+    	float	t_buffer[BUFFER_SIZE];
+    	float	x_buffer[BUFFER_SIZE];
+    	float	y_buffer[BUFFER_SIZE];
+    	float	z_buffer[BUFFER_SIZE];
 
 	// Declare struct for each acceleration axis (for use after filtering)
-    	struct accel_axis x_accel;
-    	struct accel_axis y_accel;
-    	struct accel_axis z_accel;
+    	struct	accel_axis x_accel;
+    	struct	accel_axis y_accel;
+    	struct	accel_axis z_accel;
 
 	// Select type of filtering
     	use_butterworth = false;
