@@ -49,7 +49,7 @@ Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`.
 Once you have edited `conf/setup.conf`, follow the instructions below to build the cross-compiler:
 1. Change directory to `tools/source` from the root of the Sunflower tree.
 2. Run `./downloads.sh` in the directory `tools/source` relative to the root of the Sunflower tree. This will download the source for various tools needed for building the cross-compilers.
-3. From the root of the Sunflower tree, run `make cross-superh` to build the Hitachi SH cross compiler or `make cross-riscv` to build the RISC-V cross compiler.
+3. From the root of the Sunflower tree, run `make cross-superH` to build the Hitachi SH cross compiler or `make cross-riscv` to build the RISC-V cross compiler.
 
 **If you have trouble building on macOS, you might be running into [this](https://github.com/physical-computation/sunflower-simulator/issues/123) issue.**
 
