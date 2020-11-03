@@ -1,0 +1,2370 @@
+
+\section{\quad\code{ADDVALUETRACE}}\inxx{Commands,{\code{addvaluetrace}}}
+\label{manpages:ADDVALUETRACE}
+\label{manpages:addvaluetrace}
+\vspace{-0.1in}
+{\bf Description}: 	Install an address monitor to track data values.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   ADDVALUETRACE   <name string (string)> <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTALERTFRAC}}\inxx{Commands,{\code{battalertfrac}}}
+\label{manpages:BATTALERTFRAC}
+\label{manpages:battalertfrac}
+\vspace{-0.1in}
+{\bf Description}: 	Set battery alert level fraction.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTALERTFRAC   										
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTCF}}\inxx{Commands,{\code{battcf}}}
+\label{manpages:BATTCF}
+\label{manpages:battcf}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery Vrate lowpass filter capacitance.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTCF   <capacitance in Farads (real)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTETALUTNENTRIES}}\inxx{Commands,{\code{battetalutnentries}}}
+\label{manpages:BATTETALUTNENTRIES}
+\label{manpages:battetalutnentries}
+\vspace{-0.1in}
+{\bf Description}: 	Set number of etaLUT entries.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTETALUTNENTRIES   <number of entries (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTETALUT}}\inxx{Commands,{\code{battetalut}}}
+\label{manpages:BATTETALUT}
+\label{manpages:battetalut}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery etaLUT value.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTETALUT   <LUT index (integer)> <value (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTILEAK}}\inxx{Commands,{\code{battileak}}}
+\label{manpages:BATTILEAK}
+\label{manpages:battileak}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery self-discharge current.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTILEAK   <current in Amperes (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTINOMINAL}}\inxx{Commands,{\code{battinominal}}}
+\label{manpages:BATTINOMINAL}
+\label{manpages:battinominal}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery Inominal.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTINOMINAL   <nominal current in Amperes (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTNODEATTACH}}\inxx{Commands,{\code{battnodeattach}}}
+\label{manpages:BATTNODEATTACH}
+\label{manpages:battnodeattach}
+\vspace{-0.1in}
+{\bf Description}: 	Attach current node to a specified battery.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTNODEATTACH   <which battery (integer)>						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTRF}}\inxx{Commands,{\code{battrf}}}
+\label{manpages:BATTRF}
+\label{manpages:battrf}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery Vrate lowpass filter resistance.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTRF   <resistance in Ohms (real)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTSTATS}}\inxx{Commands,{\code{battstats}}}
+\label{manpages:BATTSTATS}
+\label{manpages:battstats}
+\vspace{-0.1in}
+{\bf Description}: 	Get battery statistics.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTSTATS   <which battery (integer)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTVBATTLUTNENTRIES}}\inxx{Commands,{\code{battvbattlutnentries}}}
+\label{manpages:BATTVBATTLUTNENTRIES}
+\label{manpages:battvbattlutnentries}
+\vspace{-0.1in}
+{\bf Description}: 	Set number of VbattLUT entries.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTVBATTLUTNENTRIES   <number of entries (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTVBATTLUT}}\inxx{Commands,{\code{battvbattlut}}}
+\label{manpages:BATTVBATTLUT}
+\label{manpages:battvbattlut}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery VbattLUT value.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTVBATTLUT   <index (integer)> <value (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTVLOSTLUTNENTRIES}}\inxx{Commands,{\code{battvlostlutnentries}}}
+\label{manpages:BATTVLOSTLUTNENTRIES}
+\label{manpages:battvlostlutnentries}
+\vspace{-0.1in}
+{\bf Description}: 	Set number of VlostLUT entries.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTVLOSTLUTNENTRIES   <number of entries (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BATTVLOSTLUT}}\inxx{Commands,{\code{battvlostlut}}}
+\label{manpages:BATTVLOSTLUT}
+\label{manpages:battvlostlut}
+\vspace{-0.1in}
+{\bf Description}: 	Set Battery VlostLUT value.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BATTVLOSTLUT   <index (integer)> <value (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BPTDEL}}\inxx{Commands,{\code{bptdel}}}
+\label{manpages:BPTDEL}
+\label{manpages:bptdel}
+\vspace{-0.1in}
+{\bf Description}: 	Delete breakpoint.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BPTDEL   <breakpoint ID (integer)>																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BPTLS}}\inxx{Commands,{\code{bptls}}}
+\label{manpages:BPTLS}
+\label{manpages:bptls}
+\vspace{-0.1in}
+{\bf Description}: 	List breakpoints and their IDs.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BPTLS   																					
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{BPT}}\inxx{Commands,{\code{bpt}}}
+\label{manpages:BPT}
+\label{manpages:bpt}
+\vspace{-0.1in}
+{\bf Description}: 	Set breakpoint.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   BPT    'cycles' <ncycles on current node (integer)> | 'instrs' <ninstrs on current node (integer)> | 'sensorreading' <which sensor (integer)> <value (real)> | 'globaltime' <global time in picoseconds (integer)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CACHEINIT}}\inxx{Commands,{\code{cacheinit}}}
+\label{manpages:CACHEINIT}
+\label{manpages:cacheinit}
+\vspace{-0.1in}
+{\bf Description}: 	Initialise cache.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CACHEINIT   <cache size (integer)> <block size (integer)> <set associativity (integer)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CACHEOFF}}\inxx{Commands,{\code{cacheoff}}}
+\label{manpages:CACHEOFF}
+\label{manpages:cacheoff}
+\vspace{-0.1in}
+{\bf Description}: 	Deactivate cache.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CACHEOFF    												
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CACHESTATS}}\inxx{Commands,{\code{cachestats}}}
+\label{manpages:CACHESTATS}
+\label{manpages:cachestats}
+\vspace{-0.1in}
+{\bf Description}: 	Retrieve cache access statistics.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CACHESTATS   										
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CA}}\inxx{Commands,{\code{ca}}}
+\label{manpages:CA}
+\label{manpages:ca}
+\vspace{-0.1in}
+{\bf Description}: 	Set simulator in cycle-accurate mode.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CA   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CD}}\inxx{Commands,{\code{cd}}}
+\label{manpages:CD}
+\label{manpages:cd}
+\vspace{-0.1in}
+{\bf Description}: 	Change current working directory.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CD   <path (string)>																			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CLOCKINTR}}\inxx{Commands,{\code{clockintr}}}
+\label{manpages:CLOCKINTR}
+\label{manpages:clockintr}
+\vspace{-0.1in}
+{\bf Description}: 	Toggle enabling clock interrupts.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CLOCKINTR   <flag (Boolean)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{CONT}}\inxx{Commands,{\code{cont}}}
+\label{manpages:CONT}
+\label{manpages:cont}
+\vspace{-0.1in}
+{\bf Description}: 	Continue execution while PC is not equal to specified PC.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   CONT   <until PC (hexadecimal)>				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{C}}\inxx{Commands,{\code{c}}}
+\label{manpages:C}
+\label{manpages:c}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for CACHESTATS.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   C   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DEFNDIST}}\inxx{Commands,{\code{defndist}}}
+\label{manpages:DEFNDIST}
+\label{manpages:defndist}
+\vspace{-0.1in}
+{\bf Description}: 	Define a discrete probability measure as a set of basis value probability tuples.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DEFNDIST   <list of basis value> (integer list) <list of probabilities>	(real list)						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DELVALUETRACE}}\inxx{Commands,{\code{delvaluetrace}}}
+\label{manpages:DELVALUETRACE}
+\label{manpages:delvaluetrace}
+\vspace{-0.1in}
+{\bf Description}: 	Delete an installed address monitor for tracking data values.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DELVALUETRACE   <name string (string)> <base addr (hexadecimal)> <size (integer)> <onstack (Boolean)> <pcstart (hexadecimal)> <frameoffset (integer)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{D}}\inxx{Commands,{\code{d}}}
+\label{manpages:D}
+\label{manpages:d}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for DUMPALL.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   D   <filename (string)> <tag (string)> <prefix (string)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPALL}}\inxx{Commands,{\code{dumpall}}}
+\label{manpages:DUMPALL}
+\label{manpages:dumpall}
+\vspace{-0.1in}
+{\bf Description}: 	Dump the State structure info for all nodes to the file using given tag and prefix.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPALL   <filename (string)> <tag (string)> <prefix (string)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPDISTR}}\inxx{Commands,{\code{dumpdistr}}}
+\label{manpages:DUMPDISTR}
+\label{manpages:dumpdistr}
+\vspace{-0.1in}
+{\bf Description}: 	Show the number of times each instruction was run.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPDISTR   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPMEM}}\inxx{Commands,{\code{dumpmem}}}
+\label{manpages:DUMPMEM}
+\label{manpages:dumpmem}
+\vspace{-0.1in}
+{\bf Description}: 	Show contents of memory.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPMEM   <start mem address (hexadecimal)> <end mem address (hexadecimal)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPPIPE}}\inxx{Commands,{\code{dumppipe}}}
+\label{manpages:DUMPPIPE}
+\label{manpages:dumppipe}
+\vspace{-0.1in}
+{\bf Description}: 	Show the contents of the pipeline stages.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPPIPE   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPREGS}}\inxx{Commands,{\code{dumpregs}}}
+\label{manpages:DUMPREGS}
+\label{manpages:dumpregs}
+\vspace{-0.1in}
+{\bf Description}: 	Show the contents of the general purpose registers.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPREGS   							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPSYSREGS}}\inxx{Commands,{\code{dumpsysregs}}}
+\label{manpages:DUMPSYSREGS}
+\label{manpages:dumpsysregs}
+\vspace{-0.1in}
+{\bf Description}: 	Show the contents of the system registers.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPSYSREGS   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DUMPTLB}}\inxx{Commands,{\code{dumptlb}}}
+\label{manpages:DUMPTLB}
+\label{manpages:dumptlb}
+\vspace{-0.1in}
+{\bf Description}: 	Display all TLB entries.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DUMPTLB   																						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{DYNINSTR}}\inxx{Commands,{\code{dyninstr}}}
+\label{manpages:DYNINSTR}
+\label{manpages:dyninstr}
+\vspace{-0.1in}
+{\bf Description}: 	Display number of instructions executed.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   DYNINSTR   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{EBATTINTR}}\inxx{Commands,{\code{ebattintr}}}
+\label{manpages:EBATTINTR}
+\label{manpages:ebattintr}
+\vspace{-0.1in}
+{\bf Description}: 	Toggle enable low battery level interrupts.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   EBATTINTR   <flag (Boolean)>							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{EFAULTS}}\inxx{Commands,{\code{efaults}}}
+\label{manpages:EFAULTS}
+\label{manpages:efaults}
+\vspace{-0.1in}
+{\bf Description}: 	Enable interuppt when too many faults occur.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   EFAULTS   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{FF}}\inxx{Commands,{\code{ff}}}
+\label{manpages:FF}
+\label{manpages:ff}
+\vspace{-0.1in}
+{\bf Description}: 	Set simulator in fast functional mode.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   FF   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{FILE2NETSEG}}\inxx{Commands,{\code{file2netseg}}}
+\label{manpages:FILE2NETSEG}
+\label{manpages:file2netseg}
+\vspace{-0.1in}
+{\bf Description}: 	Connect file to netseg.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   FILE2NETSEG   <file (string)>	<netseg (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{FLTTHRESH}}\inxx{Commands,{\code{fltthresh}}}
+\label{manpages:FLTTHRESH}
+\label{manpages:fltthresh}
+\vspace{-0.1in}
+{\bf Description}: 	Set threshold for EFAULTS.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   FLTTHRESH   <threshold (integer)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{FORCEAVGPWR}}\inxx{Commands,{\code{forceavgpwr}}}
+\label{manpages:FORCEAVGPWR}
+\label{manpages:forceavgpwr}
+\vspace{-0.1in}
+{\bf Description}: 	Bypass ILPA analysis and set avg pwr consumption.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   FORCEAVGPWR   <avg pwr in Watts (real)> <sleep pwr in Watts (real)>													
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{GETRANDOMSEED}}\inxx{Commands,{\code{getrandomseed}}}
+\label{manpages:GETRANDOMSEED}
+\label{manpages:getrandomseed}
+\vspace{-0.1in}
+{\bf Description}: 	Query seed used to initialize random number generation system useful for reinitializing generator to same seed for reproducibility.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   GETRANDOMSEED   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{HELP}}\inxx{Commands,{\code{help}}}
+\label{manpages:HELP}
+\label{manpages:help}
+\vspace{-0.1in}
+{\bf Description}: 	Print list of commands.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   HELP   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{HWSEEREG}}\inxx{Commands,{\code{hwseereg}}}
+\label{manpages:HWSEEREG}
+\label{manpages:hwseereg}
+\vspace{-0.1in}
+{\bf Description}: 	Register a hardware structure or part thereof for inducement of SEEs.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   HWSEEREG    <structure name (string)> <actual bits (integer)> <logical bits (integer)> <bit offset (integer)>				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{IGN}}\inxx{Commands,{\code{ign}}}
+\label{manpages:IGN}
+\label{manpages:ign}
+\vspace{-0.1in}
+{\bf Description}: 	Ignore node fatalities and continue sim without pausing.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   IGN   <flag (Boolean)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{INITRANDTABLE}}\inxx{Commands,{\code{initrandtable}}}
+\label{manpages:INITRANDTABLE}
+\label{manpages:initrandtable}
+\vspace{-0.1in}
+{\bf Description}: 	Set or change node location.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   INITRANDTABLE   <distname (string)> <pfun name (string)> <basis min (real)> <basis max (real)> <granularity (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{INITSEESTATE}}\inxx{Commands,{\code{initseestate}}}
+\label{manpages:INITSEESTATE}
+\label{manpages:initseestate}
+\vspace{-0.1in}
+{\bf Description}: 	Initialize SEE function and parameter state.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   INITSEESTATE    <loc pfun (string)> <loc p1 (real)> <loc p2 (real)> <loc p3 (real)> <loc p4 (real)> <bit pfun (string)> <bit p1 (real)> <bit p2 (real)> <bit p3 (real)> <bit p4 (real)> <duration pfun (string)> <dur p1 (real)> <dur p2 (real)> <dur p3 (real)> <dur p4 (real)>		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{LISTRVARS}}\inxx{Commands,{\code{listrvars}}}
+\label{manpages:LISTRVARS}
+\label{manpages:listrvars}
+\vspace{-0.1in}
+{\bf Description}: 	List all structures that can be treated as rvars.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   LISTRVARS   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{LOADMAPFILE}}\inxx{Commands,{\code{loadmapfile}}}
+\label{manpages:LOADMAPFILE}
+\label{manpages:loadmapfile}
+\vspace{-0.1in}
+{\bf Description}: 	Load map file.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   LOADMAPFILE   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{LOAD}}\inxx{Commands,{\code{load}}}
+\label{manpages:LOAD}
+\label{manpages:load}
+\vspace{-0.1in}
+{\bf Description}: 	Load a script file.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   LOAD   <filename (string)>										
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{LOCSTATS}}\inxx{Commands,{\code{locstats}}}
+\label{manpages:LOCSTATS}
+\label{manpages:locstats}
+\vspace{-0.1in}
+{\bf Description}: 	Show node's current location in three-dimentional space.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   LOCSTATS   							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{L}}\inxx{Commands,{\code{l}}}
+\label{manpages:L}
+\label{manpages:l}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for LOCSTATS.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   L   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{MALLOCDEBUG}}\inxx{Commands,{\code{mallocdebug}}}
+\label{manpages:MALLOCDEBUG}
+\label{manpages:mallocdebug}
+\vspace{-0.1in}
+{\bf Description}: 	Display malloc stats.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   MALLOCDEBUG   																						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{MAN}}\inxx{Commands,{\code{man}}}
+\label{manpages:MAN}
+\label{manpages:man}
+\vspace{-0.1in}
+{\bf Description}: 	Print synopsis for command usage.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   MAN   <command name>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{MMAP}}\inxx{Commands,{\code{mmap}}}
+\label{manpages:MMAP}
+\label{manpages:mmap}
+\vspace{-0.1in}
+{\bf Description}: 	Map memory of one simulated node into another.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   MMAP   <source (integer)> <destination (integer)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NANOPAUSE}}\inxx{Commands,{\code{nanopause}}}
+\label{manpages:NANOPAUSE}
+\label{manpages:nanopause}
+\vspace{-0.1in}
+{\bf Description}: 	Pause the simulation for arg nanoseconds.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NANOPAUSE   <duration of pause in nanoseconds (integer)>				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{ND}}\inxx{Commands,{\code{nd}}}
+\label{manpages:ND}
+\label{manpages:nd}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for NETDEBUG.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   ND   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETCORREL}}\inxx{Commands,{\code{netcorrel}}}
+\label{manpages:NETCORREL}
+\label{manpages:netcorrel}
+\vspace{-0.1in}
+{\bf Description}: 	Specify correlation coefficient between failure of a network segment and failure of an IFC on a node @@NOTE that it is not using the current node so we can specify in a matrix-like form@@.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETCORREL   <which seg (integer)> <which node (integer)> <coefficient (real)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETDEBUG}}\inxx{Commands,{\code{netdebug}}}
+\label{manpages:NETDEBUG}
+\label{manpages:netdebug}
+\vspace{-0.1in}
+{\bf Description}: 	Show debugging information about the simulated network interface.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETDEBUG   						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETNEWSEG}}\inxx{Commands,{\code{netnewseg}}}
+\label{manpages:NETNEWSEG}
+\label{manpages:netnewseg}
+\vspace{-0.1in}
+{\bf Description}: 	Add a new network segment to simulation.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETNEWSEG   <which (if exists) (integer)> <frame bits (integer)> <propagation speed (integer)> <bitrate (integer)> <medium width (integer)> <link failure probability distribution (string)> <link failure distribution mu (real)> <link failure probability distribution sigma (real)> <link failure probability distribution lambda (real)> <link failure duration distribution (string)> <link failure duration distribution mu (real)> <link failure duration distribution sigma (real)> <link failure duration distribution lambda (real)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETNODENEWIFC}}\inxx{Commands,{\code{netnodenewifc}}}
+\label{manpages:NETNODENEWIFC}
+\label{manpages:netnodenewifc}
+\vspace{-0.1in}
+{\bf Description}: 	Add a new IFC to current node frame bits and segno are set at attach time.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETNODENEWIFC   <ifc num (if valid) (integer)> <tx pwr (watts) (real)> <rx pwr (watts) (real)> <idle pwr (watts) (real)> <listen pwr (watts) (real)> <fail distribution (string)> <fail distribution mu (real)> <fail distribution sigma (real)> <fail distribution lambda (real)> <transmit FIFO size (integer)> <receive FIFO size (integer)> 
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEG2FILE}}\inxx{Commands,{\code{netseg2file}}}
+\label{manpages:NETSEG2FILE}
+\label{manpages:netseg2file}
+\vspace{-0.1in}
+{\bf Description}: 	Connect netseg to file.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEG2FILE   <netseg (integer)> <file (string)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGDELETE}}\inxx{Commands,{\code{netsegdelete}}}
+\label{manpages:NETSEGDELETE}
+\label{manpages:netsegdelete}
+\vspace{-0.1in}
+{\bf Description}: 	Disable a specified network segment.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGDELETE   <which segment (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGFAILDURMAX}}\inxx{Commands,{\code{netsegfaildurmax}}}
+\label{manpages:NETSEGFAILDURMAX}
+\label{manpages:netsegfaildurmax}
+\vspace{-0.1in}
+{\bf Description}: 	Set maximum network segment failure duration in clock cycles though actual failure duration is determined by probability distribution.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGFAILDURMAX   <duration (integer)>						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGFAILPROBFN}}\inxx{Commands,{\code{netsegfailprobfn}}}
+\label{manpages:NETSEGFAILPROBFN}
+\label{manpages:netsegfailprobfn}
+\vspace{-0.1in}
+{\bf Description}: 	Specify Netseg failure Probability Distribution Function (fxn of time).\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGFAILPROBFN   <expression in terms of constants and 'pow(a
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGFAILPROB}}\inxx{Commands,{\code{netsegfailprob}}}
+\label{manpages:NETSEGFAILPROB}
+\label{manpages:netsegfailprob}
+\vspace{-0.1in}
+{\bf Description}: 	Set probability of failure for a setseg.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGFAILPROB   <which segment (integer)> <probability (real)>															
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGNICATTACH}}\inxx{Commands,{\code{netsegnicattach}}}
+\label{manpages:NETSEGNICATTACH}
+\label{manpages:netsegnicattach}
+\vspace{-0.1in}
+{\bf Description}: 	Attach a current node's IFC to a network segment.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGNICATTACH   <which IFC (integer)>	<which segment (integer)>													
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NETSEGPROPMODEL}}\inxx{Commands,{\code{netsegpropmodel}}}
+\label{manpages:NETSEGPROPMODEL}
+\label{manpages:netsegpropmodel}
+\vspace{-0.1in}
+{\bf Description}: 	Associate a network segment with a signal propagation model.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NETSEGPROPMODEL   <netseg ID (integer)> <sigsrc ID (integer)> <minimum SNR (real)>										
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NEWBATT}}\inxx{Commands,{\code{newbatt}}}
+\label{manpages:NEWBATT}
+\label{manpages:newbatt}
+\vspace{-0.1in}
+{\bf Description}: 	New battery\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NEWBATT   <ID (integer)> <capacity in mAh (integer)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NEWNODE}}\inxx{Commands,{\code{newnode}}}
+\label{manpages:NEWNODE}
+\label{manpages:newnode}
+\vspace{-0.1in}
+{\bf Description}: 	Create a new node (simulated system).\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NEWNODE   <type=superH|riscv|msp430 (string)> [<x location (real)> <y location (real)> <z location (real)>] [<trajectory file name (string)> <loopsamples (Boolean)> <picoseconds per trajectory sample (integer)>]	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NI}}\inxx{Commands,{\code{ni}}}
+\label{manpages:NI}
+\label{manpages:ni}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for DYNINSTR.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NI   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NODEFAILDURMAX}}\inxx{Commands,{\code{nodefaildurmax}}}
+\label{manpages:NODEFAILDURMAX}
+\label{manpages:nodefaildurmax}
+\vspace{-0.1in}
+{\bf Description}: 	Set maximum node failure duration in clock cycles though actual failure duration is determined by probability distribution.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NODEFAILDURMAX   <duration (integer)>							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NODEFAILPROBFN}}\inxx{Commands,{\code{nodefailprobfn}}}
+\label{manpages:NODEFAILPROBFN}
+\label{manpages:nodefailprobfn}
+\vspace{-0.1in}
+{\bf Description}: 	Specify Node failure Probability Distribution Function (fxn of time).\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NODEFAILPROBFN   <expression in terms of constants and 'pow(a
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NODEFAILPROB}}\inxx{Commands,{\code{nodefailprob}}}
+\label{manpages:NODEFAILPROB}
+\label{manpages:nodefailprob}
+\vspace{-0.1in}
+{\bf Description}: 	Set probability of failure for current node.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NODEFAILPROB   <probability (real)>																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NODETACH}}\inxx{Commands,{\code{nodetach}}}
+\label{manpages:NODETACH}
+\label{manpages:nodetach}
+\vspace{-0.1in}
+{\bf Description}: 	Set whether new thread should be spawned on a ON command.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NODETACH   <flag (Boolean)>					
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{N}}\inxx{Commands,{\code{n}}}
+\label{manpages:N}
+\label{manpages:n}
+\vspace{-0.1in}
+{\bf Description}: 	Step through simulation for a number (default 1) of cycles.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   N   [# cycles] (integer)				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NUMAREGION}}\inxx{Commands,{\code{numaregion}}}
+\label{manpages:NUMAREGION}
+\label{manpages:numaregion}
+\vspace{-0.1in}
+{\bf Description}: 	Specify a memory access latency and a node mapping (can only map into destination RAM) for an address range for a private mapping.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NUMAREGION   <name string (string)> <start address (inclusive) (hexadecimal)> <end address (non-inclusive) (hexadecimal)> <local read latency in cycles (integer)> <local write latency in cycles (integer)> <remote read latency in cycles (integer)> <remote write latency in cycles (integer)> <Map ID (integer)> <Map offset (integer)> <private flag (Boolean)> 
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NUMASETMAPID}}\inxx{Commands,{\code{numasetmapid}}}
+\label{manpages:NUMASETMAPID}
+\label{manpages:numasetmapid}
+\vspace{-0.1in}
+{\bf Description}: 	Change the mapid for nth map table entry on all nodes to i.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NUMASETMAPID   <n (integer)> <i (integer)>															
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NUMASTATSALL}}\inxx{Commands,{\code{numastatsall}}}
+\label{manpages:NUMASTATSALL}
+\label{manpages:numastatsall}
+\vspace{-0.1in}
+{\bf Description}: 	Display access statistics for all NUMA regions for all nodes.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NUMASTATSALL   																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{NUMASTATS}}\inxx{Commands,{\code{numastats}}}
+\label{manpages:NUMASTATS}
+\label{manpages:numastats}
+\vspace{-0.1in}
+{\bf Description}: 	Display access statistics for all NUMA regions for current node.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   NUMASTATS   																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{OFF}}\inxx{Commands,{\code{off}}}
+\label{manpages:OFF}
+\label{manpages:off}
+\vspace{-0.1in}
+{\bf Description}: 	Turn the simulator off.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   OFF   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{ON}}\inxx{Commands,{\code{on}}}
+\label{manpages:ON}
+\label{manpages:on}
+\vspace{-0.1in}
+{\bf Description}: 	Turn the simulator on.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   ON   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PARSEOBJDUMP}}\inxx{Commands,{\code{parseobjdump}}}
+\label{manpages:PARSEOBJDUMP}
+\label{manpages:parseobjdump}
+\vspace{-0.1in}
+{\bf Description}: 	Parse a GNU objdump file and load into memory.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PARSEOBJDUMP   <objdump file path (string)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PAUINFO}}\inxx{Commands,{\code{pauinfo}}}
+\label{manpages:PAUINFO}
+\label{manpages:pauinfo}
+\vspace{-0.1in}
+{\bf Description}: 	Show information about all valid PAU entries.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PAUINFO   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PAUSE}}\inxx{Commands,{\code{pause}}}
+\label{manpages:PAUSE}
+\label{manpages:pause}
+\vspace{-0.1in}
+{\bf Description}: 	Pause the simulation for arg seconds.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PAUSE   <duration of pause in seconds (integer)>					
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PCBT}}\inxx{Commands,{\code{pcbt}}}
+\label{manpages:PCBT}
+\label{manpages:pcbt}
+\vspace{-0.1in}
+{\bf Description}: 	Dump PC backtrace.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PCBT   																							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PD}}\inxx{Commands,{\code{pd}}}
+\label{manpages:PD}
+\label{manpages:pd}
+\vspace{-0.1in}
+{\bf Description}: 	Disable simulation of processor's pipeline.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PD   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PE}}\inxx{Commands,{\code{pe}}}
+\label{manpages:PE}
+\label{manpages:pe}
+\vspace{-0.1in}
+{\bf Description}: 	Enable simulation of processor's pipeline.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PE   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PF}}\inxx{Commands,{\code{pf}}}
+\label{manpages:PF}
+\label{manpages:pf}
+\vspace{-0.1in}
+{\bf Description}: 	Flush the pipeline.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PF   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PFUN}}\inxx{Commands,{\code{pfun}}}
+\label{manpages:PFUN}
+\label{manpages:pfun}
+\vspace{-0.1in}
+{\bf Description}: 	Change probability distrib fxn (default is uniform).\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PFUN   							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PI}}\inxx{Commands,{\code{pi}}}
+\label{manpages:PI}
+\label{manpages:pi}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for PAUINFO.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PI   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{POWERSTATS}}\inxx{Commands,{\code{powerstats}}}
+\label{manpages:POWERSTATS}
+\label{manpages:powerstats}
+\vspace{-0.1in}
+{\bf Description}: 	Show estimated energy and circuit activity.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   POWERSTATS   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{POWERTOTAL}}\inxx{Commands,{\code{powertotal}}}
+\label{manpages:POWERTOTAL}
+\label{manpages:powertotal}
+\vspace{-0.1in}
+{\bf Description}: 	Print total power accross all node.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   POWERTOTAL   																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PS}}\inxx{Commands,{\code{ps}}}
+\label{manpages:PS}
+\label{manpages:ps}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for POWERSTATS.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PS   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{PWD}}\inxx{Commands,{\code{pwd}}}
+\label{manpages:PWD}
+\label{manpages:pwd}
+\vspace{-0.1in}
+{\bf Description}: 	Get current working directory.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   PWD   																					
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{Q}}\inxx{Commands,{\code{q}}}
+\label{manpages:Q}
+\label{manpages:q}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for QUIT.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   Q   												
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{QUIT}}\inxx{Commands,{\code{quit}}}
+\label{manpages:QUIT}
+\label{manpages:quit}
+\vspace{-0.1in}
+{\bf Description}: 	Exit the simulator.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   QUIT   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RANDPRINT}}\inxx{Commands,{\code{randprint}}}
+\label{manpages:RANDPRINT}
+\label{manpages:randprint}
+\vspace{-0.1in}
+{\bf Description}: 	Print a random value from the selected distribution with given parameters.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RANDPRINT   <distribution name (string)> <min (real)> <max (real)> <p1 (real)> <p2 (real)> <p3 (real)> <p4 (real)>			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RATIO}}\inxx{Commands,{\code{ratio}}}
+\label{manpages:RATIO}
+\label{manpages:ratio}
+\vspace{-0.1in}
+{\bf Description}: 	Print ratio of cycles spent active to those spent sleeping.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RATIO   						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{REGISTERRVAR}}\inxx{Commands,{\code{registerrvar}}}
+\label{manpages:REGISTERRVAR}
+\label{manpages:registerrvar}
+\vspace{-0.1in}
+{\bf Description}: 	Register a simulator internal implementation variable or structure for periodic updates either overwriting values or summing determined by the mode parameter.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   REGISTERRVAR    <sim var name (string)> <index for array structures (integer)> <value dist name (string)> <value dist p1 (real)> <value dist p2 (real)> <value dist p3 (real)> <value dist p4 (real)> <duration dist name (string)> <duration dist p1 (real)> <duration dist p2 (real)> <duration dist p3 (real)> <duration dist p4 (real)> <mode (integer)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{REGISTERSTABS}}\inxx{Commands,{\code{registerstabs}}}
+\label{manpages:REGISTERSTABS}
+\label{manpages:registerstabs}
+\vspace{-0.1in}
+{\bf Description}: 	Register variables in a STABS file with value tracing framework.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   REGISTERSTABS   <STABS filename (string)>														
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RENUMBERNODES}}\inxx{Commands,{\code{renumbernodes}}}
+\label{manpages:RENUMBERNODES}
+\label{manpages:renumbernodes}
+\vspace{-0.1in}
+{\bf Description}: 	Renumber nodes based on base node ID.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RENUMBERNODES   																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RESETALLCTRS}}\inxx{Commands,{\code{resetallctrs}}}
+\label{manpages:RESETALLCTRS}
+\label{manpages:resetallctrs}
+\vspace{-0.1in}
+{\bf Description}: 	Reset simulation rate measurement trip counters for all nodes.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RESETALLCTRS   																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RESETCPU}}\inxx{Commands,{\code{resetcpu}}}
+\label{manpages:RESETCPU}
+\label{manpages:resetcpu}
+\vspace{-0.1in}
+{\bf Description}: 	Reset entire simulated CPU state.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RESETCPU   										
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RESETNODECTRS}}\inxx{Commands,{\code{resetnodectrs}}}
+\label{manpages:RESETNODECTRS}
+\label{manpages:resetnodectrs}
+\vspace{-0.1in}
+{\bf Description}: 	Reset simulation rate measurement trip counters for current node only.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RESETNODECTRS   																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RETRYALG}}\inxx{Commands,{\code{retryalg}}}
+\label{manpages:RETRYALG}
+\label{manpages:retryalg}
+\vspace{-0.1in}
+{\bf Description}: 	set NIC retransmission backoff algorithm.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RETRYALG   <ifc # (integer)> <algname (string)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{R}}\inxx{Commands,{\code{r}}}
+\label{manpages:R}
+\label{manpages:r}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for RATIO.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   R   												
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{RUN}}\inxx{Commands,{\code{run}}}
+\label{manpages:RUN}
+\label{manpages:run}
+\vspace{-0.1in}
+{\bf Description}: 	Mark a node as runnable.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   RUN   											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SAVE}}\inxx{Commands,{\code{save}}}
+\label{manpages:SAVE}
+\label{manpages:save}
+\vspace{-0.1in}
+{\bf Description}: 	Dump memory region to disk.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SAVE   <start mem addr (hexadecimal)> <end mem addr (hexadecimal)> <filename (string)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SENSORSDEBUG}}\inxx{Commands,{\code{sensorsdebug}}}
+\label{manpages:SENSORSDEBUG}
+\label{manpages:sensorsdebug}
+\vspace{-0.1in}
+{\bf Description}: 	Display various statistics on sensors and signals.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SENSORSDEBUG    																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETBASENODEID}}\inxx{Commands,{\code{setbasenodeid}}}
+\label{manpages:SETBASENODEID}
+\label{manpages:setbasenodeid}
+\vspace{-0.1in}
+{\bf Description}: 	Set ID of first node from which all node IDs will be offset.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETBASENODEID   <base (integer)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETBATTFEEDPERIOD}}\inxx{Commands,{\code{setbattfeedperiod}}}
+\label{manpages:SETBATTFEEDPERIOD}
+\label{manpages:setbattfeedperiod}
+\vspace{-0.1in}
+{\bf Description}: 	Set update periodicity for battery simulation.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETBATTFEEDPERIOD   <period in picoseconds (integer)>															
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETBATT}}\inxx{Commands,{\code{setbatt}}}
+\label{manpages:SETBATT}
+\label{manpages:setbatt}
+\vspace{-0.1in}
+{\bf Description}: 	Set current battery.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETBATT   <Battery ID (integer)>																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETDUMPPWRPERIOD}}\inxx{Commands,{\code{setdumppwrperiod}}}
+\label{manpages:SETDUMPPWRPERIOD}
+\label{manpages:setdumppwrperiod}
+\vspace{-0.1in}
+{\bf Description}: 	Set periodicity power logging to simlog.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETDUMPPWRPERIOD   <period in picoseconds (integer)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETFAULTPERIOD}}\inxx{Commands,{\code{setfaultperiod}}}
+\label{manpages:SETFAULTPERIOD}
+\label{manpages:setfaultperiod}
+\vspace{-0.1in}
+{\bf Description}: 	Set period for activating fault scheduling.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETFAULTPERIOD   <period in picoseconds (integer)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETFLASHRLATENCY}}\inxx{Commands,{\code{setflashrlatency}}}
+\label{manpages:SETFLASHRLATENCY}
+\label{manpages:setflashrlatency}
+\vspace{-0.1in}
+{\bf Description}: 	Set flash read latency.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETFLASHRLATENCY    <latency in clock cycles (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETFLASHWLATENCY}}\inxx{Commands,{\code{setflashwlatency}}}
+\label{manpages:SETFLASHWLATENCY}
+\label{manpages:setflashwlatency}
+\vspace{-0.1in}
+{\bf Description}: 	Set flash write latency.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETFLASHWLATENCY    <latency in clock cycles (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETFREQ}}\inxx{Commands,{\code{setfreq}}}
+\label{manpages:SETFREQ}
+\label{manpages:setfreq}
+\vspace{-0.1in}
+{\bf Description}: 	Set operating frequency from voltage.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETFREQ   <freq/MHz (real)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETIFCOUI}}\inxx{Commands,{\code{setifcoui}}}
+\label{manpages:SETIFCOUI}
+\label{manpages:setifcoui}
+\vspace{-0.1in}
+{\bf Description}: 	Set OUI for current IFC.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETIFCOUI   <which IFC (integer)> <new OUI (integer)>																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETLOC}}\inxx{Commands,{\code{setloc}}}
+\label{manpages:SETLOC}
+\label{manpages:setloc}
+\vspace{-0.1in}
+{\bf Description}: 	Set or change node location.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETLOC   <xloc (real)> <yloc>  (real) <zloc (real)>																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETMEMBASE}}\inxx{Commands,{\code{setmembase}}}
+\label{manpages:SETMEMBASE}
+\label{manpages:setmembase}
+\vspace{-0.1in}
+{\bf Description}: 	Set base address of simulator memorry array.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETMEMBASE   <address (integer)>						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETMEMRLATENCY}}\inxx{Commands,{\code{setmemrlatency}}}
+\label{manpages:SETMEMRLATENCY}
+\label{manpages:setmemrlatency}
+\vspace{-0.1in}
+{\bf Description}: 	Set memory read latency.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETMEMRLATENCY    <latency in clock cycles (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETMEMWLATENCY}}\inxx{Commands,{\code{setmemwlatency}}}
+\label{manpages:SETMEMWLATENCY}
+\label{manpages:setmemwlatency}
+\vspace{-0.1in}
+{\bf Description}: 	Set memory write latency.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETMEMWLATENCY    <latency in clock cycles (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETNETPERIOD}}\inxx{Commands,{\code{setnetperiod}}}
+\label{manpages:SETNETPERIOD}
+\label{manpages:setnetperiod}
+\vspace{-0.1in}
+{\bf Description}: 	Set period for activting network scheduling.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETNETPERIOD   <period in picoseconds (integer)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETNODEMASS}}\inxx{Commands,{\code{setnodemass}}}
+\label{manpages:SETNODEMASS}
+\label{manpages:setnodemass}
+\vspace{-0.1in}
+{\bf Description}: 	Set node mass.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETNODEMASS    <mass in kg>																						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETNODE}}\inxx{Commands,{\code{setnode}}}
+\label{manpages:SETNODE}
+\label{manpages:setnode}
+\vspace{-0.1in}
+{\bf Description}: 	Set the current simulated node.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETNODE   <node id (integer)>								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETPC}}\inxx{Commands,{\code{setpc}}}
+\label{manpages:SETPC}
+\label{manpages:setpc}
+\vspace{-0.1in}
+{\bf Description}: 	Set the value of the program counter.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETPC   <PC value (integer)>							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETPHYSICSPERIOD}}\inxx{Commands,{\code{setphysicsperiod}}}
+\label{manpages:SETPHYSICSPERIOD}
+\label{manpages:setphysicsperiod}
+\vspace{-0.1in}
+{\bf Description}: 	Set update periodicity for physical phenomenon simulation.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETPHYSICSPERIOD   <period in picoseconds (integer)>														
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETPROPULSIONCOEFFS}}\inxx{Commands,{\code{setpropulsioncoeffs}}}
+\label{manpages:SETPROPULSIONCOEFFS}
+\label{manpages:setpropulsioncoeffs}
+\vspace{-0.1in}
+{\bf Description}: 	Set propulsion power model coefficients.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETPROPULSIONCOEFFS    <xk1 xk2 xk3 xk4 xk5 xk6 yk1 yk2 yk3 yk4 yk5 yk6 zk1 zk2 zk3 zk4 zk5 zk6>											
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETQUANTUM}}\inxx{Commands,{\code{setquantum}}}
+\label{manpages:SETQUANTUM}
+\label{manpages:setquantum}
+\vspace{-0.1in}
+{\bf Description}: 	Set simulation instruction group quantum.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETQUANTUM   <quantum (integer)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETRANDOMSEED}}\inxx{Commands,{\code{setrandomseed}}}
+\label{manpages:SETRANDOMSEED}
+\label{manpages:setrandomseed}
+\vspace{-0.1in}
+{\bf Description}: 	Reinitialize random number generation system with a specific seed useful in conjunction with GETRANDOMSEED for reproducing same pseudorandom state.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETRANDOMSEED   <seed value negative one to use current time (integer)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETSCALEALPHA}}\inxx{Commands,{\code{setscalealpha}}}
+\label{manpages:SETSCALEALPHA}
+\label{manpages:setscalealpha}
+\vspace{-0.1in}
+{\bf Description}: 	Set technology alpha parameter for use in voltage scaling.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETSCALEALPHA   <Sakurai alpha (real)>															
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETSCALEK}}\inxx{Commands,{\code{setscalek}}}
+\label{manpages:SETSCALEK}
+\label{manpages:setscalek}
+\vspace{-0.1in}
+{\bf Description}: 	Set technology K parameter for use in voltage scaling.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETSCALEK   <Sakurai K (real)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETSCALEVT}}\inxx{Commands,{\code{setscalevt}}}
+\label{manpages:SETSCALEVT}
+\label{manpages:setscalevt}
+\vspace{-0.1in}
+{\bf Description}: 	Set technology Vt for use in voltage scaling.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETSCALEVT   <Vt (real)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETSCHEDRANDOM}}\inxx{Commands,{\code{setschedrandom}}}
+\label{manpages:SETSCHEDRANDOM}
+\label{manpages:setschedrandom}
+\vspace{-0.1in}
+{\bf Description}: 	Use a different random order for node simulation every cycle.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETSCHEDRANDOM   																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETSCHEDROUNDROBIN}}\inxx{Commands,{\code{setschedroundrobin}}}
+\label{manpages:SETSCHEDROUNDROBIN}
+\label{manpages:setschedroundrobin}
+\vspace{-0.1in}
+{\bf Description}: 	Use a round-robin order for node simulation.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETSCHEDROUNDROBIN   																			
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETTIMERDELAY}}\inxx{Commands,{\code{settimerdelay}}}
+\label{manpages:SETTIMERDELAY}
+\label{manpages:settimerdelay}
+\vspace{-0.1in}
+{\bf Description}: 	Change granularity of timer intrs.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETTIMERDELAY   <granularity in microseconds (integer)>																
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SETVDD}}\inxx{Commands,{\code{setvdd}}}
+\label{manpages:SETVDD}
+\label{manpages:setvdd}
+\vspace{-0.1in}
+{\bf Description}: 	Set operating voltage from frequency.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SETVDD   <Vdd/volts (real)>							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SFATAL}}\inxx{Commands,{\code{sfatal}}}
+\label{manpages:SFATAL}
+\label{manpages:sfatal}
+\vspace{-0.1in}
+{\bf Description}: 	Induce a node death and state dump.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SFATAL   <suicide note (string)>																		
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SHAREBUS}}\inxx{Commands,{\code{sharebus}}}
+\label{manpages:SHAREBUS}
+\label{manpages:sharebus}
+\vspace{-0.1in}
+{\bf Description}: 	Share bus structure with ther named node.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SHAREBUS   <Bus donor nodeid (integer)>																	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SHOWCLK}}\inxx{Commands,{\code{showclk}}}
+\label{manpages:SHOWCLK}
+\label{manpages:showclk}
+\vspace{-0.1in}
+{\bf Description}: 	Show the number of clock cycles simulated since processor reset.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SHOWCLK   						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SHOWMEMBASE}}\inxx{Commands,{\code{showmembase}}}
+\label{manpages:SHOWMEMBASE}
+\label{manpages:showmembase}
+\vspace{-0.1in}
+{\bf Description}: 	Show base address of simulator memorry array.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SHOWMEMBASE   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SHOWPIPE}}\inxx{Commands,{\code{showpipe}}}
+\label{manpages:SHOWPIPE}
+\label{manpages:showpipe}
+\vspace{-0.1in}
+{\bf Description}: 	Show contents of the processor pipeline.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SHOWPIPE   									
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SIGSRC}}\inxx{Commands,{\code{sigsrc}}}
+\label{manpages:SIGSRC}
+\label{manpages:sigsrc}
+\vspace{-0.1in}
+{\bf Description}: 	Create a physical phenomenon signal source.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SIGSRC   <type (integer)> <description (string)> <tau (real)> <propagationspeed (real)> <A (real)> <B (real)> <C (real)> <D (real)> <E (real)> <F (real)> <G (real)> <H (real)> <I (real)> <J (real)> <K (real)> <m (real)> <n (real)> <o (real)> <p (real)> <q (real)> <r (real)> <s (real)> <t (real)> <x (real)> <y (real)> <z (real)> <trajectoryfile (string)> <trajectoryrate (real)> <looptrajectory (Boolean)> <samplesfile (string)> <samplerate (integer)> <fixedsampleval (real)> <loopsamples (Boolean)>	
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SIGSUBSCRIBE}}\inxx{Commands,{\code{sigsubscribe}}}
+\label{manpages:SIGSUBSCRIBE}
+\label{manpages:sigsubscribe}
+\vspace{-0.1in}
+{\bf Description}: 	Subscribe sensor X on the current node to a signal source Y.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SIGSUBSCRIBE   <X (integer)> <Y (integer)>														
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SIZEMEM}}\inxx{Commands,{\code{sizemem}}}
+\label{manpages:SIZEMEM}
+\label{manpages:sizemem}
+\vspace{-0.1in}
+{\bf Description}: 	Set the size of memory.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SIZEMEM   <size of memory in bytes (integer)>							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SIZEPAU}}\inxx{Commands,{\code{sizepau}}}
+\label{manpages:SIZEPAU}
+\label{manpages:sizepau}
+\vspace{-0.1in}
+{\bf Description}: 	Set the size of the PAU.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SIZEPAU   <size of PAU in number of entries (integer)>						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SPLIT}}\inxx{Commands,{\code{split}}}
+\label{manpages:SPLIT}
+\label{manpages:split}
+\vspace{-0.1in}
+{\bf Description}: 	Split current CPU to execute from a new PC and stack.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SPLIT   <newpc (hexadecimal)> <newstackaddr (hexadecimal)> <argaddr (hexadecimal)> <newcpuidstr (integer)>						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{SRECL}}\inxx{Commands,{\code{srecl}}}
+\label{manpages:SRECL}
+\label{manpages:srecl}
+\vspace{-0.1in}
+{\bf Description}: 	Load a binary program in Motorola S-Record format.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   SRECL   								
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{STOP}}\inxx{Commands,{\code{stop}}}
+\label{manpages:STOP}
+\label{manpages:stop}
+\vspace{-0.1in}
+{\bf Description}: 	Mark the current node as unrunnable.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   STOP   																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{THROTTLE}}\inxx{Commands,{\code{throttle}}}
+\label{manpages:THROTTLE}
+\label{manpages:throttle}
+\vspace{-0.1in}
+{\bf Description}: 	Set the throttling delay in nanoseconds.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   THROTTLE   <throttle delay in nanoseconds (integer)>															
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{THROTTLEWIN}}\inxx{Commands,{\code{throttlewin}}}
+\label{manpages:THROTTLEWIN}
+\label{manpages:throttlewin}
+\vspace{-0.1in}
+{\bf Description}: 	Set the throttling window --- main simulation loop sleeps for throttlensecs x throttlewin nanosecs every throttlewin simulation cycles\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   THROTTLEWIN    for an average of throttlensecs sleep per simulation cycle.
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{TRACE}}\inxx{Commands,{\code{trace}}}
+\label{manpages:TRACE}
+\label{manpages:trace}
+\vspace{-0.1in}
+{\bf Description}: 	Toggle Tracing.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   TRACE   																							
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{VALUESTATS}}\inxx{Commands,{\code{valuestats}}}
+\label{manpages:VALUESTATS}
+\label{manpages:valuestats}
+\vspace{-0.1in}
+{\bf Description}: 	Print data value tracking statistics.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   VALUESTATS   																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{VERBOSE}}\inxx{Commands,{\code{verbose}}}
+\label{manpages:VERBOSE}
+\label{manpages:verbose}
+\vspace{-0.1in}
+{\bf Description}: 	Enable the various prints.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   VERBOSE   																						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{VERSION}}\inxx{Commands,{\code{version}}}
+\label{manpages:VERSION}
+\label{manpages:version}
+\vspace{-0.1in}
+{\bf Description}: 	Display the simulator version and build.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   VERSION   																				
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
+
+\section{\quad\code{V}}\inxx{Commands,{\code{v}}}
+\label{manpages:V}
+\label{manpages:v}
+\vspace{-0.1in}
+{\bf Description}: 	Synonym for VERBOSE.\\[1.5ex]
+{\em Synopsis}:
+\vspace{-0.05in}
+\scriptsize
+\begin{lstlisting}
+   V   																						
+\end{lstlisting}
+\normalsize
+\vspace{-0.05in}
+
