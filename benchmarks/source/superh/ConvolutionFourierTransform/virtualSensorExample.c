@@ -31,7 +31,16 @@ const int	numberOfSamples = 16;
 int
 main(void)
 {
-	float kX[numberOfSamples];
+	float	X[numberOfSamples];
+	/*
+	 *	kK = Number of samples in output vector (number of points for Fourier transform)
+	 */
+	float	kK = numberOfSamples;
+	/*
+	 *	kN = Number of samples in inputs
+	 */
+	float	kN = numberOfSamples;
+	float	kX[numberOfSamples];
 	for(int j = 0; j < numberOfSamples; j++)
     	{
 		/* 
@@ -52,37 +61,28 @@ main(void)
 	 	 */
 	}
 
-        float X[numberOfSamples];
-	/*
-	 *	kK = Number of samples in output vector (number of points for Fourier transform)
-	 */
-        float kK = numberOfSamples;
-	/*
-	 *	kN = Number of samples in inputs
-	 */
-	float kN = numberOfSamples;
-        for(int k = 0; k < kK; k++)
-        {
-                for(int n = 0; n < kN; n++)
-                {
-                        X[k] = kX[n]*(cos((2*M_PI/kN)*k*n)-I*sin((2*M_PI/kN)*k*n));
-                }
-        }
+	for(int k = 0; k < kK; k++)
+    	{
+        	for(int n = 0; n < kN; n++)
+        	{
+			X[k] = kX[n]*(cos((2*M_PI/kN)*k*n)-I*sin((2*M_PI/kN)*k*n));
+        	}
+    	}
+		
+	printf("Input: ");
 
-        printf("Input: ");
-
-        for(int i = 0 ; i < numberOfSamples ; ++i)
-        {
-                printf("%f ", kX[i]);
-        }
+    	for(int i = 0 ; i < numberOfSamples ; ++i)
+    	{
+        	printf("%f ", kX[i]);
+    	}
         
 	printf("\n");
-        printf("Output: ");
+	printf("Output: ");
 
 	for(int i = 0 ; i < numberOfSamples ; ++i)
-        {
-                printf("%f ", X[i]);
-        }
+	{
+        	printf("%f ", X[i]);
+	}
         
 	printf("\n");
 	
