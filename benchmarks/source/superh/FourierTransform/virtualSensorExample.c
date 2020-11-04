@@ -25,13 +25,15 @@
 /* 
  * from https://rosettacode.org/wiki/Fast_Fourier_transform 
  */
-double PI;
-typedef double complex cplx;
+double	PI;
+typedef double complex	cplx;
 /*
- * Note that the number fo samples must be a power of two for the FFT to work.
+ * Note that the number of samples must be a power of two for the FFT to work.
  * Currently the program will crash if numberOfSamples is not a power of 2.
-const int numberOfSamples = 16;
-void _fft(cplx buf[], cplx out[], int n, int step)
+ */
+const int	numberOfSamples = 16;
+void 
+_fft(cplx buf[], cplx out[], int n, int step)
 {
 	if (step < n)
 	{
@@ -47,7 +49,8 @@ void _fft(cplx buf[], cplx out[], int n, int step)
 	}
 }
 
-void fft(cplx buf[], int n)
+void 
+fft(cplx buf[], int n)
 {
 	cplx out[n];
 	for (int i = 0; i < n; i++) out[i] = buf[i];
@@ -55,7 +58,8 @@ void fft(cplx buf[], int n)
 	_fft(buf, out, n, 1);
 }
 
-void show(const char * s, cplx buf[]) 
+void 
+show(const char * s, cplx buf[]) 
 {
 	printf("%s", s);
 	for (int i = 0; i < numberOfSamples; i++)
