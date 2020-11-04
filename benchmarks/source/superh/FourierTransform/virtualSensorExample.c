@@ -23,13 +23,13 @@
 #include <complex.h>
 
 /* 
- * from https://rosettacode.org/wiki/Fast_Fourier_transform 
+ * 	from https://rosettacode.org/wiki/Fast_Fourier_transform 
  */
 double	PI;
 typedef double complex	cplx;
 /*
- * Note that the number of samples must be a power of two for the FFT to work.
- * Currently the program will crash if numberOfSamples is not a power of 2.
+ * 	Note that the number of samples must be a power of two for the FFT to work.
+ * 	Currently the program will crash if numberOfSamples is not a power of 2.
  */
 const int	numberOfSamples = 16;
 void 
@@ -77,11 +77,11 @@ main(void)
 	for(int j = 0; j < numberOfSamples; j++)
     	{
 		/* 
-		 * Insert delay of 2500 uSeconds to simulate 400 Hz sample rate
+		 *	Insert delay of 2500 uSeconds to simulate 400 Hz sample rate
 		 */     
 		xudelay(2500);
 		/* 
-		 * Read sensor readings from sigsrc 0 which is the x-axis accelerometer readings
+		 *	Read sensor readings from sigsrc 0 which is the x-axis accelerometer readings
 		 */
     		xBuffer[j] = devsignal_read(0);
 		/*	
