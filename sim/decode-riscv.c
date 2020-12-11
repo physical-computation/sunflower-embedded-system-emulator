@@ -3,6 +3,7 @@
 extern int	riscv_instr_latencies[][5];
 extern char *	riscv_opstrs[];
 
+
 void
 riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 {
@@ -326,15 +327,15 @@ riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 
 			break;
 		}
-		case 0b0110011:
+		 case 0b0110011:
 		{
-			switch(tmp->funct3)
+			switch(tmp->funct7)
 			{
-				case 0b000:
+				case 0b0000000:
 				{
-					switch(tmp->funct7)
+					switch(tmp->funct3)
 					{
-						case 0b0000000:
+						case 0b000:
 						{
 							stage->fptr = (void *) riscv_add;
 							stage->format = INSTR_R;
@@ -343,12 +344,66 @@ riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 
 							break;
 						}
-						case 0b0100000:
+						case 0b001:
 						{
-							stage->fptr = (void *) riscv_sub;
+							stage->fptr = (void *) riscv_sll;
 							stage->format = INSTR_R;
-							stage->op = RISCV_OP_SUB;
-							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SUB]);
+							stage->op = RISCV_OP_SLL;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLL]);
+
+							break;
+						}
+						case 0b010:
+						{
+							stage->fptr = (void *) riscv_slt;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_SLT;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLT]);
+
+							break;
+						}
+						case 0b011:
+						{
+							stage->fptr = (void *) riscv_sltu;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_SLTU;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLTU]);
+
+							break;
+						}
+						case 0b100:
+						{
+							stage->fptr = (void *) riscv_xor;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_XOR;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_XOR]);
+
+							break;
+						}
+						case 0b101:
+						{
+							stage->fptr = (void *) riscv_srl;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_SRL;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SRL]);
+
+							break;
+						}
+						case 0b110:
+						{
+							stage->fptr = (void *) riscv_or;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_OR;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_OR]);
+
+							break;
+						}
+						case 0b111:
+						{
+							stage->fptr = (void *) riscv_and;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_AND;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_AND]);
 
 							break;
 						}
@@ -358,58 +413,22 @@ riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 						}
 					}
 
-					break;
+					break;	
 				}
-				case 0b001:
+				case 0b0100000:
 				{
-					stage->fptr = (void *) riscv_sll;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_SLL;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLL]);
-
-					break;
-				}
-				case 0b010:
-				{
-					stage->fptr = (void *) riscv_slt;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_SLT;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLT]);
-
-					break;
-				}
-				case 0b011:
-				{
-					stage->fptr = (void *) riscv_sltu;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_SLTU;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SLTU]);
-
-					break;
-				}
-				case 0b100:
-				{
-					stage->fptr = (void *) riscv_xor;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_XOR;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_XOR]);
-
-					break;
-				}
-				case 0b101:
-				{
-					switch(tmp->funct7)
+					switch(tmp->funct3)
 					{
-						case 0b0000000:
+						case 0b000:
 						{
-							stage->fptr = (void *) riscv_srl;
+							stage->fptr = (void *) riscv_sub;
 							stage->format = INSTR_R;
-							stage->op = RISCV_OP_SRL;
-							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SRL]);
+							stage->op = RISCV_OP_SUB;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_SUB]);
 
 							break;
 						}
-						case 0b0100000:
+						case 0b101:
 						{
 							stage->fptr = (void *) riscv_sra;
 							stage->format = INSTR_R;
@@ -420,36 +439,104 @@ riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 						}
 						default:
 						{
+							fprintf(stderr, "tmp->funct3 0x%X with opcode 0x%X is ignored\n", tmp->funct3, tmp->opcode);
 							break;
 						}
 					}
 
 					break;
 				}
-				case 0b110:
+				case 0b0000001: /* RV32M Standard Extension */
 				{
-					stage->fptr = (void *) riscv_or;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_OR;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_OR]);
+					switch(tmp->funct3)
+					{
+						case 0b000:
+						{
+							stage->fptr = (void *) riscv_mul;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_MUL;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_MUL]);
+
+							break;
+						}
+						case 0b001:
+						{
+							stage->fptr = (void *) riscv_mulh;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_MULH;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_MULH]);
+
+							break;
+						}
+						case 0b010:
+						{
+							stage->fptr = (void *) riscv_mulhsu;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_MULHSU;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_MULHSU]);
+
+							break;
+						}
+						case 0b011:
+						{
+							stage->fptr = (void *) riscv_mulhu;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_MULHU;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_MULHU]);
+
+							break;
+						}
+						case 0b100:
+						{
+							stage->fptr = (void *) riscv_div;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_DIV;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_DIV]);
+
+							break;
+						}
+						case 0b101:
+						{
+							stage->fptr = (void *) riscv_divu;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_DIVU;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_DIVU]);
+
+							break;
+						}
+						case 0b110:
+						{
+							stage->fptr = (void *) riscv_rem;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_REM;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_REM]);
+
+							break;
+						}
+						case 0b111:
+						{
+							stage->fptr = (void *) riscv_remu;
+							stage->format = INSTR_R;
+							stage->op = RISCV_OP_REMU;
+							stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_REMU]);
+
+							break;
+						}
+						default:
+						{
+							break;
+						}
+					}
 
 					break;
 				}
-				case 0b111:
-				{
-					stage->fptr = (void *) riscv_and;
-					stage->format = INSTR_R;
-					stage->op = RISCV_OP_AND;
-					stage->instr_latencies = (int *)(&riscv_instr_latencies[RISCV_OP_AND]);
-
-					break;
-				}
-
 				default:
 				{
+					fprintf(stderr, "tmp->funct7 0x%X with opcode 0x%X is ignored\n", tmp->funct7, tmp->opcode);
 					break;
 				}
 			}
+
 
 			break;
 		}
@@ -1307,7 +1394,7 @@ riscvdecode(Engine *  E, State *  S, uint32_t instr, RiscvPipestage *  stage)
 		{
 			mprint(E, S, nodeinfo, "Instruction with opcode 0x%X is ignored\n", tmp->opcode);
 			//sfatal(E, S, "Illegal instruction seen during decode...");
-
+    
 			break;
 		}
 	}

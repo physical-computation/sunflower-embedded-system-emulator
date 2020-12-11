@@ -798,6 +798,18 @@ void 	riscv_csrrwi(Engine *E, State *S);
 void 	riscv_csrrsi(Engine *E, State *S);
 void 	riscv_csrrci(Engine *E, State *S);
 
+/*													*/
+/*			RISC-V RV32M additional functions		*/
+/*													*/
+void riscv_mul(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_mulh(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_mulhsu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_mulhu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_div(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_divu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_rem(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+void riscv_remu(Engine *E, State *S, uint8_t rs1, uint8_t rs2, uint8_t rd);
+
 /*									*/
 /*			RISC-V RV32F additional functions		*/
 /*									*/

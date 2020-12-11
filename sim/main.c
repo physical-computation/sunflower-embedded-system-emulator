@@ -770,6 +770,7 @@ load_mapfile(Engine *E, State *S, char *filename)
 	else
 	{
 		mprint(E, S, nodeinfo, "Unknown memory length %zu in mmap file.\n", strlen(p));
+
 		return;
 	}
 	
