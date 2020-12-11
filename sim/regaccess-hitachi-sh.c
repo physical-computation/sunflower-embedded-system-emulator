@@ -152,7 +152,7 @@ do_valuetrace(Engine *E, State *S, ulong *data, int n)
 		/*	For value tracing, if access is bigger than the		*/
 		/*	underlying data, mask off excess.			*/
 		/*								*/
-		ulong	mask = ~0UL;
+		ulong	mask = ~0U;
 		if ((*match)->size < 4)
 		{
 			mask = (1 << ((*match)->size << 3)) - 1;

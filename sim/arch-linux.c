@@ -94,7 +94,12 @@ marchinit(void)
 	
 	sp.sched_priority = sched_get_priority_max(SCHED_RR);
 	sched_setscheduler(getpid(), SCHED_RR, &sp);
-	mlockall(MCL_FUTURE|MCL_CURRENT);
+
+	/*
+	 *	Causes memory allocation failure of even relatively moderate
+	 *	memory sizes on Ubuntu newer than 18.04 (certainly on 20.04)
+	 */
+	//mlockall(MCL_FUTURE|MCL_CURRENT);
 }
 
 char *

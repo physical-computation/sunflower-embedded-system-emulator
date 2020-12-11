@@ -484,15 +484,6 @@ updaterandsched(Engine *E)
 			E->randsched[idx] = genscheds++;
 		}
 	}
-
-	/*
-	fprintf(stderr, "sched:\t");
-	for (i = 0; i < E->nnodes; i++)
-	{
-		fprintf(stderr, "%d ", E->randsched[i]);
-	}
-	fprintf(stderr, "\n");
-	*/
 }
 
 void
@@ -778,15 +769,14 @@ load_mapfile(Engine *E, State *S, char *filename)
 	}
 	else
 	{
-		printf("Unknown memory length %d in mmap file.\n", strlen(p));
+		mprint(E, S, nodeinfo, "Unknown memory length %zu in mmap file.\n", strlen(p));
+
 		return;
 	}
 	
 	S->MEM_DATA_SEGMENT_END = strtol(dataSegmentStr, NULL, 16);
 
 	mprint(E, S, nodeinfo, "DATA_SEGMENT_END: 0x%X\n", S->MEM_DATA_SEGMENT_END);
-
-	//printf("Data segment str: %s. Data segment end: 0x%X\n", dataSegmentStr, dataSegmentEnd);
 
 	fclose(fp);
 }
@@ -1127,7 +1117,7 @@ m_version(Engine *E)
 	mprint(E, NULL, siminfo,
 		"\nSunflower %s\n", MVERSION);
 	mprint(E, NULL, siminfo,
-		"Authored, 1999-2018: Phillip Stanley-Marbell <phillip.stanleymarbell@gmail.com>. 20018-onwards: See CONTRIBUTORS.TXT.\n");
+		"Authored, 1999-2018: Phillip Stanley-Marbell <phillip.stanleymarbell@gmail.com>. 2018-onwards: See CONTRIBUTORS.TXT.\n");
 	mprint(E, NULL, siminfo,
 		"This software is provided with ");
 	mprint(E, NULL, siminfo,
@@ -1283,7 +1273,6 @@ readnodetrajectory(Engine *E, State *S, char*trajfilename, int looptrajectory, i
 						{
 							merror(E, "Invalid xloc in trajectory file.");
 						}
-//fprintf(stderr, "Read S->path.xloc[%d] = [%f], S->path.xloc = [%x]\n", S->path.nlocations, S->path.xloc[S->path.nlocations], S->path.xloc);
 						break;
 					}
 
@@ -1400,9 +1389,6 @@ traj_feed(Engine *E)
 			S->rho	= lskew*S->path.rho[(int)idx_low]	+ hskew*S->path.rho[(int)idx_high];
 			S->theta= lskew*S->path.theta[(int)idx_low]	+ hskew*S->path.theta[(int)idx_high];
 			S->phi	= lskew*S->path.phi[(int)idx_low]	+ hskew*S->path.phi[(int)idx_high];
-
-//fprintf(stderr, "In traj_feed, idx_real=%f, S->path.nlocations=%d, S->path.looptrajectory=%d, E->globaltimepsec=[%f], S->path.trajectory_rate=[%d], idx_low=%f, idx_high=%f, lskew=%f, hskew=%f,  S->path.xloc[%d]=[%f], S->xloc = [%f]\n", idx_real, S->path.nlocations, S->path.looptrajectory, E->globaltimepsec, S->path.trajectory_rate, idx_low, idx_high, lskew, hskew, (int)idx_low, S->path.xloc[(int)idx_low], S->xloc);
-
 		}
 	}
 
@@ -1450,8 +1436,6 @@ m_find_numa(ulong vaddr, Numa *N, int start, int count)
 	{
 		return -1;
 	}
-
-	//printf("find_numa(): start=%d, count=%d\n", start, count);
 
 	if (count == 1)
 	{
@@ -2241,10 +2225,10 @@ m_run(Engine *E, State *S, char *args)
 
 		/*		Reverse byte order	*/
 		tmp_321 =
-			(((tmp_123 & 0xFF000000) >> 24) |
-			((tmp_123 & 0x00FF0000) >> 8) |
-			((tmp_123 & 0x0000FF00) << 8) |
-			((tmp_123 & 0x000000FF) << 24));
+			(((tmp_123 & 0xFF000000U) >> 24) |
+			((tmp_123 & 0x00FF0000U) >> 8) |
+			((tmp_123 & 0x0000FF00U) << 8) |
+			((tmp_123 & 0x000000FFU) << 24));
 
 #ifdef	SF_L_ENDIAN
 			argv[argc] = (char *)tmp_321;

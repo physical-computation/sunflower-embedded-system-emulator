@@ -178,7 +178,7 @@ riscvdumpregs(Engine *E, State *S)
 			rv32f_rep val;
 			val.bit_value = (uint32_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%#.8g", val.float_value);
-			if (S->riscv->uncertain == NULL || !isnan(S->riscv->uncertain->registers.variances[i]))
+			if (S->riscv->uncertain != NULL && !isnan(S->riscv->uncertain->registers.variances[i]))
 			{
 				size_t start_offset = strlen(fp_value);
 				snprintf(
@@ -210,8 +210,10 @@ riscvdumpsysregs(Engine *E, State *S)
 	 *	RISC-V does not have system registers. We dump the uncertain regs.
 	 *	Could also dump some CSR information.
 	 */
-	uncertain_print_system(S->riscv->uncertain, stdout);
-
+	if (SF_UNCERTAIN_UPE)
+	{
+		uncertain_print_system(S->riscv->uncertain, stdout);
+	}
 }
 
 void
@@ -428,7 +430,8 @@ riscvexpectedvaluehist(Engine *E, State *S, int histogram_id0, int output_reg)
  *	DistLess returns the probability Pr(X < Rs2)
  */
 void
-riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg)
+{
 	int result = Histogram_DistLess(
 			E,
 			S,
@@ -446,7 +449,8 @@ riscvdistlesshist(Engine *E, State *S, int histogram_id0, int Rs2, int output_re
  *	DistGrt returns the probability Pr(X >= Rs2)
  */
 void
-riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg){
+riscvdistgrthist(Engine *E, State *S, int histogram_id0, int Rs2, int output_reg)
+{
 	int result = Histogram_DistGrt(
 			E,
 			S,
@@ -470,7 +474,8 @@ uncertainnewstate(Engine *E, char *ID)
 		mexit(E, "Failed to allocate memory uncertain state.", -1);
 	}
 
-	for (i = 0; i < 32; ++i) {
+	for (i = 0; i < 32; ++i)
+	{
 		uncertain_inst_sv(S, i, nan(""));
 	}
 
@@ -505,12 +510,9 @@ riscVresetcpu(Engine *E, State *S)
 	memset(&S->riscv->P, 0, sizeof(SuperHPipe));
 	memset(&S->energyinfo, 0, sizeof(EnergyInfo));
 	// memset(&S->superH->R, 0, sizeof(ulong)*16);
-	// memset(&S->superH->R_BANK, 0, sizeof(ulong)*8);
-	// memset(&S->superH->SR, 0, sizeof(SuperHSREG));
-	// memset(&S->superH->SSR, 0, sizeof(SuperHSREG));
 	memset(S->MEM, 0, S->MEMSIZE);
 	if (SF_NUMA)
-        {
+	{
 		memset(S->riscv->B, 0, sizeof(SuperHBuses));
 	}
 
@@ -518,18 +520,9 @@ riscVresetcpu(Engine *E, State *S)
 	/*	The only the ratio of size:blocksize and assoc are	*/
 	/*	significant when Cache struct is used for modeling TLB	*/
 	/*								*/
-	// superHtlb_init(E, S, 128, 1, 4);
-
-	// S->superH->GBR = 0;
-	// S->superH->VBR = SUPERH_MEMBASE;
-	// S->superH->MACH = 0;
-	// S->superH->MACL = 0;
 	S->PC = SUPERH_MEMBASE;
-	// S->superH->PR = 0;
-	// S->superH->SPC = 0;
 	S->pcstackheight = 0;
 	S->fpstackheight = 0;
-
 
 	S->TIME = E->globaltimepsec;
 	S->riscv->TIMER_LASTACTIVATE = 0.0;
@@ -588,19 +581,6 @@ riscVresetcpu(Engine *E, State *S)
 	 		S->riscv->npau);
 	}
 
-	// for (i = SUPERH_OP_ADD; i <= SUPERH_OP_XTRCT; i++)
-	// {
-	// 	double reading = (R0000[i].reading1 + R0000[i].reading2)/2;
-
-	// 	/*							*/
-	// 	/*	Scaled current, I2 = (I1*V2*t1)/(V1*t2);	*/
-	// 	/*							*/
-	// 	S->scaledcurrents[i] =
-	// 		((reading*S->VDD*SUPERH_ORIG_CYCLE)/(SUPERH_READINGS_VDD*S->CYCLETIME))*1E-3;
-
-	// 	S->superH->opncycles[i] = R0000[i].ncycles;
-	// }
-
 	/*	Since we've reset VDD, need to update this	*/
 	E->mincycpsec = PICOSEC_MAX;
 	E->maxcycpsec = 0;
@@ -630,9 +610,10 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 		mexit(E, "Failed to allocate memory for S->riscv.", -1);
 	}
 
-#if (SF_UNCERTAIN_UPE == 1)
-	S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
-#endif
+	if (SF_UNCERTAIN_UPE)
+	{
+		S->riscv->uncertain = uncertainnewstate(E, "S->riscv->uncertain");
+	}
 
 	S->MEM = (uchar *)mcalloc(E, 1, DEFLT_MEMSIZE, "(uchar *)S->MEM");
 	if (S->MEM == NULL)
@@ -676,9 +657,9 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	/* FIXME superH related functions need to be cleaned up. */
 	S->endian = Little;
 	S->dumpregs = riscvdumpregs;
-        S->dumpsysregs = riscvdumpsysregs;
+	S->dumpsysregs = riscvdumpsysregs;
 	S->fatalaction = riscvfatalaction;
-        S->stallaction = riscvstallaction;
+	S->stallaction = riscvstallaction;
 	S->settimerintrdelay = superHsettimerintrdelay;
 
 	S->take_nic_intr = superHtake_nic_intr;
@@ -691,9 +672,9 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->resetcpu = riscVresetcpu;
 	S->step = riscvstep;
 	S->cyclestep = riscvstep;
-        S->faststep = riscvfaststep;
+	S->faststep = riscvfaststep;
 	S->dumppipe = riscvdumppipe;
-        S->flushpipe = riscvflushpipe;
+	S->flushpipe = riscvflushpipe;
 
 	/*	Most of the device registers are SH7708 specific	*/
 	S->devreadbyte = dev7708readbyte;
@@ -707,6 +688,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	S->dumptlb = superHdumptlb;
 	S->cache_deactivate = riscVcache_deactivate;
 	S->cache_printstats = superHcache_printstats;
+	S->dumpdistribution = riscvdumpdistribution;
 
 	S->writebyte = riscVwritebyte;
 
@@ -724,6 +706,7 @@ riscvnewstate(Engine *E, double xloc, double yloc, double zloc, char *trajfilena
 	/*	Must know correct number of nodes in resetcpu()		*/
 	E->nnodes++;
 	S->resetcpu(E, S);
+
 
 	/*
 	 *	Histogram-specific menu items

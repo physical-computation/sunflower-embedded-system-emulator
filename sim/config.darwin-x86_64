@@ -4,10 +4,11 @@ LINT			= echo
 LD			= clang
 GBISON			= /opt/local/bin/bison
 ENDIAN			= SF_L_ENDIAN
-PLATFORM_CFLAGS 	= -arch x86_64 -D$(ENDIAN) -mmacosx-version-min=10.4 #-no-cpp-precomp -mno-fused-madd -pipe -multiply_defined suppress -malign-natural -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -Wno-deprecated-declarations -Wunused -Wreturn-type -Wimplicit -D$(ENDIAN)
-PLATFORM_LFLAGS 	= #-mmacosx-version-min=10.4 -multiply_defined suppress -lpthread 
+PLATFORM_CFLAGS 	= -arch x86_64 -D$(ENDIAN) -mmacosx-version-min=10.4
+PLATFORM_LFLAGS 	= 
 PLATFORM_OPTFLAGS	=
-OPTFLAGS		= -O2 ## -Wuninitialized -O2 -funroll-loops -finline-functions
+OPTFLAGS		= -O2
 DBGFLAGS		= -g
 CCFLAGS			= -Wno-gnu-designator $(DBGFLAGS) $(PLATFORM_CFLAGS) $(PLATFORM_OPTFLAGS)
 LDFLAGS 		= -lm $(PLATFORM_LFLAGS)
+TARGET-ARCH-FLAGS	= -DM64

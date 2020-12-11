@@ -73,18 +73,25 @@ physics_feed(Engine *E)
 					idx_real = (double)(s->nsamples - 1);
 				}
 			}
-
 			idx_low = floor(idx_real);
+			if(s->interpolation == 1)
+			{
 			idx_high = ceil(idx_real);
 
 			lskew = (idx_high - idx_real) / (idx_high - idx_low);
 			hskew = (idx_real - idx_low) / (idx_high - idx_low);
 
 			s->sample = lskew*s->samples[(int)idx_low] + hskew*s->samples[(int)idx_high];
+			}
+			else
+			{	
+			s->sample = s->samples[(int)idx_low];
+			}
 		}
 		else
 		{
 			s->sample = s->samples[(int)ceil(idx_real)];
+	
 		}
 		
 		idx_real = E->globaltimepsec * s->trajectory_rate;
@@ -125,14 +132,10 @@ physics_feed(Engine *E)
 			
 			reading = physics_propagation(s, dstnode->xloc, dstnode->yloc, dstnode->zloc);
 
-			if (i == 0)
-			{
-				s->subscribed_sensors[j]->reading = reading;
-			}
-			else
-			{
-				s->subscribed_sensors[j]->reading += reading;
-			}
+			
+			s->subscribed_sensors[j]->reading = reading;
+			
+		
 		}
 	}
 }
@@ -178,7 +181,7 @@ physics_newsigsrc(Engine *EE, int type, char* descr, double tau, double propspee
 	double powo, double powp, double powq, double powr, double pows, double powt,
 	char * trajectoryfile, int trajectoryrate, double fixedx,
 	double fixedy, double fixedz, int looptrajectory, char *samplesfile,
-	int samplerate, double fixedsampleval, int loopsamples)
+	int samplerate, double fixedsampleval, int loopsamples, int interpolation)
 {
 	enum		{MAX_LINELEN = 1024};
 	char		c, buf[MAX_LINELEN], *ep = &c;
@@ -356,7 +359,7 @@ physics_newsigsrc(Engine *EE, int type, char* descr, double tau, double propspee
 	s->yloc = fixedy;
 	s->zloc = fixedz;
 	s->looptrajectory = looptrajectory;
-
+	s->interpolation = interpolation;
 
 	if (strlen(samplesfile) > 0)
 	{

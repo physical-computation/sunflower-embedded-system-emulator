@@ -23,7 +23,7 @@ Checkout master branch and take each submodule out of the "Detached HEAD" state:
 	git submodule foreach git checkout master
 
 # Installation instructions
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, and the GNU version of sed, so install them.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, the GNU version of `sed`, and `libc6-dev-i386`, so install them.
 
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
@@ -44,15 +44,23 @@ TARGET		= riscv
 TARGET-ARCH	= riscv32-elf
 ```
 
-Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`. Once you have edited `conf/setup.conf`, follow the instructions in the submodule `sunflower-toolchain` to build the cross-compiler.
+Set the paths to the GNU awk, GNU bison, and GNU sed in `conf/setup.conf`.
+
+Once you have edited `conf/setup.conf`, follow the instructions below to build the cross-compiler:
+1. Change directory to `tools/source` from the root of the Sunflower tree.
+2. Run `./downloads.sh` in the directory `tools/source` relative to the root of the Sunflower tree. This will download the source for various tools needed for building the cross-compilers.
+3. From the root of the Sunflower tree, run `make cross-superH` to build the Hitachi SH cross compiler or `make cross-riscv` to build the RISC-V cross compiler.
 
 **If you have trouble building on macOS, you might be running into [this](https://github.com/physical-computation/sunflower-simulator/issues/123) issue.**
 
 ## The role of `setup.conf`
-The configuration file `conf/setup.conf` primarily determines the compilation of the simulator for a given target platform and the default cross-compilers that get built when you run `make cross`. It does not determine the default emulated processor in Sunflower. Setting, e.g., `TARGET = riscv` sets the default cross-compiler to build for RISC-V and only influences the default target of `make cross`.
+The configuration file `conf/setup.conf` sets global configuration parameters needed by other tools, such as specifying what your workstation architecture is.
 
-The default processor instances when you launch `sim` are SuperH. You can create RISC-V instances using the sunflower command `newnode riscv`. You can explicitly request SuperH instances using the command `newnode superh`. You can have a mix of SuperH and RISC-V processors in the same simulation (i.e., in the same launch of `sim`). From the simulator’s perspective, both architectures are always supported and it is not possible to purposefully configure the `sim` for one or the other.
- 
+The `conf/setup.conf` configuration file does not influence which processor architectures Sunflower supports: Sunflower by default has support for all architectures enabled and you can create a simulation instance with multiple embedded systems each of a different architecture, all running simultaneously and interacting with each other. The default processor instances when you launch `sim` are SuperH. You can create RISC-V instances using the sunflower command `newnode riscv`. You can explicitly request SuperH instances using the command `newnode superh`. You can have a mix of SuperH and RISC-V processors in the same simulation (i.e., in the same launch of `sim`). From the simulator’s perspective, both architectures are always supported and it is not possible to purposefully configure the `sim` for one or the other.
+
+# Command history
+To keep the emulator implementation independent of any third-part libraries, the Sunflower REPL does not integrate command history (e.g., using the `readline` library). If you want command history, use [rlwrap](https://github.com/hanslub42/rlwrap).
+
 # If you use Sunflower in your research, please cite it as:
 Phillip Stanley-Marbell and Michael Hsiao. “Fast, Flexible, Cycle-accurate Energy Estimation”. In *Proceedings of the 2001 International Symposium on Low Power Electronics and Design, ISLPED ’01*. Huntington Beach, California, USA: ACM, pp. 141–146. ISBN: 1-58113-371-5. doi: 10.1145/ 383082.383120.
 
