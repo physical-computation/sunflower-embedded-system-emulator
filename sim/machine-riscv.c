@@ -178,7 +178,7 @@ riscvdumpregs(Engine *E, State *S)
 			rv32f_rep val;
 			val.bit_value = (uint32_t)float_bits;
 			snprintf(fp_value, sizeof(fp_value), "%#.8g", val.float_value);
-			if (S->riscv->uncertain == NULL || !isnan(S->riscv->uncertain->registers.variances[i]))
+			if (S->riscv->uncertain != NULL && !isnan(S->riscv->uncertain->registers.variances[i]))
 			{
 				size_t start_offset = strlen(fp_value);
 				snprintf(
