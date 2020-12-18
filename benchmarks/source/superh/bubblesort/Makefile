@@ -7,7 +7,7 @@ TARGET-ARCH	= sh-elf
 PROGRAM		= bsort
 LIBOS		= eOS
 
-PORT		= ../port
+PORT		= ../../port
 LIBOS		= eOS
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I../port/  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/benchmarks/include -I$(TREEROOT)/sys/libOS/port
@@ -36,11 +36,11 @@ $(PROGRAM).sr:$(PROGRAM)
 $(PROGRAM).o: $(PROGRAM).c $(PROGRAM)-input.h Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PROGRAM).c
 
-misc.o: ../port/misc.c Makefile
-	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c ../port/misc.c
+misc.o: ../../port/misc.c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c ../../port/misc.c
 
-devrtc.o: ../port/devrtc.c Makefile
-	$(CC) $(CFLAGS) $(WFLAGS) $(INCLUDES) -c ../port/devrtc.c
+devrtc.o: ../../port/devrtc.c Makefile
+	$(CC) $(CFLAGS) $(WFLAGS) $(INCLUDES) -c ../../port/devrtc.c
 
 init.o: init.S
 	$(CPP) init.S > init.i; $(AS) init.i -o $@
