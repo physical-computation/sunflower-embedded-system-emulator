@@ -8,7 +8,7 @@ TARGET-ARCH	= sh-elf
 PROGRAM		= findTheBugExample
 LIBOS		= mOS
 
-PORT		= ../port
+PORT		= ../../port
 SIMDIR		= $(TREEROOT)/sim
 TOOLSLIB	= $(TREEROOT)/tools/tools-lib
 INCLUDES	= -I$(MACPATH) -I$(PORT)  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(SIMDIR) -I$(TREEROOT)/sys/libOS/port
