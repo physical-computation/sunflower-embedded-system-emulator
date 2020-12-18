@@ -6,7 +6,7 @@ TARGET-ARCH	= sh-elf
 
 PROGRAM		= virtualSensorExample
 
-PORT		= ../port
+PORT		= ../../port
 LIBOS		= mOS
 TOOLSLIB	= $(TREEROOT)/tools/tools-lib
 INCLUDES	= -I../port/  -I$(TREEROOT)/sys/include -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/benchmarks/include -I$(TREEROOT)/sys/libOS/port
