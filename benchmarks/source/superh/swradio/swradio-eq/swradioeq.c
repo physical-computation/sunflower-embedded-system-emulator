@@ -12,13 +12,13 @@
 #include "devsim7708.h"
 #include "sh7708.h"
 #include "devscc.h"
-#include "../../port/devnet.h"
-#include "../../port/devrand.h"
-#include "../../port/devrtc.h"
-#include "../../port/devloc.h"
-#include "../../port/devlog.h"
-#include "../../port/devexcp.h"
-#include "../../port/superHspecific.h"
+#include "../../../port/devnet.h"
+#include "../../../port/devrand.h"
+#include "../../../port/devrtc.h"
+#include "../../../port/devloc.h"
+#include "../../../port/devlog.h"
+#include "../../../port/devexcp.h"
+#include "../../../port/superHspecific.h"
 #include "print.h"
 #include "../../port/misc.h"
 #include "fault.h"
@@ -61,7 +61,7 @@ float eq_cutoffs[EQUALIZER_BANDS + 1] =
 		1760.00
 	};
 
-void
+int
 main(void)
 {
         /*      Monitor code is @ 0x8001000     */
@@ -141,7 +141,7 @@ main(void)
 	fptr();
 
 
-	return;		
+	return 0;		
 }
 
 void

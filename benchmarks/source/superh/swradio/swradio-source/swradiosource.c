@@ -11,11 +11,12 @@
 #include "devsim7708.h"
 #include "sh7708.h"
 #include "devscc.h"
-#include "devnet.h"
-#include "devrtc.h"
-#include "devexcp.h"
-#include "devlog.h"
-#include "misc.h"
+#include "../../../port/devnet.h"
+#include "../../../port/devrtc.h"
+#include "../../../port/devexcp.h"
+#include "../../../port/devlog.h"
+#include "../../../port/misc.h"
+#include "../../../port/superHspecific.h"
 #include "fault.h"
 #include "physics.h"
 #include "interrupts-hitachi-sh.h"
@@ -49,7 +50,7 @@ enum
 };
 
 
-void
+int
 main(void)
 {
 	FloatBuffer	fb1;
@@ -177,7 +178,7 @@ main(void)
 	}
 
 
-	return;		
+	return 0;		
 }
 
 

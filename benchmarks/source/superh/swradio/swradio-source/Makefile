@@ -22,6 +22,7 @@ OBJS	=\
 	devrtc.o\
 	devexcp.o\
 	misc.o\
+	superHspecific.o\
 	$(PROGRAM).o\
 	swradio-common.o\
 
@@ -57,6 +58,9 @@ devlog.o: $(PORT)/devlog.c Makefile
 
 misc.o: $(PORT)/misc.c Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PORT)/misc.c
+
+superHspecific.o: $(PORT)/superHspecific.c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PORT)/superHspecific.c
 
 init.o: init.S
 	$(CPP) init.S > init.i; $(AS) init.i -o $@

@@ -4,6 +4,7 @@
 #include "devscc.h"
 #include "sh7708.h"
 #include "devrtc.h"
+#include "misc.h"
 
 void
 xusleep(ulong usecs)
