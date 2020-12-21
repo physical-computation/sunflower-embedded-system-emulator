@@ -8,7 +8,7 @@ TARGET-ARCH	= sh-elf
 PROGRAM		= damv2
 LIBOS		= eOS
 
-PORT		= ../../port
+PORT		= ../../../port
 LIBOS		= eOS
 SIMDIR		= $(TREEROOT)/sim
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
@@ -26,6 +26,7 @@ OBJS	=\
 	misc.o\
 	devsensor.o\
 	devloc.o\
+	superHspecific.o\
 	$(PROGRAM).o\
 
 
@@ -63,6 +64,9 @@ devloc.o: $(PORT)/devloc.c Makefile
 
 misc.o: $(PORT)/misc.c Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PORT)/misc.c
+
+superHspecific.o: $(PORT)/superHspecific.c Makefile
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(INCLUDES) -c $(PORT)/superHspecific.c
 
 init.o: init.S
 	$(CPP) init.S > init.i; $(AS) init.i -o $@
