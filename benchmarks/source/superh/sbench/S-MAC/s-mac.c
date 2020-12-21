@@ -6,6 +6,7 @@
 #include "errors.h"
 #include "sf-includes.h"
 #include "s-mac.h"
+#include "../../../port/superHspecific.h"
 
 /*										*/
 /*			A (portable?) S-MAC implementation			*/
