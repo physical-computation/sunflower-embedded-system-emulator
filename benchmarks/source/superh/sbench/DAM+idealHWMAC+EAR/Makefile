@@ -33,6 +33,7 @@ NODEOBJS	=\
 	devloc.o\
 	devnet.o\
 	devmac.o\
+	superHspecific.o\
 	$(ROUTE).o\
 	$(PROGRAM).o\
 
