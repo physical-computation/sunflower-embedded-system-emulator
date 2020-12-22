@@ -1,7 +1,4 @@
 #include "e-types.h"
-#include "tag.h"
-#include "devsim7708.h"
-#include "devscc.h"
 #include "sh7708.h"
 #include "devrtc.h"
 #include "misc.h"
