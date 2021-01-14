@@ -9,7 +9,7 @@ PROGRAM		= swradiosink
 LIBOS1		= mOS
 LIBOS2		= eOS
 
-PORT		= ../../port
+PORT		= ../../../port
 INCLUDEDIR      = $(TREEROOT)/sys/include
 TOOLSLIB      	= $(TREEROOT)/tools/tools-lib
 INCLUDES        = -I$(INCLUDEDIR) -I../ -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim

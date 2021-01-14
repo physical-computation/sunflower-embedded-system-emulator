@@ -13,7 +13,7 @@ INCLUDEDIR      = $(TREEROOT)/sys/include
 INCLUDES        = -I$(INCLUDEDIR) -I. -I../ -I../api -I../dft -I../rdft -I../libbench2 -I../kernel -I../../port -I$(TREEROOT)/sys/libOS/port -I$(TREEROOT)/sys/kern/superH -I$(TREEROOT)/sim
 CFLAGS       	= -nostdlib -fno-builtin $(TARGET-ARCH-FLAGS) -Wall
 LDFLAGS		= -Ttext $(LOADADDR) -TsuperH.ld -L$(TREEROOT)/tools/tools-lib/superH -L$(TREEROOT)/sys/libOS/eOS -L$(TREEROOT)/benchmarks/source/libsfpthread -L../ -Map $(PROGRAM).map
-PORT		= ../../port
+PORT		= ../../../port
 OPTFLAGS	= -gstabs3 -O0
 LOADADDR	= 0x08004000
 

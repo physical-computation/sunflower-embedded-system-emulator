@@ -12,14 +12,15 @@
 #include "devsim7708.h"
 #include "sh7708.h"
 #include "devscc.h"
-#include "devnet.h"
-#include "devrand.h"
-#include "devrtc.h"
-#include "devloc.h"
-#include "devlog.h"
-#include "devexcp.h"
+#include "../../../port/devnet.h"
+#include "../../../port/devrand.h"
+#include "../../../port/devrtc.h"
+#include "../../../port/devloc.h"
+#include "../../../port/devlog.h"
+#include "../../../port/devexcp.h"
+#include "../../../port/superHspecific.h"
 #include "print.h"
-#include "misc.h"
+#include "../../port/misc.h"
 #include "fault.h"
 #include "physics.h"
 #include "interrupts-hitachi-sh.h"
@@ -60,7 +61,7 @@ float eq_cutoffs[EQUALIZER_BANDS + 1] =
 		1760.00
 	};
 
-void
+int
 main(void)
 {
         /*      Monitor code is @ 0x8001000     */
@@ -140,7 +141,7 @@ main(void)
 	fptr();
 
 
-	return;		
+	return 0;		
 }
 
 void

@@ -40,17 +40,6 @@ xudelay(ulong usecs)
 	}
 }
 
-void
-xusleep(ulong usecs)
-{
-	ulong	time = devrtc_getusecs();
-
-	while ((devrtc_getusecs() - time) < usecs)
-	{
-		sleep();	
-	}
-}
-
 int
 pow10(int y)
 {

@@ -3,5 +3,4 @@
 
 void			xudelay(ulong);
 int			pow10(int y);
-extern void     	sleep(void);
-void			xusleep(ulong);
+
