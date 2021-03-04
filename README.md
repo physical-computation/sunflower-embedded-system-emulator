@@ -23,7 +23,7 @@ Checkout master branch and take each submodule out of the "Detached HEAD" state:
 	git submodule foreach git checkout master
 
 # Installation instructions
-Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, the GNU version of `sed`, and `libc6-dev-i386`, so install them.
+Read the manual (sunflowersim-manual-and-cover.pdf) if you can. Dependencies: Building the simulator depends on GNU awk (`gawk`), on the GNU version of `bison`, the GNU version of `sed`, and `libc6-dev-i386`, so install them. To build the cross compiler `wget`, `gcc`, `libmpc`, `mpfr`, `gmp`, `gcc-multilib`, and `g++-multilib` are also required. These can be insatlled with the command `sudo apt install wget gcc libmpc-dev libmpfr-dev libgmp-dev gcc-multilib g++-multilib`.
 
 Edit `conf/setup.conf` to match your installation directory and system setup. On macOS, use the configuration:
 ```
@@ -50,6 +50,9 @@ Once you have edited `conf/setup.conf`, follow the instructions below to build t
 1. Change directory to `tools/source` from the root of the Sunflower tree.
 2. Run `./downloads.sh` in the directory `tools/source` relative to the root of the Sunflower tree. This will download the source for various tools needed for building the cross-compilers.
 3. From the root of the Sunflower tree, run `make cross-superH` to build the Hitachi SH cross compiler or `make cross-riscv` to build the RISC-V cross compiler.
+4. Change directory to `sim` from the root of the Sunflower tree.
+5. Run `make` to build the sunflower simulator itself.
+6. To run the sunflower simulator from any directory just by using the `sf` command, the `sim` directory needs to be added to `PATH`. This can be done with the command `export PATH="$PATH:path/to/sim/directory"`, filling in the correct path to your `sim` directory. If this command works as expected you can make it permanent by adding it to the bottom of your `~/.bashrc` file.
 
 **If you have trouble building on macOS, you might be running into [this](https://github.com/physical-computation/sunflower-simulator/issues/123) issue.**
 
