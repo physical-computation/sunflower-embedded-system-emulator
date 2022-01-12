@@ -62,7 +62,6 @@ reg_set_riscv(Engine *E, State *S, uint8_t n, uint32_t data)
 	if (n <= RISCV_GPR && n != RISCV_X0)
 	{
 		S->riscv->R[n] = data;
-		mprint(E, NULL, siminfo, "Register size: ", sizeof(S->riscv->R[n]));
 	}
 
 	return;
@@ -82,7 +81,6 @@ freg_read_riscv(Engine *E, State *S, uint8_t n)
 	if (n < RF32FD_fMAX)
 	{
 		data = S->riscv->fR[n];
-		mprint(E, NULL, siminfo, "Register size: ", sizeof(S->riscv->R[n]));
 	}
 
 	return data;
