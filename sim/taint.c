@@ -296,13 +296,13 @@ taintprop(Engine *E, State *S,
 		*/
 		switch (S->riscv->P.ID.op)
 		{
-			case 2:
-			case 4:
-			case 5:
-			case 6:
-			case 7:
-			case 8:
-			case 9:
+			case RISCV_OP_JAL:
+			case RISCV_OP_BEQ:
+			case RISCV_OP_BNE:
+			case RISCV_OP_BLT:
+			case RISCV_OP_BGE:
+			case RISCV_OP_BLTU:
+			case RISCV_OP_BGEU:
 				S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol =
 						S->riscv->instruction_taintDistribution[S->riscv->P.ID.op].taintCol
 						| immtaint1 | immtaint2 | S->riscv->taintR[32].taintCol;
@@ -312,44 +312,45 @@ taintprop(Engine *E, State *S,
 		}
 		switch (S->riscv->P.EX.op)
 		{
-			case 0:
-			case 3:
-			case 10:
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-			case 16:
-			case 17:
-			case 18:
-			case 19:
-			case 20:
-			case 21:
-			case 22:
-			case 23:
-			case 24:
-			case 25:
-			case 26:
-			case 27:
-			case 28:
-			case 29:
-			case 30:
-			case 31:
-			case 32:
-			case 33:
-			case 34:
-			case 35:
-			case 36:
-			case 37:
-			case 38:
-			case 40:
-			case 41:
-			case 42:
-			case 43:
-			case 44:
-			case 45:
-			case 46:
+			case RISCV_OP_LUI:
+			case RISCV_OP_JALR:
+			case RISCV_OP_LB:
+			case RISCV_OP_LH:
+			case RISCV_OP_LW:
+			case RISCV_OP_LBU:
+			case RISCV_OP_LHU:
+			case RISCV_OP_SB:
+			case RISCV_OP_SH:
+			case RISCV_OP_SW:
+			case RISCV_OP_ADDI:
+			case RISCV_OP_SLTI:
+			case RISCV_OP_SLTIU:
+			case RISCV_OP_XORI:
+			case RISCV_OP_ORI:
+			case RISCV_OP_ANDI:
+			case RISCV_OP_SLLI:
+			case RISCV_OP_SRLI:
+			case RISCV_OP_SRAI:
+			case RISCV_OP_ADD:
+			case RISCV_OP_SUB:
+			case RISCV_OP_SLL:
+			case RISCV_OP_SLT:
+			case RISCV_OP_SLTU:
+			case RISCV_OP_XOR:
+			case RISCV_OP_SRL:
+			case RISCV_OP_SRA:
+			case RISCV_OP_OR:
+			case RISCV_OP_AND:
+			case RISCV_OP_FENCE:
+			case RISCV_OP_FENCE_I:
+			// case RISCV_OP_ECALL: // ECALL excluded
+			case RISCV_OP_EBREAK:
+			case RISCV_OP_CSRRW:
+			case RISCV_OP_CSRRS:
+			case RISCV_OP_CSRRC:
+			case RISCV_OP_CSRRWI:
+			case RISCV_OP_CSRRSI:
+			case RISCV_OP_CSRRCI:
 				S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol =
 						S->riscv->instruction_taintDistribution[S->riscv->P.EX.op].taintCol
 						| immtaint1 | immtaint2 | S->riscv->taintR[32].taintCol;
