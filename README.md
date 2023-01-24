@@ -11,7 +11,7 @@ Sunflower is a full-system emulator for embedded sensing, computation, communica
 # Cloning this repository
 The correct way to clone this repository to get the simulator and the submodules it depends on is:
 
-	git clone --recursive https://github.com/physical-computation/sunflower-simulator.git
+	git clone --recursive https://github.com/physical-computation/sunflower-embedded-system-emulator.git
 
 To update all submodules:
 
